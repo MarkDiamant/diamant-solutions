@@ -1,5 +1,6 @@
 import './globals.css';
 import './refinements.css';
+import Refinements from './refinements';
 
 export const metadata = {
   title: 'Diamant Solutions | Websites & Business Solutions',
@@ -12,5 +13,5 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body>{children}<Refinements/></body></html>;
 }
