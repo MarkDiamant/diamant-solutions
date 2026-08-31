@@ -4,7 +4,31 @@
   footer .footerOfficialLogo{height:88px!important;max-width:360px!important;justify-self:center!important;align-self:center!important}
   footer>div{margin:0!important}
 }
+
 @media (max-width:800px){
-  .timeline:before{top:70px!important;bottom:70px!important}
-  footer .footerOfficialLogo{height:82px!important;max-width:330px!important}
+  /* Remove the fixed-height hero gap left by the desktop layout. */
+  body main .hero{min-height:0!important;padding-top:16px!important;padding-bottom:34px!important}
+
+  /* Draw the timeline only BETWEEN cogs. The cog's solid centre masks the line at each join. */
+  body main .timeline:before{display:none!important;content:none!important}
+  body main .step:not(:last-child):after{
+    content:'';
+    position:absolute;
+    left:34px;
+    top:50%;
+    height:100%;
+    width:2px;
+    background:#cbdcef;
+    z-index:0;
+    pointer-events:none;
+  }
+
+  /* The supplied logo PNG contains transparent vertical space, so enlarge the image while
+     pulling that transparent space back out of the footer. */
+  body main footer .footerOfficialLogo{height:128px!important;max-width:430px!important;margin:-22px 0!important}
+}
+
+@media (max-width:480px){
+  body main .hero{min-height:0!important;padding-top:12px!important;padding-bottom:30px!important}
+  body main footer .footerOfficialLogo{height:132px!important;max-width:440px!important;margin:-24px 0!important}
 }
