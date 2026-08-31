@@ -1,4 +1,5 @@
 import './globals.css';
+import './refinements.css';
 
 export const metadata = {
   title: 'Diamant Solutions | Websites & Business Solutions',
