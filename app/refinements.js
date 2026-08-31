@@ -20,15 +20,5 @@ export default function Refinements(){
       if(p) p.textContent=journey[i][1];
     });
   },[]);
-  return <style jsx global>{`
-    @media(max-width:800px){
-      .hero{padding-top:22px!important;}
-      .timeline:before{top:52px!important;bottom:52px!important;}
-      .footerOfficialLogo{height:100px!important;max-width:380px!important;}
-    }
-    @media(max-width:480px){
-      .hero{padding-top:18px!important;}
-      .footerOfficialLogo{height:104px!important;max-width:390px!important;}
-    }
-  `}</style>;
+  return null;
 }
