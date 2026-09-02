@@ -3,6 +3,10 @@
   footer{padding:38px 5vw!important;gap:24px!important;align-items:center!important;font-size:12.5px!important;line-height:1.45!important}
   footer .footerOfficialLogo{height:88px!important;max-width:360px!important;justify-self:center!important;align-self:center!important}
   footer>div{margin:0!important}
+
+  /* Keep both pricing actions aligned even when the cards contain different amounts of copy. */
+  .priceCards article{display:flex!important;flex-direction:column!important}
+  .priceCards article .blueBtn{margin-top:auto!important;align-self:flex-start!important}
 }
 
 @media (max-width:800px){
