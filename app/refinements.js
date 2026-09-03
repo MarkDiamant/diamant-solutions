@@ -19,6 +19,15 @@ export default function Refinements(){
       if(h) h.textContent=journey[i][0];
       if(p) p.textContent=journey[i][1];
     });
+    const trust=document.querySelector('.wuaBadge');
+    const frame=trust?.querySelector('iframe');
+    if(trust&&frame){
+      trust.classList.add('liveRecommendations');
+      frame.src='https://www.woulduseagain.com/website-widget/diamant-solutions-35c0c36f?theme=white&layout=horizontal';
+      frame.title='Live Diamant Solutions customer recommendations on Would Use Again';
+      frame.setAttribute('width','100%');
+      frame.setAttribute('height','300');
+    }
   },[]);
   return null;
 }
