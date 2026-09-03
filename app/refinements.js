@@ -23,10 +23,11 @@ export default function Refinements(){
     const frame=trust?.querySelector('iframe');
     if(trust&&frame){
       trust.classList.add('liveRecommendations');
-      frame.src='https://www.woulduseagain.com/website-widget/diamant-solutions-35c0c36f?theme=white&layout=horizontal';
-      frame.title='Live Diamant Solutions customer recommendations on Would Use Again';
+      frame.src='https://www.woulduseagain.com/website-widget/diamant-solutions-35c0c36f?layout=horizontal&theme=white&v=20260903-3';
+      frame.title='Diamant Solutions live customer recommendations';
       frame.setAttribute('width','100%');
-      frame.setAttribute('height','300');
+      frame.setAttribute('height','245');
+      frame.setAttribute('scrolling','no');
     }
   },[]);
   return null;
