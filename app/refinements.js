@@ -23,7 +23,7 @@ export default function Refinements(){
     const frame=trust?.querySelector('iframe');
     if(trust&&frame){
       trust.classList.add('liveRecommendations');
-      frame.src='https://www.woulduseagain.com/website-widget/diamant-solutions-35c0c36f?layout=horizontal&theme=white&v=20260903-3';
+      frame.src='https://www.woulduseagain.com/website-widget/diamant-solutions-35c0c36f?layout=horizontal&theme=soft&v=20260903-6';
       frame.title='Diamant Solutions live customer recommendations';
       frame.setAttribute('width','100%');
       frame.setAttribute('height','245');
