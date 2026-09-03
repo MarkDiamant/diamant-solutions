@@ -19,6 +19,10 @@ export default function Refinements(){
       if(h) h.textContent=journey[i][0];
       if(p) p.textContent=journey[i][1];
     });
+
+    /* The live verified WUA feed supersedes the old manually maintained testimonial cards. */
+    document.querySelector('.testimonialGrid')?.remove();
+
     const trust=document.querySelector('.wuaBadge');
     const frame=trust?.querySelector('iframe');
     if(trust&&frame){
