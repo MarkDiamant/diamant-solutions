@@ -27,10 +27,10 @@ export default function WorkCarousel(){
   const pool=sites.map(site=>{const el=card(site);grid.appendChild(el);return el});
   const slots=[document.createElement('div'),document.createElement('div')];slots.forEach(slot=>{slot.className='portfolioSlot';grid.appendChild(slot)});
   const show=(el,slot)=>{const r=slot.getBoundingClientRect(),g=grid.getBoundingClientRect();el.style.setProperty('--slot-x',`${r.left-g.left}px`);el.style.setProperty('--slot-y',`${r.top-g.top}px`);el.classList.remove('portfolioPooled','portfolioLeaving');el.classList.add('portfolioVisible')};
-  const hide=el=>{el.classList.add('portfolioLeaving');el.classList.remove('portfolioVisible');setTimeout(()=>{el.classList.remove('portfolioLeaving');el.classList.add('portfolioPooled')},1450)};
+  const hide=el=>{el.classList.add('portfolioLeaving');el.classList.remove('portfolioVisible');setTimeout(()=>{el.classList.remove('portfolioLeaving');el.classList.add('portfolioPooled')},900)};
   show(pool[0],slots[0]);show(pool[1],slots[1]);
   let next=2,slotIndex=0;
   const change=()=>{const slot=slots[slotIndex],old=pool.find(el=>el.classList.contains('portfolioVisible')&&el.style.getPropertyValue('--slot-x')===`${slot.getBoundingClientRect().left-grid.getBoundingClientRect().left}px`),incoming=pool[next];show(incoming,slot);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(old&&old!==incoming)hide(old)}));next=(next+1)%sites.length;slotIndex=1-slotIndex};
-  const timer=setInterval(change,3600);return()=>clearInterval(timer);
+  const timer=setInterval(change,3100);return()=>clearInterval(timer);
  },[]);return null;
 }
