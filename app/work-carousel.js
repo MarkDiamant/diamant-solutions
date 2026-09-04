@@ -7,7 +7,7 @@ const sites=[
  {name:'Certifire UK',url:'https://www.certifireuk.co.uk'},
  {name:'M&J Metal',url:'https://mjmetal.co.uk'},
  {name:'Poll & See',url:'https://www.pollandsee.com'},
- {name:'Luton Circumcision',url:'https://luton.preview.diamantsolutions.co.uk',previewUrl:'https://luton-circumcision-git-main-markdiamants-projects.vercel.app'},
+ {name:'Luton Circumcision',url:'https://luton.preview.diamantsolutions.co.uk',previewUrl:'https://luton-circumcision.vercel.app'},
  {name:'Sam Certs',url:'https://www.samcerts.co.uk'},
  {name:'Edible Print',url:'https://edibleprint.uk',image:'/Pink Poppy Flowers.avif'},
  {name:'Would Use Again',url:'https://www.woulduseagain.com'}
@@ -24,7 +24,6 @@ function card(site){
 export default function WorkCarousel(){
  useEffect(()=>{
   const grid=document.querySelector('.workGrid');if(!grid)return;grid.classList.add('portfolioCarousel','portfolioIndependent');grid.innerHTML='';
-  // Build every site once immediately so slow apps such as WUA and Poll & See are loaded long before they become visible.
   const pool=sites.map(site=>{const el=card(site);el.classList.add('portfolioPooled');grid.appendChild(el);return el});
   const slots=[document.createElement('div'),document.createElement('div')];slots.forEach(slot=>{slot.className='portfolioSlot';grid.appendChild(slot)});
   slots[0].appendChild(pool[0]);slots[1].appendChild(pool[1]);pool[0].classList.remove('portfolioPooled');pool[1].classList.remove('portfolioPooled');
@@ -32,9 +31,9 @@ export default function WorkCarousel(){
   const change=()=>{
    const slot=slots[slotIndex],old=slot.firstElementChild,incoming=pool[next];
    incoming.classList.remove('portfolioPooled','portfolioLeaving');incoming.classList.add('portfolioIncoming');slot.appendChild(incoming);
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{old?.classList.add('portfolioLeaving');incoming.classList.remove('portfolioIncoming');setTimeout(()=>{if(old){old.remove();old.classList.remove('portfolioLeaving');old.classList.add('portfolioPooled');grid.appendChild(old)}},1750)}));
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{old?.classList.add('portfolioLeaving');incoming.classList.remove('portfolioIncoming');setTimeout(()=>{if(old){old.remove();old.classList.remove('portfolioLeaving');old.classList.add('portfolioPooled');grid.appendChild(old)}},1850)}));
    next=(next+1)%sites.length;slotIndex=1-slotIndex;
   };
-  const timer=setInterval(change,3200);return()=>clearInterval(timer);
+  const timer=setInterval(change,3400);return()=>clearInterval(timer);
  },[]);return null;
 }
