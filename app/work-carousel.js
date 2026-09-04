@@ -16,7 +16,7 @@ const pairs=[
     {name:'Sam Certs',url:'https://www.samcerts.co.uk'}
   ],
   [
-    {name:'Edible Print',url:'https://www.officialedibleprint.com'},
+    {name:'Edible Print',url:'https://edibleprint.uk',image:'/Pink Poppy Flowers.avif'},
     {name:'Would Use Again',url:'https://www.woulduseagain.com'}
   ]
 ];
@@ -25,10 +25,13 @@ function card(site){
   const a=document.createElement('a');
   a.href=site.url;a.target='_blank';a.rel='noreferrer';a.className='portfolioFadeCard';
   const preview=document.createElement('div');preview.className='sitePreview portfolioPreview';
-  const frame=document.createElement('iframe');frame.src=site.url;frame.title=site.name;frame.loading='eager';frame.tabIndex=-1;frame.setAttribute('aria-hidden','true');
-  preview.appendChild(frame);
+  if(site.image){
+    const img=document.createElement('img');img.src=site.image;img.alt=`${site.name} website preview`;img.className='portfolioScreenshot';preview.appendChild(img);
+  }else{
+    const frame=document.createElement('iframe');frame.src=site.url;frame.title=site.name;frame.loading='eager';frame.tabIndex=-1;frame.setAttribute('aria-hidden','true');preview.appendChild(frame);
+  }
   const label=document.createElement('span');label.innerHTML=`${site.name}<small>VIEW SITE ↗</small>`;
-  a.append(preview,label);return {a,frame};
+  a.append(preview,label);return a;
 }
 
 export default function WorkCarousel(){
@@ -38,7 +41,7 @@ export default function WorkCarousel(){
     grid.classList.add('portfolioCarousel');grid.innerHTML='';
     const layers=pairs.map((pair,i)=>{
       const layer=document.createElement('div');layer.className='portfolioPair'+(i===0?' isVisible':'');
-      pair.forEach(site=>{const {a}=card(site);layer.appendChild(a)});
+      pair.forEach(site=>layer.appendChild(card(site)));
       grid.appendChild(layer);return layer;
     });
     let index=0;
@@ -46,7 +49,7 @@ export default function WorkCarousel(){
       const old=layers[index];index=(index+1)%layers.length;const next=layers[index];
       next.classList.add('isEntering');
       requestAnimationFrame(()=>requestAnimationFrame(()=>{old.classList.remove('isVisible');next.classList.add('isVisible');next.classList.remove('isEntering')}));
-    },6000);
+    },8000);
     return()=>clearInterval(timer);
   },[]);
   return null;
