@@ -27,19 +27,16 @@ export default function WorkCarousel(){
   const pool=sites.map(site=>{const el=card(site);grid.appendChild(el);return el});
   const slots=[document.createElement('div'),document.createElement('div')];slots.forEach(slot=>{slot.className='portfolioSlot';grid.appendChild(slot)});
   const place=(el,slot)=>{const r=slot.getBoundingClientRect(),g=grid.getBoundingClientRect();el.style.setProperty('--slot-x',`${r.left-g.left}px`);el.style.setProperty('--slot-y',`${r.top-g.top}px`)};
-  const showNow=(el,slot)=>{place(el,slot);el.classList.remove('portfolioPooled','portfolioLeaving','portfolioIncoming');el.classList.add('portfolioVisible')};
+  const showNow=(el,slot)=>{place(el,slot);el.classList.remove('portfolioPooled');el.style.opacity='1';el.style.zIndex='4';el.style.pointerEvents='auto'};
   showNow(pool[0],slots[0]);showNow(pool[1],slots[1]);
-  const current=[pool[0],pool[1]];
-  let next=2,slotIndex=0;
+  const current=[pool[0],pool[1]];let next=2,slotIndex=0;
   const change=()=>{
-   const slot=slots[slotIndex],old=current[slotIndex],incoming=pool[next];
-   place(incoming,slot);
-   incoming.classList.remove('portfolioPooled','portfolioLeaving','portfolioVisible');
-   incoming.classList.add('portfolioIncoming');
-   // Force the transparent start frame to paint before beginning the crossfade.
-   void incoming.offsetWidth;
-   requestAnimationFrame(()=>{incoming.classList.add('portfolioVisible');incoming.classList.remove('portfolioIncoming');old.classList.add('portfolioLeaving');old.classList.remove('portfolioVisible')});
-   setTimeout(()=>{old.classList.remove('portfolioLeaving');old.classList.add('portfolioPooled')},1050);
+   const slot=slots[slotIndex],old=current[slotIndex],incoming=pool[next];place(incoming,slot);
+   incoming.classList.remove('portfolioPooled');incoming.style.opacity='0';incoming.style.zIndex='5';incoming.style.pointerEvents='none';
+   const fadeIn=incoming.animate([{opacity:0},{opacity:1}],{duration:850,easing:'ease-in-out',fill:'forwards'});
+   const fadeOut=old.animate([{opacity:1},{opacity:0}],{duration:850,easing:'ease-in-out',fill:'forwards'});
+   fadeIn.onfinish=()=>{incoming.style.opacity='1';incoming.style.zIndex='4';incoming.style.pointerEvents='auto';fadeIn.cancel()};
+   fadeOut.onfinish=()=>{old.style.opacity='0';old.style.zIndex='0';old.style.pointerEvents='none';old.classList.add('portfolioPooled');fadeOut.cancel()};
    current[slotIndex]=incoming;next=(next+1)%sites.length;slotIndex=1-slotIndex;
   };
   const timer=setInterval(change,2800);return()=>clearInterval(timer);
