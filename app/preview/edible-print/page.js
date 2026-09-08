@@ -1,0 +1,2 @@
+export const metadata={title:'Edible Print Preview | Diamant Solutions',robots:{index:false,follow:false}};
+export default function EdiblePrintPreview(){return <main style={{margin:0,width:'100%',height:'100dvh',overflow:'hidden',background:'#fff'}}><iframe src="https://edible-print.vercel.app" title="Edible Print website preview" style={{display:'block',width:'100%',height:'100%',border:0}}/></main>}
