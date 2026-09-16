@@ -1,0 +1,22 @@
+.advisoryPrice{padding:96px 5vw 92px}
+.advisoryPrice .advisorySectionHead{max-width:850px;margin-bottom:44px}
+.advisoryPriceGrid{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.advisoryPriceGrid .advisoryPriceCard{max-width:none;margin:0;padding:38px 32px 34px;display:flex;flex-direction:column;text-align:left;min-height:100%;border-radius:24px;transition:transform .28s ease,box-shadow .28s ease,border-color .28s ease}
+.advisoryPriceGrid .advisoryPriceCard:hover{transform:translateY(-6px);box-shadow:0 28px 65px #17385f20;border-color:#bfd2e4}
+.advisoryPriceGrid .advisoryPriceCard.featured{border:2px solid #4c80b8;box-shadow:0 24px 60px #315e8d1c}
+.advisoryPriceGrid .advisoryPriceCard.featured:before{height:6px}
+.advisoryPriceGrid .advisoryPriceCard small{padding-right:76px;min-height:16px}
+.advisoryPriceGrid .advisoryPriceCard h3{font-size:27px;line-height:1.1;margin:14px 0 8px}
+.advisoryPriceGrid .advisoryPriceCard .price{font-size:56px;margin:10px 0 22px;letter-spacing:-2.8px}
+.advisoryPriceGrid .advisoryPriceCard ul{list-style:none;padding:0;margin:0 0 30px;text-align:left;flex:1}
+.advisoryPriceGrid .advisoryPriceCard li{position:relative;padding:11px 0 11px 25px;border-bottom:1px solid #e9eff5;color:#5f7083;line-height:1.55;font-size:14px}
+.advisoryPriceGrid .advisoryPriceCard li:last-child{border-bottom:0}
+.advisoryPriceGrid .advisoryPriceCard li:before{content:'✓';position:absolute;left:0;top:11px;color:#4c80b8;font-weight:900}
+.advisoryPriceGrid .bookButton{width:100%;margin-top:auto;min-height:50px}
+.packageSaving{position:absolute;right:20px;top:20px;background:#e8f2fc;color:#3c6f9f;padding:7px 11px;border-radius:20px;font-size:11px;font-weight:900;letter-spacing:.3px}
+.bookingProcess{max-width:980px;margin:30px auto 0;padding:24px 28px;border-radius:18px;background:#fff;border:1px solid #d7e4ef;box-shadow:0 14px 36px #17385f0d;text-align:center}
+.bookingProcess p{margin:0;color:#66778a;line-height:1.65;font-size:14px}
+.bookingProcess p+p{margin-top:7px}
+.bookingProcess b{color:#17385f;font-size:15px}
+@media(max-width:1050px){.advisoryPriceGrid{grid-template-columns:1fr;max-width:720px}.advisoryPriceGrid .advisoryPriceCard{min-height:0}.advisoryPriceGrid .advisoryPriceCard small{padding-right:0}.packageSaving{position:static;align-self:flex-start;margin-bottom:13px}}
+@media(max-width:520px){.advisoryPrice{padding:72px 18px}.advisoryPriceGrid{gap:16px}.advisoryPriceGrid .advisoryPriceCard{padding:30px 22px 27px;border-radius:20px}.advisoryPriceGrid .advisoryPriceCard h3{font-size:25px}.advisoryPriceGrid .advisoryPriceCard .price{font-size:52px}.advisoryPriceGrid .advisoryPriceCard li{font-size:13.5px}.bookingProcess{padding:21px 18px;margin-top:22px}.bookingProcess b{font-size:14px}}
