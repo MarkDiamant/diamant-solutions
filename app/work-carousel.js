@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 import './work-carousel.css';
 
 const sites=[
- {name:'Starlight Decor',url:'https://starlight.preview.diamantsolutions.co.uk'},
+ {name:'Starlight Decor',url:'https://www.starlightdecor.co.uk/'},
  {name:'Certifire UK',url:'https://www.certifireuk.co.uk'},
  {name:'M&J Metal',url:'https://mjmetal.co.uk'},
  {name:'Poll & See',url:'https://www.pollandsee.com'},
