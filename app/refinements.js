@@ -47,10 +47,10 @@ function addAdvisoryHomepageContent(){
             <p class="cap">BUSINESS ADVISORY</p>
             <h2>Practical support to turn plans into action.</h2>
             <p>One-to-one support for business owners who need clarity, accountability and practical help implementing the things they already know need to get done.</p>
-            <a class="homeAdvisoryBtn" href="/advisory">Explore Business Advisory <span>→</span></a>
+            <a class="homeAdvisoryBtn" href="/advisory">Explore Business Advisory</a>
           </div>
           <div class="homeAdvisoryGrid">
-            ${['Business direction and decision-making','Priorities and implementation','Pricing and profitability','Systems and processes','Accountability and follow-through'].map((item,i)=>`<div class="homeAdvisoryItem"><b>0${i+1}</b><span>${item}</span></div>`).join('')}
+            ${['Business direction and decision-making','Priorities and implementation','Pricing and profitability','Systems and processes','Accountability and follow-through'].map(item=>`<div class="homeAdvisoryItem"><span>${item}</span></div>`).join('')}
           </div>
         </div>`;
       testimonials.parentNode.insertBefore(section,testimonials);
