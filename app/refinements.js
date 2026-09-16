@@ -10,17 +10,74 @@ const journey=[
   ['We Keep It Managed','Hosting, minor changes and ongoing support are included.']
 ];
 
+function addAdvisoryHomepageContent(){
+  if(window.location.pathname!=='/')return;
+
+  document.querySelectorAll('header nav').forEach(nav=>{
+    if(nav.querySelector('[data-advisory-nav]'))return;
+    const link=document.createElement('a');
+    link.href='/advisory';
+    link.textContent='BUSINESS ADVISORY';
+    link.dataset.advisoryNav='true';
+    const about=[...nav.querySelectorAll('a')].find(a=>a.getAttribute('href')==='#about');
+    nav.insertBefore(link,about||null);
+  });
+
+  const mobile=document.querySelector('.mobileMenu div');
+  if(mobile&&!mobile.querySelector('[data-advisory-nav]')){
+    const link=document.createElement('a');
+    link.href='/advisory';
+    link.textContent='BUSINESS ADVISORY';
+    link.dataset.advisoryNav='true';
+    const about=[...mobile.querySelectorAll('a')].find(a=>a.getAttribute('href')==='#about');
+    mobile.insertBefore(link,about||null);
+  }
+
+  if(!document.querySelector('.homeAdvisory')){
+    const pricing=document.querySelector('.pricing');
+    const testimonials=document.querySelector('.testimonials');
+    if(pricing&&testimonials){
+      const section=document.createElement('section');
+      section.className='homeAdvisory';
+      section.innerHTML=`
+        <div class="homeAdvisoryGlow one"></div>
+        <div class="homeAdvisoryGlow two"></div>
+        <div class="homeAdvisoryInner reveal">
+          <div class="homeAdvisoryCopy">
+            <p class="cap">BUSINESS ADVISORY</p>
+            <h2>Practical support to turn plans into action.</h2>
+            <p>One-to-one support for business owners who need clarity, accountability and practical help implementing the things they already know need to get done.</p>
+            <a class="homeAdvisoryBtn" href="/advisory">Explore Business Advisory <span>→</span></a>
+          </div>
+          <div class="homeAdvisoryGrid">
+            ${['Business direction and decision-making','Priorities and implementation','Pricing and profitability','Systems and processes','Accountability and follow-through'].map((item,i)=>`<div class="homeAdvisoryItem"><b>0${i+1}</b><span>${item}</span></div>`).join('')}
+          </div>
+        </div>`;
+      testimonials.parentNode.insertBefore(section,testimonials);
+      requestAnimationFrame(()=>section.querySelector('.reveal')?.classList.add('in'));
+    }
+  }
+
+  const footerInfo=document.querySelector('footer>div:nth-of-type(1)');
+  if(footerInfo&&!footerInfo.querySelector('[data-advisory-footer]')){
+    const wrap=document.createElement('div');
+    wrap.dataset.advisoryFooter='true';
+    wrap.className='footerAdvisoryLink';
+    wrap.innerHTML='<a href="/advisory">Business Advisory</a>';
+    footerInfo.appendChild(wrap);
+  }
+}
+
 export default function Refinements(){
   useEffect(()=>{
     document.querySelectorAll('.step article').forEach((card,i)=>{
-      if(!journey[i]) return;
+      if(!journey[i])return;
       const h=card.querySelector('h3');
       const p=card.querySelector('p');
-      if(h) h.textContent=journey[i][0];
-      if(p) p.textContent=journey[i][1];
+      if(h)h.textContent=journey[i][0];
+      if(p)p.textContent=journey[i][1];
     });
 
-    /* The live verified WUA feed supersedes the old manually maintained testimonial cards. */
     document.querySelector('.testimonialGrid')?.remove();
 
     const trust=document.querySelector('.wuaBadge');
@@ -33,6 +90,8 @@ export default function Refinements(){
       frame.setAttribute('height','245');
       frame.setAttribute('scrolling','no');
     }
+
+    addAdvisoryHomepageContent();
   },[]);
   return null;
 }
