@@ -59,7 +59,7 @@ export default function AdvisoryClient(){
     </section>
 
     <section className="aboutYehuda">
-      <div className="revealAdvisory fromLeft" style={{position:'relative'}}><div className="yehudaAccent"/><div className="yehudaFrame"><img src="/yehuda-diamant.jpg" alt="Mark Diamant" onError={e=>e.currentTarget.classList.add('isMissing')}/></div></div>
+      <div className="revealAdvisory fromLeft" style={{position:'relative'}}><div className="yehudaAccent"/><div className="yehudaFrame"><img src="/mark-diamant.svg" alt="Mark Diamant"/></div></div>
       <div className="aboutYehudaCopy revealAdvisory fromRight"><p className="advisoryKicker">ABOUT MARK</p><h2>Practical experience, not just theory.</h2><p>Mark Diamant is an entrepreneur and director of multiple businesses, with hands-on experience launching, running and developing businesses and digital projects. He is also actively involved in community organisations and previously spent seven years providing business coaching through Mesila, including delivering business talks and webinars.</p><p>His approach is practical: understand the issue, make a decision, agree the next action and make sure it actually gets implemented.</p></div>
     </section>
 
