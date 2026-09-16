@@ -46,6 +46,7 @@ const packages=[
 ];
 
 function Logo({white=false}){return <img src={white?'/DS Logo with new tagline White.png':'/DS Logo latest tagline.png'} alt="Diamant Solutions" className={white?'footerOfficialLogo':'headerOfficialLogo'}/>}
+function Icon({type}){const paths={email:<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></>,phone:<><path d="M6.6 3.8 9 8.4 6.8 10a15.5 15.5 0 0 0 7.2 7.2l1.6-2.2 4.6 2.4c.6.3.9 1 .7 1.7-.5 1.8-2.2 3-4 2.9C9.1 21.4 2.6 14.9 2 7.1c-.1-1.8 1.1-3.5 2.9-4 .7-.2 1.4.1 1.7.7Z"/></>,office:<><path d="M12 22s7-6.1 7-13a7 7 0 1 0-14 0c0 6.9 7 13 7 13Z"/><circle cx="12" cy="9" r="2.5"/></>,company:<><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h3M13 7h3M8 11h3M13 11h3M8 15h3M13 15h3M10 21v-3h4v3"/></>};return <span className="contactIcon"><svg viewBox="0 0 24 24">{paths[type]}</svg></span>}
 function Strip(){const set=<div className="advisoryStripSet"><span>Clear decisions</span><b>•</b><span>Practical action</span><b>•</b><span>Accountability</span><b>•</b><span>Implementation</span><b>•</b></div>;return <div className="advisoryStrip"><div className="advisoryStripTrack">{set}{set}</div></div>}
 
 export default function AdvisoryClient(){
@@ -59,8 +60,8 @@ export default function AdvisoryClient(){
   return <main className="advisoryPage">
     <header className="advisoryHeader">
       <a href="/"><Logo/></a>
-      <nav><a href="/">WEBSITES</a><a className="active" href="/advisory">BUSINESS ADVISORY</a><a href="/#pricing">WEBSITE PRICING</a><a href="/#about">ABOUT</a><a href="/#contact">CONTACT</a></nav>
-      <details className="mobileMenu"><summary aria-label="Open menu"><span/></summary><div><a href="/">WEBSITES</a><a href="/advisory">BUSINESS ADVISORY</a><a href="/#pricing">WEBSITE PRICING</a><a href="/#about">ABOUT</a><a href="/#contact">CONTACT</a></div></details>
+      <nav><a href="/">WEBSITES</a><a className="active" href="/advisory">BUSINESS ADVISORY</a><a href="/#pricing">WEBSITE PRICING</a><a href="/#about">ABOUT</a><a href="#contact">CONTACT</a></nav>
+      <details className="mobileMenu"><summary aria-label="Open menu"><span/></summary><div><a href="/">WEBSITES</a><a href="/advisory">BUSINESS ADVISORY</a><a href="/#pricing">WEBSITE PRICING</a><a href="/#about">ABOUT</a><a href="#contact">CONTACT</a></div></details>
     </header>
 
     <section className="advisoryHero">
@@ -68,7 +69,7 @@ export default function AdvisoryClient(){
         <p className="advisoryKicker">BUSINESS ADVISORY</p>
         <h1>Less talking about what needs doing.<span>More getting it done.</span></h1>
         <p className="advisoryHeroLead">Practical one-to-one support for business owners who need help making decisions, setting priorities and actually implementing them.</p>
-        <div className="advisoryActions"><a className="advisoryPrimary" href="#book">Book a Session</a><a className="advisorySecondary" href="#support">See how I can help</a></div>
+        <div className="advisoryActions"><a className="blueBtn" href="#book">Book a Session</a><a className="advisorySecondary" href="#support">See how I can help</a></div>
       </div>
       <div className="decisionOrbit revealAdvisory fromRight" aria-hidden="true">
         <div className="orbitRing one"/><div className="orbitRing two"/><div className="orbitRing three"/>
@@ -105,13 +106,30 @@ export default function AdvisoryClient(){
           <h3>{pkg.title}</h3>
           <div className="price">{pkg.price}</div>
           <ul>{pkg.bullets.map(item=><li key={item}>{item}</li>)}</ul>
-          <a className="advisoryPrimary bookButton" href={BOOK_URLS[pkg.key]}>{pkg.button}</a>
+          <a className="blueBtn bookButton" href={BOOK_URLS[pkg.key]}>{pkg.button}</a>
         </article>)}
       </div>
       <div className="bookingProcess revealAdvisory">
         <p><b>After booking, we’ll contact you by email or WhatsApp to arrange a date and time for your session(s) that works for you.</b></p>
         <p>For multi-session packages, sessions can be arranged individually and do not need to be booked all at once.</p>
       </div>
+    </section>
+
+    <section id="contact" className="contact advisoryContact">
+      <div className="revealAdvisory fromLeft">
+        <p className="advisoryKicker">GET IN TOUCH</p>
+        <h2>Want to talk it through?</h2>
+        <p className="advisoryContactLead">If you have a question about Business Advisory, want to check whether it is the right fit, or simply prefer to speak before booking, get in touch.</p>
+        <div className="contactCards">
+          <a href="mailto:info@diamantsolutions.co.uk"><b><Icon type="email"/>Email</b><span>info@diamantsolutions.co.uk</span></a>
+          <a href="https://wa.me/442032845074"><b><Icon type="phone"/>Phone & WhatsApp</b><span>0203 284 5074</span></a>
+          <div><b><Icon type="office"/>Office</b><span>Office 6, 1st Floor, Sutherland House<br/>70-78 West Hendon Broadway<br/>London, NW9 7BT</span></div>
+          <div><b><Icon type="company"/>Company</b><span>Diamant Solutions Ltd<br/>Company No. 16897347</span></div>
+        </div>
+      </div>
+      <form className="revealAdvisory fromRight" action="mailto:info@diamantsolutions.co.uk">
+        <input placeholder="First name*"/><input placeholder="Last name*"/><input placeholder="Business name"/><input placeholder="Phone / WhatsApp"/><input type="email" placeholder="Email*"/><textarea placeholder="What would you like help with?*"/><button className="blueBtn">Submit Enquiry</button>
+      </form>
     </section>
 
     <footer className="advisoryFooter"><Logo white/><div><b>Diamant Solutions Ltd</b><br/>Professional websites and practical business advisory.</div><div><b>Explore</b><br/><a href="/">Websites</a><br/><a href="/advisory">Business Advisory</a></div><div><b>Contact</b><br/>info@diamantsolutions.co.uk<br/>0203 284 5074<br/><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></div></footer>
