@@ -58,15 +58,14 @@ function addAdvisoryHomepageContent(){
     }
   }
 
-  document.querySelectorAll('[data-advisory-footer]').forEach(el=>el.remove());
   const footer=document.querySelector('footer');
-  const footerLast=footer?.querySelector(':scope > div:last-of-type');
-  if(footerLast&&!footerLast.querySelector('[data-footer-explore]')){
-    const explore=document.createElement('div');
-    explore.dataset.footerExplore='true';
-    explore.className='footerExploreLinks';
-    explore.innerHTML='<b>Explore</b><br/><a href="/">Websites</a><br/><a href="/advisory">Business Advisory</a><br/><br/>';
-    footerLast.prepend(explore);
+  if(footer&&!footer.classList.contains('homeUnifiedFooter')){
+    footer.classList.add('homeUnifiedFooter');
+    footer.innerHTML=`
+      <img src="/DS Logo with new tagline White.png" alt="Diamant Solutions" class="footerOfficialLogo"/>
+      <div><b>Diamant Solutions Ltd</b><br/>Professional websites and practical business advisory.</div>
+      <div><b>Explore</b><br/><a href="/">Websites</a><br/><a href="/advisory">Business Advisory</a></div>
+      <div><b>Contact</b><br/>info@diamantsolutions.co.uk<br/>0203 284 5074<br/><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></div>`;
   }
 }
 
