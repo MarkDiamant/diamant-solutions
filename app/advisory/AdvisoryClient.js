@@ -1,7 +1,8 @@
 'use client';
 import {useEffect} from 'react';
 
-const BOOK_URL=process.env.NEXT_PUBLIC_ADVISORY_BOOKING_URL||'mailto:info@diamantsolutions.co.uk?subject=Business%20Advisory%20Session';
+const STRIPE_BOOK_URL=process.env.NEXT_PUBLIC_ADVISORY_BOOKING_URL||'';
+const BOOK_URL=STRIPE_BOOK_URL||'mailto:info@diamantsolutions.co.uk?subject=Business%20Advisory%20Session';
 const support=[
   ['01','Business direction and difficult decisions','Work through the decisions that are slowing progress and get clear on the most practical route forward.'],
   ['02','Prioritising an overwhelming task list','Separate what matters now from what can wait, then turn priorities into a realistic action plan.'],
@@ -65,7 +66,7 @@ export default function AdvisoryClient(){
 
     <section id="book" className="advisoryPrice">
       <div className="advisorySectionHead revealAdvisory"><p className="advisoryKicker">SIMPLE PRICING</p><h2>One focused session. Clear next steps.</h2><p>No packages or complicated programmes. Book a single session and work through what matters most right now.</p></div>
-      <article className="advisoryPriceCard revealAdvisory"><small>ONE-TO-ONE BUSINESS ADVISORY</small><h3>Business Advisory Session</h3><div className="price">£200</div><p>A focused one-to-one session to work through your business challenges, make decisions and leave with clear practical next steps.</p><a className="advisoryPrimary bookButton" href={BOOK_URL}>Book a Session <span>→</span></a><p className="bookingNote">Secure online payment. After booking, we will arrange and confirm the meeting time with you.</p></article>
+      <article className="advisoryPriceCard revealAdvisory"><small>ONE-TO-ONE BUSINESS ADVISORY</small><h3>Business Advisory Session</h3><div className="price">£200</div><p>A focused one-to-one session to work through your business challenges, make decisions and leave with clear practical next steps.</p><a className="advisoryPrimary bookButton" href={BOOK_URL}>{STRIPE_BOOK_URL?'Book a Session':'Arrange a Session'} <span>→</span></a><p className="bookingNote">{STRIPE_BOOK_URL?'Secure online payment. After booking, we will arrange and confirm the meeting time with you.':'Online payment will be enabled once the Diamant Solutions Stripe account is connected. For now, contact us to arrange a session.'}</p></article>
     </section>
 
     <footer className="advisoryFooter"><Logo white/><div><b>Diamant Solutions Ltd</b><br/>Professional websites and practical business advisory.</div><div><b>Explore</b><br/><a href="/">Websites</a><br/><a href="/advisory">Business Advisory</a></div><div><b>Contact</b><br/>info@diamantsolutions.co.uk<br/>0203 284 5074<br/><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></div></footer>
