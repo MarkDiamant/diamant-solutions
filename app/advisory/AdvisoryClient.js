@@ -15,10 +15,11 @@ const support=[
   ['Accountability and implementation','Agree clear next actions, follow through on them and keep important work moving.'],
   ['Digital, website and automation opportunities','Spot sensible opportunities to use websites, systems or automation where they can genuinely save time or improve results.']
 ];
+const whatsappSupport='Occasional brief WhatsApp support between sessions is included, helping you stay on track and keep your business moving';
 const packages=[
-  {key:'single',label:'SINGLE SESSION',title:'Single Session',price:'£200',bullets:['Approximately 50-60 minutes','Focused one-to-one business advisory','Occasional brief questions by WhatsApp between sessions included'],button:'Book Single Session'},
-  {key:'three',label:'3-SESSION PACKAGE',title:'3-Session Package',price:'£570',saving:'Save £30',bullets:['Three approximately 50-60 minute sessions','Suitable for working through a defined set of priorities with accountability between sessions','Occasional brief WhatsApp support between sessions is included, helping you stay on track and keep your business moving'],button:'Book 3 Sessions',featured:true},
-  {key:'six',label:'6-SESSION PACKAGE',title:'6-Session Package',price:'£1,100',saving:'Save £100',bullets:['Six approximately 50-60 minute sessions','Best for sustained implementation, accountability and follow-through over a longer period','Occasional brief questions by WhatsApp between sessions included'],button:'Book 6 Sessions'}
+  {key:'single',label:'SINGLE SESSION',title:'Single Session',price:'£200',bullets:['Approximately 50-60 minutes','Focused one-to-one business advisory'],button:'Book Single Session'},
+  {key:'three',label:'3-SESSION PACKAGE',title:'3-Session Package',price:'£570',saving:'Save £30',bullets:['Three approximately 50-60 minute sessions','Suitable for working through a defined set of priorities with accountability between sessions',whatsappSupport],button:'Book 3 Sessions',featured:true},
+  {key:'six',label:'6-SESSION PACKAGE',title:'6-Session Package',price:'£1,100',saving:'Save £100',bullets:['Six approximately 50-60 minute sessions','Best for sustained implementation, accountability and follow-through over a longer period',whatsappSupport],button:'Book 6 Sessions'}
 ];
 
 function Logo({white=false}){return <img src={white?'/DS Logo with new tagline White.png':'/DS Logo latest tagline.png'} alt="Diamant Solutions" className={white?'footerOfficialLogo':'headerOfficialLogo'}/>}
