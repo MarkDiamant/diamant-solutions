@@ -1,7 +1,11 @@
 'use client';
 import {useEffect} from 'react';
 
-const BOOK_URL='https://book.stripe.com/dRm8wQb5vaXr2Yb73U1Nu05';
+const BOOK_URLS={
+  single:'https://book.stripe.com/14A8wQgpPd5z9mz4VM1Nu06',
+  three:'https://book.stripe.com/fZueVe1uV7LfdCP0Fw1Nu07',
+  six:'https://book.stripe.com/8x23cw2yZaXr42f0Fw1Nu08'
+};
 const support=[
   ['Business direction and difficult decisions','Work through the decisions that are slowing progress and get clear on the most practical route forward.'],
   ['Prioritising an overwhelming task list','Separate what matters now from what can wait, then turn priorities into a realistic action plan.'],
@@ -10,6 +14,35 @@ const support=[
   ['Client journeys and operational improvements','Identify friction in the customer experience and tighten the operational steps behind it.'],
   ['Accountability and implementation','Agree clear next actions, follow through on them and keep important work moving.'],
   ['Digital, website and automation opportunities','Spot sensible opportunities to use websites, systems or automation where they can genuinely save time or improve results.']
+];
+const packages=[
+  {
+    key:'single',
+    label:'SINGLE SESSION',
+    title:'Single Session',
+    price:'£200',
+    bullets:['Approximately 50-60 minutes','Focused one-to-one business advisory','Occasional brief questions by WhatsApp between sessions included'],
+    button:'Book Single Session'
+  },
+  {
+    key:'three',
+    label:'3-SESSION PACKAGE',
+    title:'3-Session Package',
+    price:'£570',
+    saving:'Save £30',
+    bullets:['Three approximately 50-60 minute sessions','Suitable for working through a defined set of priorities with accountability between sessions','Occasional brief WhatsApp support between sessions is included, helping you stay on track and keep your business moving'],
+    button:'Book 3 Sessions',
+    featured:true
+  },
+  {
+    key:'six',
+    label:'6-SESSION PACKAGE',
+    title:'6-Session Package',
+    price:'£1,100',
+    saving:'Save £100',
+    bullets:['Six approximately 50-60 minute sessions','Best for sustained implementation, accountability and follow-through over a longer period','Occasional brief questions by WhatsApp between sessions included'],
+    button:'Book 6 Sessions'
+  }
 ];
 
 function Logo({white=false}){return <img src={white?'/DS Logo with new tagline White.png':'/DS Logo latest tagline.png'} alt="Diamant Solutions" className={white?'footerOfficialLogo':'headerOfficialLogo'}/>}
@@ -64,8 +97,21 @@ export default function AdvisoryClient(){
     </section>
 
     <section id="book" className="advisoryPrice">
-      <div className="advisorySectionHead revealAdvisory"><p className="advisoryKicker">SIMPLE PRICING</p><h2>One focused session. Clear next steps.</h2><p>No packages or complicated programmes. Book a single session and work through what matters most right now.</p></div>
-      <article className="advisoryPriceCard revealAdvisory"><small>ONE-TO-ONE BUSINESS ADVISORY</small><h3>Business Advisory Session</h3><div className="price">£200</div><p>A focused one-to-one session to work through your business challenges, make decisions and leave with clear practical next steps.</p><a className="advisoryPrimary bookButton" href={BOOK_URL}>Book a Session</a><p className="bookingNote">Secure online payment. After booking, we will arrange and confirm the meeting time with you.</p></article>
+      <div className="advisorySectionHead revealAdvisory"><p className="advisoryKicker">BUSINESS ADVISORY PRICING</p><h2>Choose the level of support that fits your business.</h2><p>Each session is tailored to your business and focused on practical decisions, implementation and follow-through.</p></div>
+      <div className="advisoryPriceGrid">
+        {packages.map((pkg,i)=><article key={pkg.key} className={'advisoryPriceCard revealAdvisory '+(pkg.featured?'featured ':'')+(i===0?'fromLeft':i===2?'fromRight':'')}>
+          {pkg.saving&&<div className="packageSaving">{pkg.saving}</div>}
+          <small>{pkg.label}</small>
+          <h3>{pkg.title}</h3>
+          <div className="price">{pkg.price}</div>
+          <ul>{pkg.bullets.map(item=><li key={item}>{item}</li>)}</ul>
+          <a className="advisoryPrimary bookButton" href={BOOK_URLS[pkg.key]}>{pkg.button}</a>
+        </article>)}
+      </div>
+      <div className="bookingProcess revealAdvisory">
+        <p><b>After booking, we’ll contact you by email or WhatsApp to arrange a date and time for your session(s) that works for you.</b></p>
+        <p>For multi-session packages, sessions can be arranged individually and do not need to be booked all at once.</p>
+      </div>
     </section>
 
     <footer className="advisoryFooter"><Logo white/><div><b>Diamant Solutions Ltd</b><br/>Professional websites and practical business advisory.</div><div><b>Explore</b><br/><a href="/">Websites</a><br/><a href="/advisory">Business Advisory</a></div><div><b>Contact</b><br/>info@diamantsolutions.co.uk<br/>0203 284 5074<br/><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></div></footer>
