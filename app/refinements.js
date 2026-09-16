@@ -58,13 +58,15 @@ function addAdvisoryHomepageContent(){
     }
   }
 
-  const footerInfo=document.querySelector('footer>div:nth-of-type(1)');
-  if(footerInfo&&!footerInfo.querySelector('[data-advisory-footer]')){
-    const wrap=document.createElement('div');
-    wrap.dataset.advisoryFooter='true';
-    wrap.className='footerAdvisoryLink';
-    wrap.innerHTML='<a href="/advisory">Business Advisory</a>';
-    footerInfo.appendChild(wrap);
+  document.querySelectorAll('[data-advisory-footer]').forEach(el=>el.remove());
+  const footer=document.querySelector('footer');
+  const footerLast=footer?.querySelector(':scope > div:last-of-type');
+  if(footerLast&&!footerLast.querySelector('[data-footer-explore]')){
+    const explore=document.createElement('div');
+    explore.dataset.footerExplore='true';
+    explore.className='footerExploreLinks';
+    explore.innerHTML='<b>Explore</b><br/><a href="/">Websites</a><br/><a href="/advisory">Business Advisory</a><br/><br/>';
+    footerLast.prepend(explore);
   }
 }
 
