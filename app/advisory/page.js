@@ -1,4 +1,5 @@
 import './advisory.css';
+import './pricing.css';
 import AdvisoryClient from './AdvisoryClient';
 
 export const metadata={
