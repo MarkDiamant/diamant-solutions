@@ -4,8 +4,8 @@ import Refinements from './refinements';
 import WorkCarousel from './work-carousel';
 
 export const metadata = {
-  title: 'Diamant Solutions | Websites, CRM Systems & Business Solutions',
-  description: 'Professional websites, custom CRM systems and practical business solutions built around the way your business works.',
+  title: 'Diamant Solutions | Websites, CRM Systems & Business Advisory',
+  description: 'Professional websites, custom CRM systems and practical Business Advisory built around the way your business works.',
   icons: {
     icon: '/Icon-512.png',
     shortcut: '/Icon-512.png',
