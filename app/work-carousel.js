@@ -7,7 +7,7 @@ const sites=[
  {name:'Certifire UK',url:'https://www.certifireuk.co.uk'},
  {name:'M&J Metal',url:'https://mjmetal.co.uk'},
  {name:'Poll & See',url:'https://www.pollandsee.com'},
- {name:'Luton Circumcision',url:'https://luton.preview.diamantsolutions.co.uk',previewUrl:'https://luton-circumcision.vercel.app'},
+ {name:'Luton Circumcision',url:'https://luton-circumcision.vercel.app',previewUrl:'https://luton-circumcision.vercel.app'},
  {name:'Sam Certs',url:'https://www.samcerts.co.uk'},
  {name:'Edible Print',url:'https://edibleprint.uk',image:'/Pink Poppy Flowers.avif'},
  {name:'Would Use Again',url:'https://www.woulduseagain.com'}
