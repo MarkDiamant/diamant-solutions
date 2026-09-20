@@ -1,0 +1,20 @@
+'use client';
+import {useEffect,useMemo,useState} from 'react';
+import Link from 'next/link';
+
+const steps=[
+  {title:'Your business',fields:[['businessName','Business name'],['contactName','Your name'],['email','Email address'],['phone','Phone number'],['website','Website (if you have one)']]},
+  {title:'What you do',fields:[['businessType','What does your business do?'],['workName','What do you call your work? (Jobs, Projects, Cases, Orders...)'],['workflow','Briefly describe what normally happens from a new enquiry through to completion.']]},
+  {title:'What you need',fields:[['features','What would you like to manage in the system?'],['statuses','What stages or statuses do you currently use?'],['users','How many people will use the system?'],['roles','Do different staff need different access?']]},
+  {title:'Documents & money',fields:[['quotes','How do you currently handle quotes?'],['invoices','How do you currently handle invoices and payments?'],['files','What files, photos or documents do you need to keep?'],['integrations','Any software you would like connected?']]},
+  {title:'Branding & extras',fields:[['logo','Your logo or brand file'],['colours','Brand colours (if known)'],['dashboard','What would you most like to see on your dashboard?'],['anythingElse','Anything else we should know?']]}
+];
+
+export default function SetupPage(){
+ const [data,setData]=useState({}); const [step,setStep]=useState(0); const [saved,setSaved]=useState(false);
+ useEffect(()=>{try{const raw=localStorage.getItem('ds-bms-onboarding');if(raw){const v=JSON.parse(raw);setData(v.data||{});setStep(Math.min(v.step||0,steps.length-1));}}catch{}},[]);
+ useEffect(()=>{if(!Object.keys(data).length)return;const t=setTimeout(()=>{localStorage.setItem('ds-bms-onboarding',JSON.stringify({data,step,updatedAt:new Date().toISOString()}));setSaved(true);setTimeout(()=>setSaved(false),1300)},350);return()=>clearTimeout(t)},[data,step]);
+ const pct=useMemo(()=>Math.round(((step+1)/steps.length)*100),[step]);
+ const update=(k,v)=>setData(x=>({...x,[k]:v}));
+ return <main className="setupPage"><header className="setupHeader"><Link href="/"><img src="/DS Logo latest tagline.png" alt="Diamant Solutions"/></Link><span>{saved?'Saved':'Your progress saves automatically'}</span></header><section className="setupWrap"><div className="setupIntro"><p>BUSINESS SOFTWARE SETUP</p><h1>Let’s set up your business.</h1><span>Answer what you can now. You can leave and come back without losing your progress.</span></div><div className="progress"><div><b>Step {step+1} of {steps.length}</b><span>{pct}% complete</span></div><i><em style={{width:pct+'%'}}/></i></div><div className="setupCard"><small>{steps[step].title.toUpperCase()}</small><h2>{steps[step].title}</h2>{steps[step].fields.map(([key,label])=><label key={key}><b>{label}</b>{key==='logo'?<div className="uploadNote">Logo upload will be securely attached to your business account once your paid account is connected. For now, you can continue and provide it later.</div>:['workflow','features','statuses','roles','quotes','invoices','files','integrations','dashboard','anythingElse','businessType'].includes(key)?<textarea value={data[key]||''} onChange={e=>update(key,e.target.value)} placeholder="Type your answer here..."/>:<input value={data[key]||''} onChange={e=>update(key,e.target.value)} placeholder="Type here..."/>}</label>)}<div className="setupActions">{step>0?<button className="secondary" onClick={()=>setStep(x=>x-1)}>Back</button>:<Link className="secondary" href="/">Back to website</Link>}<span>Your answers are saved as you go.</span>{step<steps.length-1?<button onClick={()=>setStep(x=>x+1)}>Save & continue</button>:<button onClick={()=>{localStorage.setItem('ds-bms-onboarding',JSON.stringify({data,step,status:'ready-to-submit',updatedAt:new Date().toISOString()}));alert('Your setup answers are saved. Secure account submission is the next step.');}}>Finish for now</button>}</div></div><p className="setupHelp">Need to check something? Close this page and return on this device. Your progress will still be here.</p></section></main>
+}
