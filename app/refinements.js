@@ -11,12 +11,12 @@ const journey=[
 ];
 
 const demoTypes=[
-  ['Property Management','Properties, landlords, tenants, contractors, maintenance jobs, documents and payments.'],
-  ['Insurance & Brokerage','Clients, policies, renewals, follow-ups, documents, notes and payments.'],
-  ['Trades & Contractors','Enquiries, site visits, jobs, teams, quotes, materials, invoices and payments.'],
-  ['Creative & Digital Agencies','Clients, projects, tasks, approvals, files, quotes, invoices and deadlines.'],
-  ['Professional Services','Clients, cases, tasks, documents, billing, follow-ups and team activity.'],
-  ['Wholesale & Distribution','Customers, orders, quotes, stock notes, documents, payments and activity.']
+  ['Property Management','Properties, landlords, tenants, contractors, maintenance jobs, documents and payments.',['Oak House','Boiler repair · Contractor booked','£1,850'],['12 Finchley Road','Tenant inspection · Today','£420'],['North London Estates','Rent statement sent','£6,150']],
+  ['Insurance & Brokerage','Clients, policies, renewals, follow-ups, documents, notes and payments.',['J Cohen Ltd','Policy renewal · 14 days','£3,200'],['Apex Retail','Documents requested · Today','£980'],['Greenway Foods','Premium received','£4,750']],
+  ['Trades & Contractors','Enquiries, site visits, jobs, teams, quotes, materials, invoices and payments.',['ABC Property Ltd','Site visit booked · Today','£2,450'],['John Smith','Quote ready to send','£1,280'],['North London Estates','Payment received','£1,250']],
+  ['Creative & Digital Agencies','Clients, projects, tasks, approvals, files, quotes, invoices and deadlines.',['Acme Foods','Homepage approval due','£2,800'],['Harper & Co','Brand files received','£1,650'],['Northstar','Invoice due Friday','£3,400']],
+  ['Professional Services','Clients, cases, tasks, documents, billing, follow-ups and team activity.',['J Patel','Documents to review','£1,200'],['Aster Holdings','Follow-up due today','£2,750'],['M Green','Invoice paid','£850']],
+  ['Wholesale & Distribution','Customers, orders, quotes, stock notes, documents, payments and activity.',['Metro Stores','Order ready to dispatch','£4,820'],['Riverside Ltd','Quote awaiting approval','£2,190'],['Central Foods','Payment received','£3,600']]
 ];
 
 function addAdvisoryHomepageContent(){
@@ -100,9 +100,9 @@ function buildInstantDemo(){
   section.innerHTML='<div class="demoIntro"><p class="cap">INSTANT LIVE DEMO</p><h2>See how it could work for your business. Right now.</h2><p>No booking and no sales call. Pick a business like yours, explore the software and click around in seconds.</p></div><div class="demoShell"><div class="demoTop"><label>Viewing example <select data-demo-select>'+demoTypes.map((d,i)=>'<option value="'+i+'">'+d[0]+'</option>').join('')+'</select></label><button type="button" data-tour>Take the 60-second tour</button></div><div class="demoApp"><aside><b>DS</b><span class="active">Dashboard</span><span>Customers</span><span>Jobs</span><span>Quotes</span><span>Invoices</span><span>Payments</span><span>Files</span><span>Team</span></aside><div class="demoContent"><div class="demoHeading"><div><small data-demo-type>PROPERTY MANAGEMENT</small><h3 data-demo-title>Good morning. Here’s what needs attention.</h3><p data-demo-copy></p></div><button>+ New</button></div><div class="demoStats"><article><small>OPEN</small><b>18</b><span>Active items</span></article><article><small>TODAY</small><b>6</b><span>Needs attention</span></article><article><small>OUTSTANDING</small><b>£8,420</b><span>Payments due</span></article></div><div class="demoList"><div><b>Recent activity</b><span>View all</span></div><p><strong>ABC Property Ltd</strong><span>Maintenance visit booked · Today</span></p><p><strong>John Smith</strong><span>Quote ready to send · 12 mins ago</span></p><p><strong>North London Estates</strong><span>Payment received · £1,250</span></p></div><div class="demoAI"><b>AI Assistant</b><p>Try: “Create a new job for ABC Ltd for next Tuesday.”</p><button type="button">🎙 Talk to your business</button></div></div></div><p class="demoFoot">This is a preview of the experience. The full interactive industry demos will use the same software as real customer accounts, with fictional example data.</p></div>';
   work.parentNode.insertBefore(section,work);
   const select=section.querySelector('[data-demo-select]');
-  const render=()=>{const d=demoTypes[Number(select.value)];section.querySelector('[data-demo-type]').textContent=d[0].toUpperCase();section.querySelector('[data-demo-copy]').textContent=d[1]};
+  const render=()=>{const d=demoTypes[Number(select.value)];section.querySelector('[data-demo-type]').textContent=d[0].toUpperCase();section.querySelector('[data-demo-copy]').textContent=d[1];const rows=section.querySelectorAll('.demoList p');d.slice(2).forEach((x,i)=>{if(rows[i])rows[i].innerHTML='<strong>'+x[0]+'</strong><span>'+x[1]+' · '+x[2]+'</span>'});};
   select.onchange=render; render();
-  section.querySelector('[data-tour]').onclick=()=>{section.classList.toggle('touring');section.querySelector('[data-tour]').textContent=section.classList.contains('touring')?'Exit guided tour':'Take the 60-second tour'};
+  section.querySelector('[data-tour]').onclick=()=>{section.classList.toggle('touring');section.querySelector('[data-tour]').textContent=section.classList.contains('touring')?'Exit guided tour':'Take the 60-second tour'};section.querySelectorAll('.demoApp aside span').forEach(tab=>tab.onclick=()=>{section.querySelectorAll('.demoApp aside span').forEach(x=>x.classList.remove('active'));tab.classList.add('active');section.querySelector('[data-demo-title]').textContent=tab.textContent==='Dashboard'?`Good morning. Here’s what needs attention.`:`${tab.textContent} at a glance`;});section.querySelector('.demoAI button').onclick=()=>{section.querySelector('.demoAI p').textContent='Voice AI is coming next. The paid AI Assistant will be enabled only for businesses that add it.';};
 }
 
 export default function Refinements(){
