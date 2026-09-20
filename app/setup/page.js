@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import Link from 'next/link';
+import './setup.css';
 
 const steps=[
   {title:'Your business',fields:[['businessName','Business name'],['contactName','Your name'],['email','Email address'],['phone','Phone number'],['website','Website (if you have one)']]},
