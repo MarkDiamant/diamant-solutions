@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import {useEffect} from 'react';
+import './home.css';
 
 function Logo({white=false}){return <img src={white?'/DS Logo with new tagline White.png':'/DS Logo latest tagline.png'} alt="Diamant Solutions" className={white?'dsFooterLogo':'dsLogo'}/>}
 
