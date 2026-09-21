@@ -23,6 +23,7 @@ function card(site){
 
 export default function WorkCarousel(){
  useEffect(()=>{
+  if(window.location.pathname==='/'&&document.querySelector('.dsHome'))return;
   const grid=document.querySelector('.workGrid');if(!grid)return;grid.classList.add('portfolioCarousel','portfolioIndependent');grid.innerHTML='';
   const pool=sites.map(site=>{const el=card(site);grid.appendChild(el);return el});
   const slots=[document.createElement('div'),document.createElement('div')];slots.forEach(slot=>{slot.className='portfolioSlot';grid.appendChild(slot)});
