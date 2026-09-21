@@ -1,0 +1,14 @@
+import {NextResponse} from 'next/server';
+const PRICES={
+ bms:{monthly:{base:'price_1UIFEaKCFlu3cFvBVzR5uBNv',extra:'price_1UIFEfKCFlu3cFvBNKophwRv',ai:'price_1UIFEkKCFlu3cFvBC26r67cs'},annual:{base:'price_1UIFEdKCFlu3cFvBaUVcd1Ih',extra:'price_1UIFEiKCFlu3cFvBLA0OAcRF',ai:'price_1UIFEoKCFlu3cFvBCpLmu9qf'}},
+ website:{monthly:'price_1UAWSTKCFlu3cFvBSgdTyXDa',annual:'price_1UAWSjKCFlu3cFvBhook2ymU',oneoff:'price_1UFZLCKCFlu3cFvBVf0ZI83o'}
+};
+const form=o=>{const p=new URLSearchParams();for(const[k,v]of Object.entries(o)){if(v!==undefined&&v!==null)p.append(k,String(v))}return p};
+export async function POST(req){try{if(!process.env.STRIPE_SECRET_KEY)return NextResponse.json({error:'Secure checkout is not configured yet.'},{status:503});const body=await req.json(),origin=new URL(req.url).origin;let mode='subscription',service='',plan='',users=null,ai=false,interval=null,items=[];
+ if(body.service==='business_software'){service='business_software';users=Math.max(2,Math.min(50,Number(body.users)||2));ai=!!body.ai;interval=body.interval==='annual'?'annual':'monthly';plan='business_software';const p=PRICES.bms[interval];items=[[p.base,1]];if(users>2)items.push([p.extra,users-2]);if(ai)items.push([p.ai,1]);}
+ else if(body.service==='website'){service='website';plan=['monthly','annual','oneoff'].includes(body.plan)?body.plan:'monthly';interval=plan==='oneoff'?null:plan;mode=plan==='oneoff'?'payment':'subscription';items=[[PRICES.website[plan],1]];}
+ else return NextResponse.json({error:'Invalid service.'},{status:400});
+ const data={mode,'success_url':origin+'/payment-success?session_id={CHECKOUT_SESSION_ID}','cancel_url':origin+(service==='website'?'/websites#pricing':'/software#pricing'),'allow_promotion_codes':'true','billing_address_collection':'auto','metadata[service_type]':service,'metadata[plan_key]':plan,'metadata[users]':users||'','metadata[ai_included]':ai?'true':'false','metadata[billing_interval]':interval||''};
+ items.forEach(([price,quantity],i)=>{data['line_items['+i+'][price]']=price;data['line_items['+i+'][quantity]']=quantity});
+ if(mode==='subscription'){data['subscription_data[metadata][service_type]']=service;data['subscription_data[metadata][plan_key]']=plan;data['subscription_data[metadata][users]']=users||'';data['subscription_data[metadata][ai_included]']=ai?'true':'false';}
+ const res=await fetch('https://api.stripe.com/v1/checkout/sessions',{method:'POST',headers:{Authorization:'Bearer '+process.env.STRIPE_SECRET_KEY,'Content-Type':'application/x-www-form-urlencoded'},body:form(data),cache:'no-store'}),j=await res.json();if(!res.ok)throw new Error(j.error?.message||'Stripe checkout failed.');return NextResponse.json({url:j.url});}catch(e){console.error('checkout',e);return NextResponse.json({error:'We could not open secure checkout. Please try again.'},{status:500})}}
