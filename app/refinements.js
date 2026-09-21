@@ -108,6 +108,8 @@ function buildInstantDemo(){
 
 export default function Refinements(){
   useEffect(()=>{
+    if(window.location.pathname!=='/')return;
+    if(document.querySelector('.dsHome'))return;
     document.querySelectorAll('.step article').forEach((card,i)=>{if(!journey[i])return;card.querySelector('h3').textContent=journey[i][0];card.querySelector('p').textContent=journey[i][1]});
     document.querySelector('.testimonialGrid')?.remove();
     const trust=document.querySelector('.wuaBadge'); const frame=trust?.querySelector('iframe');
