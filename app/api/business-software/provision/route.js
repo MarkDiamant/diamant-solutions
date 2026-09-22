@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { centralRest } from "../../../../lib/business-software/db";
 
+async function authenticatedUser(request){const auth=request.headers.get("authorization")||"";if(!auth.startsWith("Bearer "))return null;const base=process.env.DS_SUPABASE_URL||"https://iepqggrfenfqrqyzqyed.supabase.co",key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY;if(!key)return null;const r=await fetch(base+"/auth/v1/user",{headers:{apikey:key,Authorization:auth},cache:"no-store"});return r.ok?r.json():null;}
 function slugify(value){return String(value||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,48)}
 async function orderBySession(sessionId){
  const r=await centralRest("checkout_orders?stripe_checkout_session_id=eq."+encodeURIComponent(sessionId)+"&service_type=eq.business_software&payment_status=eq.paid&select=*&limit=1");
@@ -18,11 +19,13 @@ async function uniqueSlug(base){
 }
 export async function POST(request){
  try{
+  const user=await authenticatedUser(request);if(!user?.email)return NextResponse.json({error:"Secure sign-in required"},{status:401});
   const body=await request.json(),sessionId=String(body.sessionId||"").trim(),businessName=String(body.businessName||"").trim();
   if(!sessionId||!businessName)return NextResponse.json({error:"Checkout session and business name are required"},{status:400});
   if(!process.env.DS_SUPABASE_SERVICE_ROLE_KEY)return NextResponse.json({error:"Business Software provisioning is not configured"},{status:503});
   const [order,stripeSession]=await Promise.all([orderBySession(sessionId),verifiedStripeSession(sessionId)]);
   if(!order||!stripeSession)return NextResponse.json({error:"Verified paid Business Software order not found"},{status:404});
+  if(String(order.customer_email||"").toLowerCase()!==String(user.email).toLowerCase())return NextResponse.json({error:"This purchase belongs to a different signed-in account"},{status:403});
   if(order.stripe_customer_id&&stripeSession.customer&&order.stripe_customer_id!==stripeSession.customer)return NextResponse.json({error:"Checkout verification failed"},{status:409});
   if(order.tenant_id){
    const existing=await centralRest("business_software_tenants?id=eq."+order.tenant_id+"&select=slug,canonical_host&limit=1");const row=(await existing.json())?.[0];
