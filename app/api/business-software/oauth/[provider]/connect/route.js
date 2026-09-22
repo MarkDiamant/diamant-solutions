@@ -25,10 +25,11 @@ export async function GET(request,{params}){
   if(!tenant||tenant.status!=="active")return NextResponse.json({error:"Tenant not found"},{status:404});
   if(!allowedOrigin(tenant,returnOrigin))return NextResponse.json({error:"Return origin is not allowed"},{status:400});
   if(!process.env.GOOGLE_CLIENT_ID||!process.env.GOOGLE_CLIENT_SECRET||!process.env.DS_INTEGRATION_ENCRYPTION_KEY)return NextResponse.json({error:"Google integration is not configured"},{status:503});
+  if(!tenant.id||!String(tenant.id).includes("-"))return NextResponse.json({error:"Tenant registry is not fully configured"},{status:503});
   const state=crypto.randomBytes(32).toString("base64url"),hash=crypto.createHash("sha256").update(state).digest("hex");
   const expires=new Date(Date.now()+10*60*1000).toISOString();
   const tx=await centralRest("business_software_oauth_transactions",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({state_hash:hash,tenant_id:tenant.id,provider:"google",return_origin:returnOrigin,expires_at:expires})});
-  if(!tx.ok)return NextResponse.json({error:"Unable to start connection"},{status:500});
+  if(!tx.ok){const detail=await tx.text().catch(()=>"");console.error("OAuth transaction create failed",{slug,tenantId:tenant.id,status:tx.status,detail});return NextResponse.json({error:"Unable to start connection"},{status:500});}
   const callback=`${url.origin}/api/business-software/oauth/google/callback`;
   const auth=new URL(GOOGLE_AUTH);auth.searchParams.set("client_id",process.env.GOOGLE_CLIENT_ID);auth.searchParams.set("redirect_uri",callback);auth.searchParams.set("response_type","code");auth.searchParams.set("access_type","offline");auth.searchParams.set("prompt","consent");auth.searchParams.set("scope",SCOPES.join(" "));auth.searchParams.set("state",state);
   return NextResponse.redirect(auth);
