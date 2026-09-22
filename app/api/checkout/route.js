@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 const PRICES={
- bms:{monthly:{base:'price_1UIFEaKCFlu3cFvBVzR5uBNv',extra:'price_1UIFEfKCFlu3cFvBNKophwRv',ai:'price_1UIFEkKCFlu3cFvBC26r67cs'},annual:{base:'price_1UIFEdKCFlu3cFvBaUVcd1Ih',extra:'price_1UIFEiKCFlu3cFvBLA0OAcRF',ai:'price_1UIFEoKCFlu3cFvBCpLmu9qf'}},
+ bms:{monthly:{base:'price_1UIFEaKCFlu3cFvBVzR5uBNv',extra:'price_1UIX8VKCFlu3cFvBzdLNQgmy',ai:'price_1UIX8ZKCFlu3cFvBh8Ih992k'},annual:{base:'price_1UIFEdKCFlu3cFvBaUVcd1Ih',extra:'price_1UIX8XKCFlu3cFvBTgohdqpe',ai:'price_1UIX8bKCFlu3cFvBVC3x7YU8'}},
  website:{monthly:'price_1UAWSTKCFlu3cFvBSgdTyXDa',annual:'price_1UAWSjKCFlu3cFvBhook2ymU',oneoff:'price_1UFZLCKCFlu3cFvBVf0ZI83o'}
 };
 const SB=process.env.NEXT_PUBLIC_SUPABASE_URL,SK=process.env.SUPABASE_SERVICE_ROLE_KEY;
