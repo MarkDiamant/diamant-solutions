@@ -35,14 +35,14 @@ export async function GET(request){
   const callback=`${url.origin}/api/business-software/oauth/google/callback`;
   const tokenRes=await fetch(TOKEN_URL,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({code,client_id:process.env.GOOGLE_CLIENT_ID||"",client_secret:process.env.GOOGLE_CLIENT_SECRET||"",redirect_uri:callback,grant_type:"authorization_code"})});
   const token=await tokenRes.json().catch(()=>({}));
-  if(!tokenRes.ok||!token.access_token)return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));
+  if(!tokenRes.ok||!token.access_token){console.error("Google token exchange failed",{status:tokenRes.status,error:token.error||null,error_description:token.error_description||null});return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));}
   const infoRes=await fetch(USERINFO_URL,{headers:{Authorization:`Bearer ${token.access_token}`}});
   const info=await infoRes.json().catch(()=>({}));
-  if(!infoRes.ok||!info.email)return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));
+  if(!infoRes.ok||!info.email){console.error("Google userinfo failed",{status:infoRes.status});return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));}
   const expiresAt=token.expires_in?new Date(Date.now()+Number(token.expires_in)*1000).toISOString():null;
   let refreshCipher=null;if(token.refresh_token)refreshCipher=encrypt(token.refresh_token);else{const existing=await centralRest(`business_software_integrations?tenant_id=eq.${encodeURIComponent(tx.tenant_id)}&provider=eq.google&select=refresh_token_ciphertext&limit=1`);if(existing.ok)refreshCipher=(await existing.json())?.[0]?.refresh_token_ciphertext||null;}
   const upsert=await centralRest("business_software_integrations?on_conflict=tenant_id,provider",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,provider:"google",provider_account:info.email,status:"connected",scopes:String(token.scope||"").split(" ").filter(Boolean),connected_at:new Date().toISOString(),disconnected_at:null,access_token_ciphertext:encrypt(token.access_token),refresh_token_ciphertext:refreshCipher,token_expires_at:expiresAt,metadata:{email_verified:Boolean(info.email_verified)}})});
-  if(!upsert.ok)return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));
+  if(!upsert.ok){const detail=await upsert.text().catch(()=>"");console.error("Google integration upsert failed",{status:upsert.status,detail});return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));}
   await centralRest("business_software_audit_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,actor:info.email,action:"connected",entity_type:"integration",entity_id:"google",metadata:{provider:"google"}})});
   return NextResponse.redirect(safeReturn(tx.return_origin)+"?google=connected");
  }catch(error){console.error("Google OAuth callback failed",error);return NextResponse.json({error:"Unable to complete Google connection"},{status:500});}
