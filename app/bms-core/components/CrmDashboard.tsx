@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ALL_STATUSES, JOB_TYPES, STATUS_META } from "@/lib/crm/constants";
-import type { Job, JobStatus, Manager } from "@/lib/crm/types";
+import { ALL_STATUSES, JOB_TYPES, STATUS_META } from "@/app/bms-core/lib/constants";
+import type { Job, JobStatus, Manager } from "@/app/bms-core/lib/types";
 
 function money(value?: number) {
   if (value === undefined || value === null) return "TBC";
