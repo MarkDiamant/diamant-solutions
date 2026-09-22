@@ -39,3 +39,18 @@
 
 /* Final advisory desktop nav correction: keep menu visually compact */
 @media(min-width:801px){.advisoryHeader nav{padding:14px 4px!important;gap:0!important}.advisoryHeader nav a{padding:11px 11px!important;margin:0!important}.advisoryHeader nav a+a{margin-left:3px!important;box-shadow:-3px 0 0 -2px rgba(151,171,194,.55)!important}}
+
+/* CANONICAL SHARED HEADER — replaces all legacy Advisory desktop header styling */
+@media(min-width:801px){
+.advisoryHeader{height:94px!important;background:#fff!important;display:flex!important;align-items:center!important;justify-content:space-between!important;padding:0 5vw!important;border-bottom:1px solid #e5ebf2!important;position:relative!important;z-index:30!important;overflow:visible!important}
+.advisoryHeader .headerBrand{height:62px!important;width:235px!important;max-width:32vw!important;overflow:visible!important;display:flex!important;align-items:center!important;flex:none!important}
+.advisoryHeader .headerOfficialLogo{display:block!important;width:235px!important;height:auto!important}
+.advisoryHeader nav{display:flex!important;align-items:center!important;gap:0!important;overflow:visible!important;padding:14px 4px!important;font-size:inherit!important;font-weight:inherit!important;letter-spacing:normal!important}
+.advisoryHeader nav a{position:relative!important;isolation:isolate!important;overflow:hidden!important;padding:11px 15px!important;margin:0!important;border:0!important;border-radius:11px!important;color:#0b1725!important;text-decoration:none!important;box-shadow:none!important;transition:color 1.8s ease,transform .5s ease,box-shadow .5s ease!important}
+.advisoryHeader nav a+a{margin-left:8px!important;box-shadow:-8px 0 0 -7px rgba(151,171,194,.55)!important}
+.advisoryHeader nav a:after{content:none!important;display:none!important;border:0!important}
+.advisoryHeader nav a:before{content:""!important;position:absolute!important;z-index:-1!important;left:-130%!important;top:-300%!important;width:360%!important;height:700%!important;border:0!important;border-radius:46%!important;background:conic-gradient(from 0deg,#5f91c8 0deg,#79a8dc 70deg,#3f78b3 145deg,#285f97 220deg,#6f9fd3 295deg,#5f91c8 360deg)!important;opacity:0!important;transform:rotate(0deg) scale(.72)!important;transition:opacity 2.6s ease,transform 2.6s ease!important}
+.advisoryHeader nav a:hover{color:#fff!important;transform:translateY(-1px)!important;box-shadow:0 8px 22px rgba(50,92,145,.18)!important}
+.advisoryHeader nav a:hover:before{opacity:.94!important;transform:rotate(55deg) scale(1)!important;animation:advisoryCanonicalNavSwirl 11s linear infinite!important}
+}
+@keyframes advisoryCanonicalNavSwirl{from{transform:rotate(55deg) scale(.72)}to{transform:rotate(415deg) scale(1)}}
