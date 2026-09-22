@@ -16,6 +16,7 @@ export async function POST(request){
  try{
   const body=await request.json(),sessionId=String(body.sessionId||"").trim(),businessName=String(body.businessName||"").trim();
   if(!sessionId||!businessName)return NextResponse.json({error:"Checkout session and business name are required"},{status:400});
+  if(!process.env.DS_SUPABASE_SERVICE_ROLE_KEY)return NextResponse.json({error:"Business Software provisioning is not configured"},{status:503});
   const order=await orderBySession(sessionId);
   if(!order)return NextResponse.json({error:"Paid Business Software order not found"},{status:404});
   if(order.tenant_id){
