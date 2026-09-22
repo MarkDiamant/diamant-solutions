@@ -2,9 +2,9 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ALL_STATUSES, STATUS_META } from "@/lib/crm/constants";
-import type { JobStatus, Manager } from "@/lib/crm/types";
-import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/lib/crm/config";
+import { ALL_STATUSES, STATUS_META } from "@/app/bms-core/lib/constants";
+import type { JobStatus, Manager } from "@/app/bms-core/lib/types";
+import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/app/bms-core/lib/config";
 import DiamantCredit from "@/components/admin/DiamantCredit";
 
 function money(value?: number | string) { return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(Number(value || 0)); }
