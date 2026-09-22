@@ -1,2 +1,1 @@
-import BusinessDirectory from "@/app/bms-core/components/BusinessDirectory";
-export default function Page(){return <BusinessDirectory view="invoices"/>;}
+export default function Page(){return null;}
