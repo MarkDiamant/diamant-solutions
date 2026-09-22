@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ALL_STATUSES, STATUS_META } from "@/app/bms-core/lib/constants";
 import type { JobStatus, Manager } from "@/app/bms-core/lib/types";
 import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/app/bms-core/lib/config";
-import DiamantCredit from "@/components/admin/DiamantCredit";
+function DiamantCredit({compact=false}:{compact?:boolean}){return <span className={compact?"text-[10px] text-black/35":"text-xs text-black/40"}>Powered by Diamant Solutions</span>}
 
 function money(value?: number | string) { return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(Number(value || 0)); }
 function when(value?: string) { return value ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value)) : "Not set"; }
