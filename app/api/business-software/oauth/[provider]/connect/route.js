@@ -25,7 +25,11 @@ export async function GET(request,{params}){
   if(!tenant||tenant.status!=="active")return NextResponse.json({error:"Tenant not found"},{status:404});
   if(!allowedOrigin(tenant,returnOrigin))return NextResponse.json({error:"Return origin is not allowed"},{status:400});
   if(!process.env.GOOGLE_CLIENT_ID||!process.env.GOOGLE_CLIENT_SECRET||!process.env.DS_INTEGRATION_ENCRYPTION_KEY)return NextResponse.json({error:"Google integration is not configured"},{status:503});
-  if(!tenant.id||!String(tenant.id).includes("-"))return NextResponse.json({error:"Tenant registry is not fully configured"},{status:503});
+  if(!tenant.id||!String(tenant.id).includes("-")){
+    const central=await tenantRecord(slug);
+    if(!central?.id||!String(central.id).includes("-"))return NextResponse.json({error:"Tenant registry is not fully configured"},{status:503});
+    tenant=central;
+  }
   const state=crypto.randomBytes(32).toString("base64url"),hash=crypto.createHash("sha256").update(state).digest("hex");
   const expires=new Date(Date.now()+10*60*1000).toISOString();
   const tx=await centralRest("business_software_oauth_transactions",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({state_hash:hash,tenant_id:tenant.id,provider:"google",return_origin:returnOrigin,expires_at:expires})});
