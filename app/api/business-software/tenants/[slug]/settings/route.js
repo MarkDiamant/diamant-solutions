@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { centralRest, tenantRecord } from "../../../../../lib/business-software/db";
+import { centralRest, tenantRecord } from "../../../../../../lib/business-software/db";
 
 export async function GET(_request,{params}){
   const slug=String((await params).slug||"").toLowerCase();
