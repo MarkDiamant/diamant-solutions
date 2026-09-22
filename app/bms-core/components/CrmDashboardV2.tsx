@@ -2,8 +2,8 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ALL_STATUSES, JOB_TYPES, STATUS_META } from "@/lib/crm/constants";
-import type { JobStatus, Manager } from "@/lib/crm/types";
+import { ALL_STATUSES, JOB_TYPES, STATUS_META } from "@/app/bms-core/lib/constants";
+import type { JobStatus, Manager } from "@/app/bms-core/lib/types";
 
 function money(value?: number | string) {
   return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(Number(value || 0));
