@@ -56,8 +56,7 @@ function updatePositioning(){
     const items=['Set up around your business','Simple, clean and easy to use','Hosting, support & updates included','Reasonable ongoing adjustments included','Useful new features added as we improve','Built to grow with your business'];
     why.querySelectorAll('.whyList p').forEach((row,i)=>{const span=row.querySelector('span');if(span&&items[i])span.textContent=items[i];row.querySelector('b')?.remove();});
   }
-  const about=document.querySelector('#about p');
-  if(about)about.textContent='Diamant Solutions builds professional websites and simple business management software for businesses that want everything organised in one place. We set it up around the way you work, keep it managed, and help adapt it as your business changes.';
+  // Homepage About copy is owned by app/page.js. Do not rewrite it here.
   const pricing=document.querySelector('.pricing');
   if(pricing){
     const h=pricing.querySelector(':scope > h2'); if(h)h.innerHTML='Websites & Business Software.<br/>Built Around Your Business.';
