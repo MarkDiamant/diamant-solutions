@@ -28,6 +28,9 @@ export async function GET(request){
   if(!txRes.ok)return NextResponse.json({error:"Unable to validate connection"},{status:500});
   const tx=(await txRes.json())?.[0];
   if(!tx)return NextResponse.json({error:"Connection request expired or invalid"},{status:400});
+  const claim=await centralRest(`business_software_oauth_transactions?id=eq.${encodeURIComponent(tx.id)}&consumed_at=is.null`,{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({consumed_at:new Date().toISOString()})});
+  const claimed=claim.ok?await claim.json():[];
+  if(!claim.ok||!claimed.length)return NextResponse.json({error:"Connection request expired or already used"},{status:400});
   const callback=`${url.origin}/api/business-software/oauth/google/callback`;
   const tokenRes=await fetch(TOKEN_URL,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({code,client_id:process.env.GOOGLE_CLIENT_ID||"",client_secret:process.env.GOOGLE_CLIENT_SECRET||"",redirect_uri:callback,grant_type:"authorization_code"})});
   const token=await tokenRes.json().catch(()=>({}));
@@ -39,6 +42,6 @@ export async function GET(request){
   let refreshCipher=null;if(token.refresh_token)refreshCipher=encrypt(token.refresh_token);else{const existing=await centralRest(`business_software_integrations?tenant_id=eq.${encodeURIComponent(tx.tenant_id)}&provider=eq.google&select=refresh_token_ciphertext&limit=1`);if(existing.ok)refreshCipher=(await existing.json())?.[0]?.refresh_token_ciphertext||null;}
   const upsert=await centralRest("business_software_integrations?on_conflict=tenant_id,provider",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,provider:"google",provider_account:info.email,status:"connected",scopes:String(token.scope||"").split(" ").filter(Boolean),connected_at:new Date().toISOString(),disconnected_at:null,access_token_ciphertext:encrypt(token.access_token),refresh_token_ciphertext:refreshCipher,token_expires_at:expiresAt,metadata:{email_verified:Boolean(info.email_verified)}})});
   if(!upsert.ok)return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));
-  await centralRest(`business_software_oauth_transactions?id=eq.${encodeURIComponent(tx.id)}`,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({consumed_at:new Date().toISOString()})});
+  await centralRest("business_software_audit_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,actor:info.email,action:"connected",entity_type:"integration",entity_id:"google",metadata:{provider:"google"}})});
   return NextResponse.redirect(safeReturn(tx.return_origin)+"?google=connected");
 }
