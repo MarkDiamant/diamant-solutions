@@ -1,7 +1,7 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import {STATUS_META} from "@/lib/crm/constants";
-import type {Manager} from "@/lib/crm/types";
+import {STATUS_META} from "@/app/bms-core/lib/constants";
+import type {Manager} from "@/app/bms-core/lib/types";
 import Link from "next/link";
 type View="customers"|"jobs"|"quotes"|"invoices"|"payments"|"files"|"team";
 const titles:any={customers:["Customers","Every customer and their jobs in one place."],jobs:["Jobs","All current work and enquiries."],quotes:["Quotes","Quotes across every job."],invoices:["Invoices","Jobs at invoice and payment stage."],payments:["Payments","Customer payments and outstanding balances."],files:["Files","Open job files and photos from one place."],team:["Team","People assigned across your work."]};
