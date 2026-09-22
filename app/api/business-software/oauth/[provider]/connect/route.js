@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { centralRest, tenantRecord } from "../../../../../../lib/business-software/db";
 import { verifyTenantHandoff } from "../../../../../../lib/business-software/handoff";
+import { tenantFromSlug } from "../../../../../../lib/business-software/tenants";
 
 const GOOGLE_AUTH="https://accounts.google.com/o/oauth2/v2/auth";
 const SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send"];
@@ -19,7 +20,8 @@ export async function GET(request,{params}){
   const url=new URL(request.url),slug=url.searchParams.get("tenant"),returnOrigin=url.searchParams.get("return_origin")||"",email=url.searchParams.get("email")||"",ts=url.searchParams.get("ts")||"",signature=url.searchParams.get("sig")||"";
   if(!slug)return NextResponse.json({error:"Tenant is required"},{status:400});
   if(!verifyTenantHandoff({slug,origin:returnOrigin,email,ts,signature}))return NextResponse.json({error:"Authorised tenant session required"},{status:401});
-  const tenant=await tenantRecord(slug);
+  let tenant=await tenantRecord(slug);
+  if(!tenant){const fallback=tenantFromSlug(slug);if(fallback)tenant={id:fallback.id,slug:fallback.slug,business_name:fallback.name,canonical_host:fallback.canonicalHost,status:fallback.status,billing_mode:fallback.billingMode,reference_tenant:fallback.referenceTenant};}
   if(!tenant||tenant.status!=="active")return NextResponse.json({error:"Tenant not found"},{status:404});
   if(!allowedOrigin(tenant,returnOrigin))return NextResponse.json({error:"Return origin is not allowed"},{status:400});
   if(!process.env.GOOGLE_CLIENT_ID||!process.env.GOOGLE_CLIENT_SECRET||!process.env.DS_INTEGRATION_ENCRYPTION_KEY)return NextResponse.json({error:"Google integration is not configured"},{status:503});
