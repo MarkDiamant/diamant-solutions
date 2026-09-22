@@ -1,6 +1,5 @@
 'use client';
 import {useEffect,useState} from 'react';
-import SoftwareDemo from './SoftwareDemo';
 import CheckoutButton from '../components/CheckoutButton';
 import './software.css';
 const MONTHLY='https://buy.stripe.com/5kQ28sc9z7Lf6an2NE1Nu00';
