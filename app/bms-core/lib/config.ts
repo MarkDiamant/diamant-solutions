@@ -25,7 +25,7 @@ export type CrmConfig = {
 export const M_AND_J_TENANT_CONFIG: CrmConfig = {
   businessName: "M&J Metal",
   systemName: "Business Management Software",
-  logoUrl: "/images/logo.png",
+  logoUrl: "/Icon-512.png",
   accentColour: "#e66a24",
   workforceTitle: "Fabricators / installers / subcontractors",
   workforceSingular: "team member",
@@ -74,7 +74,7 @@ export const SHARED_BUSINESS_SOFTWARE_DEFAULTS: CrmConfig = {
 
 // This live deployment is tenant #1. New tenants start from the shared defaults
 // and persist their own tenant configuration.
-export const DEFAULT_CRM_CONFIG = M_AND_J_TENANT_CONFIG;
+export const DEFAULT_CRM_CONFIG = SHARED_BUSINESS_SOFTWARE_DEFAULTS;
 
 export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined): CrmConfig {
   const tenantKey = value?.tenantKey || DEFAULT_CRM_CONFIG.tenantKey;
