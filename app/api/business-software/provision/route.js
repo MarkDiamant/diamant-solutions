@@ -31,16 +31,28 @@ export async function POST(request){
    const existing=await centralRest("business_software_tenants?id=eq."+order.tenant_id+"&select=slug,canonical_host&limit=1");const row=(await existing.json())?.[0];
    return NextResponse.json({ok:true,tenant:row,alreadyProvisioned:true});
   }
+  const claim=await centralRest("checkout_orders?id=eq."+order.id+"&tenant_id=is.null&provisioning_status=eq.ready_for_setup",{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({provisioning_status:"provisioning"})});
+  const claimed=claim.ok?(await claim.json()):[];
+  if(!claimed.length)return NextResponse.json({error:"This Business Software setup is already being provisioned. Please refresh shortly."},{status:409});
   const slug=await uniqueSlug(slugify(body.slug||businessName)),canonicalHost=slug+".diamantsolutions.co.uk";
   const tenantRes=await centralRest("business_software_tenants",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({slug,business_name:businessName,canonical_host:canonicalHost,status:"active",billing_mode:"paid",reference_tenant:false,data_backend:"central"})});
   if(!tenantRes.ok)return NextResponse.json({error:"Unable to create tenant"},{status:500});
   const tenant=(await tenantRes.json())[0];
   const created=await Promise.all([
-   centralRest("business_software_tenant_settings",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tenant.id,business_name:businessName,email:order.customer_email||null,timezone:"Europe/London",currency:"GBP",quote_prefix:String(body.quotePrefix||"Q").slice(0,8),invoice_prefix:String(body.invoicePrefix||"INV").slice(0,8),features:{quotes:true,invoices:true,gmail:true}})}),
+   centralRest("business_software_tenant_settings",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tenant.id,business_name:businessName,email:order.customer_email||null,timezone:"Europe/London",currency:"GBP",quote_prefix:String(body.quotePrefix||"Q").slice(0,8),invoice_prefix:String(body.invoicePrefix||"INV").slice(0,8),features:{quotes:true,invoices:true,gmail:true,xero:true}})}),
    centralRest("business_software_subscriptions",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tenant.id,plan_code:order.plan_key||"business-software",billing_status:"active",billing_interval:order.billing_interval||"monthly",included_users:1,extra_users:Math.max(0,Number(order.users||1)-1),ai_enabled:Boolean(order.ai_included),stripe_customer_id:order.stripe_customer_id||null,stripe_subscription_id:order.stripe_subscription_id||null})}),
    order.customer_email?centralRest("business_software_users",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tenant.id,email:order.customer_email,display_name:String(body.adminName||"").trim()||null,role:"owner",status:"invited"})}):Promise.resolve(null)
   ]);
-  if(created.some(r=>r&&r.ok===false))return NextResponse.json({error:"Tenant created but setup could not be completed. Support has been notified."},{status:500});
+  if(created.some(r=>r&&r.ok===false)){
+    await Promise.all([
+      centralRest("business_software_tenant_settings?tenant_id=eq."+tenant.id,{method:"DELETE",headers:{Prefer:"return=minimal"}}),
+      centralRest("business_software_subscriptions?tenant_id=eq."+tenant.id,{method:"DELETE",headers:{Prefer:"return=minimal"}}),
+      centralRest("business_software_users?tenant_id=eq."+tenant.id,{method:"DELETE",headers:{Prefer:"return=minimal"}})
+    ]);
+    await centralRest("business_software_tenants?id=eq."+tenant.id,{method:"DELETE",headers:{Prefer:"return=minimal"}});
+    await centralRest("checkout_orders?id=eq."+order.id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({provisioning_status:"ready_for_setup"})});
+    return NextResponse.json({error:"Business Software setup could not be completed. Please try again."},{status:500});
+  }
   await centralRest("business_software_audit_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tenant.id,actor:order.customer_email||"checkout",action:"provisioned",entity_type:"tenant",entity_id:tenant.id,metadata:{slug,checkout_session_id:sessionId}})});
   await centralRest("checkout_orders?id=eq."+order.id,{method:"PATCH",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tenant.id,provisioning_status:"active",provisioning_slug:slug})});
   return NextResponse.json({ok:true,tenant:{slug,canonicalHost}});
