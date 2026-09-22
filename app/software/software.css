@@ -6,3 +6,5 @@
 .realDemo button,.realDemo select,.productNav button,.activityRow,.tableRow,.moduleToolbar button,.demoChooser>button{cursor:pointer}.priceTotal{max-width:440px;width:100%;justify-self:center;margin:8px auto 0}.priceTotal:before{right:-35px}.tenantBrand>b{font-size:19px;font-family:Arial,sans-serif}
 
 .productHeaderActions span{cursor:pointer}.tenantBrand>b{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:color-mix(in srgb,var(--tenant) 13%,white);border:1px solid color-mix(in srgb,var(--tenant) 25%,white)}
+
+.productBody{min-height:590px}.modulePanel{min-height:410px}.productHeaderActions .tourFocus{background:#fff3e9;color:#b95116;border:1px solid #efb58e;border-radius:9px;padding:7px 9px;box-shadow:0 0 0 3px #f4a26124}.tenantBrand>b{font-size:14px;font-weight:950;letter-spacing:-.4px}.tenantBrand>b:first-letter{font-size:inherit}
