@@ -36,3 +36,6 @@
 @media(min-width:801px){.advisoryHeader{height:94px!important;padding:0 5vw!important}.advisoryHeader nav{display:flex!important;align-items:center!important;gap:0!important;overflow:visible!important;padding:14px 4px!important;font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important}.advisoryHeader nav a{padding:11px 15px!important;margin:0!important}.advisoryHeader nav a+a{margin-left:8px!important}}
 /* Pull the four hero labels tighter to the orbit */
 @media(min-width:901px){.decisionOrbit .orbitNode.n1{top:108px!important;right:132px!important}.decisionOrbit .orbitNode.n2{bottom:128px!important;right:102px!important}.decisionOrbit .orbitNode.n3{bottom:112px!important;left:110px!important}.decisionOrbit .orbitNode.n4{top:146px!important;left:94px!important}}
+
+/* Final advisory desktop nav correction: keep menu visually compact */
+@media(min-width:801px){.advisoryHeader nav{padding:14px 4px!important;gap:0!important}.advisoryHeader nav a{padding:11px 11px!important;margin:0!important}.advisoryHeader nav a+a{margin-left:3px!important;box-shadow:-3px 0 0 -2px rgba(151,171,194,.55)!important}}
