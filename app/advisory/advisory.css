@@ -27,3 +27,7 @@
 /* Contact and orbit refinements */
 .directWhatsApp{display:flex!important;align-items:center;gap:10px}.directWhatsApp .whatsAppLogo{width:25px;height:25px;flex:0 0 25px;color:#25D366}.directWhatsApp strong{font:inherit;font-weight:800}.directWhatsApp span{margin-left:auto}
 @media(min-width:901px){.orbitNode.n1{top:72px;right:88px}.orbitNode.n2{bottom:90px;right:48px}.orbitNode.n3{bottom:70px;left:60px}.orbitNode.n4{top:112px;left:36px}}
+
+/* Keep advisory navigation aligned with the shared site header */
+@media(min-width:801px){.advisoryHeader nav{font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important}.advisoryHeader nav a{padding:11px 15px!important}.advisoryHeader nav a+a{margin-left:8px!important}}
+@media(min-width:901px){.orbitNode.n1{top:88px!important;right:112px!important}.orbitNode.n2{bottom:108px!important;right:76px!important}.orbitNode.n3{bottom:90px!important;left:86px!important}.orbitNode.n4{top:128px!important;left:66px!important}}
