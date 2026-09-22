@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
 import { centralRest, tenantRecord } from "../../../../../../lib/business-software/db";
+import { verifyTenantHandoff } from "../../../../../../lib/business-software/handoff";
 
 const GOOGLE_AUTH="https://accounts.google.com/o/oauth2/v2/auth";
 const SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send"];
@@ -15,8 +16,9 @@ function allowedOrigin(tenant,origin){
 export async function GET(request,{params}){
   const provider=String((await params).provider||"").toLowerCase();
   if(provider!=="google")return NextResponse.json({error:"Provider not supported"},{status:404});
-  const url=new URL(request.url),slug=url.searchParams.get("tenant"),returnOrigin=url.searchParams.get("return_origin")||"";
+  const url=new URL(request.url),slug=url.searchParams.get("tenant"),returnOrigin=url.searchParams.get("return_origin")||"",email=url.searchParams.get("email")||"",ts=url.searchParams.get("ts")||"",signature=url.searchParams.get("sig")||"";
   if(!slug)return NextResponse.json({error:"Tenant is required"},{status:400});
+  if(!verifyTenantHandoff({slug,origin:returnOrigin,email,ts,signature}))return NextResponse.json({error:"Authorised tenant session required"},{status:401});
   const tenant=await tenantRecord(slug);
   if(!tenant||tenant.status!=="active")return NextResponse.json({error:"Tenant not found"},{status:404});
   if(!allowedOrigin(tenant,returnOrigin))return NextResponse.json({error:"Return origin is not allowed"},{status:400});
