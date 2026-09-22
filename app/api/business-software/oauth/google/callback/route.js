@@ -21,6 +21,7 @@ function safeReturn(origin,path="/admin/integrations"){
 }
 
 export async function GET(request){
+ try{
   const url=new URL(request.url),code=url.searchParams.get("code"),state=url.searchParams.get("state");
   if(!code||!state)return NextResponse.json({error:"Missing OAuth response"},{status:400});
   const stateHash=hash(state);
@@ -44,4 +45,5 @@ export async function GET(request){
   if(!upsert.ok)return NextResponse.redirect(new URL("/admin/integrations?google=error",tx.return_origin));
   await centralRest("business_software_audit_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,actor:info.email,action:"connected",entity_type:"integration",entity_id:"google",metadata:{provider:"google"}})});
   return NextResponse.redirect(safeReturn(tx.return_origin)+"?google=connected");
+ }catch(error){console.error("Google OAuth callback failed",error);return NextResponse.json({error:"Unable to complete Google connection"},{status:500});}
 }
