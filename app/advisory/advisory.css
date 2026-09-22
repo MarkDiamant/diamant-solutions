@@ -31,3 +31,8 @@
 /* Keep advisory navigation aligned with the shared site header */
 @media(min-width:801px){.advisoryHeader nav{font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important}.advisoryHeader nav a{padding:11px 15px!important}.advisoryHeader nav a+a{margin-left:8px!important}}
 @media(min-width:901px){.orbitNode.n1{top:88px!important;right:112px!important}.orbitNode.n2{bottom:108px!important;right:76px!important}.orbitNode.n3{bottom:90px!important;left:86px!important}.orbitNode.n4{top:128px!important;left:66px!important}}
+
+/* Exact desktop header geometry to match the other site pages */
+@media(min-width:801px){.advisoryHeader{height:94px!important;padding:0 5vw!important}.advisoryHeader nav{display:flex!important;align-items:center!important;gap:0!important;overflow:visible!important;padding:14px 4px!important;font-size:inherit!important;font-weight:inherit!important;letter-spacing:inherit!important}.advisoryHeader nav a{padding:11px 15px!important;margin:0!important}.advisoryHeader nav a+a{margin-left:8px!important}}
+/* Pull the four hero labels tighter to the orbit */
+@media(min-width:901px){.decisionOrbit .orbitNode.n1{top:108px!important;right:132px!important}.decisionOrbit .orbitNode.n2{bottom:128px!important;right:102px!important}.decisionOrbit .orbitNode.n3{bottom:112px!important;left:110px!important}.decisionOrbit .orbitNode.n4{top:146px!important;left:94px!important}}
