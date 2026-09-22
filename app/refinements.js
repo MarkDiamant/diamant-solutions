@@ -31,14 +31,7 @@ function addAdvisoryHomepageContent(){
     const link=document.createElement('a'); link.href='/advisory'; link.textContent='BUSINESS ADVISORY'; link.dataset.advisoryNav='true';
     const about=[...mobile.querySelectorAll('a')].find(a=>a.getAttribute('href')==='#about'); mobile.insertBefore(link,about||null);
   }
-  if(!document.querySelector('.homeAdvisory')){
-    const contact=document.querySelector('.contact');
-    if(contact){
-      const section=document.createElement('section'); section.className='homeAdvisory';
-      section.innerHTML='<div class="homeAdvisoryGlow one"></div><div class="homeAdvisoryGlow two"></div><div class="homeAdvisoryInner reveal"><div class="homeAdvisoryCopy"><p class="cap">WE ALSO DO BUSINESS ADVISORY</p><h2>Practical support to turn plans into action.</h2><p>One-to-one support for business owners who need clarity, accountability and practical help implementing the things they already know need to get done.</p><a class="homeAdvisoryBtn" href="/advisory">Explore Business Advisory</a></div><div class="homeAdvisoryGrid">'+['Business direction and decision-making','Priorities and implementation','Pricing and profitability','Systems and processes','Accountability and follow-through'].map(item=>'<div class="homeAdvisoryItem"><span>'+item+'</span></div>').join('')+'</div></div>';
-      contact.parentNode.insertBefore(section,contact); requestAnimationFrame(()=>section.querySelector('.reveal')?.classList.add('in'));
-    }
-  }
+  document.querySelectorAll('.homeAdvisory').forEach(el=>el.remove());
   const footer=document.querySelector('footer');
   if(footer&&!footer.classList.contains('homeUnifiedFooter')){
     footer.classList.add('homeUnifiedFooter');
