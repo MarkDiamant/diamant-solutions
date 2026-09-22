@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { centralRest, tenantRecord } from "../../../../../lib/business-software/db";
+import { centralRest, tenantRecord } from "../../../../../../lib/business-software/db";
 
 const GOOGLE_AUTH="https://accounts.google.com/o/oauth2/v2/auth";
 const SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send"];
