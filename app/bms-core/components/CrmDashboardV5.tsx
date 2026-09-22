@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import CrmDashboardV4 from "@/components/admin/CrmDashboardV4";
+import CrmDashboardV4 from "@/app/bms-core/components/CrmDashboardV4";
 
 function MobileQuickEditFix() {
   useEffect(() => {
