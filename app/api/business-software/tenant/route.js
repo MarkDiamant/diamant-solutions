@@ -7,7 +7,7 @@ function cleanHost(value=""){return String(value).trim().toLowerCase().replace(/
 export async function GET(request) {
   const url=new URL(request.url),slug=url.searchParams.get("slug"),host=cleanHost(url.searchParams.get("host")||request.headers.get("host")||"");
   const row=await tenantRecord(slug,slug?null:host);
-  const tenant=row?{id:row.slug,slug:row.slug,name:row.business_name,canonicalHost:row.canonical_host,status:row.status,billingMode:row.billing_mode,referenceTenant:Boolean(row.reference_tenant),dataBackend:row.data_backend}:null;
+  const tenant=row?{id:row.slug,slug:row.slug,name:row.business_name,canonicalHost:row.canonical_host,status:row.status,billingMode:row.billing_mode,referenceTenant:Boolean(row.reference_tenant)}:null;
   const fallback=slug?tenantFromSlug(slug):tenantFromHost(host);
   const resolved=tenant||(fallback?publicTenant(fallback):null);
   if(!resolved)return NextResponse.json({error:"Tenant not found"},{status:404});
