@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { centralRest, tenantRecord } from "../../../../../../lib/business-software/db";
-import { verifyTenantHandoff } from "../../../../../../lib/business-software/handoff";
+import { centralRest, tenantRecord } from "../../../../../../../lib/business-software/db";
+import { verifyTenantHandoff } from "../../../../../../../lib/business-software/handoff";
 
 const TOKEN_URL="https://oauth2.googleapis.com/token",SEND_URL="https://gmail.googleapis.com/gmail/v1/users/me/messages/send";
 function key(){const raw=process.env.DS_INTEGRATION_ENCRYPTION_KEY;if(!raw)throw new Error("Integration encryption key is not configured");return crypto.createHash("sha256").update(raw).digest()}
