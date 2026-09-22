@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { publicTenant, tenantFromHost, tenantFromSlug } from "@/lib/business-software/tenants";
+import { publicTenant, tenantFromHost, tenantFromSlug } from "../../../../lib/business-software/tenants";
 
 export async function GET(request) {
   const url = new URL(request.url);
