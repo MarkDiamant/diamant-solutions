@@ -5,7 +5,7 @@ import { verifyTenantHandoff } from "../../../../../../lib/business-software/han
 import { tenantFromSlug } from "../../../../../../lib/business-software/tenants";
 
 const GOOGLE_AUTH="https://accounts.google.com/o/oauth2/v2/auth";
-const SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send"];
+const SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.compose"];
 
 function allowedOrigin(tenant,origin){
   try{
