@@ -31,9 +31,9 @@ export default function AdvisoryClient(){
 
   return <main className="advisoryPage">
     <header className="advisoryHeader">
-      <a href="/"><Logo/></a>
-      <nav><a href="/">WEBSITES & CRM</a><a className="active" href="/advisory">BUSINESS ADVISORY</a><a href="#book">PRICING</a><a href="/#about">ABOUT</a><a href="#contact">CONTACT</a></nav>
-      <details className="mobileMenu"><summary aria-label="Open menu"><span/></summary><div><a href="/">WEBSITES & CRM</a><a href="/advisory">BUSINESS ADVISORY</a><a href="#book">PRICING</a><a href="/#about">ABOUT</a><a href="#contact">CONTACT</a></div></details>
+      <a className="headerBrand" href="/"><Logo/></a>
+      <nav><a href="#support">HOW I CAN HELP</a><a href="#book">PRICING</a><a href="/websites">WEBSITES</a><a href="/software">BUSINESS SOFTWARE</a><a href="#contact">CONTACT</a></nav>
+      <details className="mobileMenu"><summary aria-label="Open menu"><span/></summary><div><a href="#support">HOW I CAN HELP</a><a href="#book">PRICING</a><a href="/websites">WEBSITES</a><a href="/software">BUSINESS SOFTWARE</a><a href="#contact">CONTACT</a></div></details>
     </header>
 
     <section className="advisoryHero">
