@@ -23,61 +23,15 @@ export type CrmConfig = {
   modules: Record<CrmModuleKey, boolean>;
 };
 
-export const M_AND_J_TENANT_CONFIG: CrmConfig = {
-  businessName: "M&J Metal",
-  systemName: "Business Management Software",
-  logoUrl: "/images/logo.png",
-  accentColour: "#e66a24",
-  workforceTitle: "Fabricators / installers / subcontractors",
-  workforceSingular: "team member",
-  workforceRoles: ["Installer", "Engineer", "Technician", "Contractor", "Subcontractor", "Surveyor", "Project manager", "Fabricator", "Other"],
-  managers: [{value:"MD",label:"Mark"},{value:"JB",label:"Jonathan"}],
-  workTypes: ["Driveway Gates","Commercial Gates","Gate Automation","Side Passage Gates","Bar Grille Doors","Security Window Grilles","Retractable Security Gates","Railings","Staircases","Fire Escapes","Bespoke Fabrication","Other"],
-  finishOptions: ["Primed & painted","Spray painted","Powder coated","Galvanised","Zinc primer","Stainless steel","Brushed stainless","Polished stainless","Raw steel","Other"],
-  enquirySources: ["WhatsApp","Email","Website","Phone","Referral","Existing Customer","We reached out","Other"],
-  fileCategories: ["Site Survey","Before","Drawing","Fabrication","Installation","After","Other"],
-  quoteTemplate: "mj-signature",
-  invoiceTemplate: "mj-signature",
-  tenantKey: "mj-metal",
-  plan: { includedUsers:1, licensedUsers:2, additionalUserMonthly:10, aiAssistantMonthly:15, annualMonthsCharged:10, aiIncluded:true },
-  ai: { enabled:true, textAssist:true, voiceAssist:false, includedTextActions:null, includedVoiceMinutes:null },
-  billing: { mode:"free", interval:null, status:"active", resumeUrl:"", customerId:"", subscriptionId:"", currentPeriodEnd:"", cancelAtPeriodEnd:false },
-  businessDetails: { phone:"020 3284 5045", email:"info@mjmetal.co.uk", website:"mjmetal.co.uk", companyNumber:"17330239", officeAddress:"Office 6, 1st Floor, Sutherland House, 70-78 West Hendon Broadway, London, NW9 7BT", registeredAddress:"4 Eastville Avenue, London NW11 0HD", bankName:"M&J Metal Ltd", accountNumber:"37245425", sortCode:"60-83-71", vatRegistered:false, vatNumber:"", defaultDepositPercent:50, quoteValidityDays:30, paymentTerms:"50% deposit, with the remaining balance due on completion.", defaultVatRate:20, emailSignatureName:"The M&J Metal Team", emailSignatureTagline:"| Built Strong. Built to last |" },
-  modules: {
-    photos: true,
-    workforce: true,
-    commission: true,
-    payments: true,
-    costs: true,
-    finishes: true,
-    siteVisits: true,
-    scheduling: true,
-    quotes: true,
-    invoices: true,
-  },
-};
-
 export const SHARED_BUSINESS_SOFTWARE_DEFAULTS: CrmConfig = {
-  ...M_AND_J_TENANT_CONFIG,
-  businessName: "Your Business",
-  logoUrl: "/favicon.svg",
-  workforceTitle: "Team",
-  workforceSingular: "team member",
-  workforceRoles: ["Engineer","Technician","Contractor","Subcontractor","Surveyor","Project manager","Electrician","Plumber","Carpenter","Builder","Cleaner","Driver","Consultant","Salesperson","Other"],
-  managers: [{value:"M1",label:"Manager 1"}],
-  workTypes: ["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"],
-  finishOptions: ["Standard","Other"],
-  invoiceTemplate: "clean",
-  tenantKey: "new-tenant",
-  plan: { ...M_AND_J_TENANT_CONFIG.plan, includedUsers:1, licensedUsers:1, aiIncluded:false },
-  ai: { ...M_AND_J_TENANT_CONFIG.ai, enabled:false, textAssist:false, voiceAssist:false },
-  billing: { ...M_AND_J_TENANT_CONFIG.billing, mode:"paid" },
-  businessDetails: { ...M_AND_J_TENANT_CONFIG.businessDetails, phone:"", email:"", website:"", companyNumber:"", officeAddress:"", registeredAddress:"", bankName:"", accountNumber:"", sortCode:"", vatRegistered:false, vatNumber:"" },
+  businessName:"Your Business", systemName:"Business Management Software", logoUrl:"/Icon-512.png", accentColour:"#e66a24",
+  workforceTitle:"Team", workforceSingular:"team member", workforceRoles:["Engineer","Technician","Contractor","Subcontractor","Surveyor","Project manager","Electrician","Plumber","Carpenter","Builder","Cleaner","Driver","Consultant","Salesperson","Other"],
+  managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", invoiceTemplate:"clean", tenantKey:"demo",
+  plan:{includedUsers:1,licensedUsers:1,additionalUserMonthly:10,aiAssistantMonthly:15,annualMonthsCharged:10,aiIncluded:false}, ai:{enabled:false,textAssist:false,voiceAssist:false,includedTextActions:null,includedVoiceMinutes:null}, billing:{mode:"free",interval:null,status:"active",resumeUrl:"",customerId:"",subscriptionId:"",currentPeriodEnd:"",cancelAtPeriodEnd:false},
+  businessDetails:{phone:"",email:"",website:"",companyNumber:"",officeAddress:"",registeredAddress:"",bankName:"",accountNumber:"",sortCode:"",vatRegistered:false,vatNumber:"",defaultDepositPercent:50,quoteValidityDays:30,paymentTerms:"50% deposit, with the remaining balance due on completion.",defaultVatRate:20,emailSignatureName:"The Team",emailSignatureTagline:""},
+  modules:{photos:true,workforce:true,commission:true,payments:true,costs:true,finishes:true,siteVisits:true,scheduling:true,quotes:true,invoices:true}
 };
-
-// This live deployment is tenant #1. New tenants start from the shared defaults
-// and persist their own tenant configuration.
-export const DEFAULT_CRM_CONFIG = SHARED_BUSINESS_SOFTWARE_DEFAULTS;
+export const DEFAULT_CRM_CONFIG=SHARED_BUSINESS_SOFTWARE_DEFAULTS;
 
 export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined): CrmConfig {
   const tenantKey = value?.tenantKey || DEFAULT_CRM_CONFIG.tenantKey;
