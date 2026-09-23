@@ -1,5 +1,5 @@
-import MjOperationalIntegrations from "@/components/admin/MjOperationalIntegrations";
 "use client";
+import MjOperationalIntegrations from "@/components/admin/MjOperationalIntegrations";
 
 import { useEffect, useState } from "react";
 import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/lib/crm/config";
