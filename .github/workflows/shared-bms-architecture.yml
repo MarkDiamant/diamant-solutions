@@ -52,8 +52,12 @@ jobs:
           # Syntactically valid, non-production placeholders for prerendering only.
           NEXT_PUBLIC_SUPABASE_URL: https://demo-build.invalid
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          NEXT_PUBLIC_SUPABASE_KEY: ci-nonproduction-placeholder
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-nonproduction-placeholder
+          NEXT_PUBLIC_SUPABASE_API_KEY: ci-nonproduction-placeholder
           SUPABASE_URL: https://demo-build.invalid
           SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          SUPABASE_KEY: ci-nonproduction-placeholder
         run: |
           npm install --no-audit --no-fund
           npm run build
