@@ -6,6 +6,9 @@ on:
       - 'components/admin/**'
       - 'lib/crm/**'
       - 'middleware.ts'
+      - 'lib/business-software/**'
+      - 'app/api/business-software/**'
+      - 'supabase/migrations/**'
       - '.github/workflows/shared-bms-architecture.yml'
   push:
     branches: [architecture/shared-bms-core]
