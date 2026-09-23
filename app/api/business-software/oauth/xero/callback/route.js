@@ -5,7 +5,7 @@ const TOKEN_URL="https://identity.xero.com/connect/token",CONNECTIONS_URL="https
 const hash=v=>crypto.createHash("sha256").update(v).digest("hex");
 function key(){const raw=process.env.DS_INTEGRATION_ENCRYPTION_KEY;if(!raw)throw new Error("Integration encryption key is not configured");return crypto.createHash("sha256").update(raw).digest()}
 function encrypt(value){if(!value)return null;const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv("aes-256-gcm",key(),iv),encrypted=Buffer.concat([cipher.update(value,"utf8"),cipher.final()]),tag=cipher.getAuthTag();return [iv,tag,encrypted].map(v=>v.toString("base64url")).join(".")}
-function destination(origin,result){const u=new URL(origin);u.pathname="/admin/integrations";u.search=`?xero=${result}`;u.hash="";return u}
+function destination(origin,result){const u=new URL(origin);u.pathname=process.env.BMS_STAGING_PREVIEW==="true"&&process.env.DS_SUPABASE_URL==="https://sfxeyydkwzlduflpmidd.supabase.co"?"/bms-mj-preview":"/admin/integrations";u.search=`?xero=${result}`;u.hash="";return u}
 export async function GET(request){
  try{
   const url=new URL(request.url),code=url.searchParams.get("code"),state=url.searchParams.get("state");if(!code||!state)return NextResponse.json({error:"Missing OAuth response"},{status:400});
