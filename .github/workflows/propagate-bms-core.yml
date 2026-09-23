@@ -1,0 +1,18 @@
+name: Propagate shared BMS core to M&J
+on:
+  push:
+    branches: [main]
+    paths: ["business-software-core/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  propagate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger M&J shared-core sync
+        env:
+          GH_TOKEN: ${{ secrets.BMS_TENANT_SYNC_TOKEN }}
+        run: |
+          test -n "$GH_TOKEN" || { echo "::error::BMS_TENANT_SYNC_TOKEN is not configured"; exit 1; }
+          gh api --method POST repos/MarkDiamant/mjmetal/dispatches -f event_type=bms-core-updated -f 'client_payload[source_sha]=${{ github.sha }}'
