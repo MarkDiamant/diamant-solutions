@@ -29,3 +29,15 @@ Do not change M&J production, set its DS tenant `data_backend=central`, import i
 - Successfully applied the existing staging-only source-parity and membership/RLS migrations. Staging has the M&J reference tenant UUID `3ebc2265-8842-4826-b464-71783d6cf841`, slug `mjmetal`, `billing_mode=free`, `data_backend=staging` and 13 member-read policies.
 - Negative RLS test under `authenticated` role with a nonmember synthetic JWT subject returned `bms_is_active_member=false` and zero visible tenants/customers. A positive real Auth user and cross-tenant write test is still required.
 - Staging operational records remain empty; the M&J dump's actual data have **not** been imported. The uploaded dump is a custom-format archive, and the available local runtime does not have PostgreSQL `pg_restore`; do not infer source rows exist in staging from structural migration success.
+
+## Further staging security tests completed
+
+- A synthetic user A was inserted into Auth and given active membership of M&J in a single rolled-back staging transaction. A synthetic user B and second tenant were also created in that transaction. Under user A's `authenticated` role/JWT subject, `bms_is_active_member` returned true for M&J and false for B, with exactly one visible customer, one tenant and one membership. All synthetic rows were rolled back.
+- A separate rolled-back test created one Storage metadata object under each tenant UUID in the private `bms-job-files` bucket. Under user A, exactly one object was visible, belonging to A's tenant. Actual object bytes, upload/download and signed URL behaviour remain untested.
+- The private Storage read policy was committed to `supabase/migrations/staging_only_bms_private_storage.sql`. No client-side write policy is granted; writes require a verified server route.
+- Post-test staging check: one M&J tenant, zero membership/customer/storage object rows and one private Storage bucket. No synthetic test records persisted.
+
+## Pending user's one-time source export
+
+- The local runtime has the original 407,651-byte custom-format `MJ-full-backup.dump` but lacks `pg_restore`, so it cannot yet parse the archived row data here. The user has a working PostgreSQL 17 installation on Windows.
+- Prepare a `pg_restore --data-only --column-inserts --schema=public` SQL export from that existing dump and upload it directly to this chat; keep the SQL and ZIP private. After receiving it, map rows into isolated staging, reconcile all counts/totals, and perform workflow tests. **Do not treat the SQL export as a new source snapshot**; it represents the same point-in-time dump.
