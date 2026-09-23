@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase, supabaseConfigured } from "../../lib/supabase-browser";
 
 const TENANT_ID = "3ebc2265-8842-4826-b464-71783d6cf841";
-const RESOURCES = ["jobs", "customers", "payments", "quotes", "costs", "files"];
+const RESOURCES = ["jobs", "customers", "payments", "quotes", "costs", "files", "invoices", "people", "assignments", "audit"];
 
 export default function MjStagingPreview() {
   const [session, setSession] = useState(null);
