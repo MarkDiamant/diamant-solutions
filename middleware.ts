@@ -13,7 +13,7 @@ export function middleware(request:NextRequest){
   const path=request.nextUrl.pathname;
 
   if(host===MJ_HOST){
-    if(path==="/login"){
+    if(path==="/login"||path==="/admin/login"){
       const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);
     }
     if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
