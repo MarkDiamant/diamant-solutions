@@ -47,6 +47,20 @@ export default function MjStagingPreview() {
     return () => controller.abort();
   }, [session?.access_token, resource]);
 
+  async function connectXero() {
+    if (!session?.access_token) return;
+    setMessage("");
+    try {
+      const response = await fetch("/api/business-software/staging-xero", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + session.access_token },
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Xero connection unavailable");
+      window.location.assign(payload.url);
+    } catch (error) { setMessage(error.message); }
+  }
+
   async function updateRecord(row) {
     if (!session?.access_token || !["jobs", "customers"].includes(resource)) return;
     const field = window.prompt("Field to update (" + (resource === "jobs" ? "status, manager, next_action, internal_notes, job_type" : "first_name, last_name, phone, email, address_line_1, city, postcode") + "):");
@@ -95,7 +109,7 @@ export default function MjStagingPreview() {
       <label>Password <input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label>{" "}
       <button type="submit">Sign in</button>
     </form> : <>
-      <p>Signed in as {session.user.email} <button type="button" onClick={() => supabase.auth.signOut()}>Sign out</button></p>
+      <p>Signed in as {session.user.email} <button type="button" onClick={() => supabase.auth.signOut()}>Sign out</button> <button type="button" onClick={connectXero}>Connect Xero to staging</button></p>
       <nav aria-label="Preview data">{RESOURCES.map(name =>
         <button type="button" key={name} onClick={() => setResource(name)} aria-pressed={resource === name} style={{ marginRight: 8, fontWeight: resource === name ? "bold" : "normal" }}>{name}</button>
       )}</nav>
