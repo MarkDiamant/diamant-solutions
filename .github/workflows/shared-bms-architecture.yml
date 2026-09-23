@@ -19,7 +19,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: npm
       - name: Verify canonical imports and demo isolation
         shell: bash
         run: |
@@ -42,5 +41,5 @@ jobs:
           NODE
       - name: Build BMS preview
         run: |
-          npm ci
+          npm install --no-audit --no-fund
           npm run build
