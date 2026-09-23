@@ -11,3 +11,14 @@
 .bms-shell .builtByLine{display:inline-flex;align-items:center;gap:6px}
 .bms-shell .builtByTag,.bms-shell .builtByCta{font-size:10px}
 @media(min-width:640px){.bms-shell header nav a[data-ai-nav]{margin-left:auto;min-width:92px;display:flex;align-items:center;justify-content:center;gap:8px}}
+
+/* Shared Diamant credit: use the actual brand artwork, recoloured for light surfaces. */
+.bms-shell .builtBy{display:inline-flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px;max-width:100%;width:auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;text-decoration:none!important;color:#475569!important;font-size:11px!important;font-weight:500!important;line-height:1.2!important}
+.bms-shell .builtByLine{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.bms-shell .builtByPrefix{font-size:10px;font-weight:600;color:#64748b}
+.bms-shell .builtBy img{display:block!important;width:142px!important;max-width:142px!important;height:auto!important;max-height:34px!important;object-fit:contain!important}
+.bms-shell .builtByCompact img{width:115px!important;max-width:115px!important;max-height:27px!important}
+.bms-shell .builtByTag{font-size:10px!important;color:#64748b!important;letter-spacing:0!important;text-align:center}
+.bms-shell .builtByCompact .builtByLine{gap:5px}
+.bms-shell header .builtByCompact{margin-top:2px}
+.bms-shell footer .builtBy{margin:0 auto}
