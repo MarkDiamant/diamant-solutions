@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { NextResponse } from "next/server";
-import { requireTenantMember } from "../../../../../lib/business-software/tenant-access";
-import { centralRest } from "../../../../../lib/business-software/db";
+import { requireTenantMember } from "../../../../lib/business-software/tenant-access";
+import { centralRest } from "../../../../lib/business-software/db";
 
 const TENANT="3ebc2265-8842-4826-b464-71783d6cf841";
 export async function POST(request){
