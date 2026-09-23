@@ -94,8 +94,11 @@ jobs:
           }
           (async()=>{await check('/api/business-software/tenant?slug=mjmetal',403);
           await check('/api/admin/jobs',403);
+          await check('/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841',403);
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
-          console.log('Demo-only API and production-action firewall passed.');})().catch(e=>{console.error(e);process.exitCode=1});
+          const unauth=await fetch('http://localhost:3100/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841',{headers:{host:'localhost:3100'}});
+          if(unauth.status!==401)throw Error('Unauthenticated tenant session must be denied; got '+unauth.status);
+          console.log('Demo firewall and unauthenticated tenant denial passed.');})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
