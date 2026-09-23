@@ -4,7 +4,8 @@
   "mapping": {
     "mj_admin_users": {
       "target": "business_software_users",
-      "auth": "central Auth identity mapping required"
+      "auth": "central Auth identity mapping required",
+      "notes": "source user_id must be reconciled to verified central Auth identity; preserve initials"
     },
     "mj_customers": {
       "target": "business_software_customers"
@@ -37,8 +38,8 @@
       "storage": "private mj-job-files; preserve unreferenced object separately"
     },
     "mj_integration_events": {
-      "target": "business_software_audit_events",
-      "notes": "external idempotency requires dedicated central event ledger before import"
+      "target": "business_software_integration_events",
+      "notes": "dedicated tenant-scoped event ledger; preserve external IDs and idempotency; staging parity migration required"
     },
     "mj_suppliers": {
       "target": "business_software_suppliers"
@@ -52,7 +53,7 @@
     },
     "mj_xero_connection": {
       "target": "business_software_integrations",
-      "notes": "ciphertext migration only after encryption key compatibility check or reauthorisation"
+      "notes": "source tenant_id is external Xero text ID; map to external_tenant_id, central tenant_id to UUID; require key compatibility or reauthorisation"
     },
     "mj_xero_invoices": {
       "target": "business_software_invoices",
