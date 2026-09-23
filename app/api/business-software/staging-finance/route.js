@@ -18,7 +18,7 @@ export async function POST(request){
  if(!entries.length||entries.some(([k,v])=>!spec.fields.includes(k)||(!spec.numeric.includes(k)&&v!==null&&typeof v!=="string")||(typeof v==="string"&&v.length>2000))||
    spec.required.some(k=>values[k]===undefined)||!uuid(values.job_id)||
    spec.numeric.some(k=>values[k]!==undefined&&values[k]!==null&&(!Number.isFinite(Number(values[k]))||Number(values[k])<0))||
-   (body.resource==="payments"&&!["incoming","outgoing"].includes(values.direction)))
+   (body.resource==="payments"&&!["customer_in","subcontractor_out"].includes(values.direction)))
   return NextResponse.json({error:"Invalid fields or values"},{status:400,headers});
  const session=await requireTenantMember(request,TENANT,["owner","admin","manager"]);
  if(!session.ok)return NextResponse.json({error:session.error},{status:session.status,headers});
