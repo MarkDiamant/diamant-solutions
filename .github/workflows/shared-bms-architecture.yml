@@ -80,7 +80,7 @@ jobs:
           done
           node <<'NODE'
           async function check(path,expected){
-            const r=await fetch('http://localhost:3100'+path,{headers:{host:'bms.diamantsolutions.co.uk'}});
+            const r=await fetch('http://localhost:3100'+path,{headers:{host:'bms.diamantsolutions.co.uk','x-forwarded-host':'bms.diamantsolutions.co.uk'}});
             if(r.status!==expected)throw Error(path+': expected '+expected+', got '+r.status);
             return r;
           }
