@@ -6,7 +6,6 @@ create table auth.users(id uuid primary key);
 create function auth.uid() returns uuid language sql stable
 as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
 
-create schema public;
 create table public.business_software_tenants(
  id uuid primary key, slug text unique, status text not null
 );
