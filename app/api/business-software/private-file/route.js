@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireTenantMember } from "../../../../../lib/business-software/tenant-access";
+import { requireTenantMember } from "../../../../lib/business-software/tenant-access";
 
 const BUCKET = "bms-job-files";
 const noStore = { "Cache-Control": "no-store" };
