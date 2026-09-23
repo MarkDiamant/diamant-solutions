@@ -12,7 +12,7 @@ The existing M&J repository and Vercel project remain operational as a rollback 
 
 A single tested build of the shared application should serve BMS and all real tenant hostnames. Resolve the tenant from a validated hostname and authenticated tenant membership on the **server**. Never trust a client-supplied tenant slug or global client-side fetch rewriting for authorization. Tenant branding, feature flags, licensed seats, OAuth connections and billing live in tenant-scoped configuration. Shared changes are deployed once to the canonical application; a tenant exception must be explicit, tested and reversible.
 
-Keep the public fictional demo on an entirely separate demo-only API and synthetic records. It must not possess production integration credentials. The demo hostname must block non-demo API endpoints server-side; the browser rewrite is navigation convenience only.
+Deploy the fictional demo as a separate Vercel project built from the canonical repository with server-side `BMS_DEMO_ONLY=true`. Attach `bms.diamantsolutions.co.uk` only after that project passes spoofed-host regression tests; never rely on Host or x-forwarded-host alone for isolation. The current shared marketing project is not yet configured this way. Keep the public fictional demo on an entirely separate demo-only API and synthetic records. It must not possess production integration credentials. The demo hostname must block non-demo API endpoints server-side; the browser rewrite is navigation convenience only.
 
 ## Release gates
 
