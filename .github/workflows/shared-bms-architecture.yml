@@ -47,6 +47,14 @@ jobs:
           }
           console.log('Shared core wrappers, pinned M&J source parity, and demo isolation checks passed.');
           NODE
+      - name: Guard against M&J production database coupling
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -n 'jtviulkrcpyzzwedtzbw' -- app components lib business-software-core ':!business-software-core/mj-source-baseline.json'; then
+            echo 'Shared BMS application must never reference M&J production Supabase directly.' >&2
+            exit 1
+          fi
       - name: Build BMS preview
         env:
           # Syntactically valid, non-production placeholders for prerendering only.
