@@ -58,7 +58,7 @@ begin
 end $$;
 -- Both own-tenant and cross-tenant writes remain denied until reviewed
 -- role-specific mutation policies are introduced.
-do $
+do $$
 begin
  begin
   insert into public.business_software_customers(id,tenant_id) values
@@ -72,7 +72,7 @@ begin
   raise exception 'Cross-tenant INSERT unexpectedly succeeded';
  exception when insufficient_privilege then null;
  end;
-end $;
+end $$;
 set request.jwt.claim.sub = '33333333-3333-4333-8333-333333333333';
 do $$
 declare n integer;
