@@ -60,6 +60,10 @@ begin
   end loop;
 end $$;
 
+alter table public.business_software_users enable row level security;
+alter table public.business_software_tenant_settings enable row level security;
+alter table public.business_software_tenants enable row level security;
+
 -- Users can see only their own membership record. Administrative user
 -- management remains server-side, separately authorised.
 drop policy if exists bms_self_membership_read on public.business_software_users;
