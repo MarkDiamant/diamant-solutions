@@ -47,6 +47,26 @@ export default function MjStagingPreview() {
     return () => controller.abort();
   }, [session?.access_token, resource]);
 
+  async function updateRecord(row) {
+    if (!session?.access_token || !["jobs", "customers"].includes(resource)) return;
+    const field = window.prompt("Field to update (" + (resource === "jobs" ? "status, manager, next_action, internal_notes, job_type" : "first_name, last_name, phone, email, address_line_1, city, postcode") + "):");
+    if (!field) return;
+    const value = window.prompt("New value for " + field + ":", String(row[field] ?? ""));
+    if (value === null) return;
+    setMessage("");
+    try {
+      const response = await fetch("/api/business-software/tenant-update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        body: JSON.stringify({ tenant_id: TENANT_ID, resource, id: row.id, values: { [field]: value } }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Update failed");
+      setRows(current => current.map(item => item.id === row.id ? { ...item, [field]: value } : item));
+      setMessage("Staging record updated. Live M&J was not changed.");
+    } catch (error) { setMessage(error.message); }
+  }
+
   async function downloadPrivateFile(path) {
     if (!session?.access_token) return;
     setMessage("");
@@ -69,7 +89,7 @@ export default function MjStagingPreview() {
 
   return <main style={{ maxWidth: 1100, margin: "auto", padding: 32 }}>
     <h1>M&J migration preview</h1>
-    <p>Isolated staging · Read-only verification · Not the live M&J system</p>
+    <p>Isolated staging · Customer/job editing for authorised managers · Other sections read-only · Not the live M&J system</p>
     {!session ? <form onSubmit={signIn}>
       <label>Email <input type="email" autoComplete="username" value={email} onChange={event => setEmail(event.target.value)} required /></label>{" "}
       <label>Password <input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label>{" "}
@@ -83,7 +103,7 @@ export default function MjStagingPreview() {
       <div style={{ overflowX: "auto" }}><table><thead><tr>{rows[0] && Object.keys(rows[0]).map(key => <th key={key} scope="col" style={{ padding: 8, textAlign: "left" }}>{key}</th>)}</tr></thead>
         <tbody>{rows.map(row => <tr key={row.id}>{Object.values(row).map((value, index) =>
           <td key={index} style={{ padding: 8, borderTop: "1px solid #ccc", verticalAlign: "top" }}>{value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value)}</td>
-        )}{resource === "files" && row.storage_path && <td><button type="button" onClick={() => downloadPrivateFile(row.storage_path)}>Private download</button></td>}</tr>)}</tbody></table></div>
+        )}{["jobs", "customers"].includes(resource) && <td><button type="button" onClick={() => updateRecord(row)}>Edit staging record</button></td>}{resource === "files" && row.storage_path && <td><button type="button" onClick={() => downloadPrivateFile(row.storage_path)}>Private download</button></td>}</tr>)}</tbody></table></div>
     </>}
     {message && <p role="alert">{message}</p>}
   </main>;
