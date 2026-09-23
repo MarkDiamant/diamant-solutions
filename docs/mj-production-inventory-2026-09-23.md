@@ -56,6 +56,16 @@
 
 M&J public tables have RLS enabled with authenticated MJ-admin policies. Live security advisor reports four `SECURITY DEFINER` functions executable by `anon` and `authenticated`, plus disabled leaked-password protection. Review each function before changing privileges; production behaviour must not be disrupted by speculative permission edits.
 
+## Additional source-schema details
+
+- Full source column manifest: `docs/mj-production-schema-manifest-2026-09-23.json` — 216 columns across all 16 M&J public tables, captured from live PostgreSQL information_schema; no customer rows or secrets included.
+- All 16 tables have planned destinations in `scripts/migration/mj-table-mapping.json`. The integration-event target requires review: generic audit events may not preserve webhook idempotency.
+- Job status distribution: 12 `awaiting_customer`, 8 `declined`, 6 `completed`, 3 `awaiting_information`, and one each `confirmed`, `in_progress`, `quote_sent`. The source enum has 22 possible statuses; do not collapse historical values.
+- Source `mj_manager` enum values: `MD` and `JB`. Map actor/assignee values to authorised central memberships; source and central Auth UUIDs need not match.
+- Six noninternal triggers: customer/job/subcontractor updated-at, completed-job settlement guard, payment completion reconciliation, and Xero invoice completion reconciliation. Migration must not trigger real-world integration side effects.
+- Source database size was approximately 13 MB at inspection. This is not a backup or restore guarantee.
+- Repeatable-read reconciliation SQL: `scripts/migration/mj-readonly-reconciliation.sql`.
+
 ## Remaining gates
 
 1. Obtain a verified **point-in-time full PostgreSQL backup** and independent **versioned Storage export**. This connector exposes SQL and Storage metadata, **not a verified downloadable database/Storage backup**. Record backup timestamp, object manifest, checksums and perform a restore drill.
