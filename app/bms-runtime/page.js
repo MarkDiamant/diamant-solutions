@@ -1,0 +1,2 @@
+export const metadata={title:"Business Management Software Demo | Diamant Solutions",robots:{index:false,follow:false}};
+export default function BmsRuntime({searchParams}){return <iframe src={`https://mjmetal.diamantsolutions.co.uk/demo?sample=${searchParams?.sample||"northstar"}`} title="Business Management Software runtime" style={{position:"fixed",inset:0,width:"100%",height:"100%",border:0,background:"#f5f5f2"}}/>;}
