@@ -41,7 +41,7 @@ jobs:
           const baseline=require('./business-software-core/mj-source-baseline.json');
           for(const [name,expected] of Object.entries(baseline.components)){
             const data=fs.readFileSync('business-software-core/components/admin/'+name+'.tsx');
-            const gitBlob=Buffer.concat([Buffer.from('blob '+data.length+'\\0'),data]);
+            const gitBlob=Buffer.concat([Buffer.from('blob '+data.length+'\0'),data]);
             const sha=crypto.createHash('sha1').update(gitBlob).digest('hex');
             if(sha!==expected)throw Error(name+' has diverged from pinned M&J source; review and update baseline explicitly');
           }
