@@ -73,6 +73,17 @@ begin
  exception when insufficient_privilege then null;
  end;
 end $$;
+set request.jwt.claim.sub = '22222222-2222-4222-8222-222222222222';
+do $
+declare n integer;
+begin
+ select count(*) into n from public.business_software_customers
+ where tenant_id='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+ if n<>1 then raise exception 'Tenant B cannot read own customers'; end if;
+ select count(*) into n from public.business_software_customers
+ where tenant_id='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+ if n<>0 then raise exception 'Tenant B can read tenant A customers'; end if;
+end $;
 set request.jwt.claim.sub = '33333333-3333-4333-8333-333333333333';
 do $$
 declare n integer;
