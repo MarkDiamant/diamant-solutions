@@ -1,0 +1,63 @@
+{
+  "source": "M&J live production",
+  "target": "DS central tenant",
+  "mapping": {
+    "mj_admin_users": {
+      "target": "business_software_users",
+      "auth": "central Auth identity mapping required"
+    },
+    "mj_customers": {
+      "target": "business_software_customers"
+    },
+    "mj_jobs": {
+      "target": "business_software_jobs",
+      "enum": "preserve all source statuses and original job references"
+    },
+    "mj_activities": {
+      "target": "business_software_activities"
+    },
+    "mj_subcontractors": {
+      "target": "business_software_people"
+    },
+    "mj_job_subcontractors": {
+      "target": "business_software_job_people"
+    },
+    "mj_payments": {
+      "target": "business_software_payments",
+      "direction": "customer_in/subcontractor_out/supplier_out"
+    },
+    "mj_job_costs": {
+      "target": "business_software_job_costs"
+    },
+    "mj_quotes": {
+      "target": "business_software_quotes"
+    },
+    "mj_files": {
+      "target": "business_software_files",
+      "storage": "private mj-job-files; preserve unreferenced object separately"
+    },
+    "mj_integration_events": {
+      "target": "business_software_audit_events",
+      "notes": "external idempotency requires dedicated central event ledger before import"
+    },
+    "mj_suppliers": {
+      "target": "business_software_suppliers"
+    },
+    "mj_material_orders": {
+      "target": "business_software_material_orders"
+    },
+    "mj_audit_events": {
+      "target": "business_software_audit_events",
+      "notes": "historical actors and original timestamps"
+    },
+    "mj_xero_connection": {
+      "target": "business_software_integrations",
+      "notes": "ciphertext migration only after encryption key compatibility check or reauthorisation"
+    },
+    "mj_xero_invoices": {
+      "target": "business_software_invoices",
+      "notes": "preserve external IDs, no duplicate invoice generation"
+    }
+  },
+  "warning": "Planning manifest only; no data import is authorised by this file."
+}
