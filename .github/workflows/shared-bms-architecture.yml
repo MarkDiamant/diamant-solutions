@@ -1,0 +1,179 @@
+name: Shared BMS architecture checks
+on:
+  pull_request:
+    paths:
+      - 'business-software-core/**'
+      - 'components/admin/**'
+      - 'lib/crm/**'
+      - 'middleware.ts'
+      - 'lib/business-software/**'
+      - 'app/api/business-software/**'
+      - 'supabase/migrations/**'
+      - '.github/workflows/shared-bms-architecture.yml'
+  push:
+    branches: [architecture/shared-bms-core]
+concurrency:
+  group: shared-bms-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical imports and demo isolation
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const names=['AdminBrandBar','CrmDashboardV3','CrmDashboardV4','CrmDashboardV5','JobDetail','JobWorkflowPanel','NewJobForm','NewJobFormV2','QuotePdfActions','QuotePrint','SetupRequired','XeroInvoicePage'];
+          for(const name of names){
+            const app=fs.readFileSync('components/admin/'+name+'.tsx','utf8');
+            const expected='@/business-software-core/components/admin/'+name;
+            if(!app.includes('export {default} from "'+expected+'"'))throw Error(name+' is not using the shared core');
+            if(!fs.existsSync('business-software-core/components/admin/'+name+'.tsx'))throw Error(name+' missing from core');
+          }
+          const sourceManifest=require('./docs/mj-production-schema-manifest-2026-09-23.json');
+          const migrationMap=require('./scripts/migration/mj-table-mapping.json').mapping;
+          const sourceTables=Object.keys(sourceManifest.tables);
+          if(sourceTables.length!==16)throw Error('M&J source schema manifest is incomplete');
+          if(sourceTables.reduce((n,t)=>n+sourceManifest.tables[t].length,0)!==216)throw Error('M&J source column manifest drifted');
+          for(const table of sourceTables){
+            if(!migrationMap[table]?.target)throw Error('No reviewed migration target for '+table);
+          }
+          if(Object.keys(migrationMap).length!==sourceTables.length)throw Error('M&J mapping has unknown or missing tables');
+          const tenantAccess=fs.readFileSync('lib/business-software/tenant-access.js','utf8');
+          if(!tenantAccess.includes('record.data_backend !== "central"'))throw Error('Tenant sessions must fail closed for legacy external data backends');
+          const publicTenantRoute=fs.readFileSync('app/api/business-software/tenant/route.js','utf8');
+          if(publicTenantRoute.includes('tenantFromSlug')||publicTenantRoute.includes('publicTenant(fallback)'))throw Error('Static M&J tenant fallback must not masquerade as migrated central tenant');
+          if(!fs.readFileSync('lib/crm/config.ts','utf8').includes('business-software-core/lib/config'))throw Error('CRM configuration duplicated');
+          if(!fs.readFileSync('components/admin/BillingAccessGate.tsx','utf8').includes('business-software-core/components/admin/BillingAccessGate'))throw Error('Billing gate duplicated');
+          for(const name of ['permissions','product']){
+            const app=fs.readFileSync('lib/crm/'+name+'.ts','utf8');
+            if(!app.includes('export * from "@/business-software-core/lib/'+name+'"'))throw Error(name+' duplicated');
+          }
+          const guard=fs.readFileSync('middleware.ts','utf8');
+          if(!guard.includes('bms.diamantsolutions.co.uk')||!guard.includes('status:403'))throw Error('Demo API isolation guard missing');
+          const crypto=require('node:crypto');
+          const baseline=require('./business-software-core/mj-source-baseline.json');
+          for(const [name,expected] of Object.entries(baseline.components)){
+            const data=fs.readFileSync('business-software-core/components/admin/'+name+'.tsx');
+            const gitBlob=Buffer.concat([Buffer.from('blob '+data.length+'\0'),data]);
+            const sha=crypto.createHash('sha1').update(gitBlob).digest('hex');
+            if(sha!==expected)throw Error(name+' has diverged from pinned M&J source; review and update baseline explicitly');
+          }
+          // Runtime routes intentionally adapt the verified M&J UI to tenant-scoped data.
+          // Pin the original route manifest for reference, but validate adapted routes
+          // for existence rather than requiring byte-for-byte identity.
+          const routes=require('./business-software-core/mj-route-baseline.json').routes;
+          for(const route of Object.keys(routes)){
+            const file='app/bms-runtime/'+route+'/page.tsx';
+            if(!fs.existsSync(file))throw Error(route+' BMS runtime route missing');
+            const source=fs.readFileSync(file,'utf8');
+            if(!source.includes('export default'))throw Error(route+' BMS runtime route has no default export');
+          }
+          console.log('Shared core, adapted BMS runtime routes and demo isolation checks passed.');
+          NODE
+      - name: Guard against M&J production database coupling
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -n 'jtviulkrcpyzzwedtzbw' -- app components lib business-software-core ':!business-software-core/mj-source-baseline.json'; then
+            echo 'Shared BMS application must never reference M&J production Supabase directly.' >&2
+            exit 1
+          fi
+      - name: Build BMS preview
+        env:
+          # Syntactically valid, non-production placeholders for prerendering only.
+          NEXT_PUBLIC_SUPABASE_URL: https://demo-build.invalid
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          NEXT_PUBLIC_SUPABASE_KEY: ci-nonproduction-placeholder
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-nonproduction-placeholder
+          NEXT_PUBLIC_SUPABASE_API_KEY: ci-nonproduction-placeholder
+          SUPABASE_URL: https://demo-build.invalid
+          SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          SUPABASE_KEY: ci-nonproduction-placeholder
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Smoke-test isolated demo routes
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://demo-build.invalid
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          SUPABASE_URL: https://demo-build.invalid
+          SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          PORT: '3100'
+          BMS_DEMO_ONLY: 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run start -- -p 3100 > /tmp/bms-smoke.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          for i in $(seq 1 45); do
+            if curl --fail --silent http://localhost:3100/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node <<'NODE'
+          async function check(path,expected){
+            const r=await fetch('http://localhost:3100'+path,{headers:{host:'bms.diamantsolutions.co.uk','x-forwarded-host':'bms.diamantsolutions.co.uk'}});
+            if(r.status!==expected)throw Error(path+': expected '+expected+', got '+r.status);
+            return r;
+          }
+          (async()=>{await check('/api/business-software/tenant?slug=mjmetal',403);
+          await check('/api/admin/jobs',403);
+          const spoof=await fetch('http://localhost:3100/api/admin/jobs',{headers:{host:'bms.diamantsolutions.co.uk','x-forwarded-host':'attacker.example'}});
+          if(spoof.status!==403)throw Error('Forwarded-host override bypassed demo firewall');
+          await check('/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841',403);
+          const demo=await check('/api/bms-demo/dashboard',200);
+          const body=await demo.text();
+          if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
+          for(const [sample,expected] of [['northstar','Residential Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery']]){
+            const r=await fetch('http://localhost:3100/api/bms-demo/jobs',{
+              headers:{host:'bms.diamantsolutions.co.uk',referer:'https://bms.diamantsolutions.co.uk/?sample='+sample}
+            });
+            if(r.status!==200)throw Error(sample+' demo jobs unavailable');
+            const data=await r.json();
+            if(data.jobs?.[0]?.jobType!==expected)throw Error(sample+' jobs are not industry-specific');
+            if(JSON.stringify(data).includes('M&J Metal'))throw Error('M&J brand leaked into '+sample);
+          }
+          console.log('Demo firewall and six industry-specific fictional job samples passed.');})().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
+  preview_without_credentials:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify public preview builds without production credentials
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+      - name: Smoke-test non-demo tenant session denial
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://demo-build.invalid
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          SUPABASE_URL: https://demo-build.invalid
+          SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+        shell: bash
+        run: |
+          set -euo pipefail
+          BMS_DEMO_ONLY=false npm run start -- -p 3101 > /tmp/bms-session.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          for i in $(seq 1 45); do
+            if curl --fail --silent http://localhost:3101/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node <<'NODE'
+          (async()=>{
+            const r=await fetch('http://localhost:3101/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841');
+            if(r.status!==401)throw Error('Unauthenticated tenant session must be denied, got '+r.status);
+            console.log('Unauthenticated tenant session denied.');
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE

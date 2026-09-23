@@ -1,2 +1,4 @@
 import BusinessDirectory from "@/components/admin/BusinessDirectory";
-export default function Page(){return <BusinessDirectory view="invoices"/>;}
+function DemoPage(){return <BusinessDirectory view="invoices"/>;}
+
+export default function Page(){return process.env.BMS_STAGING_PREVIEW==="true"?<BusinessDirectory view="invoices" staging/>:<DemoPage/>;}
