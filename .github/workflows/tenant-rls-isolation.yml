@@ -1,0 +1,41 @@
+name: Tenant RLS isolation (synthetic PostgreSQL)
+on:
+  pull_request:
+    paths:
+      - 'supabase/migrations/staging_only_bms_membership_rls.sql'
+      - 'tests/tenant-isolation/**'
+      - '.github/workflows/tenant-rls-isolation.yml'
+  push:
+    branches: [architecture/shared-bms-core]
+permissions:
+  contents: read
+jobs:
+  isolated_rls:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: ci-only
+          POSTGRES_DB: bms_isolation_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: ci-only
+      PGDATABASE: bms_isolation_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply synthetic schema, staging-only RLS and isolation assertions
+        run: |
+          set -euo pipefail
+          psql -v ON_ERROR_STOP=1 -f tests/tenant-isolation/fixture.sql
+          psql -v ON_ERROR_STOP=1 -f supabase/migrations/staging_only_bms_membership_rls.sql
+          psql -v ON_ERROR_STOP=1 -f tests/tenant-isolation/assertions.sql
