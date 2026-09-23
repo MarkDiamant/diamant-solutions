@@ -84,10 +84,10 @@ jobs:
             if(r.status!==expected)throw Error(path+': expected '+expected+', got '+r.status);
             return r;
           }
-          await check('/api/business-software/tenant?slug=mjmetal',403);
+          (async()=>{await check('/api/business-software/tenant?slug=mjmetal',403);
           await check('/api/admin/jobs',403);
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
-          console.log('Demo-only API and production-action firewall passed.');
+          console.log('Demo-only API and production-action firewall passed.');})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
