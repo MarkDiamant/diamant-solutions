@@ -34,6 +34,8 @@ jobs:
             if(!app.includes('export {default} from "'+expected+'"'))throw Error(name+' is not using the shared core');
             if(!fs.existsSync('business-software-core/components/admin/'+name+'.tsx'))throw Error(name+' missing from core');
           }
+          if(!fs.readFileSync('lib/crm/config.ts','utf8').includes('business-software-core/lib/config'))throw Error('CRM configuration duplicated');
+          if(!fs.readFileSync('components/admin/BillingAccessGate.tsx','utf8').includes('business-software-core/components/admin/BillingAccessGate'))throw Error('Billing gate duplicated');
           for(const name of ['permissions','product']){
             const app=fs.readFileSync('lib/crm/'+name+'.ts','utf8');
             if(!app.includes('export * from "@/business-software-core/lib/'+name+'"'))throw Error(name+' duplicated');
