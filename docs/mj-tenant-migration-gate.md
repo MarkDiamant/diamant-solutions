@@ -2,6 +2,17 @@
 
 The current M&J production database is the source of truth. The BMS preview branch must not use M&J's production service role key or connect to its production database.
 
+## Central DS Supabase schema audit (read-only, 23 September 2026)
+
+Verified via the connected DS Supabase project's public schema inventory:
+
+- `business_software_tenants` already has `billing_mode` (`free` or `paid`), `reference_tenant`, `data_backend`, and `external_project_ref`. This supports M&J's permanently free tenant without a separate production database.
+- `business_software_subscriptions` supports `billing_status='free'`; a Stripe customer or subscription ID is optional.
+- The central project has the required operational tables, but their current reported row counts are zero. **This does not establish that M&J's production data has been copied.**
+- **Blocking schema drift:** live DS `business_software_users` does not yet have `auth_user_id`, which the new verified-session guard requires. The staged RLS migration adds this column and its indexes. It has passed isolated PostgreSQL tests but must be reviewed and tested in a DS development branch before any live migration.
+- The current public M&J tenant API can return a static fallback with `id='mjmetal'` when central lookup fails. The development branch removes that fallback: only a verified central registry UUID may be presented as a central tenant. The legacy M&J application stays in service until cutover.
+- Do not mark `data_backend='central'` for M&J, activate a central tenant session, or change M&J's DNS until restored backup, data reconciliation, auth membership, RLS and rollback checks pass.
+
 ## Preconditions (all must be verified)
 
 - [ ] Authorised read-only access to M&J Supabase project `jtviulkrcpyzzwedtzbw` and storage buckets. Current connector access was denied on 2026-09-23. Do not infer successful backups or counts.
