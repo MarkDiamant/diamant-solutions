@@ -15,7 +15,7 @@ Verified via the connected DS Supabase project's public schema inventory:
 
 ## Preconditions (all must be verified)
 
-- [ ] Authorised read-only access to M&J Supabase project `jtviulkrcpyzzwedtzbw` and storage buckets. Current connector access was denied on 2026-09-23. Do not infer successful backups or counts.
+- [ ] Authorised read-only access to M&J Supabase project `jtviulkrcpyzzwedtzbw` and storage buckets. Connector access is now confirmed on 2026-09-23; read-only production inventory is recorded in `docs/mj-production-inventory-2026-09-23.md`. Access and counts are **not** a backup.
 - [ ] Obtain a verified point-in-time database backup **and** a separate versioned export of every storage bucket, including object metadata and checksums. Test restoring both into an isolated environment.
 - [ ] Inventory tables, columns, primary/foreign keys, indexes, RLS policies, row counts, auth users, storage objects, integration settings and active webhooks. Record timestamps and checksums. Do not export plaintext OAuth tokens or service-role keys into source control.
 - [ ] Establish tenant-specific isolation with deny-by-default RLS and explicit tenant IDs. Verify authenticated user A cannot read, write or enumerate tenant B's records, files or integrations. Test admin/service-role boundaries separately.
