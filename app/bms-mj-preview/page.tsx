@@ -47,6 +47,36 @@ export default function MjStagingPreview() {
     return () => controller.abort();
   }, [session?.access_token, resource]);
 
+  async function addFinancialRecord() {
+    if (!session?.access_token || !["payments", "costs"].includes(resource)) return;
+    const job_id = window.prompt("Existing job UUID:");
+    if (!job_id) return;
+    const values = { job_id };
+    if (resource === "payments") {
+      const direction = window.prompt("Direction: customer_in or subcontractor_out", "customer_in");
+      const payment_type = window.prompt("Payment type:", "payment");
+      const amount = window.prompt("Amount in GBP:");
+      if (!direction || !payment_type || amount === null) return;
+      Object.assign(values, { direction, payment_type, amount });
+    } else {
+      const category = window.prompt("Cost category:");
+      const actual_amount = window.prompt("Actual cost in GBP (leave blank if unknown):");
+      if (!category || actual_amount === null) return;
+      Object.assign(values, { category, ...(actual_amount.trim() ? { actual_amount } : {}) });
+    }
+    try {
+      const response = await fetch("/api/business-software/staging-finance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        body: JSON.stringify({ tenant_id: TENANT_ID, resource, values }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Creation failed");
+      setRows(current => [payload.record, ...current]);
+      setMessage("Created in isolated staging only. Live M&J remains unchanged.");
+    } catch (error) { setMessage(error.message); }
+  }
+
   async function connectXero() {
     if (!session?.access_token) return;
     setMessage("");
@@ -113,7 +143,7 @@ export default function MjStagingPreview() {
       <nav aria-label="Preview data">{RESOURCES.map(name =>
         <button type="button" key={name} onClick={() => setResource(name)} aria-pressed={resource === name} style={{ marginRight: 8, fontWeight: resource === name ? "bold" : "normal" }}>{name}</button>
       )}</nav>
-      <p>{loading ? "Loading…" : rows.length + " records"}</p>
+      <p>{loading ? "Loading…" : rows.length + " records"} {["payments", "costs"].includes(resource) && <button type="button" onClick={addFinancialRecord}>+ Add staging {resource === "payments" ? "payment" : "cost"}</button>}</p>
       <div style={{ overflowX: "auto" }}><table><thead><tr>{rows[0] && Object.keys(rows[0]).map(key => <th key={key} scope="col" style={{ padding: 8, textAlign: "left" }}>{key}</th>)}</tr></thead>
         <tbody>{rows.map(row => <tr key={row.id}>{Object.values(row).map((value, index) =>
           <td key={index} style={{ padding: 8, borderTop: "1px solid #ccc", verticalAlign: "top" }}>{value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value)}</td>
