@@ -1,0 +1,23 @@
+import crypto from "crypto";
+import { NextResponse } from "next/server";
+import { centralRest } from "../../../../../../lib/business-software/db";
+const TOKEN_URL="https://identity.xero.com/connect/token",CONNECTIONS_URL="https://api.xero.com/connections";
+const hash=v=>crypto.createHash("sha256").update(v).digest("hex");
+function key(){const raw=process.env.DS_INTEGRATION_ENCRYPTION_KEY;if(!raw)throw new Error("Integration encryption key is not configured");return crypto.createHash("sha256").update(raw).digest()}
+function encrypt(value){if(!value)return null;const iv=crypto.randomBytes(12),cipher=crypto.createCipheriv("aes-256-gcm",key(),iv),encrypted=Buffer.concat([cipher.update(value,"utf8"),cipher.final()]),tag=cipher.getAuthTag();return [iv,tag,encrypted].map(v=>v.toString("base64url")).join(".")}
+function destination(origin,result){const u=new URL(origin);u.pathname="/admin/integrations";u.search=`?xero=${result}`;u.hash="";return u}
+export async function GET(request){
+ try{
+  const url=new URL(request.url),code=url.searchParams.get("code"),state=url.searchParams.get("state");if(!code||!state)return NextResponse.json({error:"Missing OAuth response"},{status:400});
+  const txRes=await centralRest(`business_software_oauth_transactions?state_hash=eq.${encodeURIComponent(hash(state))}&provider=eq.xero&consumed_at=is.null&expires_at=gt.${encodeURIComponent(new Date().toISOString())}&select=id,tenant_id,return_origin&limit=1`);if(!txRes.ok)return NextResponse.json({error:"Unable to validate connection"},{status:500});const tx=(await txRes.json())?.[0];if(!tx)return NextResponse.json({error:"Connection request expired or invalid"},{status:400});
+  const claim=await centralRest(`business_software_oauth_transactions?id=eq.${encodeURIComponent(tx.id)}&consumed_at=is.null`,{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({consumed_at:new Date().toISOString()})});const claimed=claim.ok?await claim.json():[];if(!claim.ok||!claimed.length)return NextResponse.json({error:"Connection request expired or already used"},{status:400});
+  const callback=`${url.origin}/api/business-software/oauth/xero/callback`,basic=Buffer.from(`${process.env.XERO_CLIENT_ID||""}:${process.env.XERO_CLIENT_SECRET||""}`).toString("base64");
+  const tokenRes=await fetch(TOKEN_URL,{method:"POST",headers:{Authorization:`Basic ${basic}`,"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"authorization_code",code,redirect_uri:callback})});const token=await tokenRes.json().catch(()=>({}));if(!tokenRes.ok||!token.access_token)return NextResponse.redirect(destination(tx.return_origin,"error"));
+  const conRes=await fetch(CONNECTIONS_URL,{headers:{Authorization:`Bearer ${token.access_token}`,Accept:"application/json"}}),connections=await conRes.json().catch(()=>[]);if(!conRes.ok||!Array.isArray(connections)||!connections.length)return NextResponse.redirect(destination(tx.return_origin,"no_org"));
+  const org=connections[0],expiresAt=token.expires_in?new Date(Date.now()+Number(token.expires_in)*1000).toISOString():null;
+  const existing=await centralRest(`business_software_integrations?tenant_id=eq.${encodeURIComponent(tx.tenant_id)}&provider=eq.xero&select=refresh_token_ciphertext&limit=1`);const oldRefresh=existing.ok?(await existing.json())?.[0]?.refresh_token_ciphertext:null;
+  const upsert=await centralRest("business_software_integrations?on_conflict=tenant_id,provider",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,provider:"xero",provider_account:org.tenantName||org.tenantId,status:"connected",external_tenant_id:org.tenantId,scopes:String(token.scope||"").split(" ").filter(Boolean),connected_at:new Date().toISOString(),disconnected_at:null,access_token_ciphertext:encrypt(token.access_token),refresh_token_ciphertext:token.refresh_token?encrypt(token.refresh_token):oldRefresh,token_expires_at:expiresAt,metadata:{tenant_name:org.tenantName||null,tenant_type:org.tenantType||null}})});if(!upsert.ok)return NextResponse.redirect(destination(tx.return_origin,"error"));
+  await centralRest("business_software_audit_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tx.tenant_id,actor:"oauth",action:"connected",entity_type:"integration",entity_id:"xero",metadata:{provider:"xero",tenant_name:org.tenantName||null}})});
+  return NextResponse.redirect(destination(tx.return_origin,"connected"));
+ }catch(error){console.error("Xero OAuth callback failed",error);return NextResponse.json({error:"Unable to complete Xero connection"},{status:500});}
+}
