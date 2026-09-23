@@ -1,4 +1,4 @@
 import BusinessDirectory from "@/components/admin/BusinessDirectory";
-function DemoPage(){return <BusinessDirectory view="team"/>;}
-
-export default function Page(){return process.env.BMS_STAGING_PREVIEW==="true"?<BusinessDirectory view="team" staging/>:<DemoPage/>;}
+import {runtimeTenant} from "@/lib/business-software/runtime";
+export const dynamic="force-dynamic";
+export default async function Page(){const tenant=await runtimeTenant();return <BusinessDirectory view="team" staging={tenant?.slug==="mjmetal"}/>;}

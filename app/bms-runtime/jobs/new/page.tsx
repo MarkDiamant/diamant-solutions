@@ -1,3 +1,5 @@
 import NewJobFormV2 from "@/components/admin/NewJobFormV2";
 import MjOperationalNewJob from "@/components/admin/MjOperationalNewJob";
-export default function NewJobPage(){return process.env.BMS_STAGING_PREVIEW==="true"?<MjOperationalNewJob/>:<NewJobFormV2/>;}
+import {runtimeTenant} from "@/lib/business-software/runtime";
+export const dynamic="force-dynamic";
+export default async function NewJobPage(){const tenant=await runtimeTenant();return tenant?.slug==="mjmetal"?<MjOperationalNewJob/>:<NewJobFormV2/>;}
