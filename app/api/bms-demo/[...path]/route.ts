@@ -2,7 +2,7 @@ import {NextRequest,NextResponse} from "next/server";
 
 const now=Date.now(), day=86400000;
 const iso=(d:number)=>new Date(now+d*day).toISOString();
-const permissions=["view_jobs","edit_jobs","view_customer_details","view_pricing","view_payments_invoices","view_costs_profit","view_workforce","manage_workforce","view_files","view_history","manage_business_settings","manage_users"];
+const permissions=["view_jobs","edit_jobs","view_customer_details","view_pricing","view_payments_invoices","view_costs_profit","view_workforce","manage_workforce","view_files","view_history","view_money_overview","manage_business_settings","manage_users"];
 const admin={initials:"AD",name:"Alex Demo",email:"alex@example-demo.co.uk"};
 const people=[
  {id:"p1",name:"Sam Taylor",company:"Northstar Installations",phone:"020 7946 0101",email:"sam@example-demo.co.uk",capabilities:["Installation","Survey"],relationship_type:"employee"},
