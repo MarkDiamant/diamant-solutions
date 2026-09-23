@@ -66,6 +66,16 @@ M&J public tables have RLS enabled with authenticated MJ-admin policies. Live se
 - Source database size was approximately 13 MB at inspection. This is not a backup or restore guarantee.
 - Repeatable-read reconciliation SQL: `scripts/migration/mj-readonly-reconciliation.sql`.
 
+### Verified private Storage access controls
+
+The `mj-job-files` bucket is private. Its four `storage.objects` policies allow authenticated users to SELECT, INSERT, UPDATE and DELETE only when `mj_is_admin()` is true and the bucket ID matches. Central DS Storage must replace this legacy single-business admin check with **tenant-scoped membership checks** and test that tenant A cannot list, download, upload, overwrite or delete tenant B's objects. Do not make the bucket public or rely on an object-key prefix without matching RLS.
+
+### Exact source enums
+
+`mj_job_status`: `new_enquiry`, `awaiting_information`, `site_visit_required`, `site_visit_booked`, `estimate_preparing`, `estimate_sent`, `quote_preparing`, `quote_sent`, `awaiting_customer`, `interested_not_ready`, `customer_unsure`, `confirmed`, `deposit_requested`, `deposit_paid`, `materials_ordered`, `fabrication`, `installation_scheduled`, `in_progress`, `awaiting_final_payment`, `completed`, `declined`, `cancelled`.
+
+`mj_manager`: `MD`, `JB`. All enum values, including currently unused statuses, must survive historical import and round-trip export.
+
 ## Remaining gates
 
 1. Obtain a verified **point-in-time full PostgreSQL backup** and independent **versioned Storage export**. This connector exposes SQL and Storage metadata, **not a verified downloadable database/Storage backup**. Record backup timestamp, object manifest, checksums and perform a restore drill.
