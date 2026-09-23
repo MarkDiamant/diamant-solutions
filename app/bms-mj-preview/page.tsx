@@ -14,6 +14,7 @@ export default function MjStagingPreview() {
   const [rows, setRows] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [xeroStatus, setXeroStatus] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -77,6 +78,13 @@ export default function MjStagingPreview() {
     } catch (error) { setMessage(error.message); }
   }
 
+  useEffect(() => {
+    if (!session?.access_token) { setXeroStatus(null); return; }
+    fetch("/api/business-software/staging-xero-status", {
+      headers: { Authorization: "Bearer " + session.access_token }, cache: "no-store"
+    }).then(r => r.json()).then(setXeroStatus).catch(() => setXeroStatus(null));
+  }, [session?.access_token]);
+
   async function connectXero() {
     if (!session?.access_token) return;
     setMessage("");
@@ -139,7 +147,7 @@ export default function MjStagingPreview() {
       <label>Password <input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label>{" "}
       <button type="submit">Sign in</button>
     </form> : <>
-      <p>Signed in as {session.user.email} <button type="button" onClick={() => supabase.auth.signOut()}>Sign out</button> <button type="button" onClick={connectXero}>Connect Xero to staging</button></p>
+      <p>Signed in as {session.user.email} <button type="button" onClick={() => supabase.auth.signOut()}>Sign out</button> <button type="button" onClick={connectXero}>Connect Xero to staging</button> <span role="status">Xero: {xeroStatus?.connected ? "Connected to " + xeroStatus.organisation : xeroStatus?.error || xeroStatus?.status || "Checking..."}</span> <a href="/bms-runtime">Open M&J management screens</a></p>
       <nav aria-label="Preview data">{RESOURCES.map(name =>
         <button type="button" key={name} onClick={() => setResource(name)} aria-pressed={resource === name} style={{ marginRight: 8, fontWeight: resource === name ? "bold" : "normal" }}>{name}</button>
       )}</nav>
