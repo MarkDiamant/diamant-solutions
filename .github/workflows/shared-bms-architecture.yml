@@ -88,6 +88,7 @@ jobs:
           SUPABASE_URL: https://demo-build.invalid
           SUPABASE_ANON_KEY: ci-nonproduction-placeholder
           PORT: '3100'
+          BMS_DEMO_ONLY: 'true'
         shell: bash
         run: |
           set -euo pipefail
@@ -112,9 +113,7 @@ jobs:
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
-          const unauth=await fetch('http://localhost:3100/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841',{headers:{host:'localhost:3100'}});
-          if(unauth.status!==401)throw Error('Unauthenticated tenant session must be denied; got '+unauth.status);
-          console.log('Demo firewall and unauthenticated tenant denial passed.');})().catch(e=>{console.error(e);process.exitCode=1});
+          console.log('Demo-only deployment firewall passed, including forwarded-host spoof.');})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
   preview_without_credentials:
     runs-on: ubuntu-latest
@@ -127,3 +126,26 @@ jobs:
         run: |
           npm install --no-audit --no-fund
           npm run build
+      - name: Smoke-test non-demo tenant session denial
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://demo-build.invalid
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+          SUPABASE_URL: https://demo-build.invalid
+          SUPABASE_ANON_KEY: ci-nonproduction-placeholder
+        shell: bash
+        run: |
+          set -euo pipefail
+          BMS_DEMO_ONLY=false npm run start -- -p 3101 > /tmp/bms-session.log 2>&1 &
+          server_pid=$!
+          trap 'kill $server_pid || true' EXIT
+          for i in $(seq 1 45); do
+            if curl --fail --silent http://localhost:3101/ > /dev/null; then break; fi
+            sleep 1
+          done
+          node <<'NODE'
+          (async()=>{
+            const r=await fetch('http://localhost:3101/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841');
+            if(r.status!==401)throw Error('Unauthenticated tenant session must be denied, got '+r.status);
+            console.log('Unauthenticated tenant session denied.');
+          })().catch(e=>{console.error(e);process.exitCode=1});
+          NODE
