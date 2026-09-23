@@ -99,6 +99,8 @@ jobs:
           }
           (async()=>{await check('/api/business-software/tenant?slug=mjmetal',403);
           await check('/api/admin/jobs',403);
+          const spoof=await fetch('http://localhost:3100/api/admin/jobs',{headers:{host:'bms.diamantsolutions.co.uk','x-forwarded-host':'attacker.example'}});
+          if(spoof.status!==403)throw Error('Forwarded-host override bypassed demo firewall');
           await check('/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841',403);
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
