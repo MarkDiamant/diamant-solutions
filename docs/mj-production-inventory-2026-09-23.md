@@ -23,7 +23,7 @@
 | mj_xero_connection | 1 |
 | mj_xero_invoices | 0 |
 
-**Supabase Auth:** 2 user records. **Storage:** one private bucket `mj-job-files`, 2 stored objects, 407,988 bytes according to object metadata; metadata counts are not an object-byte backup or checksum. **Note:** one `mj_files` row vs two Storage objects requires deliberate orphan/extra-object classification; do not delete either object.
+**Supabase Auth:** 2 user records. **Storage:** one private bucket `mj-job-files`, 2 stored objects, 407,988 bytes according to object metadata; one matches the `mj_files` path and one is unreferenced by `mj_files`. Metadata counts are not an object-byte backup or checksum. **Note:** one `mj_files` row matches one Storage object by path; the other Storage object has no `mj_files` record. Preserve and classify **both** objects; do not delete either object.
 
 ## Financial reconciliation baseline
 
