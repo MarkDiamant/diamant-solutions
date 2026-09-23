@@ -6,19 +6,27 @@
 .bms-shell h2{font-size:inherit;letter-spacing:normal;line-height:normal}
 .bms-shell header img{max-height:44px;width:auto;max-width:130px;object-fit:contain}
 .bms-shell footer{height:auto;padding:8px 16px;display:block;position:static}
-.bms-shell footer img,.bms-shell .builtBy img{max-height:24px!important;max-width:110px!important;width:auto!important;object-fit:contain}
-.bms-shell .builtBy{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:11px;max-width:100%}
-.bms-shell .builtByLine{display:inline-flex;align-items:center;gap:6px}
-.bms-shell .builtByTag,.bms-shell .builtByCta{font-size:10px}
+.bms-shell footer img{max-height:24px;object-fit:contain}
+
+
+
 @media(min-width:640px){.bms-shell header nav a[data-ai-nav]{margin-left:auto;min-width:92px;display:flex;align-items:center;justify-content:center;gap:8px}}
 
-/* Shared Diamant credit: use the actual brand artwork, recoloured for light surfaces. */
-.bms-shell .builtBy{display:inline-flex!important;flex-direction:column;align-items:center;justify-content:center;gap:3px;max-width:100%;width:auto!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;text-decoration:none!important;color:#475569!important;font-size:11px!important;font-weight:500!important;line-height:1.2!important}
-.bms-shell .builtByLine{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
-.bms-shell .builtByPrefix{font-size:10px;font-weight:600;color:#64748b}
-.bms-shell .builtBy img{display:block!important;width:142px!important;max-width:142px!important;height:auto!important;max-height:34px!important;object-fit:contain!important}
-.bms-shell .builtByCompact img{width:115px!important;max-width:115px!important;max-height:27px!important}
-.bms-shell .builtByTag{font-size:10px!important;color:#64748b!important;letter-spacing:0!important;text-align:center}
+/* Same compact badge treatment as the Edible Print DS credit. */
+.bms-shell .builtBy{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:max-content;max-width:100%;padding:0;border:0;background:none;box-shadow:none;text-decoration:none;font-size:11px;line-height:1.25;color:#64748b}
+.bms-shell .builtByLine{display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap}
+.bms-shell .builtByPrefix{font-size:11px;font-weight:500;color:inherit}
+.bms-shell .builtByLogo{display:inline-flex;align-items:center;justify-content:center;background:#172536;border-radius:4px;padding:3px 5px;flex:none}
+.bms-shell .builtByLogo img{display:block!important;width:100px!important;max-width:100px!important;height:auto!important;max-height:24px!important;object-fit:contain!important}
+.bms-shell .builtByCompact{gap:0;align-items:flex-start}
 .bms-shell .builtByCompact .builtByLine{gap:5px}
-.bms-shell header .builtByCompact{margin-top:2px}
-.bms-shell footer .builtBy{margin:0 auto}
+.bms-shell .builtByCompact .builtByPrefix{font-size:9px}
+.bms-shell .builtByCompact .builtByLogo{padding:2px 4px;border-radius:3px}
+.bms-shell .builtByCompact .builtByLogo img{width:68px!important;max-width:68px!important;max-height:16px!important}
+.bms-shell .builtByTag{font-size:9px!important;line-height:1.25!important;white-space:nowrap;color:inherit}
+.bms-shell .builtByCta{font-size:10px!important;font-weight:700;color:#22c55e}
+.bms-shell .builtByDark{color:#fff}
+.bms-shell .builtByDark .builtByPrefix,.bms-shell .builtByDark .builtByTag{color:#fff}
+.bms-shell footer.bms-footer{display:flex;align-items:center;justify-content:center;min-height:70px;background:#172b4d!important;color:#fff!important;padding:12px 20px!important}
+.bms-shell footer.bms-footer .builtByLogo{background:transparent;padding:0}
+.bms-shell footer.bms-footer .builtByLogo img{width:100px!important;max-width:100px!important;max-height:24px!important}
