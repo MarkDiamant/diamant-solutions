@@ -28,6 +28,8 @@ begin
 end $$;
 grant usage on schema public to authenticated,anon;
 grant select on all tables in schema public to authenticated,anon;
+-- Grant table INSERT to prove denial comes from RLS, not missing SQL privileges.
+grant insert on public.business_software_customers to authenticated;
 grant usage on schema auth to authenticated,anon;
 set role authenticated;
 set request.jwt.claim.sub = '11111111-1111-4111-8111-111111111111';
@@ -54,6 +56,23 @@ begin
  select count(*) into n from public.business_software_tenant_settings;
  if n <> 1 then raise exception 'Tenant settings isolation failed'; end if;
 end $$;
+-- Both own-tenant and cross-tenant writes remain denied until reviewed
+-- role-specific mutation policies are introduced.
+do $
+begin
+ begin
+  insert into public.business_software_customers(id,tenant_id) values
+   ('aaaaaaaa-aaaa-4aaa-8aaa-000000000099','aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa');
+  raise exception 'Own-tenant INSERT unexpectedly succeeded';
+ exception when insufficient_privilege then null;
+ end;
+ begin
+  insert into public.business_software_customers(id,tenant_id) values
+   ('bbbbbbbb-bbbb-4bbb-8bbb-000000000099','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb');
+  raise exception 'Cross-tenant INSERT unexpectedly succeeded';
+ exception when insufficient_privilege then null;
+ end;
+end $;
 set request.jwt.claim.sub = '33333333-3333-4333-8333-333333333333';
 do $$
 declare n integer;
