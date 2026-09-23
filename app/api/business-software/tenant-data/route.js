@@ -30,7 +30,7 @@ export async function GET(request) {
       tenant_id: "eq." + session.tenantId,
       select: resource.columns,
       order: resource.order,
-      limit: "250",
+      limit: url.searchParams.get("resource") === "audit" ? "1000" : "250",
     });
     const response = await centralRest(resource.table + "?" + query.toString());
     if (!response.ok) return NextResponse.json({ error: "Tenant data unavailable" }, { status: 503, headers: noStore });
