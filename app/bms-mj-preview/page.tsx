@@ -22,6 +22,8 @@ export default function MjStagingPreview() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => { if (session?.access_token) window.location.replace("/bms-runtime"); }, [session?.access_token]);
+
   async function signIn(event) {
     event.preventDefault();
     setMessage("");
@@ -139,24 +141,23 @@ export default function MjStagingPreview() {
     return <main style={{ padding: 32 }}><h1>M&J migration preview</h1><p>Unavailable until this deployment is explicitly configured for isolated staging. Live M&J is unchanged.</p></main>;
   }
 
-  return <main style={{ maxWidth: 1100, margin: "auto", padding: 32 }}>
-    <h1>M&J migration preview</h1>
-    <p>Isolated staging · Customer/job editing for authorised managers · Other sections read-only · Not the live M&J system</p>
-    {!session ? <form onSubmit={signIn}>
-      <label>Email <input type="email" autoComplete="username" value={email} onChange={event => setEmail(event.target.value)} required /></label>{" "}
-      <label>Password <input type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} required /></label>{" "}
-      <button type="submit">Sign in</button>
-    </form> : <>
-      <p>Signed in as {session.user.email} <button type="button" onClick={() => supabase.auth.signOut()}>Sign out</button> <button type="button" onClick={connectXero}>Connect Xero to staging</button> <span role="status">Xero: {xeroStatus?.connected ? "Connected to " + xeroStatus.organisation : xeroStatus?.error || xeroStatus?.status || "Checking..."}</span> <a href="/bms-runtime">Open M&J management screens</a></p>
-      <nav aria-label="Preview data">{RESOURCES.map(name =>
-        <button type="button" key={name} onClick={() => setResource(name)} aria-pressed={resource === name} style={{ marginRight: 8, fontWeight: resource === name ? "bold" : "normal" }}>{name}</button>
-      )}</nav>
-      <p>{loading ? "Loading…" : rows.length + " records"} {["payments", "costs"].includes(resource) && <button type="button" onClick={addFinancialRecord}>+ Add staging {resource === "payments" ? "payment" : "cost"}</button>}</p>
-      <div style={{ overflowX: "auto" }}><table><thead><tr>{rows[0] && Object.keys(rows[0]).map(key => <th key={key} scope="col" style={{ padding: 8, textAlign: "left" }}>{key}</th>)}</tr></thead>
-        <tbody>{rows.map(row => <tr key={row.id}>{Object.values(row).map((value, index) =>
-          <td key={index} style={{ padding: 8, borderTop: "1px solid #ccc", verticalAlign: "top" }}>{value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value)}</td>
-        )}{["jobs", "customers"].includes(resource) && <td><button type="button" onClick={() => updateRecord(row)}>Edit staging record</button></td>}{resource === "files" && row.storage_path && <td><button type="button" onClick={() => downloadPrivateFile(row.storage_path)}>Private download</button></td>}</tr>)}</tbody></table></div>
-    </>}
-    {message && <p role="alert">{message}</p>}
+  return <main className="flex min-h-screen items-center justify-center bg-[#f4f6f9] px-5 py-12 text-[#183153]">
+    <div className="w-full max-w-md overflow-hidden rounded-3xl border border-[#e4eaf0] bg-white shadow-xl shadow-[#183153]/10">
+      <div className="bg-[#17385f] px-7 py-9 text-white sm:px-9">
+        <div className="mb-7 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 text-lg font-black tracking-tight">M&J</div>
+        <h1 className="text-3xl font-extrabold tracking-tight">Welcome back</h1>
+        <p className="mt-2 text-sm leading-6 text-white/80">Sign in to your M&J management system.</p>
+      </div>
+      <div className="px-7 py-8 sm:px-9">
+        <div className="mb-7 inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-900"><span className="h-2 w-2 rounded-full bg-amber-500" />Private staging environment</div>
+        <form onSubmit={signIn} className="space-y-5">
+          <div><label htmlFor="mj-email" className="mb-2 block text-sm font-semibold">Email address</label><input id="mj-email" type="email" autoComplete="username" inputMode="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@mjmetal.co.uk" required className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-[#17385f] focus:ring-4 focus:ring-[#17385f]/10" /></div>
+          <div><label htmlFor="mj-password" className="mb-2 block text-sm font-semibold">Password</label><input id="mj-password" type="password" autoComplete="current-password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Enter your password" required className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-base text-slate-900 outline-none transition focus:border-[#17385f] focus:ring-4 focus:ring-[#17385f]/10" /></div>
+          {message && <p role="alert" className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{message}</p>}
+          <button type="submit" className="w-full rounded-xl bg-[#17385f] px-5 py-3.5 text-base font-bold text-white transition hover:bg-[#102c4b] focus:outline-none focus:ring-4 focus:ring-[#17385f]/20">Sign in securely</button>
+        </form>
+        <p className="mt-7 border-t border-slate-100 pt-5 text-center text-xs leading-5 text-slate-500">This is the isolated test system. Your live M&J records will not be changed.</p>
+      </div>
+    </div>
   </main>;
 }
