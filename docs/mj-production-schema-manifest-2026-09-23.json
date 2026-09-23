@@ -1,0 +1,1119 @@
+{
+  "source_project": "jtviulkrcpyzzwedtzbw",
+  "captured": "2026-09-23",
+  "note": "Schema metadata only. Read-only inventory, not a backup or a frozen data snapshot.",
+  "tables": {
+    "mj_activities": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "activity_type",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "actor",
+        "type": "mj_manager",
+        "nullable": true
+      },
+      {
+        "name": "summary",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "details",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "occurred_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "next_action_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "next_action_assignee",
+        "type": "mj_manager",
+        "nullable": true
+      }
+    ],
+    "mj_admin_users": [
+      {
+        "name": "user_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "display_name",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "initials",
+        "type": "mj_manager",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_audit_events": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": true
+      },
+      {
+        "name": "actor",
+        "type": "mj_manager",
+        "nullable": true
+      },
+      {
+        "name": "action",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "entity_type",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "entity_id",
+        "type": "uuid",
+        "nullable": true
+      },
+      {
+        "name": "changes",
+        "type": "jsonb",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_customers": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "first_name",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "last_name",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "phone",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "email",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "address_line_1",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "address_line_2",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "city",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "postcode",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "xero_contact_id",
+        "type": "text",
+        "nullable": true
+      }
+    ],
+    "mj_files": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "category",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "storage_path",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "file_name",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "mime_type",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "include_in_quote",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "uploaded_by",
+        "type": "mj_manager",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_integration_events": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": true
+      },
+      {
+        "name": "source",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "external_id",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "event_type",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "payload",
+        "type": "jsonb",
+        "nullable": false
+      },
+      {
+        "name": "occurred_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "processed_at",
+        "type": "timestamptz",
+        "nullable": true
+      }
+    ],
+    "mj_job_costs": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "category",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "supplier",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "estimated_amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "actual_amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "paid_amount",
+        "type": "numeric",
+        "nullable": false
+      },
+      {
+        "name": "paid_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "due_at",
+        "type": "timestamptz",
+        "nullable": true
+      }
+    ],
+    "mj_job_subcontractors": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "subcontractor_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "scope",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "agreed_cost",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "materials_included",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "deposit_amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "paid_amount",
+        "type": "numeric",
+        "nullable": false
+      },
+      {
+        "name": "scheduled_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "completed_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "assignment_role",
+        "type": "text",
+        "nullable": false
+      }
+    ],
+    "mj_jobs": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "sequence_number",
+        "type": "int4",
+        "nullable": false
+      },
+      {
+        "name": "reference",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "customer_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "site_address_line_1",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "site_address_line_2",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "site_city",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "site_postcode",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "job_type",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "status",
+        "type": "mj_job_status",
+        "nullable": false
+      },
+      {
+        "name": "manager",
+        "type": "mj_manager",
+        "nullable": false
+      },
+      {
+        "name": "enquiry_source",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "enquiry_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "finishes",
+        "type": "_text",
+        "nullable": false
+      },
+      {
+        "name": "colour",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "dimensions",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "material",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "customer_requirements",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "internal_notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "site_visit_required",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "site_visit_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "site_visit_completed_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "preliminary_estimate",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "preliminary_estimate_sent_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "quoted_amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "quote_sent_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "agreed_amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "payment_method",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "next_action",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "next_action_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "scheduled_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "expected_completion_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "completed_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "materials_ordered",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "materials_ordered_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "lost_reason",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "customer_reference",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "snagging_required",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "snagging_notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "snagging_completed_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "archived_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "cancellation_reason",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "cancelled_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "site_visit_status",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "site_visit_attendee",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "site_visit_notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "site_visit_measurements",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "quantity",
+        "type": "int4",
+        "nullable": true
+      },
+      {
+        "name": "automation_details",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "locks_hardware",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "access_notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "parking_notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "removal_disposal",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "making_good",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "next_action_assignee",
+        "type": "mj_manager",
+        "nullable": true
+      },
+      {
+        "name": "job_types",
+        "type": "_text",
+        "nullable": false
+      },
+      {
+        "name": "written_off_amount",
+        "type": "numeric",
+        "nullable": false
+      },
+      {
+        "name": "written_off_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "write_off_reason",
+        "type": "text",
+        "nullable": true
+      }
+    ],
+    "mj_material_orders": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "supplier_id",
+        "type": "uuid",
+        "nullable": true
+      },
+      {
+        "name": "supplier_name",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "ordered_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "expected_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "received_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_payments": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "direction",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "payment_type",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "amount",
+        "type": "numeric",
+        "nullable": false
+      },
+      {
+        "name": "payment_method",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "counterparty",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "paid_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "due_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_quotes": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "version",
+        "type": "int4",
+        "nullable": false
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "scope_text",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "exclusions",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "amount",
+        "type": "numeric",
+        "nullable": false
+      },
+      {
+        "name": "deposit_amount",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "lead_time",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "valid_until",
+        "type": "date",
+        "nullable": true
+      },
+      {
+        "name": "pdf_path",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "sent_at",
+        "type": "timestamptz",
+        "nullable": true
+      },
+      {
+        "name": "created_by",
+        "type": "mj_manager",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "vat_rate",
+        "type": "numeric",
+        "nullable": false
+      }
+    ],
+    "mj_subcontractors": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "company",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "phone",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "email",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "capabilities",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "relationship_type",
+        "type": "text",
+        "nullable": false
+      }
+    ],
+    "mj_suppliers": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "phone",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "email",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "notes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "active",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_xero_connection": [
+      {
+        "name": "singleton",
+        "type": "bool",
+        "nullable": false
+      },
+      {
+        "name": "tenant_id",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "tenant_name",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "access_token_ciphertext",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "refresh_token_ciphertext",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "expires_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "scopes",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "connected_by",
+        "type": "uuid",
+        "nullable": true
+      },
+      {
+        "name": "connected_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ],
+    "mj_xero_invoices": [
+      {
+        "name": "id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "job_id",
+        "type": "uuid",
+        "nullable": false
+      },
+      {
+        "name": "xero_invoice_id",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "invoice_number",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "status",
+        "type": "text",
+        "nullable": false
+      },
+      {
+        "name": "total",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "amount_due",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "amount_paid",
+        "type": "numeric",
+        "nullable": true
+      },
+      {
+        "name": "currency_code",
+        "type": "text",
+        "nullable": true
+      },
+      {
+        "name": "created_by",
+        "type": "mj_manager",
+        "nullable": true
+      },
+      {
+        "name": "synced_at",
+        "type": "timestamptz",
+        "nullable": false
+      },
+      {
+        "name": "created_at",
+        "type": "timestamptz",
+        "nullable": false
+      }
+    ]
+  }
+}
