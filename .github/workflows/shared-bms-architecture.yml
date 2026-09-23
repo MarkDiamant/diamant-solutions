@@ -1,0 +1,46 @@
+name: Shared BMS architecture checks
+on:
+  pull_request:
+    paths:
+      - 'business-software-core/**'
+      - 'components/admin/**'
+      - 'lib/crm/**'
+      - 'middleware.ts'
+      - '.github/workflows/shared-bms-architecture.yml'
+  push:
+    branches: [architecture/shared-bms-core]
+permissions:
+  contents: read
+jobs:
+  architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify canonical imports and demo isolation
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs=require('node:fs');
+          const names=['AdminBrandBar','CrmDashboardV3','CrmDashboardV4','CrmDashboardV5','JobDetail','JobWorkflowPanel','NewJobForm','NewJobFormV2','QuotePdfActions','QuotePrint','SetupRequired','XeroInvoicePage'];
+          for(const name of names){
+            const app=fs.readFileSync('components/admin/'+name+'.tsx','utf8');
+            const expected='@/business-software-core/components/admin/'+name;
+            if(!app.includes('export {default} from "'+expected+'"'))throw Error(name+' is not using the shared core');
+            if(!fs.existsSync('business-software-core/components/admin/'+name+'.tsx'))throw Error(name+' missing from core');
+          }
+          for(const name of ['permissions','product']){
+            const app=fs.readFileSync('lib/crm/'+name+'.ts','utf8');
+            if(!app.includes('export * from "@/business-software-core/lib/'+name+'"'))throw Error(name+' duplicated');
+          }
+          const guard=fs.readFileSync('middleware.ts','utf8');
+          if(!guard.includes('bms.diamantsolutions.co.uk')||!guard.includes('status:403'))throw Error('Demo API isolation guard missing');
+          console.log('Shared core wrappers and demo isolation checks passed.');
+          NODE
+      - name: Build BMS preview
+        run: |
+          npm ci
+          npm run build
