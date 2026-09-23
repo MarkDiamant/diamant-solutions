@@ -32,10 +32,10 @@ export async function POST(request) {
     });
     if (!response.ok) return NextResponse.json({ error: "Private file unavailable" }, { status: response.status === 404 ? 404 : 503, headers: noStore });
     const signed = await response.json();
-    if (typeof signed.signedURL !== "string" || !signed.signedURL.startsWith("/storage/v1/object/sign/")) {
+    if (typeof signed.signedURL !== "string" || !/^\/(?:storage\/v1\/)?object\/sign\/bms-job-files\//.test(signed.signedURL)) {
       return NextResponse.json({ error: "Storage response invalid" }, { status: 503, headers: noStore });
     }
-    return NextResponse.json({ url: base + signed.signedURL, expiresIn: 60 }, { headers: noStore });
+    return NextResponse.json({ url: base + (signed.signedURL.startsWith("/storage/") ? "" : "/storage/v1") + signed.signedURL, expiresIn: 60 }, { headers: noStore });
   } catch {
     return NextResponse.json({ error: "Private file temporarily unavailable" }, { status: 503, headers: noStore });
   }
