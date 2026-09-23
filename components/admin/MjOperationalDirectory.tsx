@@ -17,9 +17,22 @@ export default function MjOperationalDirectory({view}:{view:View}){
  const names=useMemo(()=>new Map(customers.map(c=>[c.id,[c.first_name,c.last_name].filter(Boolean).join(" ")])),[customers]);
  const jobRefs=useMemo(()=>new Map(jobs.map(j=>[j.id,j.reference])),[jobs]);
  const filtered=rows.filter(r=>JSON.stringify(r).toLowerCase().includes(search.toLowerCase())||String(names.get(r.customer_id)||"").toLowerCase().includes(search.toLowerCase()));
+ async function addCustomer(){
+  if(view!=="customers")return;
+  const first_name=prompt("Customer first name:");
+  if(!first_name)return;
+  const last_name=prompt("Last name (optional):")||"";
+  const phone=prompt("Phone (optional):")||"";
+  const email=prompt("Email (optional):")||"";
+  try{
+   const r=await fetch("/api/business-software/staging-customer",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({first_name,last_name,phone,email})});
+   const b=await r.json();if(!r.ok)throw Error(b.error);
+   setRows(current=>[b.customer,...current]);setCustomers(current=>[b.customer,...current]);
+  }catch(e:any){setError(e.message)}
+ }
  async function edit(row:Row){const fields=view==="jobs"?["status","manager","next_action","internal_notes","job_type","customer_requirements"]:view==="customers"?["first_name","last_name","phone","email","address_line_1","city","postcode"]:[];if(!fields.length)return;const field=prompt("Field: "+fields.join(", "));if(!field||!fields.includes(field))return;const value=prompt("New "+field,String(row[field]??""));if(value===null)return;try{const res=await fetch("/api/business-software/tenant-update",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({tenant_id:TENANT,resource:view,id:row.id,values:{[field]:value}})});const b=await res.json();if(!res.ok)throw Error(b.error);setRows(current=>current.map(x=>x.id===row.id?{...x,[field]:value}:x))}catch(e:any){setError(e.message)}}
  const columns:Record<View,string[]>={jobs:["reference","customer_id","job_type","status","manager","quoted_amount","next_action"],customers:["first_name","last_name","phone","email","postcode"],quotes:["job_id","status","amount","sent_at"],invoices:["job_id","invoice_number","status","total","amount_due"],payments:["job_id","payment_type","direction","amount","paid_at"],files:["job_id","file_name","category"],team:["name","company","phone","relationship_type"]};
- return <main className="min-h-screen bg-[#f5f5f2] px-4 py-7 text-[#141414] sm:px-5 lg:px-8"><div className="mx-auto max-w-[1500px]"><header className="flex flex-wrap justify-between gap-4"><div><h1 className="text-3xl font-black capitalize">{view}</h1><p className="text-sm text-black/50">M&J · Shared business management system · Isolated staging</p></div><div className="flex gap-2">{view==="jobs"&&<Link className="rounded-xl bg-[#17385f] px-4 py-2 text-white" href="/bms-runtime/jobs/new">+ New job</Link>}<Link className="rounded-xl border bg-white px-4 py-2" href="/bms-mj-preview">Staging account</Link></div></header>
+ return <main className="min-h-screen bg-[#f5f5f2] px-4 py-7 text-[#141414] sm:px-5 lg:px-8"><div className="mx-auto max-w-[1500px]"><header className="flex flex-wrap justify-between gap-4"><div><h1 className="text-3xl font-black capitalize">{view}</h1><p className="text-sm text-black/50">M&J · Shared business management system · Isolated staging</p></div><div className="flex gap-2">{view==="jobs"&&<Link className="rounded-xl bg-[#17385f] px-4 py-2 text-white" href="/bms-runtime/jobs/new">+ New job</Link>}{view==="customers"&&<button className="rounded-xl bg-[#17385f] px-4 py-2 text-white" onClick={addCustomer}>+ New customer</button>}<Link className="rounded-xl border bg-white px-4 py-2" href="/bms-mj-preview">Staging account</Link></div></header>
  <nav className="my-5 flex flex-wrap gap-2">{(Object.keys(resources) as View[]).map(v=><Link key={v} className={"rounded-xl px-3 py-2 text-sm font-bold "+(v===view?"bg-[#17385f] text-white":"bg-white")} href={"/bms-runtime/"+(v==="team"?"team":v)}>{v}</Link>)}</nav>
  <input aria-label="Search" placeholder={"Search "+view} value={search} onChange={e=>setSearch(e.target.value)} className="w-full rounded-xl border bg-white p-3"/>
  {error&&<p role="alert" className="my-4 rounded-xl bg-red-50 p-3 text-red-700">{error} {!token&&<Link className="underline" href="/bms-mj-preview">Sign in</Link>}</p>}
