@@ -20,3 +20,12 @@
 ## Release gate
 
 Do not change M&J production, set its DS tenant `data_backend=central`, import into DS live operational tables, change DNS or retire M&J Supabase until a separate staging central database is available and all checks above have passed. Obtain separate approval before any production cutover.
+
+## Staging environment established (23 September)
+
+- User authorised creating a separate project in Diamant Solutions organisation. Supabase quoted a project creation cost of 0/month and the confirmation workflow succeeded.
+- Isolated staging project ref: `sfxeyydkwzlduflpmidd` in `eu-central-1`, ACTIVE_HEALTHY. Production remains `iepqggrfenfqrqyzqyed`.
+- Reconstructed 21 central BMS table definitions and 31 inter-table foreign keys from a read-only live schema inventory. This is a *structural staging clone*, not a full schema dump: production triggers, custom check constraints, unique indexes, original policies and non-BMS dependencies may differ.
+- Successfully applied the existing staging-only source-parity and membership/RLS migrations. Staging has the M&J reference tenant UUID `3ebc2265-8842-4826-b464-71783d6cf841`, slug `mjmetal`, `billing_mode=free`, `data_backend=staging` and 13 member-read policies.
+- Negative RLS test under `authenticated` role with a nonmember synthetic JWT subject returned `bms_is_active_member=false` and zero visible tenants/customers. A positive real Auth user and cross-tenant write test is still required.
+- Staging operational records remain empty; the M&J dump's actual data have **not** been imported. The uploaded dump is a custom-format archive, and the available local runtime does not have PostgreSQL `pg_restore`; do not infer source rows exist in staging from structural migration success.
