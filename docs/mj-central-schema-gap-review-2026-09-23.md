@@ -19,6 +19,6 @@ M&J enum `mj_job_status` has 22 statuses; central status is text. Test all histo
 
 **Blocking live schema drift:** central `business_software_users` has no `auth_user_id`. The existing `supabase/migrations/staging_only_bms_membership_rls.sql` adds this column and authenticated read-only membership policies, but has not been applied to live DS.
 
-**Backups:** User reported local PostgreSQL 17 custom-format dump passed `pg_restore --list` and downloaded two Storage ZIP files. Neither has been independently inspected or restored in this environment. A readable archive is not a successful restore. Obtain a tested isolated restore and object checksums before production migration.
+**Backups (updated 23 September):** The uploaded database dump and both Storage ZIPs were hashed and ZIP integrity checked. The user ran a successful isolated PostgreSQL 17 restore of all 16 M&J public tables, indexes, triggers, FKs and policies with local Auth stubs; all source counts and financial totals reconciled to the recorded snapshot. This is not a full managed Supabase Auth/Storage recovery drill. Storage ZIP entries total 407,988 uncompressed bytes; target upload/download checksum verification is still outstanding.
 
-**Status:** source and target schema inventories verified; import and cutover blocked pending isolated restore and staging validation. No live production changes authorised.
+**Status:** source and target schema inventories and isolated public-schema restore verified. Central import and cutover remain blocked pending isolated central staging, tenant Auth/RLS and Storage tests, Xero reauthorisation and rollback validation. No live production changes authorised.
