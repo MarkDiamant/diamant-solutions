@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase, supabaseConfigured } from "../../lib/supabase-browser";
 
 const TENANT_ID = "3ebc2265-8842-4826-b464-71783d6cf841";
-const RESOURCES = ["jobs", "customers", "payments", "quotes", "costs"];
+const RESOURCES = ["jobs", "customers", "payments", "quotes", "costs", "files"];
 
 export default function MjStagingPreview() {
   const [session, setSession] = useState(null);
@@ -47,6 +47,22 @@ export default function MjStagingPreview() {
     return () => controller.abort();
   }, [session?.access_token, resource]);
 
+  async function downloadPrivateFile(path) {
+    if (!session?.access_token) return;
+    setMessage("");
+    try {
+      const response = await fetch("/api/business-software/private-file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.access_token },
+        body: JSON.stringify({ tenant_id: TENANT_ID, path }),
+        cache: "no-store",
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Download unavailable");
+      window.open(payload.url, "_blank", "noopener,noreferrer");
+    } catch (error) { setMessage(error.message); }
+  }
+
   if (process.env.NEXT_PUBLIC_BMS_STAGING_PREVIEW !== "true" || !supabaseConfigured) {
     return <main style={{ padding: 32 }}><h1>M&J migration preview</h1><p>Unavailable until this deployment is explicitly configured for isolated staging. Live M&J is unchanged.</p></main>;
   }
@@ -67,7 +83,7 @@ export default function MjStagingPreview() {
       <div style={{ overflowX: "auto" }}><table><thead><tr>{rows[0] && Object.keys(rows[0]).map(key => <th key={key} scope="col" style={{ padding: 8, textAlign: "left" }}>{key}</th>)}</tr></thead>
         <tbody>{rows.map(row => <tr key={row.id}>{Object.values(row).map((value, index) =>
           <td key={index} style={{ padding: 8, borderTop: "1px solid #ccc", verticalAlign: "top" }}>{value == null ? "" : typeof value === "object" ? JSON.stringify(value) : String(value)}</td>
-        )}</tr>)}</tbody></table></div>
+        )}{resource === "files" && row.storage_path && <td><button type="button" onClick={() => downloadPrivateFile(row.storage_path)}>Private download</button></td>}</tr>)}</tbody></table></div>
     </>}
     {message && <p role="alert">{message}</p>}
   </main>;
