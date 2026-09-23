@@ -1,4 +1,4 @@
-export type Manager = "MD" | "JB";
+export type Manager = string;
 
 export type JobStatus =
   | "new_enquiry"
