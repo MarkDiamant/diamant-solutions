@@ -12,6 +12,9 @@ on:
       - '.github/workflows/shared-bms-architecture.yml'
   push:
     branches: [architecture/shared-bms-core]
+concurrency:
+  group: shared-bms-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
