@@ -6,7 +6,7 @@ export default function TenantLoginPage(){
  const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false);
  useEffect(()=>{if(!supabaseConfigured)return;supabase.auth.getSession().then(({data})=>{if(data.session?.access_token)window.location.replace("/")})},[]);
  async function handleSubmit(event:any){event.preventDefault();setLoading(true);setError("");const {error}=await supabase.auth.signInWithPassword({email,password});setPassword("");if(error){setError("Incorrect email or password");setLoading(false);return}window.location.assign("/");}
- return <main className="bms-shell min-h-screen bg-[#f4f5f7] text-[#172b4d]">
+ return <main className="min-h-screen bg-[#f4f5f7] text-[#172b4d]">
   <div className="grid min-h-screen lg:grid-cols-[1.05fr_.95fr]">
    <section className="hidden bg-[#172b4d] p-12 text-white lg:flex lg:flex-col lg:justify-between">
     <div><div className="text-2xl font-black tracking-tight">Business <span className="text-[#e66a24]">Management</span></div><p className="mt-3 max-w-md text-sm leading-6 text-white/60">Jobs, customers, quotes, invoices, payments and your team — all in one place.</p></div>
