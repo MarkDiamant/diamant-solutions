@@ -113,7 +113,16 @@ jobs:
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
-          console.log('Demo-only deployment firewall passed, including forwarded-host spoof.');})().catch(e=>{console.error(e);process.exitCode=1});
+          for(const [sample,expected] of [['northstar','Residential Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery']]){
+            const r=await fetch('http://localhost:3100/api/bms-demo/jobs',{
+              headers:{host:'bms.diamantsolutions.co.uk',referer:'https://bms.diamantsolutions.co.uk/?sample='+sample}
+            });
+            if(r.status!==200)throw Error(sample+' demo jobs unavailable');
+            const data=await r.json();
+            if(data.jobs?.[0]?.jobType!==expected)throw Error(sample+' jobs are not industry-specific');
+            if(JSON.stringify(data).includes('M&J Metal'))throw Error('M&J brand leaked into '+sample);
+          }
+          console.log('Demo firewall and six industry-specific fictional job samples passed.');})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
   preview_without_credentials:
     runs-on: ubuntu-latest
