@@ -37,6 +37,15 @@ jobs:
             if(!app.includes('export {default} from "'+expected+'"'))throw Error(name+' is not using the shared core');
             if(!fs.existsSync('business-software-core/components/admin/'+name+'.tsx'))throw Error(name+' missing from core');
           }
+          const sourceManifest=require('./docs/mj-production-schema-manifest-2026-09-23.json');
+          const migrationMap=require('./scripts/migration/mj-table-mapping.json').mapping;
+          const sourceTables=Object.keys(sourceManifest.tables);
+          if(sourceTables.length!==16)throw Error('M&J source schema manifest is incomplete');
+          if(sourceTables.reduce((n,t)=>n+sourceManifest.tables[t].length,0)!==216)throw Error('M&J source column manifest drifted');
+          for(const table of sourceTables){
+            if(!migrationMap[table]?.target)throw Error('No reviewed migration target for '+table);
+          }
+          if(Object.keys(migrationMap).length!==sourceTables.length)throw Error('M&J mapping has unknown or missing tables');
           const tenantAccess=fs.readFileSync('lib/business-software/tenant-access.js','utf8');
           if(!tenantAccess.includes('record.data_backend !== "central"'))throw Error('Tenant sessions must fail closed for legacy external data backends');
           const publicTenantRoute=fs.readFileSync('app/api/business-software/tenant/route.js','utf8');
