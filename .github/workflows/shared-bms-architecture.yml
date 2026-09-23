@@ -116,3 +116,14 @@ jobs:
           if(unauth.status!==401)throw Error('Unauthenticated tenant session must be denied; got '+unauth.status);
           console.log('Demo firewall and unauthenticated tenant denial passed.');})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
+  preview_without_credentials:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify public preview builds without production credentials
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
