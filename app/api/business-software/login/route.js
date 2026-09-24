@@ -6,7 +6,7 @@ export async function POST(request){
   const {email,password}=await request.json();
   if(!email||!password)return NextResponse.json({error:"Email and password are required"},{status:400});
   const h=host(request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
-  const tenant=await tenantRecord(null,h);
+  const tenant=await tenantRecord(h==="mjmetal.diamantsolutions.co.uk"?"mjmetal":null,h);
   if(!tenant)return NextResponse.json({error:"Business account unavailable"},{status:404});
   const url=process.env.DS_SUPABASE_URL,key=process.env.DS_SUPABASE_PUBLISHABLE_KEY;
   if(!url||!key)return NextResponse.json({error:"Authentication unavailable"},{status:503});
