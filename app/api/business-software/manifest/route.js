@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {tenantRecord} from "../../../../../lib/business-software/db";
+import {tenantRecord} from "../../../../lib/business-software/db";
 function host(v=""){return String(v).trim().toLowerCase().replace(/^https?:\/\//,"").split("/")[0].split(":")[0]}
 export async function GET(request){
  const h=host(request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
