@@ -223,7 +223,12 @@ export default function CrmDashboardV3() {
       if(changes.length)setActivities(prev=>[...changes.map((summary,i)=>({id:`demo-local-${Date.now()}-${i}`,job_id:j.id,summary,occurred_at:new Date().toISOString(),mj_jobs:{reference:j.reference},source:"activity"})),...prev]);
       setTimeout(()=>setJobs(prev=>prev.map(x=>x.reference===j.reference?j:x)),5000);
     }else{
-      const refreshed=await loadQuickFull(j.reference);if(refreshed?.job?.updated_at)setEditUpdatedAt(refreshed.job.updated_at);await load();
+      // The PATCH response is already the authoritative saved state. Keep the
+      // quick editor/dashboard responsive immediately; refresh in the background
+      // only to pick up server-generated activity and related records.
+      setQuickFull((q:any)=>q?{...q,job:{...(q.job||{}),...(body?.job||{})},customer:{...(q.customer||{}),...(body?.customer||{})}}:q);
+      if(body?.job?.updated_at)setEditUpdatedAt(body.job.updated_at);
+      void Promise.all([loadQuickFull(j.reference),load()]).catch(()=>{});
     }
     setSavingRef(null);setRemoteChanged(false);setRemoteChangedBy(null);setFlash(`✓ ${j.reference} saved`);setTimeout(()=>setFlash(""),2600);
   }
