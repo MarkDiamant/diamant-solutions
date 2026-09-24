@@ -25,7 +25,7 @@ export function middleware(request:NextRequest){
    return NextResponse.next();
  }
  const demoDeployment=process.env.BMS_DEMO_ONLY==="true",isDemo=demoDeployment||host===DEMO_HOST;
- if(isDemo&&path==="/favicon.ico"){const url=request.nextUrl.clone();url.pathname="/northstar-demo-logo.svg";return NextResponse.rewrite(url);}
+ if(isDemo&&(path==="/favicon.ico"||path==="/api/business-software/icon")){const url=request.nextUrl.clone();url.pathname="/northstar-demo-logo.svg";return NextResponse.rewrite(url);}
  if(isDemo&&path.startsWith("/api/jobs")){const url=request.nextUrl.clone();url.pathname="/api/bms-demo/jobs"+path.slice("/api/jobs".length);return NextResponse.rewrite(url);}
  if(isDemo&&path.startsWith("/api/")&&!path.startsWith("/api/bms-demo/")&&path!=="/api/bms-demo")return NextResponse.json({error:"Production actions are unavailable in the fictional demo."},{status:403,headers:{"Cache-Control":"no-store"}});
  if(host===DEMO_HOST&&!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);}
