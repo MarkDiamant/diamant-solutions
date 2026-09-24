@@ -10,6 +10,7 @@ export function middleware(request:NextRequest){
  if(tenantHost){
    if(path.startsWith("/api/bms-demo"))return NextResponse.json({error:"Demo API is disabled on live BMS tenants."},{status:404});
    if(path.startsWith("/api/admin/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/"+path.slice("/api/admin/".length);return NextResponse.rewrite(url);}
+   if(path.startsWith("/api/integrations/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/integrations/"+path.slice("/api/integrations/".length);return NextResponse.rewrite(url);}
    if(path==="/login"||path==="/admin/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
      const hasSession=Boolean(request.cookies.get("sb-access-token")?.value||request.cookies.get("sb-auth-token")?.value||request.cookies.get("bms_authenticated")?.value);
