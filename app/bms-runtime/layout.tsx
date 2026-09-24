@@ -5,7 +5,7 @@ import AdminPrimaryNav from "@/components/admin/AdminPrimaryNav";
 import DiamantCredit from "@/components/admin/DiamantCredit";
 import BmsRuntimeGuard from "@/components/BmsRuntimeGuard";
 import {runtimeTenant} from "@/lib/business-software/runtime";
-export const metadata:Metadata={title:"Business Management Software | Diamant Solutions",robots:{index:false,follow:false,nocache:true},manifest:"/api/business-software/manifest",icons:{icon:[{url:"/api/business-software/icon"}],shortcut:[{url:"/api/business-software/icon"}],apple:[{url:"/api/business-software/icon"}]}};
+export const metadata:Metadata={title:"Business Management Software | Diamant Solutions",robots:{index:false,follow:false,nocache:true},manifest:"/api/business-software/manifest",icons:{icon:"/api/business-software/icon",shortcut:"/api/business-software/icon",apple:"/api/business-software/icon"}};
 export const dynamic="force-dynamic";
 export default async function BmsRuntimeLayout({children}:{children:React.ReactNode}){
  const tenant=await runtimeTenant(),live=Boolean(tenant),login=false;
