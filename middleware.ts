@@ -9,7 +9,6 @@ export function middleware(request:NextRequest){
  const tenantHost=host.endsWith(".diamantsolutions.co.uk")&&host!==DEMO_HOST&&host!=="www.diamantsolutions.co.uk";
  if(tenantHost){
    if(path==="/favicon.ico"){const url=request.nextUrl.clone();url.pathname="/api/business-software/icon";const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
-   if(path==="/admin"||path.startsWith("/admin/")){const url=request.nextUrl.clone();url.pathname=path==="/admin"?"/":path.slice(6)||"/";return NextResponse.redirect(url);}
    if(path==="/manifest.webmanifest"){const url=request.nextUrl.clone();url.pathname="/api/business-software/manifest";return NextResponse.rewrite(url);}
    if(path.startsWith("/api/bms-demo"))return NextResponse.json({error:"Demo API is disabled on live BMS tenants."},{status:404});
    if(path.startsWith("/api/admin/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/"+path.slice("/api/admin/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
