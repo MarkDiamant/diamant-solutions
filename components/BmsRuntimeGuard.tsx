@@ -2,7 +2,8 @@
 import {useLayoutEffect,useState} from "react";
 
 const rewrite=(value:string)=>{
-  if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return "/api/bms-demo/jobs"+value.slice("/api/jobs".length);\n  if(value.startsWith("/api/admin")) return "/api/bms-demo"+value.slice("/api/admin".length);
+  if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return "/api/bms-demo/jobs"+value.slice("/api/jobs".length);
+  if(value.startsWith("/api/admin")) return "/api/bms-demo"+value.slice("/api/admin".length);
   if(value.startsWith("/api/integrations")) return "/api/bms-demo/integrations"+value.slice("/api/integrations".length);
   return value;
 };
