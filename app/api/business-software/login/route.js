@@ -1,5 +1,5 @@
 import {NextResponse} from "next/server";
-import {tenantRecord,centralRest} from "../../../../lib/business-software/db";
+import {tenantRecord} from "../../../../lib/business-software/db";
 function host(v=""){return String(v).toLowerCase().split(":")[0]}
 export async function POST(request){
  try{
@@ -13,8 +13,9 @@ export async function POST(request){
   const auth=await fetch(url+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:key,"Content-Type":"application/json"},body:JSON.stringify({email,password}),cache:"no-store"});
   if(!auth.ok)return NextResponse.json({error:"Incorrect email or password"},{status:401});
   const session=await auth.json();
-  const authorised=tenant.slug==="mjmetal" && session.user.id==="534d93bb-1343-4fae-80cc-8e3198a2ef96";
-  if(!authorised)return NextResponse.json({error:"This account is not authorised for this business"},{status:403});
+  const membership=await fetch(url+"/rest/v1/business_software_users?tenant_id=eq."+encodeURIComponent(tenant.id)+"&auth_user_id=eq."+encodeURIComponent(session.user.id)+"&status=eq.active&select=id",{headers:{apikey:key,Authorization:"Bearer "+session.access_token},cache:"no-store"});
+  const rows=membership.ok?await membership.json():[];
+  if(!rows.length)return NextResponse.json({error:"This account is not authorised for this business"},{status:403});
   const res=NextResponse.json({ok:true});
   const secure={httpOnly:true,secure:true,sameSite:"lax",path:"/"};
   res.cookies.set("bms_access_token",session.access_token,{...secure,maxAge:session.expires_in||3600});
