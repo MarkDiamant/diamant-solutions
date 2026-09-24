@@ -6,10 +6,9 @@ export async function POST(request){
   const {email,password}=await request.json();
   if(!email||!password)return NextResponse.json({error:"Email and password are required"},{status:400});
   const h=host(request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
-  const tenant=h==="mjmetal.diamantsolutions.co.uk"?{id:"3ebc2265-8842-4826-b464-71783d6cf841",slug:"mjmetal"}:await tenantRecord(null,h);
+  const tenant=await tenantRecord(null,h);
   if(!tenant)return NextResponse.json({error:"Business account unavailable"},{status:404});
   const url="https://iepqggrfenfqrqyzqyed.supabase.co",key="sb_publishable_ivTCLFGFroexc-3IHe25bg_qhzg_GIy";
-  if(!url||!key)return NextResponse.json({error:"Authentication unavailable"},{status:503});
   const auth=await fetch(url+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:key,"Content-Type":"application/json"},body:JSON.stringify({email,password}),cache:"no-store"});
   if(!auth.ok)return NextResponse.json({error:"Incorrect email or password"},{status:401});
   const session=await auth.json();
