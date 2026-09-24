@@ -7,6 +7,8 @@ export function middleware(request:NextRequest){
  const requestHost=hostname(request.nextUrl.hostname),hostHeader=hostname(request.headers.get("host")),forwardedHost=hostname(request.headers.get("x-forwarded-host"));
  const hosts=[requestHost,hostHeader,forwardedHost],host=hosts.includes(DEMO_HOST)?DEMO_HOST:(forwardedHost||hostHeader||requestHost),path=request.nextUrl.pathname;
  const tenantHost=host.endsWith(".diamantsolutions.co.uk")&&host!==DEMO_HOST&&host!=="www.diamantsolutions.co.uk";
+ if(tenantHost&&path==="/admin"){const url=request.nextUrl.clone();url.pathname="/";return NextResponse.redirect(url,308);}
+ if(tenantHost&&path.startsWith("/admin/")){const url=request.nextUrl.clone();url.pathname=path.slice(6);return NextResponse.redirect(url,308);}
  if(tenantHost){
    if(path==="/favicon.ico"){const url=request.nextUrl.clone();url.pathname="/api/business-software/icon";const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path==="/manifest.webmanifest"){const url=request.nextUrl.clone();url.pathname="/api/business-software/manifest";return NextResponse.rewrite(url);}
