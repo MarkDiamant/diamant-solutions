@@ -215,7 +215,7 @@ export default function CrmDashboardV3() {
       if(closed(savedDraft.status)){job.next_action=null;job.next_action_at=null;job.next_action_assignee=null;}else{job.next_action=savedDraft.nextAction||null;job.next_action_at=iso(savedDraft.nextActionAt);job.next_action_assignee=savedDraft.nextActionAssignee||null;}
       if(j.isPlaceholder&&(savedDraft.firstName||savedDraft.lastName||savedDraft.siteAddressLine1||savedDraft.jobTypes.length||savedDraft.preliminaryEstimate||savedDraft.quotedAmount))job.internal_notes=null;
     }
-    const res=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer,job})});
+    const res=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer,job,explicit_next_action:Boolean(savedDraft&&String(savedDraft.nextAction||"")!==String(j.nextAction||"")),explicit_next_action_at:Boolean(savedDraft&&String(savedDraft.nextActionAt||"")!==String(j.nextActionAt||""))})});
     const body=await res.json().catch(()=>({}));
     if(!res.ok){setSavingRef(null);setFlash(body.error||`Could not save ${j.reference}`);void load();return;}
     if(savedDraft&&crmConfig.modules.costs&&permissions.includes("view_costs_profit")){
