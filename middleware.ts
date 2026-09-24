@@ -16,7 +16,7 @@ export function middleware(request:NextRequest){
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
      const hasSession=Boolean(request.cookies.get("bms_access_token")?.value||request.cookies.get("bms_refresh_token")?.value);
      if(!hasSession){const url=request.nextUrl.clone();url.pathname="/login";return NextResponse.redirect(url);}
-     const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;const response=NextResponse.rewrite(url);response.headers.set("x-bms-original-path",path);return response;
+     const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;url.searchParams.set("__bms","1");url.searchParams.set("__bms_path",path);return NextResponse.rewrite(url);
    }
    return NextResponse.next();
  }
