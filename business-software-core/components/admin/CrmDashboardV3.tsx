@@ -197,6 +197,12 @@ export default function CrmDashboardV3() {
     if(remoteChanged){setFlash("This job was updated by someone else. Load their changes before saving.");return;}
     const savedDraft=draft?{...draft}:null;
     const previousStatus=String(j.status||"");
+    // Update the visible job immediately. The server save then confirms it.
+    // If the save fails, reload the authoritative tenant state.
+    if(savedDraft){
+      const optimisticUpdatedAt=new Date().toISOString();
+      setJobs(prev=>prev.map(x=>x.reference===j.reference?{...x,status:savedDraft.status,nextAction:closed(savedDraft.status)?null:(savedDraft.nextAction||null),nextActionAt:closed(savedDraft.status)?null:iso(savedDraft.nextActionAt),updatedAt:optimisticUpdatedAt,firstName:savedDraft.firstName,lastName:savedDraft.lastName,customerName:[savedDraft.firstName,savedDraft.lastName].filter(Boolean).join(" "),phone:savedDraft.phone,email:savedDraft.email,siteAddressLine1:savedDraft.siteAddressLine1,sitePostcode:savedDraft.sitePostcode,address:[savedDraft.siteAddressLine1,savedDraft.sitePostcode].filter(Boolean).join(", "),preliminaryEstimate:savedDraft.preliminaryEstimate===""?null:Number(savedDraft.preliminaryEstimate),quotedAmount:savedDraft.quotedAmount===""?null:Number(savedDraft.quotedAmount),estimatedCost:savedDraft.estimatedCost===""?null:Number(savedDraft.estimatedCost),finalCost:savedDraft.finalCost===""?null:Number(savedDraft.finalCost),jobTypes:savedDraft.jobTypes,jobType:savedDraft.jobTypes[0]||x.jobType,manager:savedDraft.manager,source:savedDraft.source}:x));
+    }
     setSavingRef(j.reference);
     const customer:Record<string,unknown>={},job:Record<string,unknown>={...overrides};
     if(savedDraft){
@@ -211,7 +217,7 @@ export default function CrmDashboardV3() {
     }
     const res=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer,job})});
     const body=await res.json().catch(()=>({}));
-    if(!res.ok){setSavingRef(null);setFlash(body.error||`Could not save ${j.reference}`);return;}
+    if(!res.ok){setSavingRef(null);setFlash(body.error||`Could not save ${j.reference}`);void load();return;}
     if(savedDraft&&crmConfig.modules.costs&&permissions.includes("view_costs_profit")){
       const costRes=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"cost_summary",estimated_amount:savedDraft.estimatedCost===""?null:Number(savedDraft.estimatedCost),actual_amount:savedDraft.finalCost===""?null:Number(savedDraft.finalCost)})});
       if(!costRes.ok){setSavingRef(null);setFlash("Job saved, but costs could not be saved");return;}
@@ -258,6 +264,7 @@ export default function CrmDashboardV3() {
 
   const cards=[["Total enquiries",counts.total,"All real enquiries","bg-white border-black/8"],["Still pending",counts.pending,"Not decided yet","bg-amber-50/70 border-amber-200"],["Active jobs",counts.active,"Won / in progress","bg-blue-50/70 border-blue-200"],["Completed",counts.completed,"Finished","bg-green-50/70 border-green-200"],["Didn't go ahead",counts.lost,"Declined / cancelled","bg-red-50/70 border-red-200"]] as const;
   return <main className="min-h-screen overflow-x-hidden bg-[#f4f4f1] text-[#141414]">
+    {flash&&<div className="fixed inset-x-0 top-[18vh] z-[100] flex justify-center px-4 pointer-events-none"><div role="status" className="pointer-events-auto flex max-w-[520px] items-center gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/95 px-5 py-4 text-emerald-950 shadow-xl backdrop-blur"><div className="min-w-0 flex-1 text-center text-sm font-bold leading-relaxed">{flash.replace(/^✓\\s*/,"")}</div><button type="button" onClick={()=>setFlash("")} className="shrink-0 rounded-xl border border-emerald-300 bg-white/80 px-3 py-1.5 text-xs font-black text-emerald-900 hover:bg-white">OK</button></div></div>}
     <div className="mx-auto max-w-[1780px] px-3 pb-5 pt-5 sm:px-4 lg:px-7">
       <section className="grid grid-cols-6 gap-2 sm:gap-3 lg:grid-cols-5">{cards.map(([label,value,note,tone])=><div key={label} className={"rounded-xl border p-2.5 text-center sm:rounded-2xl sm:p-4 lg:col-span-1 lg:text-left "+(["Active jobs","Completed","Didn't go ahead"].includes(label)?"col-span-2 ":"col-span-3 ")+tone}><p className="text-[9px] font-black uppercase tracking-[0.05em] text-black/40 sm:text-[11px] sm:tracking-[0.08em]">{label}</p><p className="mt-1 text-xl font-black sm:mt-1.5 sm:text-3xl">{value}</p><p className="mt-0.5 text-[10px] text-black/40 sm:mt-1 sm:text-xs">{note}</p></div>)}</section>
       <div className="mt-5 grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_310px]"><section className="min-w-0">
