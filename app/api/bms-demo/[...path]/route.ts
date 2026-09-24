@@ -53,7 +53,7 @@ function jobsForSample(req:NextRequest){
 function pathOf(params:{path?:string[]}){return (params.path||[]).join("/");}
 function ok(data:any){return NextResponse.json(data,{headers:{"Cache-Control":"no-store","X-BMS-Demo":"1"}});}
 export async function GET(req:NextRequest,{params}:{params:Promise<{path?:string[]}>}){const p=pathOf(await params);
- if(p==="jobs")return ok({jobs:jobsForSample(req),people,admin,permissions});
+ if(p==="jobs")return ok({jobs:jobsForSample(req),people,activities,admin,permissions});
  if(p==="dashboard")return ok({activities,admin});
  if(p==="job-types")return ok({options:(sampleFrom(req).workTypes||settings.workTypes).map((name,i)=>({name,count:Math.max(1,8-i)}))});
  if(p==="settings"){const sample=sampleFrom(req);const s={...settings,...sample,businessDetails:{...settings.businessDetails,email:"hello@example-demo.co.uk",website:"example-demo.co.uk",emailSignatureName:`The ${String(sample.businessName).split(" ")[0]} Team`}};return ok({settings:s,tenant:{slug:"demo",business_name:s.businessName,status:"active"}});}
