@@ -3,13 +3,15 @@ import {useEffect,useState} from "react";
 
 
 export default function TenantLoginPage(){
- const [email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false);
+ const [tenantName,setTenantName]=useState("Business"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false);
+
+ useEffect(()=>{fetch("/api/business-software/tenant",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.tenant?.name)setTenantName(b.tenant.name)}}).catch(()=>{})},[]);
 
  async function handleSubmit(event:any){event.preventDefault();setLoading(true);setError("");const response=await fetch("/api/business-software/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});const data=await response.json().catch(()=>({}));if(!response.ok){setError(data.error||"Unable to sign in");setLoading(false);return}window.location.assign("/");}
  return <main style={{minHeight:"100vh",background:"#f5f5f2",display:"grid",placeItems:"center",padding:"24px",fontFamily:"Arial,Helvetica,sans-serif",color:"#172b4d"}}>
   <div style={{width:"100%",maxWidth:430,background:"#fff",border:"1px solid #00000018",borderRadius:24,padding:"32px",boxShadow:"0 14px 50px rgba(0,0,0,.08)"}}>
-   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:18,marginBottom:18}}><img src="https://mjmetal.co.uk/images/logo.png" alt="M&J Metal" style={{height:52,width:"auto",maxWidth:170,objectFit:"contain"}}/><span style={{fontSize:11,fontWeight:800,color:"#98a2b3"}}>Business Management Software</span></div>
-   <h1 style={{fontSize:34,lineHeight:1.1,margin:"10px 0 8px",fontWeight:900}}>Welcome to M&amp;J Management</h1>
+   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:18,marginBottom:18}}><img src="/api/business-software/icon" alt={tenantName} style={{height:52,width:"auto",maxWidth:170,objectFit:"contain"}}/><span style={{fontSize:11,fontWeight:800,color:"#98a2b3"}}>Business Management Software</span></div>
+   <h1 style={{fontSize:34,lineHeight:1.1,margin:"10px 0 8px",fontWeight:900}}>Welcome to {tenantName} BMS</h1>
    <p style={{margin:"0 0 26px",fontSize:14,color:"#667085"}}>Sign in to continue.</p>
    <form onSubmit={handleSubmit}>
     <label style={{display:"block",fontSize:14,fontWeight:700,marginBottom:16}}>Email<input value={email} onChange={e=>setEmail(e.target.value)} required type="email" autoComplete="email" style={{display:"block",width:"100%",height:48,marginTop:7,border:"1px solid #d0d5dd",borderRadius:12,padding:"0 13px",fontSize:16,boxSizing:"border-box"}}/></label>
