@@ -251,7 +251,7 @@ export default function CrmDashboardV3() {
       setQuickFull((q:any)=>q?{...q,job:{...(q.job||{}),...(body?.job||{})},customer:{...(q.customer||{}),...(body?.customer||{})}}:q);
       if(body?.job?.updated_at)setEditUpdatedAt(body.job.updated_at);
       localActivity(j,savedDraft,savedStatus,savedNext);
-      window.setTimeout(()=>{void loadQuickFull(j.reference).catch(()=>{});},250);
+      window.setTimeout(()=>{void Promise.all([loadQuickFull(j.reference),load()]).catch(()=>{});},450);
     }
     setSavingRef(null);setRemoteChanged(false);setRemoteChangedBy(null);setFlash(`✓ ${j.reference} saved`);setTimeout(()=>setFlash(""),2600);
   }
