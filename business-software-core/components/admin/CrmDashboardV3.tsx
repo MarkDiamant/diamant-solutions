@@ -90,7 +90,7 @@ export default function CrmDashboardV3() {
     return jobTypeSort==="az" ? items.sort((a,b)=>a.name.localeCompare(b.name,"en-GB")) : items.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,"en-GB"));
   },[jobTypeOptions,jobTypeSort]);
   const realJobs=useMemo(()=>jobs.filter(j=>!j.isPlaceholder),[jobs]);
-  const managerOptions=useMemo(()=>{const map=new Map<string,string>();for(const j of realJobs){if(j.manager)map.set(String(j.manager),String(j.managerName||j.manager_name||(j.manager==="MD"?"Mark":j.manager==="JB"?"Jonathan":j.manager)));}if(!map.size){map.set("MD","Mark");map.set("JB","Jonathan");}return [...map.entries()].map(([value,label])=>({value,label}));},[realJobs]);
+  const managerOptions=useMemo(()=>{const map=new Map<string,string>();for(const j of realJobs){if(j.manager)map.set(String(j.manager),String(j.managerName||j.manager_name||j.manager));}if(!map.size){for(const m of crmConfig.managers||[])map.set(String(m.value),String(m.label));}return [...map.entries()].map(([value,label])=>({value,label}));},[realJobs,crmConfig.managers]);
   const counts=useMemo(()=>{const pending=new Set(["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","interested_not_ready","customer_unsure"]);const active=new Set(["confirmed","deposit_requested","deposit_paid","materials_ordered","fabrication","installation_scheduled","in_progress","awaiting_final_payment"]);return{total:realJobs.length,pending:realJobs.filter(j=>pending.has(j.status)).length,active:realJobs.filter(j=>active.has(j.status)).length,completed:realJobs.filter(j=>j.status==="completed").length,lost:realJobs.filter(j=>["declined","cancelled"].includes(j.status)).length};},[realJobs]);
   const finance=useMemo(()=>{
     const pending=new Set(["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","interested_not_ready","customer_unsure"]);
@@ -212,7 +212,7 @@ export default function CrmDashboardV3() {
     const savedNext=body?.job?.next_action??savedDraft?.nextAction??j.nextAction;
     const savedNextAt=body?.job?.next_action_at??(savedDraft?.nextActionAt?iso(savedDraft.nextActionAt):j.nextActionAt);
     const savedUpdated=body?.job?.updated_at||new Date().toISOString();
-    setJobs(prev=>prev.map(x=>x.reference===j.reference?{...x,status:savedStatus,nextAction:savedNext,nextActionAt:savedNextAt,updatedAt:savedUpdated}:x));
+    setJobs(prev=>prev.map(x=>x.reference===j.reference?{...x,status:savedStatus,nextAction:savedNext,nextActionAt:savedNextAt,updatedAt:savedUpdated,...(savedDraft?{firstName:savedDraft.firstName,lastName:savedDraft.lastName,customerName:[savedDraft.firstName,savedDraft.lastName].filter(Boolean).join(" "),phone:savedDraft.phone,email:savedDraft.email,siteAddressLine1:savedDraft.siteAddressLine1,sitePostcode:savedDraft.sitePostcode,address:[savedDraft.siteAddressLine1,savedDraft.sitePostcode].filter(Boolean).join(", "),preliminaryEstimate:savedDraft.preliminaryEstimate===""?null:Number(savedDraft.preliminaryEstimate),quotedAmount:savedDraft.quotedAmount===""?null:Number(savedDraft.quotedAmount),estimatedCost:savedDraft.estimatedCost===""?null:Number(savedDraft.estimatedCost),finalCost:savedDraft.finalCost===""?null:Number(savedDraft.finalCost),jobTypes:savedDraft.jobTypes,jobType:savedDraft.jobTypes[0]||x.jobType,manager:savedDraft.manager,source:savedDraft.source}:{} )}:x));
     if(savedDraft)setDraft(d=>d?{...d,status:savedStatus as JobStatus}:d);
     const demo=Boolean(body?.demo);
     if(demo){
@@ -221,7 +221,7 @@ export default function CrmDashboardV3() {
       if(savedDraft&&String(savedNext||"")!==String(j.nextAction||""))changes.push(`${actor} changed next action to ${savedNext||"none"}`);
       if(savedDraft&&savedDraft.firstName+" "+savedDraft.lastName!==String(j.customerName||""))changes.push(`${actor} changed customer name to ${savedDraft.firstName} ${savedDraft.lastName}`.trim());
       if(changes.length)setActivities(prev=>[...changes.map((summary,i)=>({id:`demo-local-${Date.now()}-${i}`,job_id:j.id,summary,occurred_at:new Date().toISOString(),mj_jobs:{reference:j.reference},source:"activity"})),...prev]);
-      setTimeout(()=>void load(),5000);
+      setTimeout(()=>setJobs(prev=>prev.map(x=>x.reference===j.reference?j:x)),5000);
     }else{
       const refreshed=await loadQuickFull(j.reference);if(refreshed?.job?.updated_at)setEditUpdatedAt(refreshed.job.updated_at);await load();
     }
