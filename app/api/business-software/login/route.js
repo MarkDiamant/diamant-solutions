@@ -6,9 +6,9 @@ export async function POST(request){
   const {email,password}=await request.json();
   if(!email||!password)return NextResponse.json({error:"Email and password are required"},{status:400});
   const h=host(request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
-  const tenant=await tenantRecord(h==="mjmetal.diamantsolutions.co.uk"?"mjmetal":null,h);
+  const tenant=h==="mjmetal.diamantsolutions.co.uk"?{id:"3ebc2265-8842-4826-b464-71783d6cf841",slug:"mjmetal"}:await tenantRecord(null,h);
   if(!tenant)return NextResponse.json({error:"Business account unavailable"},{status:404});
-  const url=process.env.DS_SUPABASE_URL,key=process.env.DS_SUPABASE_PUBLISHABLE_KEY;
+  const url="https://iepqggrfenfqrqyzqyed.supabase.co",key="sb_publishable_ivTCLFGFroexc-3IHe25bg_qhzg_GIy";
   if(!url||!key)return NextResponse.json({error:"Authentication unavailable"},{status:503});
   const auth=await fetch(url+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:key,"Content-Type":"application/json"},body:JSON.stringify({email,password}),cache:"no-store"});
   if(!auth.ok)return NextResponse.json({error:"Incorrect email or password"},{status:401});
