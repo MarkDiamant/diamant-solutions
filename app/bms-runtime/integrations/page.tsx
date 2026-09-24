@@ -1,10 +1,8 @@
 "use client";
-import MjOperationalIntegrations from "@/components/admin/MjOperationalIntegrations";
-
 import { useEffect, useState } from "react";
 import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/lib/crm/config";
 
-function DemoIntegrationsPage() {
+export default function IntegrationsPage() {
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
   const [tenantName, setTenantName] = useState<string | null>(null);
@@ -75,4 +73,3 @@ function DemoIntegrationsPage() {
   );
 }
 
-export default function IntegrationsPage(){return process.env.NEXT_PUBLIC_BMS_STAGING_PREVIEW==="true"?<MjOperationalIntegrations/>:<DemoIntegrationsPage/>;}
