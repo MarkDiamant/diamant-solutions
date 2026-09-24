@@ -187,8 +187,13 @@ export default function CrmDashboardV3() {
     if(!savedDraft)return;
     const actor=String(admin?.name||admin?.display_name||admin?.displayName||admin?.email||"BMS user");
     const changes:string[]=[];
+    const nextWasExplicit=String(savedDraft.nextAction||"")!==String(j.nextAction||"");
     if(savedStatus!==String(j.status||""))changes.push(`${actor} changed status to ${statusLabel(savedStatus)}`);
-    if(String(savedNext||"")!==String(j.nextAction||""))changes.push(`${actor} changed next action to ${savedNext||"none"}`);
+    if(nextWasExplicit&&String(savedNext||"")!==String(j.nextAction||""))changes.push(`${actor} changed next action to ${savedNext||"none"}`);
+    if(String(savedDraft.manager||"")!==String(j.manager||""))changes.push(`${actor} changed assigned to ${savedDraft.manager||"none"}`);
+    const oldTypes=JSON.stringify(Array.isArray(j.jobTypes)&&j.jobTypes.length?j.jobTypes:(j.jobType?[j.jobType]:[]));
+    const newTypes=JSON.stringify(savedDraft.jobTypes||[]);
+    if(oldTypes!==newTypes)changes.push(`${actor} changed work type to ${(savedDraft.jobTypes||[]).join(", ")||"none"}`);
     if(changes.length)setActivities(prev=>[...changes.map((summary,i)=>({id:`local-${Date.now()}-${i}`,job_id:j.id,summary,occurred_at:new Date().toISOString(),job:{reference:j.reference},mj_jobs:{reference:j.reference},source:"activity"})),...prev]);
   }
 
@@ -267,7 +272,7 @@ export default function CrmDashboardV3() {
 
   const cards=[["Total enquiries",counts.total,"All real enquiries","bg-white border-black/8"],["Still pending",counts.pending,"Not decided yet","bg-amber-50/70 border-amber-200"],["Active jobs",counts.active,"Won / in progress","bg-blue-50/70 border-blue-200"],["Completed",counts.completed,"Finished","bg-green-50/70 border-green-200"],["Didn't go ahead",counts.lost,"Declined / cancelled","bg-red-50/70 border-red-200"]] as const;
   return <main className="min-h-screen overflow-x-hidden bg-[#f4f4f1] text-[#141414]">
-    {flash&&<div className="fixed inset-0 z-[100] flex items-center justify-center px-4 pointer-events-none"><div role="status" className="pointer-events-auto flex max-w-[520px] items-center gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/95 px-5 py-4 text-emerald-950 shadow-xl backdrop-blur"><div className="min-w-0 flex-1 text-center text-sm font-bold leading-relaxed">{flash.replace(/^✓\\s*/,"")}</div><button type="button" onClick={()=>setFlash("")} className="shrink-0 rounded-xl border border-emerald-300 bg-white/80 px-3 py-1.5 text-xs font-black text-emerald-900 hover:bg-white">OK</button></div></div>}
+    {flash&&<div className="fixed inset-x-0 top-[36%] z-[100] flex -translate-y-1/2 justify-center px-4 pointer-events-none"><div role="status" className="pointer-events-auto flex w-full max-w-[620px] items-center gap-5 rounded-2xl border border-emerald-200 bg-emerald-50/95 px-7 py-5 text-emerald-950 shadow-xl backdrop-blur"><div className="min-w-0 flex-1 text-center text-base font-bold leading-relaxed sm:text-lg">{flash.replace(/^✓\\s*/,"")}</div><button type="button" onClick={()=>setFlash("")} className="shrink-0 rounded-xl border border-emerald-300 bg-white/80 px-4 py-2 text-sm font-black text-emerald-900 hover:bg-white">OK</button></div></div>}
     <div className="mx-auto max-w-[1780px] px-3 pb-5 pt-5 sm:px-4 lg:px-7">
       <section className="grid grid-cols-6 gap-2 sm:gap-3 lg:grid-cols-5">{cards.map(([label,value,note,tone])=><div key={label} className={"rounded-xl border p-2.5 text-center sm:rounded-2xl sm:p-4 lg:col-span-1 lg:text-left "+(["Active jobs","Completed","Didn't go ahead"].includes(label)?"col-span-2 ":"col-span-3 ")+tone}><p className="text-[9px] font-black uppercase tracking-[0.05em] text-black/40 sm:text-[11px] sm:tracking-[0.08em]">{label}</p><p className="mt-1 text-xl font-black sm:mt-1.5 sm:text-3xl">{value}</p><p className="mt-0.5 text-[10px] text-black/40 sm:mt-1 sm:text-xs">{note}</p></div>)}</section>
       <div className="mt-5 grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_310px]"><section className="min-w-0">
