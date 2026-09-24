@@ -3,7 +3,7 @@ import {tenantRecord,publicTenantSettings} from "../../../../lib/business-softwa
 function host(v=""){return String(v).trim().toLowerCase().replace(/^https?:\/\//,"").split("/")[0].split(":")[0]}
 function esc(v=""){return String(v).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
 export async function GET(request){
- const h=host(request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
+ const h=host(request.headers.get("x-bms-tenant-host")||request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
  const t=await tenantRecord(null,h);
  if(!t)return new NextResponse(null,{status:404});
  const settings=t.slug?await publicTenantSettings(t.slug):null;
