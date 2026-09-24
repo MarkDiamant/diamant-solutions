@@ -8,7 +8,7 @@ export function middleware(request:NextRequest){
  const requestHost=hostname(request.nextUrl.hostname),hostHeader=hostname(request.headers.get("host")),forwardedHost=hostname(request.headers.get("x-forwarded-host"));
  const hosts=[requestHost,hostHeader,forwardedHost],host=hosts.includes(MJ_HOST)?MJ_HOST:hosts.includes(DEMO_HOST)?DEMO_HOST:requestHost,path=request.nextUrl.pathname;
  if(host===MJ_HOST){
-   if(path==="/login"||path==="/admin/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
+   if(path.startsWith("/api/admin/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live"+path.slice("/api/admin".length);return NextResponse.rewrite(url);}\n   if(path==="/login"||path==="/admin/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
      const hasSession=Boolean(request.cookies.get("sb-access-token")?.value||request.cookies.get("sb-auth-token")?.value||request.cookies.get("bms_authenticated")?.value);
      if(!hasSession){const url=request.nextUrl.clone();url.pathname="/login";return NextResponse.redirect(url);}
