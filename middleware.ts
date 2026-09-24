@@ -12,11 +12,11 @@ export function middleware(request:NextRequest){
    if(path.startsWith("/api/bms-demo"))return NextResponse.json({error:"Demo API is disabled on live BMS tenants."},{status:404});
    if(path.startsWith("/api/admin/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/"+path.slice("/api/admin/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path.startsWith("/api/integrations/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/integrations/"+path.slice("/api/integrations/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
-   if(path==="/login"||path==="/admin/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
+   if(path.startsWith("/admin")){const url=request.nextUrl.clone();url.pathname=path==="/admin"?"/":path.slice(6)||"/";return NextResponse.redirect(url);}\n   if(path==="/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
      const hasSession=Boolean(request.cookies.get("bms_access_token")?.value||request.cookies.get("bms_refresh_token")?.value);
      if(!hasSession){const url=request.nextUrl.clone();url.pathname="/login";return NextResponse.redirect(url);}
-     const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);
+     const url=request.nextUrl.clone();const clean=path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);
    }
    return NextResponse.next();
  }
