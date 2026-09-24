@@ -9,5 +9,5 @@ export const metadata:Metadata={title:"Business Management Software | Diamant So
 export const dynamic="force-dynamic";
 export default async function BmsRuntimeLayout({children}:{children:React.ReactNode}){
  const tenant=await runtimeTenant(),live=Boolean(tenant);
- return <div className="bms-shell"><BmsRuntimeGuard/>{!live&&<div className="bg-[#17385f] px-4 py-2 text-center text-xs font-black text-white print:hidden">DEMO MODE · Fictional data · External actions are disabled · Changes reset automatically</div>}<AdminBrandBar/><AdminPrimaryNav/>{children}<footer className="bms-footer print:hidden"><DiamantCredit dark/></footer></div>;
+ return <div className="bms-shell">{!live&&<BmsRuntimeGuard/>}{!live&&<div className="bg-[#17385f] px-4 py-2 text-center text-xs font-black text-white print:hidden">DEMO MODE · Fictional data · External actions are disabled · Changes reset automatically</div>}<AdminBrandBar/><AdminPrimaryNav/>{children}<footer className="bms-footer print:hidden"><DiamantCredit dark/></footer></div>;
 }
