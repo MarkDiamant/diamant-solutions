@@ -185,7 +185,7 @@ export default function CrmDashboardV3() {
 
   function localActivity(j:any,savedDraft:QuickDraft|null,savedStatus:string,savedNext:any){
     if(!savedDraft)return;
-    const actor=String(admin?.display_name||admin?.displayName||admin?.name||admin?.email||"BMS user");
+    const actor=String(admin?.name||admin?.display_name||admin?.displayName||admin?.email||"BMS user");
     const changes:string[]=[];
     if(savedStatus!==String(j.status||""))changes.push(`${actor} changed status to ${statusLabel(savedStatus)}`);
     if(String(savedNext||"")!==String(j.nextAction||""))changes.push(`${actor} changed next action to ${savedNext||"none"}`);
@@ -237,7 +237,7 @@ export default function CrmDashboardV3() {
       setQuickFull((q:any)=>q?{...q,job:{...(q.job||{}),...(body?.job||{})},customer:{...(q.customer||{}),...(body?.customer||{})}}:q);
       if(body?.job?.updated_at)setEditUpdatedAt(body.job.updated_at);
       localActivity(j,savedDraft,savedStatus,savedNext);
-      window.setTimeout(()=>{void Promise.all([loadQuickFull(j.reference),load()]).catch(()=>{});},250);
+      window.setTimeout(()=>{void loadQuickFull(j.reference).catch(()=>{});},250);
     }
     setSavingRef(null);setRemoteChanged(false);setRemoteChangedBy(null);setFlash(`✓ ${j.reference} saved`);setTimeout(()=>setFlash(""),2600);
   }
