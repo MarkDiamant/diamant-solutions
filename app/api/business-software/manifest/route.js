@@ -5,6 +5,6 @@ export async function GET(request){
  const h=host(request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
  const t=await tenantRecord(null,h);
  const name=t?.business_name||"Business Management Software";
- const icon=t?.slug==="mjmetal"?"https://mjmetal.co.uk/images/logo.png":"/Icon-512.png";
- return NextResponse.json({name,short_name:name,start_url:"/",display:"standalone",background_color:"#ffffff",theme_color:"#e66a24",icons:[{src:icon,sizes:"512x512",type:"image/png",purpose:"any maskable"}]},{headers:{"Content-Type":"application/manifest+json","Cache-Control":"no-store"}});
+ const icon="/api/business-software/icon";
+ return NextResponse.json({name,short_name:name,start_url:"/",display:"standalone",background_color:"#ffffff",theme_color:"#e66a24",icons:[{src:icon,sizes:"any",type:"image/png",purpose:"any"},{src:icon,sizes:"any",type:"image/png",purpose:"maskable"}]},{headers:{"Content-Type":"application/manifest+json","Cache-Control":"no-store"}});
 }
