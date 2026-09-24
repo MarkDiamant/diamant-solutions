@@ -219,8 +219,11 @@ export default function CrmDashboardV3() {
     const body=await res.json().catch(()=>({}));
     if(!res.ok){setSavingRef(null);setFlash(body.error||`Could not save ${j.reference}`);void load();return;}
     if(savedDraft&&crmConfig.modules.costs&&permissions.includes("view_costs_profit")){
-      const costRes=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"cost_summary",estimated_amount:savedDraft.estimatedCost===""?null:Number(savedDraft.estimatedCost),actual_amount:savedDraft.finalCost===""?null:Number(savedDraft.finalCost)})});
-      if(!costRes.ok){setSavingRef(null);setFlash("Job saved, but costs could not be saved");return;}
+      const oldEstimated=j.estimatedCost==null?"":String(j.estimatedCost),oldActual=j.finalCost==null?"":String(j.finalCost);
+      if(String(savedDraft.estimatedCost)!==oldEstimated||String(savedDraft.finalCost)!==oldActual){
+        const costRes=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({type:"cost_summary",estimated_amount:savedDraft.estimatedCost===""?null:Number(savedDraft.estimatedCost),actual_amount:savedDraft.finalCost===""?null:Number(savedDraft.finalCost)})});
+        if(!costRes.ok){setSavingRef(null);setFlash("The job was saved. The cost figures need another try.");return;}
+      }
     }
     if(saveOpenQuote&&quoteOpen&&quickFull?.quotes?.[0]){const form=document.getElementById(`quick-quote-form-${j.reference}`) as HTMLFormElement|null;if(form){const ok=await saveQuickQuoteForm(j,form,false);if(!ok){setSavingRef(null);return;}}}
     const savedStatus=String(body?.job?.status||savedDraft?.status||j.status||"");
