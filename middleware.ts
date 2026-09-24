@@ -28,4 +28,4 @@ export function middleware(request:NextRequest){
  if(host===DEMO_HOST&&!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);}
  return NextResponse.next();
 }
-export const config={matcher:["/((?!_next/static|_next/image|favicon.ico|images/).*)"]};
+export const config={matcher:["/((?!_next/static|_next/image|images/).*)"]};
