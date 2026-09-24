@@ -35,7 +35,7 @@ export default function BmsRuntimeGuard(){
       const url=new URL(String(value),window.location.href);
       if(url.origin===window.location.origin&&(url.pathname==="/admin"||url.pathname.startsWith("/admin/"))){
         const sample=new URLSearchParams(window.location.search).get("sample");
-        url.pathname="/bms-runtime"+(url.pathname.slice("/admin".length)||"/");
+        url.pathname=url.pathname.slice("/admin".length)||"/";
         if(sample&&!url.searchParams.has("sample"))url.searchParams.set("sample",sample);
         return url.pathname+url.search+url.hash;
       }
@@ -53,7 +53,7 @@ export default function BmsRuntimeGuard(){
       if(url.pathname==="/admin"||url.pathname.startsWith("/admin/")){
         event.preventDefault();
         const sample=new URLSearchParams(window.location.search).get("sample");
-        url.pathname="/bms-runtime"+(url.pathname.slice("/admin".length)||"/");
+        url.pathname=url.pathname.slice("/admin".length)||"/";
         if(sample&&!url.searchParams.has("sample"))url.searchParams.set("sample",sample);
         window.location.assign(url.pathname+url.search+url.hash);
         return;
