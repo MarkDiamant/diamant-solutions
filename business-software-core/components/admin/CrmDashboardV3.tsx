@@ -183,6 +183,15 @@ export default function CrmDashboardV3() {
   async function addCustomType(){const name=customType.trim();if(!name||!draft)return;const res=await fetch("/api/admin/job-types",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})});const body=await res.json().catch(()=>({}));if(!res.ok){setFlash(body.error||"Could not save work type");return;}setDraft(d=>d?{...d,jobTypes:d.jobTypes.includes(name)?d.jobTypes:[...d.jobTypes,name]}:d);setJobTypeOptions(options=>options.some(x=>x.name.toLowerCase()===name.toLowerCase())?options:[...options,{name,count:0}]);if(body.settings)setCrmConfig(body.settings);setCustomType("");setFlash(`${name} added to business work types`);setTimeout(()=>setFlash(""),1800);}
   async function hideWorkType(name:string){if(!confirm(`Are you sure you want to delete "${name}" from this and all future work type options?\n\nExisting jobs that already have this work type selected will remain unchanged.`))return;const res=await fetch("/api/admin/job-types",{method:"DELETE",headers:{"Content-Type":"application/json"},body:JSON.stringify({name})});if(!res.ok){setFlash("Could not remove work type");return;}setJobTypeOptions(options=>options.filter(x=>x.name!==name));if(type===name)setType("all");setFlash(`${name} removed from dropdown`);setTimeout(()=>setFlash(""),1800);}
 
+  function localActivity(j:any,savedDraft:QuickDraft|null,savedStatus:string,savedNext:any){
+    if(!savedDraft)return;
+    const actor=String(admin?.display_name||admin?.displayName||admin?.name||admin?.email||"BMS user");
+    const changes:string[]=[];
+    if(savedStatus!==String(j.status||""))changes.push(`${actor} changed status to ${statusLabel(savedStatus)}`);
+    if(String(savedNext||"")!==String(j.nextAction||""))changes.push(`${actor} changed next action to ${savedNext||"none"}`);
+    if(changes.length)setActivities(prev=>[...changes.map((summary,i)=>({id:`local-${Date.now()}-${i}`,job_id:j.id,summary,occurred_at:new Date().toISOString(),job:{reference:j.reference},mj_jobs:{reference:j.reference},source:"activity"})),...prev]);
+  }
+
   async function saveQuick(j:any,overrides:Record<string,unknown>={},saveOpenQuote=false){
     if(!draft&&Object.keys(overrides).length===0)return;
     if(remoteChanged){setFlash("This job was updated by someone else. Load their changes before saving.");return;}
@@ -223,12 +232,12 @@ export default function CrmDashboardV3() {
       if(changes.length)setActivities(prev=>[...changes.map((summary,i)=>({id:`demo-local-${Date.now()}-${i}`,job_id:j.id,summary,occurred_at:new Date().toISOString(),mj_jobs:{reference:j.reference},source:"activity"})),...prev]);
       setTimeout(()=>setJobs(prev=>prev.map(x=>x.reference===j.reference?j:x)),5000);
     }else{
-      // The PATCH response is already the authoritative saved state. Keep the
-      // quick editor/dashboard responsive immediately; refresh in the background
-      // only to pick up server-generated activity and related records.
+      // The PATCH response is authoritative. Update both the row and activity UI
+      // immediately; server refresh is background reconciliation only.
       setQuickFull((q:any)=>q?{...q,job:{...(q.job||{}),...(body?.job||{})},customer:{...(q.customer||{}),...(body?.customer||{})}}:q);
       if(body?.job?.updated_at)setEditUpdatedAt(body.job.updated_at);
-      void Promise.all([loadQuickFull(j.reference),load()]).catch(()=>{});
+      localActivity(j,savedDraft,savedStatus,savedNext);
+      window.setTimeout(()=>{void Promise.all([loadQuickFull(j.reference),load()]).catch(()=>{});},250);
     }
     setSavingRef(null);setRemoteChanged(false);setRemoteChangedBy(null);setFlash(`✓ ${j.reference} saved`);setTimeout(()=>setFlash(""),2600);
   }
