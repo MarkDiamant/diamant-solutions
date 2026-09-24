@@ -8,6 +8,7 @@ export async function GET(request){
  let src=settings?.logo_url||settings?.logoUrl||null;
  if(!src&&h==="mjmetal.diamantsolutions.co.uk")src="https://mjmetal.co.uk/favicon.svg";
  if(!src)src="https://diamantsolutions.co.uk/Icon-512.png";
+ if(src.startsWith("data:image/")){const m=src.match(/^data:([^;]+);base64,(.+)$/);if(m)return new NextResponse(Buffer.from(m[2],"base64"),{headers:{"Content-Type":m[1],"Cache-Control":"no-store"}});}
  const r=await fetch(src,{cache:"no-store"});
  if(!r.ok)return new NextResponse(null,{status:404});
  return new NextResponse(await r.arrayBuffer(),{headers:{"Content-Type":r.headers.get("content-type")||"image/png","Cache-Control":"no-store"}});
