@@ -14,7 +14,7 @@ export function middleware(request:NextRequest){
    if(path.startsWith("/api/integrations/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/integrations/"+path.slice("/api/integrations/".length);return NextResponse.rewrite(url);}
    if(path==="/login"||path==="/admin/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
-     const hasSession=Boolean(request.cookies.get("sb-access-token")?.value||request.cookies.get("sb-auth-token")?.value||request.cookies.get("bms_authenticated")?.value);
+     const hasSession=Boolean(request.cookies.get("bms_access_token")?.value||request.cookies.get("bms_refresh_token")?.value);
      if(!hasSession){const url=request.nextUrl.clone();url.pathname="/login";return NextResponse.redirect(url);}
      const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);
    }
