@@ -30,3 +30,7 @@
 .bms-shell footer.bms-footer{display:flex;align-items:center;justify-content:center;min-height:70px;background:#172b4d!important;color:#fff!important;padding:12px 20px!important}
 .bms-shell footer.bms-footer .builtByLogo{background:transparent;padding:0}
 .bms-shell footer.bms-footer .builtByLogo img{width:100px!important;max-width:100px!important;max-height:24px!important}
+
+/* Interactive controls should always advertise clickability. */
+.bms-shell :is(a[href],button:not(:disabled),summary,[role="button"],label[for],select:not(:disabled),input[type="checkbox"]:not(:disabled),input[type="radio"]:not(:disabled)){cursor:pointer}
+.bms-shell :is(button:disabled,select:disabled,input:disabled){cursor:not-allowed}
