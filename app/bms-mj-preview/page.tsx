@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 
 
 export default function TenantLoginPage(){
- const [tenantName,setTenantName]=useState(()=>typeof window!=="undefined"&&window.location.hostname==="mjmetal.diamantsolutions.co.uk"?"M&J Metal":"Business"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false);
+ const [tenantName,setTenantName]=useState("M&J Metal"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(false);
 
  useEffect(()=>{fetch("/api/business-software/tenant",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.tenant?.name)setTenantName(b.tenant.name)}}).catch(()=>{})},[]);
 
