@@ -1,0 +1,18 @@
+{
+  "note": "Read-only parity baseline of M&J admin route source against BMS demo routes. Login intentionally separate, no live auth in demo.",
+  "routes": {
+    "customers": "dd36eb008265757bf4fdb63edb2a5799cc4ee117",
+    "jobs": "22a9a7d78a0f9075252bbc083fe2186e8e7984a6",
+    "jobs/new": "87b9444121cecfbf487fa30496f2a4783096b27c",
+    "quotes": "71a4aa28126ad2a81219c7799f27ab955a52925b",
+    "invoices": "3d98d2051245d0a68de70ac35aabbf3b208be68d",
+    "payments": "09e4a2bd72ae46db024a581bd0fc644aa9d3ada3",
+    "files": "8b4e2f0abb016c0ad1b8f633de62449be4f15c78",
+    "team": "a39a3a51cba3ff1ba077aff1938b80328cb2ecb5",
+    "archive": "d2ee1ddbd3cd2bb5af6d9d48184da3496cd2552a",
+    "integrations": "ed7fbe694e281f7025bc50d59c3f718ac5edf859",
+    "users": "30eb29542f26f6947c73c8a78f286d4877744988",
+    "settings": "5296e162203cf47b29b73980b25d15e249e83bc4",
+    "ai": "8ef87800111173569f418aad1214db51ad1d8c2f"
+  }
+}
