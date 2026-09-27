@@ -1,0 +1,20 @@
+{
+  "source": "MarkDiamant/mjmetal",
+  "sourcePath": "components/admin",
+  "captured": "2026-09-23",
+  "note": "Read-only source baseline; no M&J production files or data copied.",
+  "components": {
+    "AdminBrandBar": "230acb2c13449280dc5b6d66ae2478ee28406c29",
+    "CrmDashboardV3": "624377c34df3c09c99d90f83cf4dd4c21a083a8a",
+    "CrmDashboardV4": "2de870ed954958de1b11fbde25f7f3ebf0577897",
+    "CrmDashboardV5": "f0303bee87bb9a83acdd461079d729bf9b0031b1",
+    "JobDetail": "f925ced86b4630086bd4cd52b5329a8fecd335a8",
+    "JobWorkflowPanel": "e7f4c23aff311d3e7468a2acb38bc008fc9d9b4b",
+    "NewJobForm": "0ebbffe66b743bf80ebcecfd1d4b33d78f59007c",
+    "NewJobFormV2": "cd8310efb9753e917c1f234a5cba9f62ebe5228c",
+    "QuotePdfActions": "ee128efeece17c83dd9c10aba3eb2e5ae02c6378",
+    "QuotePrint": "c6afdca96fbbe5182e86d67c0712ff107df3d839",
+    "SetupRequired": "08d9ac9ff1d5402364d5ad2e5fc8157ad5dfeae5",
+    "XeroInvoicePage": "074777948b910208f69cacf8f308f75056932633"
+  }
+}
