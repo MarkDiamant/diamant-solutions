@@ -19,6 +19,6 @@ export async function GET(request){
  const fallback="https://diamantsolutions.co.uk/Icon-512.png";
  if(!imageData){const r=await fetch(fallback,{cache:"no-store"}).catch(()=>null);if(r?.ok)imageData="data:"+(r.headers.get("content-type")||"image/png")+";base64,"+Buffer.from(await r.arrayBuffer()).toString("base64");}
  if(!imageData)return new NextResponse(null,{status:404});
- const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><rect width="512" height="512" rx="96" fill="white"/><image href="'+esc(imageData)+'" x="72" y="72" width="368" height="368" preserveAspectRatio="xMidYMid meet"/></svg>';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><image href="'+esc(imageData)+'" x="16" y="16" width="480" height="480" preserveAspectRatio="xMidYMid meet"/></svg>';
  return new NextResponse(svg,{headers:{"Content-Type":"image/svg+xml; charset=utf-8","Cache-Control":"no-store"}});
 }
