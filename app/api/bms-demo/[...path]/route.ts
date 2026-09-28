@@ -46,37 +46,35 @@ const sampleConfigs:any={
 };
 function sampleFrom(req:NextRequest){try{const ref=req.headers.get("referer");const key=ref?new URL(ref).searchParams.get("sample"):"";return sampleConfigs[key||"northstar"]||sampleConfigs.northstar}catch{return sampleConfigs.northstar}}
 function jobsForSample(req:NextRequest){
- const sample=sampleFrom(req);
- const types=sample.workTypes;
+ const sample=sampleFrom(req),types=sample.workTypes;
  if(!types)return jobs;
  const key=(()=>{try{const ref=req.headers.get("referer");return ref?new URL(ref).searchParams.get("sample")||"northstar":"northstar"}catch{return "northstar"}})();
- const scales:any={
-  electrical:{count:64,multiplier:.34},
-  insurance:{count:82,multiplier:.22},
-  studio:{count:58,multiplier:.28},
-  consultancy:{count:72,multiplier:.42},
-  distribution:{count:96,multiplier:.18},
-  northstar:{count:108,multiplier:1}
- };
  const profiles:any={
-  northstar:{count:108,target:820000,completed:.48,declined:.06},
-  electrical:{count:70,target:200000,completed:.57,declined:.07},
-  insurance:{count:1300,target:1300000,completed:.72,declined:.08},
-  studio:{count:94,target:90000,completed:.55,declined:.10},
-  consultancy:{count:165,target:400000,completed:.62,declined:.07},
-  distribution:{count:410,target:800000,completed:.68,declined:.06}
+  northstar:{count:137,wonTarget:615000,completed:72,active:31,declined:9},
+  electrical:{count:73,wonTarget:205000,completed:39,active:16,declined:6},
+  insurance:{count:1372,wonTarget:1345000,completed:1014,active:126,declined:91},
+  studio:{count:89,wonTarget:92000,completed:45,active:18,declined:8},
+  consultancy:{count:173,wonTarget:405000,completed:103,active:32,declined:11},
+  distribution:{count:427,wonTarget:815000,completed:284,active:61,declined:31}
  };
  const profile=profiles[key]||profiles.northstar;
- const source=jobs.slice(0,profile.count);
- const baseTotal=source.reduce((s,j)=>s+j.quotedAmount,0)||1;
+ const source=Array.from({length:profile.count},(_,i)=>jobs[i%jobs.length]);
+ const statusesFor=(i:number)=>{
+   if(i<profile.completed)return "completed";
+   if(i<profile.completed+profile.active){
+     const active=["in_progress","installation_scheduled","materials_ordered","deposit_paid","confirmed","awaiting_final_payment"];return active[i%active.length];
+   }
+   if(i>=profile.count-profile.declined)return "declined";
+   const pending=["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","deposit_requested"];return pending[i%pending.length];
+ };
+ const wonCount=profile.completed+profile.active;
+ const rawWon=source.slice(0,wonCount).reduce((s,j)=>s+j.quotedAmount,0)||1;
  return source.map((job,i)=>{
-  const type=types[i%types.length];
-  const amount=Math.max(100,Math.round((job.quotedAmount*profile.target/baseTotal)/50)*50),estimatedCost=Math.round(amount*(.58+(i%4)*.035));
-  return {...job,quotedAmount:amount,preliminaryEstimate:amount,estimatedCost,finalCost:job.finalCost!=null?estimatedCost:undefined,latestQuote:{...job.latestQuote,amount,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`},jobType:type,jobTypes:[type],
-    dimensions:"Scope to be confirmed",material:"Project resources",finishes:[],
-    workforceAssignments:job.workforceAssignments.map(a=>({...a,scope:"Project support",assignmentRole:"Team member"})),
-    customerRequirements:`Fictional demo requirements for ${type.toLowerCase()}.`
-  };
+   const type=types[i%types.length],status=statusesFor(i);
+   const amount=Math.max(100,Math.round((job.quotedAmount*profile.wonTarget/rawWon)/50)*50);
+   const estimatedCost=Math.round(amount*(.58+(i%4)*.035));
+   const reference=`DS${String(profile.count-i+37).padStart(4,"0")}`,id=`${key}-job-${i+1}`,customerId=`${key}-c-${i+1}`;
+   return {...job,id,customerId,reference,sequenceNumber:profile.count-i+37,status,quotedAmount:amount,preliminaryEstimate:amount,estimatedCost,finalCost:["completed","awaiting_final_payment","in_progress"].includes(status)?estimatedCost:undefined,completedAt:status==="completed"?job.completedAt:undefined,latestQuote:{...job.latestQuote,id:"q"+id,job_id:id,amount,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`},jobType:type,jobTypes:[type],dimensions:"Scope to be confirmed",material:"Project resources",finishes:[],workforceAssignments:job.workforceAssignments.map(a=>({...a,job_id:id,scope:"Project support",assignmentRole:"Team member"})),customerRequirements:`Fictional demo requirements for ${type.toLowerCase()}.`};
  });
 }
 function pathOf(params:{path?:string[]}){return (params.path||[]).join("/");}
@@ -86,7 +84,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{path?:string
  if(p==="dashboard")return ok({activities,admin});
  if(p==="job-types")return ok({options:(sampleFrom(req).workTypes||settings.workTypes).map((name,i)=>({name,count:Math.max(1,8-i)}))});
  if(p==="settings"){const sample=sampleFrom(req);const s={...settings,...sample,businessDetails:{...settings.businessDetails,email:"hello@example-demo.co.uk",website:"example-demo.co.uk",emailSignatureName:`The ${String(sample.businessName).split(" ")[0]} Team`}};return ok({settings:s,tenant:{slug:"demo",business_name:s.businessName,status:"active"}});}
- if(p==="customers")return ok({customers:jobs.map(j=>({id:j.customerId,first_name:j.firstName,last_name:j.lastName,name:j.customerName,email:j.email,phone:j.phone,postcode:j.postcode,address_line_1:j.customerAddressLine1,city:j.customerCity}))});
+ if(p==="customers")return ok({customers:jobsForSample(req).map(j=>({id:j.customerId,first_name:j.firstName,last_name:j.lastName,name:j.customerName,email:j.email,phone:j.phone,postcode:j.postcode,address_line_1:j.customerAddressLine1,city:j.customerCity}))});
  if(p==="users")return ok({users:[{id:"u1",email:"alex@example-demo.co.uk",name:"Alex Carter",role:"admin",status:"active",protectedOwner:true,permissions},{id:"u2",email:"sam@example-demo.co.uk",name:"Sophie Reed",role:"manager",status:"active",protectedOwner:false,permissions},{id:"u3",email:"accounts@example-demo.co.uk",name:"Accounts Demo",role:"office",status:"active",protectedOwner:false,permissions}],seatCount:3,seatLimit:5,pricingConnected:false,plan:settings.plan});
  if(p==="billing-access")return ok({blocked:false,businessName:settings.businessName,billing:settings.billing});
  if(p.startsWith("jobs/"))return ok(detail(decodeURIComponent(p.split("/")[1]||"DS042"),jobsForSample(req)));
