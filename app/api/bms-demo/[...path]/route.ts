@@ -70,7 +70,7 @@ function jobsForSample(req:NextRequest){
  const rawWon=source.reduce((s,j,i)=>s+(wonStatuses.has(statusesFor(i))?j.quotedAmount:0),0)||1;
  return source.map((job,i)=>{
    const type=types[i%types.length],status=statusesFor(i);
-   const amount=Math.max(100,Math.round((job.quotedAmount*profile.wonTarget/rawWon)/50)*50);
+   const amount=wonStatuses.has(status)?Math.max(100,Math.round((job.quotedAmount*profile.wonTarget/rawWon)/50)*50):Math.max(100,Math.round(job.quotedAmount/50)*50);
    const estimatedCost=Math.round(amount*(.58+(i%4)*.035));
    const amountPaid=status==="completed"?amount:status==="awaiting_final_payment"?Math.round(amount*(.4+(i%4)*.1)):["deposit_paid","installation_scheduled","materials_ordered","in_progress"].includes(status)?Math.round(amount*(.2+(i%3)*.1)):0;
    const balanceOutstanding=["completed","awaiting_final_payment"].includes(status)?Math.max(0,amount-amountPaid):0;
