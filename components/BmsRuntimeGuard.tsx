@@ -1,5 +1,5 @@
 "use client";
-import {useLayoutEffect,useState} from "react";
+import {useLayoutEffect} from "react";
 
 const rewrite=(value:string)=>{
   if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return "/api/bms-demo/jobs"+value.slice("/api/jobs".length);
@@ -9,8 +9,7 @@ const rewrite=(value:string)=>{
 };
 
 export default function BmsRuntimeGuard(){
-  const [notice,setNotice]=useState(false);
-  useLayoutEffect(()=>{if(!sessionStorage.getItem("bms-demo-edit-tip")){sessionStorage.setItem("bms-demo-edit-tip","1");setNotice(true);setTimeout(()=>setNotice(false),6500);}
+  useLayoutEffect(()=>{
 
     const originalFetch=window.fetch.bind(window);
     window.fetch=((input:RequestInfo|URL,init?:RequestInit)=>{
@@ -66,5 +65,5 @@ export default function BmsRuntimeGuard(){
     document.addEventListener("click",click,true);
     return ()=>{window.fetch=originalFetch;history.pushState=originalPush as typeof history.pushState;history.replaceState=originalReplace as typeof history.replaceState;document.removeEventListener("click",click,true);};
   },[]);
-  return notice?<div className="fixed left-1/2 top-24 z-[100] w-[min(92vw,620px)] -translate-x-1/2 rounded-2xl border border-black/10 bg-white px-5 py-4 text-center text-sm font-bold shadow-xl">Try editing anything in the demo — names, addresses, status, next actions and prices will update so you can see the BMS working, then reset automatically after a few seconds.</div>:null;
+  return null;
 }
