@@ -50,12 +50,12 @@ function jobsForSample(req:NextRequest){
  if(!types)return jobs;
  const key=sampleKey(req);
  const profiles:any={
-  northstar:{count:184,wonTarget:685000,completed:103,active:38,declined:12},
-  electrical:{count:76,wonTarget:198000,completed:41,active:17,declined:5},
-  insurance:{count:1372,wonTarget:1425000,completed:1007,active:139,declined:87},
-  studio:{count:91,wonTarget:94000,completed:48,active:17,declined:9},
-  consultancy:{count:168,wonTarget:418000,completed:101,active:29,declined:10},
-  distribution:{count:463,wonTarget:842000,completed:306,active:69,declined:29}
+  northstar:{count:247,wonTarget:1400000,completed:142,active:51,declined:17},
+  electrical:{count:83,wonTarget:215000,completed:45,active:18,declined:7},
+  insurance:{count:684,wonTarget:690000,completed:471,active:73,declined:56},
+  studio:{count:67,wonTarget:88000,completed:34,active:13,declined:8},
+  consultancy:{count:156,wonTarget:385000,completed:91,active:27,declined:12},
+  distribution:{count:392,wonTarget:805000,completed:257,active:58,declined:31}
  };
  const profile=profiles[key]||profiles.northstar;
  const source=Array.from({length:profile.count},(_,i)=>jobs[i%jobs.length]);
