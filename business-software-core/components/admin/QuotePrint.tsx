@@ -49,7 +49,7 @@ ${crmConfig.businessName}`;
   const isMj=template==="mj-signature";
   const pageClass=isClassic?"font-serif":isMj?"":"";
   const quoteBrand=isMj?"#f28c28":crmConfig.accentColour;
-  const mjLogoSrc=isMj?"/api/business-software/quote-logo/mj":crmConfig.logoUrl;
+  const mjLogoSrc=crmConfig.logoUrl;
   const headerClass=isClassic?"border-b border-black pb-5":isMj?"border-b-4 border-[var(--brand)] pb-5":"border-b-2 border-[var(--brand)] pb-5";
   const panelClass=isClassic?"border-y border-black/20 py-5":isMj?"rounded-xl bg-[#f5f5f2] p-5":"border border-[var(--brand)]/30 p-5";
 
