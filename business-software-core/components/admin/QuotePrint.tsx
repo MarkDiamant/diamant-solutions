@@ -52,9 +52,9 @@ ${crmConfig.businessName}`;
   const pageClass=isClassic?"font-serif":isMj?"":"";
   const quoteBrand=crmConfig.accentColour || "#1f4f78";
   const mjLogoSrc=crmConfig.logoUrl;
-  const logoImgClass=isMj?"object-contain":"h-14 w-auto object-contain";
+  const logoImgClass="object-contain";
   const headerClass=isClassic?"border-b border-black pb-5":isMj?"border-b-4 border-[var(--brand)] pb-5":"border-b-2 border-[var(--brand)] pb-5";
-  const panelClass=isClassic?"border-y border-black/20 py-5":isMj?"rounded-xl bg-[#f5f5f2] p-5":"border border-[var(--brand)]/30 p-5";
+  const panelClass=isClassic?"border-y border-black/20 py-5":"rounded-xl bg-[#f5f5f2] p-5";
 
   async function shareWhatsApp() {
     if(whatsAppBusy)return;
@@ -92,7 +92,7 @@ ${crmConfig.businessName}`;
     <style>{`@media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
     <div className="mx-auto mb-4 flex max-w-[900px] flex-wrap justify-end gap-2 px-4 print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-bold text-green-700">{sentMessage}</span>}
-      <button onClick={() => { setPdfBusy(true); document.getElementById("save-quote-pdf")?.click(); }} disabled={pdfBusy} className="rounded-xl bg-[var(--brand)] px-4 py-2.5 text-sm font-black text-white disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
+      <button onClick={() => { setPdfBusy(true); document.getElementById("save-quote-pdf")?.click(); }} disabled={pdfBusy} className="rounded-xl px-4 py-2.5 text-sm font-black text-white disabled:opacity-60" style={{backgroundColor:quoteBrand}}>{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
       {connectedGmail&&<button onClick={() => void sendQuote()} disabled={sending} className="rounded-xl bg-[#141414] px-4 py-2.5 text-sm font-black text-white disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>}
       {connectedGmail&&<button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});}catch(error){alert(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold disabled:opacity-50">{drafting?"Creating Gmail draft...":"Open email draft"}</button>}
       <button onClick={() => void shareWhatsApp()} disabled={whatsAppBusy} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold disabled:opacity-50">{whatsAppBusy?"Preparing WhatsApp...":"Share via WhatsApp"}</button>
