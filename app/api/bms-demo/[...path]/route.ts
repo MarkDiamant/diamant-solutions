@@ -25,28 +25,27 @@ const raw=[
 ] as const;
 const customerNames=[["Amelia","Hart"],["Oliver","Bennett"],["Sophie","Turner"],["Noah","Collins"],["Isla","Morgan"],["George","Foster"],["Mia","Parker"],["Arthur","Evans"],["Lily","Cooper"],["Leo","Ward"],["Freya","Hughes"],["Oscar","Price"],["Ava","Mitchell"],["Harry","Clarke"],["Grace","Roberts"],["Jack","Lewis"],["Emily","Walker"],["Charlie","Hall"],["Ella","Young"],["Thomas","King"],["Evie","Wright"],["James","Green"],["Poppy","Baker"],["William","Adams"]];
 const demoStatuses=[
- ...Array(35).fill("completed"),
- ...Array(6).fill("in_progress"),
- ...Array(8).fill("new_enquiry"),
- ...Array(7).fill("awaiting_information"),
- ...Array(6).fill("site_visit_required"),
- ...Array(5).fill("site_visit_booked"),
- ...Array(5).fill("estimate_preparing"),
- ...Array(6).fill("estimate_sent"),
- ...Array(4).fill("quote_preparing"),
- ...Array(7).fill("quote_sent"),
- ...Array(5).fill("awaiting_customer"),
- ...Array(4).fill("confirmed"),
- ...Array(3).fill("deposit_requested"),
+ ...Array(52).fill("completed"),
+ ...Array(8).fill("in_progress"),
+ ...Array(5).fill("installation_scheduled"),
+ ...Array(4).fill("materials_ordered"),
  ...Array(3).fill("deposit_paid"),
- ...Array(2).fill("materials_ordered"),
- ...Array(2).fill("installation_scheduled"),
- ...Array(3).fill("awaiting_final_payment"),
- ...Array(4).fill("declined")
+ ...Array(3).fill("deposit_requested"),
+ ...Array(3).fill("confirmed"),
+ ...Array(4).fill("awaiting_final_payment"),
+ ...Array(4).fill("quote_sent"),
+ ...Array(3).fill("awaiting_customer"),
+ ...Array(3).fill("estimate_sent"),
+ ...Array(2).fill("estimate_preparing"),
+ ...Array(2).fill("site_visit_booked"),
+ ...Array(2).fill("site_visit_required"),
+ ...Array(2).fill("awaiting_information"),
+ ...Array(2).fill("new_enquiry"),
+ ...Array(6).fill("declined")
 ] as const;
 const expandedRaw=Array.from({length:108},(_,i)=>{
  const base=raw[i%raw.length],n=150-i,[first,last]=customerNames[i%customerNames.length],status=demoStatuses[i];
- const band=i%10,quoted=band<3?1800+(i%7)*650:band<7?6500+(i%9)*1750:22000+(i%8)*6500,cost=Math.round(quoted*(0.55+(i%4)*0.04));
+ const band=i%12,quoted=band<5?1200+(i%8)*450:band<10?4800+(i%9)*900:14000+(i%5)*3500,cost=Math.round(quoted*(0.58+(i%4)*0.035));
  return [`DS${String(n).padStart(3,"0")}`,first,last,base[3],status,quoted,cost,-(i%75),["Call customer","Follow up quote","Book site visit","Complete works"][i%4],i%6,i%2?"ST":"AD"] as const;
 });
 const jobs=expandedRaw.map((r,i)=>{const [reference,first,last,jobType,status,quoted,cost,created,nextAction,nextDays,manager]=r;const paid=status==="completed"?quoted:status==="awaiting_final_payment"?Math.round(quoted*.5):["deposit_paid","installation_scheduled","in_progress"].includes(status)?Math.round(quoted*.5):0;const id="job"+(150-i);return {id,reference,sequenceNumber:150-i,customerId:"c"+(150-i),firstName:first,lastName:last,customerName:first+" "+last,customerAddressLine1:`${18+i} Example Road`,customerAddressLine2:"",customerCity:"London",customerPostcode:`NW${(i%9)+1} ${i+1}AB`,siteAddressLine1:`${18+i} Example Road`,siteAddressLine2:"",siteCity:"London",sitePostcode:`NW${(i%9)+1} ${i+1}AB`,address:`${18+i} Example Road, London`,postcode:`NW${(i%9)+1} ${i+1}AB`,phone:`020 7946 ${String(1000+i).padStart(4,"0")}`,email:`${String(first).toLowerCase()}.${String(last).toLowerCase()}@example-demo.co.uk`,jobType,jobTypes:[jobType],status,manager,managerName:manager==="AD"?"Alex Carter":"Sophie Reed",source:["Website","Referral","Phone","Email"][i%4],enquiryAt:iso(created),finishes:[i%2?"Standard finish":"Weatherproof finish"],colour:i%3===0?"Neutral grey":"Black",dimensions:i%2?"Two-bedroom flat":"Site inspection required",material:"Property maintenance supplies",customerRequirements:`Fictional demo requirements for ${jobType.toLowerCase()}.`,internalNotes:"Demo record only. No real customer or project.",siteVisitRequired:i%3===0,siteVisitAt:i%3===0?iso(created+2):undefined,preliminaryEstimate:quoted,quotedAmount:quoted,quoteSentAt:["quote_sent","awaiting_customer","deposit_paid","installation_scheduled","in_progress","awaiting_final_payment","completed"].includes(status)?iso(created+5):undefined,latestQuote:{id:"q"+id,job_id:id,version:1,status:"draft",amount:quoted,scope_text:`Management and completion of ${jobType.toLowerCase()} as discussed.`,exclusions:"Any works not specifically listed.",created_at:iso(created+4)},quoteDisplaySent:["quote_sent","awaiting_customer","deposit_paid","in_progress","installation_scheduled","awaiting_final_payment","completed"].includes(status),hasInvoice:["awaiting_final_payment","completed"].includes(status),latestInvoice:["awaiting_final_payment","completed"].includes(status)?{invoice_number:"INV-"+reference.slice(2),status:status==="completed"?"PAID":"AUTHORISED",total:quoted,amount_paid:paid,amount_due:Math.max(0,quoted-paid),invoice_date:iso(created+20),due_date:iso(created+34)}:undefined,paymentMethod:"Bank transfer",nextAction:nextAction||undefined,nextActionAt:nextAction?iso(nextDays):undefined,nextActionAssignee:nextAction?manager:undefined,scheduledAt:["installation_scheduled","in_progress"].includes(status)?iso(5):undefined,expectedCompletionAt:["in_progress","installation_scheduled"].includes(status)?iso(9):undefined,completedAt:status==="completed"?iso(created+24):undefined,balanceActive:["awaiting_final_payment","completed"].includes(status),balanceOutstanding:Math.max(0,quoted-paid),amountPaid:paid,writtenOffAmount:0,collectionRequired:status==="awaiting_final_payment",customerPayments:paid?[{id:"pay"+id,direction:"customer_in",payment_type:status==="completed"?"Final payment":"Deposit",amount:paid,payment_method:"Bank transfer",paid_at:iso(created+12),created_at:iso(created+12)}]:[],workforceAssignments:i%2?[{id:"a"+id,job_id:id,subcontractor_id:"p2",scope:"Maintenance support",status:"assigned",personName:"Jamie Reed",personCompany:"Reed Electrical",relationshipType:"subcontractor",assignmentRole:"Maintenance engineer",agreedCost:650,depositAmount:325,paidAmount:i%4===0?325:0,outstanding:i%4===0?0:325}]:[],subcontractorAgreed:i%2?650:0,subcontractorPaid:i%4===0?325:0,subcontractorOutstanding:i%2&&i%4!==0?325:0,commissions:[],commissionAgreed:0,commissionPaid:0,commissionOutstanding:0,estimatedCost:cost,finalCost:["completed","awaiting_final_payment","in_progress"].includes(status)?cost:undefined,materialsOrdered:["in_progress","installation_scheduled","awaiting_final_payment","completed"].includes(status),createdAt:iso(created),updatedAt:iso(Math.min(-1,created+8)),lastChangedBy:i%2?"Alex":"Sam",fileCount:i%3===0?4:1,photoCount:i%3===0?3:0};});
