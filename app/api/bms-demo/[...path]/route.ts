@@ -24,9 +24,28 @@ const raw=[
  ["DS031","Oscar","Price","Residential Maintenance","completed",24800,14600,-65,"",0,"AD"]
 ] as const;
 const customerNames=[["Amelia","Hart"],["Oliver","Bennett"],["Sophie","Turner"],["Noah","Collins"],["Isla","Morgan"],["George","Foster"],["Mia","Parker"],["Arthur","Evans"],["Lily","Cooper"],["Leo","Ward"],["Freya","Hughes"],["Oscar","Price"],["Ava","Mitchell"],["Harry","Clarke"],["Grace","Roberts"],["Jack","Lewis"],["Emily","Walker"],["Charlie","Hall"],["Ella","Young"],["Thomas","King"],["Evie","Wright"],["James","Green"],["Poppy","Baker"],["William","Adams"]];
-const demoStatuses=["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","confirmed","deposit_requested","deposit_paid","materials_ordered","installation_scheduled","in_progress","awaiting_final_payment","completed","declined"] as const;
+const demoStatuses=[
+ ...Array(35).fill("completed"),
+ ...Array(6).fill("in_progress"),
+ ...Array(8).fill("new_enquiry"),
+ ...Array(7).fill("awaiting_information"),
+ ...Array(6).fill("site_visit_required"),
+ ...Array(5).fill("site_visit_booked"),
+ ...Array(5).fill("estimate_preparing"),
+ ...Array(6).fill("estimate_sent"),
+ ...Array(4).fill("quote_preparing"),
+ ...Array(7).fill("quote_sent"),
+ ...Array(5).fill("awaiting_customer"),
+ ...Array(4).fill("confirmed"),
+ ...Array(3).fill("deposit_requested"),
+ ...Array(3).fill("deposit_paid"),
+ ...Array(2).fill("materials_ordered"),
+ ...Array(2).fill("installation_scheduled"),
+ ...Array(3).fill("awaiting_final_payment"),
+ ...Array(4).fill("declined")
+] as const;
 const expandedRaw=Array.from({length:108},(_,i)=>{
- const base=raw[i%raw.length],n=150-i,[first,last]=customerNames[i%customerNames.length],status=demoStatuses[i%demoStatuses.length];
+ const base=raw[i%raw.length],n=150-i,[first,last]=customerNames[i%customerNames.length],status=demoStatuses[i];
  const band=i%10,quoted=band<3?1800+(i%7)*650:band<7?6500+(i%9)*1750:22000+(i%8)*6500,cost=Math.round(quoted*(0.55+(i%4)*0.04));
  return [`DS${String(n).padStart(3,"0")}`,first,last,base[3],status,quoted,cost,-(i%75),["Call customer","Follow up quote","Book site visit","Complete works"][i%4],i%6,i%2?"ST":"AD"] as const;
 });
