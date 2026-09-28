@@ -37,7 +37,13 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none");
       if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");
       const images=[] as {data:Uint8Array;width:number;height:number}[];
-      for(const page of pages){const imgs=Array.from(page.querySelectorAll<HTMLImageElement>("img"));const originals=imgs.map(img=>img.src);await Promise.all(imgs.map(async(img,index)=>{if(!img.src)return;try{const canvas=document.createElement("canvas");canvas.width=img.naturalWidth||img.width;canvas.height=img.naturalHeight||img.height;if(!canvas.width||!canvas.height)throw new Error("image not ready");const ctx=canvas.getContext("2d");if(!ctx)throw new Error("canvas unavailable");ctx.drawImage(img,0,0,canvas.width,canvas.height);img.src=canvas.toDataURL("image/png");await img.decode().catch(()=>{});}catch{try{const response=await fetch(originals[index],{cache:"no-store",mode:"cors"});if(!response.ok)throw new Error("image fetch failed");const blob=await response.blob();img.src=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||""));reader.onerror=()=>reject(reader.error);reader.readAsDataURL(blob);});await img.decode().catch(()=>{});}catch{throw new Error("The business logo could not be embedded in the PDF. Please check the tenant logo configuration.");}}}));await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:false,backgroundColor:"#ffffff",logging:false});images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});imgs.forEach((img,index)=>{img.src=originals[index];});}
+      for(const page of pages){
+        const imgs=Array.from(page.querySelectorAll<HTMLImageElement>("img"));
+        await Promise.all(imgs.map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():new Promise<void>(resolve=>{const done=()=>resolve();img.addEventListener("load",done,{once:true});img.addEventListener("error",done,{once:true});setTimeout(done,3000);})));
+        await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
+        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false});
+        images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});
+      }
       const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});
       const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 
