@@ -44,18 +44,18 @@ const sampleConfigs:any={
  consultancy:{businessName:"Carter & Cole Consulting",accentColour:"#536f91",workforceTitle:"Consultants / project team",workforceRoles:["Consultant","Analyst","Project manager","Associate"],finishOptions:["Report","Workshop","Implementation"],workTypes:["Strategy","Operations","Finance","Implementation","Review","Workshop","Retainer","Other"]},
  distribution:{businessName:"Atlas Distribution",accentColour:"#6c7f45",workforceTitle:"Operations / drivers",workforceRoles:["Driver","Dispatcher","Warehouse operative","Operations manager"],finishOptions:["Standard delivery","Express delivery","Scheduled collection"],workTypes:["Delivery","Collection","Warehouse","Fleet","Account Setup","Stock Transfer","Urgent Job","Other"]}
 };
-function sampleFrom(req:NextRequest){try{const ref=req.headers.get("referer");const key=ref?new URL(ref).searchParams.get("sample"):"";return sampleConfigs[key||"northstar"]||sampleConfigs.northstar}catch{return sampleConfigs.northstar}}
+function sampleKey(req:NextRequest){const direct=req.nextUrl.searchParams.get("sample")||req.headers.get("x-bms-demo-sample");if(direct)return direct;try{const ref=req.headers.get("referer");return ref?new URL(ref).searchParams.get("sample")||"northstar":"northstar"}catch{return "northstar"}} function sampleFrom(req:NextRequest){return sampleConfigs[sampleKey(req)]||sampleConfigs.northstar}
 function jobsForSample(req:NextRequest){
  const sample=sampleFrom(req),types=sample.workTypes;
  if(!types)return jobs;
- const key=(()=>{try{const ref=req.headers.get("referer");return ref?new URL(ref).searchParams.get("sample")||"northstar":"northstar"}catch{return "northstar"}})();
+ const key=sampleKey(req);
  const profiles:any={
-  northstar:{count:137,wonTarget:615000,completed:72,active:31,declined:9},
-  electrical:{count:73,wonTarget:205000,completed:39,active:16,declined:6},
-  insurance:{count:1372,wonTarget:1345000,completed:1014,active:126,declined:91},
-  studio:{count:89,wonTarget:92000,completed:45,active:18,declined:8},
-  consultancy:{count:173,wonTarget:405000,completed:103,active:32,declined:11},
-  distribution:{count:427,wonTarget:815000,completed:284,active:61,declined:31}
+  northstar:{count:184,wonTarget:685000,completed:103,active:38,declined:12},
+  electrical:{count:76,wonTarget:198000,completed:41,active:17,declined:5},
+  insurance:{count:1372,wonTarget:1425000,completed:1007,active:139,declined:87},
+  studio:{count:91,wonTarget:94000,completed:48,active:17,declined:9},
+  consultancy:{count:168,wonTarget:418000,completed:101,active:29,declined:10},
+  distribution:{count:463,wonTarget:842000,completed:306,active:69,declined:29}
  };
  const profile=profiles[key]||profiles.northstar;
  const source=Array.from({length:profile.count},(_,i)=>jobs[i%jobs.length]);
@@ -74,7 +74,7 @@ function jobsForSample(req:NextRequest){
    const amount=Math.max(100,Math.round((job.quotedAmount*profile.wonTarget/rawWon)/50)*50);
    const estimatedCost=Math.round(amount*(.58+(i%4)*.035));
    const reference=`DS${String(profile.count-i+37).padStart(4,"0")}`,id=`${key}-job-${i+1}`,customerId=`${key}-c-${i+1}`;
-   return {...job,id,customerId,reference,sequenceNumber:profile.count-i+37,status,quotedAmount:amount,preliminaryEstimate:amount,estimatedCost,finalCost:["completed","awaiting_final_payment","in_progress"].includes(status)?estimatedCost:undefined,completedAt:status==="completed"?job.completedAt:undefined,latestQuote:{...job.latestQuote,id:"q"+id,job_id:id,amount,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`},jobType:type,jobTypes:[type],dimensions:"Scope to be confirmed",material:"Project resources",finishes:[],workforceAssignments:job.workforceAssignments.map(a=>({...a,job_id:id,scope:"Project support",assignmentRole:"Team member"})),customerRequirements:`Fictional demo requirements for ${type.toLowerCase()}.`};
+   return {...job,id,customerId,reference,sequenceNumber:profile.count-i+37,status,quotedAmount:amount,preliminaryEstimate:amount,estimatedCost,finalCost:["completed","awaiting_final_payment","in_progress"].includes(status)?estimatedCost:undefined,completedAt:status==="completed"?job.completedAt:undefined,latestQuote:{...job.latestQuote,id:"q"+id,job_id:id,amount,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`},jobType:type,jobTypes:[type],dimensions:"Scope to be confirmed",material:"Project resources",finishes:[],workforceAssignments:(i%5===0?[]:job.workforceAssignments.map((a,k)=>{const agreed=275+((i*137+k*83)%1725);const paid=(i%4===0)?agreed:Math.round(agreed*((i%3)+1)/4);return {...a,id:`a-${key}-${i}-${k}`,job_id:id,scope:"Project support",assignmentRole:"Team member",agreedCost:agreed,depositAmount:Math.round(agreed*.35),paidAmount:paid,outstanding:Math.max(0,agreed-paid)}})),customerRequirements:`Fictional demo requirements for ${type.toLowerCase()}.`};
  });
 }
 function pathOf(params:{path?:string[]}){return (params.path||[]).join("/");}
