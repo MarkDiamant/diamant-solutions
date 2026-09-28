@@ -59,16 +59,15 @@ function jobsForSample(req:NextRequest){
  };
  const profile=profiles[key]||profiles.northstar;
  const source=jobs.slice(0,profile.count);
- const statusesFor=(i:number)=>{
-   if(i<profile.completed)return "completed";
-   if(i<profile.completed+profile.active){
-     const active=["in_progress","installation_scheduled","materials_ordered","deposit_paid","confirmed","awaiting_final_payment"];return active[i%active.length];
-   }
-   if(i>=profile.count-profile.declined)return "declined";
-   const pending=["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","deposit_requested"];return pending[i%pending.length];
- };
- const wonCount=profile.completed+profile.active;
- const rawWon=source.slice(0,wonCount).reduce((s,j)=>s+j.quotedAmount,0)||1;
+ const statusPool=[
+   ...Array(profile.completed).fill("completed"),
+   ...Array(profile.active).fill(0).map((_,n)=>["in_progress","installation_scheduled","materials_ordered","deposit_paid","confirmed","awaiting_final_payment"][n%6]),
+   ...Array(profile.count-profile.completed-profile.active-profile.declined).fill(0).map((_,n)=>["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","deposit_requested"][n%10]),
+   ...Array(profile.declined).fill("declined")
+ ];
+ const statusesFor=(i:number)=>statusPool[(i*73+17)%profile.count]||"new_enquiry";
+ const wonStatuses=new Set(["completed","in_progress","installation_scheduled","materials_ordered","deposit_paid","confirmed","awaiting_final_payment"]);
+ const rawWon=source.reduce((s,j,i)=>s+(wonStatuses.has(statusesFor(i))?j.quotedAmount:0),0)||1;
  return source.map((job,i)=>{
    const type=types[i%types.length],status=statusesFor(i);
    const amount=Math.max(100,Math.round((job.quotedAmount*profile.wonTarget/rawWon)/50)*50);
