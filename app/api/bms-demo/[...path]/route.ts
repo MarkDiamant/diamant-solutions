@@ -65,13 +65,23 @@ function jobsForSample(req:NextRequest){
  const sample=sampleFrom(req);
  const types=sample.workTypes;
  if(!types)return jobs;
- return jobs.map((job,i)=>{
+ const key=(()=>{try{const ref=req.headers.get("referer");return ref?new URL(ref).searchParams.get("sample")||"northstar":"northstar"}catch{return "northstar"}})();
+ const scales:any={
+  electrical:{count:64,multiplier:.34},
+  insurance:{count:82,multiplier:.22},
+  studio:{count:58,multiplier:.28},
+  consultancy:{count:72,multiplier:.42},
+  distribution:{count:96,multiplier:.18},
+  northstar:{count:108,multiplier:1}
+ };
+ const scale=scales[key]||scales.northstar;
+ return jobs.slice(0,scale.count).map((job,i)=>{
   const type=types[i%types.length];
-  return {...job,jobType:type,jobTypes:[type],
+  const amount=Math.max(350,Math.round(job.quotedAmount*scale.multiplier/50)*50),estimatedCost=Math.round(amount*(.58+(i%4)*.035));
+  return {...job,quotedAmount:amount,preliminaryEstimate:amount,estimatedCost,finalCost:job.finalCost!=null?estimatedCost:undefined,latestQuote:{...job.latestQuote,amount,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`},jobType:type,jobTypes:[type],
     dimensions:"Scope to be confirmed",material:"Project resources",finishes:[],
     workforceAssignments:job.workforceAssignments.map(a=>({...a,scope:"Project support",assignmentRole:"Team member"})),
-    customerRequirements:`Fictional demo requirements for ${type.toLowerCase()}.`,
-    latestQuote:{...job.latestQuote,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`}
+    customerRequirements:`Fictional demo requirements for ${type.toLowerCase()}.`
   };
  });
 }
