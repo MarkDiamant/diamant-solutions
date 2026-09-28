@@ -1,10 +1,11 @@
 "use client";
 import {useLayoutEffect} from "react";
 
+const withSample=(value:string)=>{const u=new URL(value,window.location.origin),sample=new URLSearchParams(window.location.search).get("sample")||"northstar";if(!u.searchParams.has("sample"))u.searchParams.set("sample",sample);return u.pathname+u.search;};
 const rewrite=(value:string)=>{
-  if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return "/api/bms-demo/jobs"+value.slice("/api/jobs".length);
-  if(value.startsWith("/api/admin")) return "/api/bms-demo"+value.slice("/api/admin".length);
-  if(value.startsWith("/api/integrations")) return "/api/bms-demo/integrations"+value.slice("/api/integrations".length);
+  if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return withSample("/api/bms-demo/jobs"+value.slice("/api/jobs".length));
+  if(value.startsWith("/api/admin")) return withSample("/api/bms-demo"+value.slice("/api/admin".length));
+  if(value.startsWith("/api/integrations")) return withSample("/api/bms-demo/integrations"+value.slice("/api/integrations".length));
   return value;
 };
 
