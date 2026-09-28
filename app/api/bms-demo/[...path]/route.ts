@@ -1,4 +1,6 @@
 import {NextRequest,NextResponse} from "next/server";
+import {ImageResponse} from "next/og";
+import React from "react";
 
 const now=Date.now(), day=86400000;
 const iso=(d:number)=>new Date(now+d*day).toISOString();
@@ -81,6 +83,7 @@ function jobsForSample(req:NextRequest){
 function pathOf(params:{path?:string[]}){return (params.path||[]).join("/");}
 function ok(data:any){return NextResponse.json(data,{headers:{"Cache-Control":"no-store","X-BMS-Demo":"1"}});}
 export async function GET(req:NextRequest,{params}:{params:Promise<{path?:string[]}>}){const p=pathOf(await params);
+ if(p==="og-image")return new ImageResponse(React.createElement("div",{style:{width:"1200px",height:"630px",display:"flex",alignItems:"center",justifyContent:"center",background:"#ffffff",color:"#07133f",fontFamily:"Arial"}},React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center"}},React.createElement("div",{style:{fontSize:"54px",fontWeight:900}},"DIAMANT SOLUTIONS"),React.createElement("div",{style:{fontSize:"42px",fontWeight:900,color:"#0862c9",marginTop:"28px"}},"BUSINESS MANAGEMENT SOFTWARE"),React.createElement("div",{style:{fontSize:"27px",marginTop:"18px"}},"Your entire business. One system."))),{width:1200,height:630});
  if(p==="jobs")return ok({jobs:jobsForSample(req),people,activities,admin,permissions,settings:{...settings,...sampleFrom(req)}});
  if(p==="dashboard")return ok({activities,admin});
  if(p==="job-types")return ok({options:(sampleFrom(req).workTypes||settings.workTypes).map((name,i)=>({name,count:Math.max(1,8-i)}))});
