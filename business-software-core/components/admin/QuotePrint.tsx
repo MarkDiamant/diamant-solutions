@@ -51,7 +51,7 @@ ${crmConfig.businessName}`;
   const isModern=!isClassic;
   const pageClass=isClassic?"font-serif":isMj?"":"";
   const quoteBrand=crmConfig.accentColour || "#1f4f78";
-  const tenantLogoSrc=crmConfig.logoUrl?"/api/business-software/tenant-logo":"";
+  const tenantLogoSrc=crmConfig.logoUrl?(String(crmConfig.logoUrl).startsWith("/")?crmConfig.logoUrl:"/api/business-software/tenant-logo"):"";
   const logoImgClass="object-contain";
   const headerClass=isClassic?"border-b border-black pb-5":isMj?"border-b-4 border-[var(--brand)] pb-5":"border-b-2 border-[var(--brand)] pb-5";
   const panelClass=isClassic?"border-y border-black/20 py-5":"rounded-xl bg-[#f5f5f2] p-5";
