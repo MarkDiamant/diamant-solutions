@@ -58,7 +58,7 @@ function jobsForSample(req:NextRequest){
   distribution:{count:392,wonTarget:805000,completed:257,active:58,declined:31}
  };
  const profile=profiles[key]||profiles.northstar;
- const source=Array.from({length:profile.count},(_,i)=>jobs[i%jobs.length]);
+ const source=jobs.slice(0,profile.count);
  const statusesFor=(i:number)=>{
    if(i<profile.completed)return "completed";
    if(i<profile.completed+profile.active){
