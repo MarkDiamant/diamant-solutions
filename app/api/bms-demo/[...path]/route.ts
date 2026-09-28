@@ -25,25 +25,9 @@ const raw=[
 ] as const;
 const customerNames=[["Amelia","Hart"],["Oliver","Bennett"],["Sophie","Turner"],["Noah","Collins"],["Isla","Morgan"],["George","Foster"],["Mia","Parker"],["Arthur","Evans"],["Lily","Cooper"],["Leo","Ward"],["Freya","Hughes"],["Oscar","Price"],["Ava","Mitchell"],["Harry","Clarke"],["Grace","Roberts"],["Jack","Lewis"],["Emily","Walker"],["Charlie","Hall"],["Ella","Young"],["Thomas","King"],["Evie","Wright"],["James","Green"],["Poppy","Baker"],["William","Adams"]];
 const demoStatuses=[
- ...Array(52).fill("completed"),
- ...Array(8).fill("in_progress"),
- ...Array(5).fill("installation_scheduled"),
- ...Array(4).fill("materials_ordered"),
- ...Array(3).fill("deposit_paid"),
- ...Array(3).fill("deposit_requested"),
- ...Array(3).fill("confirmed"),
- ...Array(4).fill("awaiting_final_payment"),
- ...Array(4).fill("quote_sent"),
- ...Array(3).fill("awaiting_customer"),
- ...Array(3).fill("estimate_sent"),
- ...Array(2).fill("estimate_preparing"),
- ...Array(2).fill("site_visit_booked"),
- ...Array(2).fill("site_visit_required"),
- ...Array(2).fill("awaiting_information"),
- ...Array(2).fill("new_enquiry"),
- ...Array(6).fill("declined")
+ ...Array(52).fill("completed"),...Array(8).fill("in_progress"),...Array(5).fill("installation_scheduled"),...Array(4).fill("materials_ordered"),...Array(3).fill("deposit_paid"),...Array(3).fill("deposit_requested"),...Array(3).fill("confirmed"),...Array(4).fill("awaiting_final_payment"),...Array(4).fill("quote_sent"),...Array(3).fill("awaiting_customer"),...Array(3).fill("estimate_sent"),...Array(2).fill("estimate_preparing"),...Array(2).fill("site_visit_booked"),...Array(2).fill("site_visit_required"),...Array(2).fill("awaiting_information"),...Array(2).fill("new_enquiry"),...Array(6).fill("declined")
 ] as const;
-const expandedRaw=Array.from({length:108},(_,i)=>{
+const expandedRaw=Array.from({length:1300},(_,i)=>{
  const base=raw[i%raw.length],n=150-i,[first,last]=customerNames[i%customerNames.length],status=demoStatuses[i];
  const band=i%12,quoted=band<5?1200+(i%8)*450:band<10?4800+(i%9)*900:14000+(i%5)*3500,cost=Math.round(quoted*(0.58+(i%4)*0.035));
  return [`DS${String(n).padStart(3,"0")}`,first,last,base[3],status,quoted,cost,-(i%75),["Call customer","Follow up quote","Book site visit","Complete works"][i%4],i%6,i%2?"ST":"AD"] as const;
@@ -74,10 +58,20 @@ function jobsForSample(req:NextRequest){
   distribution:{count:96,multiplier:.18},
   northstar:{count:108,multiplier:1}
  };
- const scale=scales[key]||scales.northstar;
- return jobs.slice(0,scale.count).map((job,i)=>{
+ const profiles:any={
+  northstar:{count:108,target:820000,completed:.48,declined:.06},
+  electrical:{count:70,target:200000,completed:.57,declined:.07},
+  insurance:{count:1300,target:1300000,completed:.72,declined:.08},
+  studio:{count:94,target:90000,completed:.55,declined:.10},
+  consultancy:{count:165,target:400000,completed:.62,declined:.07},
+  distribution:{count:410,target:800000,completed:.68,declined:.06}
+ };
+ const profile=profiles[key]||profiles.northstar;
+ const source=jobs.slice(0,profile.count);
+ const baseTotal=source.reduce((s,j)=>s+j.quotedAmount,0)||1;
+ return source.map((job,i)=>{
   const type=types[i%types.length];
-  const amount=Math.max(350,Math.round(job.quotedAmount*scale.multiplier/50)*50),estimatedCost=Math.round(amount*(.58+(i%4)*.035));
+  const amount=Math.max(100,Math.round((job.quotedAmount*profile.target/baseTotal)/50)*50),estimatedCost=Math.round(amount*(.58+(i%4)*.035));
   return {...job,quotedAmount:amount,preliminaryEstimate:amount,estimatedCost,finalCost:job.finalCost!=null?estimatedCost:undefined,latestQuote:{...job.latestQuote,amount,scope_text:`Delivery of ${type.toLowerCase()} as discussed.`},jobType:type,jobTypes:[type],
     dimensions:"Scope to be confirmed",material:"Project resources",finishes:[],
     workforceAssignments:job.workforceAssignments.map(a=>({...a,scope:"Project support",assignmentRole:"Team member"})),
