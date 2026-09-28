@@ -103,10 +103,12 @@ export default function CrmDashboardV3() {
     const wonJobs=realJobs.filter(j=>won.has(j.status));
     const pipelineJobs=realJobs.filter(j=>pending.has(j.status));
     const finalProfit=(j:any)=>j.quotedAmount!=null&&j.finalCost!=null?Number(j.quotedAmount)-Number(j.finalCost):0;
+    const wonValue=wonJobs.reduce((s,j)=>s+value(j),0);
+    const received=wonJobs.reduce((s,j)=>s+Number(j.amountPaid||0),0);
     return {
-      wonValue: wonJobs.reduce((s,j)=>s+value(j),0),
-      received: realJobs.reduce((s,j)=>s+Number(j.amountPaid||0),0),
-      outstanding: realJobs.reduce((s,j)=>s+Number(j.balanceOutstanding||0),0),
+      wonValue,
+      received,
+      outstanding: Math.max(0,wonValue-received),
       pipeline: pipelineJobs.reduce((s,j)=>s+value(j),0),
       profitToDate: wonJobs.reduce((s,j)=>s+finalProfit(j),0),
       pipelineProfit: pipelineJobs.reduce((s,j)=>s+(j.preliminaryEstimate!=null&&j.estimatedCost!=null?Number(j.preliminaryEstimate)-Number(j.estimatedCost):0),0),lostValue: realJobs.filter(j=>["declined","cancelled"].includes(j.status)).reduce((s,j)=>s+value(j),0),
