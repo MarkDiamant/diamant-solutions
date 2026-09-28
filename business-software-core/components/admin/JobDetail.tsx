@@ -12,7 +12,7 @@ function money(value: number | string | null | undefined) { return new Intl.Numb
 function localInput(value?: string | null) { if (!value) return ""; const d=new Date(value); const p=(n:number)=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
 function iso(value: FormDataEntryValue | null) { const s=String(value||"").trim(); return s?new Date(s).toISOString():null; }
 function text(fd:FormData,key:string){const v=String(fd.get(key)||"").trim();return v||null;}
-function num(fd:FormData,key:string){const v=String(fd.get(key)||"").trim();return v?Number(v):null;}
+function num(fd:FormData,key:string){const v=String(fd.get(key)||"").trim().replace(/,/g,"");if(!v)return null;const n=Number(v);return Number.isFinite(n)?n:null;}
 function closed(status:string){return ["completed","declined","cancelled"].includes(status);}
 
 const inputClass="h-11 w-full rounded-xl border border-black/15 bg-white px-3 outline-none focus:border-[#e66a24]";
