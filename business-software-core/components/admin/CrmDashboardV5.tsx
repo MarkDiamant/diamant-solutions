@@ -28,7 +28,7 @@ function MobileQuickEditFix() {
       }
     `;
     document.head.appendChild(style);
-    const moveMoney=()=>{const heading=Array.from(document.querySelectorAll<HTMLHeadingElement>("h2")).find(n=>n.textContent?.trim()==="Money overview");const section=heading?.closest<HTMLElement>("section");const filters=Array.from(document.querySelectorAll<HTMLElement>("main .rounded-2xl")).find(n=>n.querySelector('input[placeholder^="Search ref"]'));if(section&&filters&&window.innerWidth<1280&&!section.dataset.mobileMoneyOverview){section.dataset.mobileMoneyOverview="1";filters.parentElement?.insertBefore(section,filters);}};
+    const moveMoney=()=>{const heading=Array.from(document.querySelectorAll<HTMLHeadingElement>("h2")).find(n=>n.textContent?.trim()==="Money overview");const section=heading?.closest<HTMLElement>("section");const filters=Array.from(document.querySelectorAll<HTMLElement>("main .rounded-2xl")).find(n=>n.querySelector('input[placeholder^="Search ref"]'));if(section&&filters&&window.innerWidth<1280&&!section.dataset.mobileMoneyOverview){section.dataset.mobileMoneyOverview="1";filters.parentElement?.insertBefore(section,filters.previousElementSibling||filters);}};
     moveMoney();
     const observer=new MutationObserver(moveMoney);observer.observe(document.body,{childList:true,subtree:true});
     return () => {observer.disconnect();style.remove();};
