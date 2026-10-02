@@ -1,4 +1,10 @@
 {
   "framework": "nextjs",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "crons": [
+    {
+      "path": "/api/business-software/tasks/reminders",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
