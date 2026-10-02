@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import CrmDashboardV4 from "@/components/admin/CrmDashboardV4";
+import TaskReminderBanner from "@/components/admin/TaskReminderBanner";
 
 function MobileQuickEditFix() {
   useEffect(() => {
@@ -58,5 +59,5 @@ function LostRowHighlight() {
 }
 
 export default function CrmDashboardV5() {
-  return <><CrmDashboardV4/><MobileQuickEditFix/><LostRowHighlight/></>;
+  return <><TaskReminderBanner/><CrmDashboardV4/><MobileQuickEditFix/><LostRowHighlight/></>;
 }
