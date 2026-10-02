@@ -1,1 +1,4 @@
-"use client"; export default function AdminPrimaryNav(){return null;}
+"use client";
+import Link from "next/link";
+import {usePathname} from "next/navigation";
+export default function AdminPrimaryNav(){const p=usePathname();return <nav className="border-b border-black/10 bg-white px-3 py-2 print:hidden"><div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto"><Link href="/" className={`rounded-lg px-3 py-2 text-sm font-black whitespace-nowrap ${p==="/bms-runtime"||p==="/"?"bg-black text-white":"bg-black/5"}`}>Dashboard</Link><Link href="/tasks" className={`rounded-lg px-3 py-2 text-sm font-black whitespace-nowrap ${p.includes("/tasks")?"bg-[#e66a24] text-white":"bg-black/5"}`}>Tasks & Notes</Link></div></nav>}
