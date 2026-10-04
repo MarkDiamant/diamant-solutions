@@ -8,7 +8,7 @@ function verify(payload:string,header:string,secret:string){
  return sigs.some(sig=>{try{return crypto.timingSafeEqual(Buffer.from(sig,"hex"),Buffer.from(expected,"hex"))}catch{return false}});
 }
 export async function POST(req:Request){
- const secret=process.env.STRIPE_RUBY_WEBHOOK_SECRET,url=process.env.SUPABASE_URL,key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
+ const secret=process.env.STRIPE_RUBY_WEBHOOK_SECRET,url=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL||"https://iepqggrfenfqrqyzqyed.supabase.co",key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
  if(!secret||!url||!key)return NextResponse.json({error:"Webhook not configured"},{status:503});
  const raw=await req.text(),sig=req.headers.get("stripe-signature")||"";if(!verify(raw,sig,secret))return NextResponse.json({error:"Invalid signature"},{status:400});
  const event=JSON.parse(raw),obj=event?.data?.object||{};
