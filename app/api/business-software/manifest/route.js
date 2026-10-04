@@ -6,5 +6,5 @@ export async function GET(request){
  const t=await tenantRecord(null,h);
  if(!t)return NextResponse.json({error:"Business account unavailable"},{status:404,headers:{"Cache-Control":"no-store"}});
  const name=t.business_name+" BMS",icon="/api/business-software/icon";
- return NextResponse.json({name,short_name:name,id:"/",start_url:"/",scope:"/",display:"standalone",background_color:"#ffffff",theme_color:"#e66a24",icons:[{src:icon+"?v=4",sizes:"any",purpose:"any"},{src:icon+"?v=4",sizes:"any",purpose:"maskable"}]},{headers:{"Content-Type":"application/manifest+json","Cache-Control":"no-store"}});
+ return NextResponse.json({name,short_name:name,id:"/",start_url:"/",scope:"/",display:"browser",background_color:"#ffffff",theme_color:"#e66a24",icons:[{src:icon+"?v=4",sizes:"any",purpose:"any"},{src:icon+"?v=4",sizes:"any",purpose:"maskable"}]},{headers:{"Content-Type":"application/manifest+json","Cache-Control":"no-store"}});
 }
