@@ -1,0 +1,1 @@
+import ProspectsPanel from "@/components/admin/ProspectsPanel"; export const dynamic="force-dynamic"; export default function Page(){return <ProspectsPanel/>;}
