@@ -6,6 +6,7 @@ const rewrite=(value:string)=>{
   if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return withSample("/api/bms-demo/jobs"+value.slice("/api/jobs".length));
   if(value.startsWith("/api/admin")) return withSample("/api/bms-demo"+value.slice("/api/admin".length));
   if(value.startsWith("/api/integrations")) return withSample("/api/bms-demo/integrations"+value.slice("/api/integrations".length));
+  if(value.startsWith("/api/business-software/prospects")) return withSample("/api/bms-demo/prospects"+value.slice("/api/business-software/prospects".length));
   return value;
 };
 
