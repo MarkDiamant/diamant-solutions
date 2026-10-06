@@ -100,7 +100,7 @@ export default function CrmDashboardV3() {
     return jobTypeSort==="az" ? items.sort((a,b)=>a.name.localeCompare(b.name,"en-GB")) : items.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,"en-GB"));
   },[jobTypeOptions,jobTypeSort]);
   const realJobs=useMemo(()=>jobs.filter(j=>!j.isPlaceholder),[jobs]);
-  const managerOptions=useMemo(()=>{const map=new Map<string,string>();for(const j of realJobs){if(j.manager)map.set(String(j.manager),String(j.managerName||j.manager_name||j.manager));}if(!map.size){for(const m of crmConfig.managers||[])map.set(String(m.value),String(m.label));}return [...map.entries()].map(([value,label])=>({value,label}));},[realJobs,crmConfig.managers]);
+  const managerOptions=useMemo(()=>{const map=new Map<string,string>();for(const m of crmConfig.managers||[])map.set(String(m.value),String(m.label));for(const j of realJobs){if(j.manager&&!map.has(String(j.manager)))map.set(String(j.manager),String(j.managerName||j.manager_name||j.manager));}return [...map.entries()].map(([value,label])=>({value,label}));},[realJobs,crmConfig.managers]);
   // These same populations drive both the totals and their drill-down filters.
   const overview=useMemo(()=>{
     const pending=new Set(["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","interested_not_ready","customer_unsure"]);
@@ -251,7 +251,7 @@ export default function CrmDashboardV3() {
     if(savedDraft){
       customer.first_name=savedDraft.firstName||(j.isPlaceholder?"Details TBC":null);customer.last_name=savedDraft.lastName||null;customer.phone=savedDraft.phone||null;customer.email=savedDraft.email||null;
       job.site_address_line_1=savedDraft.siteAddressLine1||null;job.site_postcode=savedDraft.sitePostcode||null;job.job_types=savedDraft.jobTypes;job.job_type=savedDraft.jobTypes[0]||null;job.status=savedDraft.status;
-      if(savedDraft.manager)job.manager=savedDraft.manager;job.enquiry_source=savedDraft.source||null;if(crmConfig.modules.finishes)job.finishes=savedDraft.finishes;
+      job.manager=savedDraft.manager||null;job.enquiry_source=savedDraft.source||null;if(crmConfig.modules.finishes)job.finishes=savedDraft.finishes;
       if(crmConfig.modules.quotes){job.preliminary_estimate=savedDraft.preliminaryEstimate===""?null:parseMoney(savedDraft.preliminaryEstimate);job.quoted_amount=savedDraft.quotedAmount===""?null:parseMoney(savedDraft.quotedAmount);}
       job.internal_notes=savedDraft.jobNotes||null;job.dimensions=savedDraft.dimensions||null;job.material=savedDraft.material||null;job.colour=savedDraft.colour||null;job.customer_requirements=savedDraft.customerRequirements||null;
       if(crmConfig.modules.scheduling)job.scheduled_at=iso(savedDraft.scheduledAt);
@@ -261,6 +261,7 @@ export default function CrmDashboardV3() {
     const res=await fetch(`/api/jobs/${encodeURIComponent(j.reference)}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({customer,job,explicit_next_action:Boolean(savedDraft&&String(savedDraft.nextAction||"")!==String(j.nextAction||"")),explicit_next_action_at:Boolean(savedDraft&&String(savedDraft.nextActionAt||"")!==String(j.nextActionAt||""))})});
     const body=await res.json().catch(()=>({}));
     if(!res.ok){setSavingRef(null);setFlash(body.error||`Could not save ${j.reference}`);void load();return;}
+    if(!body?.verified){setSavingRef(null);setFlash(`Could not verify that ${j.reference} saved. Please try again.`);void load();return;}
     if(savedDraft&&crmConfig.modules.costs&&permissions.includes("view_costs_profit")){
       const oldEstimated=j.estimatedCost==null?"":String(j.estimatedCost),oldActual=j.finalCost==null?"":String(j.finalCost);
       if(String(savedDraft.estimatedCost)!==oldEstimated||String(savedDraft.finalCost)!==oldActual){
