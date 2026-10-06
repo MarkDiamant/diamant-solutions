@@ -8,6 +8,6 @@
 .zprintmenu{display:flex;gap:6px}.zprintmenu .zbtn{font-size:12px;padding:10px}.zprintRange{display:none}
 @media print{
  @page{size:A4 portrait;margin:12mm}
- .zcard{display:none!important}.zprintRange{display:block!important;font-family:Arial,sans-serif;color:#172536}
+ .zcard{display:block!important;max-width:none!important;padding:0!important;margin:0!important}.zcard>:not(.zprintRange){display:none!important}.zprintRange{display:block!important;font-family:Arial,sans-serif;color:#172536}
  .printHead{display:flex;justify-content:space-between;align-items:end;border-bottom:2px solid #172b4d;padding:0 0 7mm;margin-bottom:4mm;font-size:10pt}.printHead strong{font-size:18pt}.printEvent{display:grid;grid-template-columns:36% 64%;gap:4mm;border-bottom:1px solid #d0d5dd;padding:3.2mm 0;break-inside:avoid}.printEventTitle b{display:block;font-size:10.5pt}.printEventTitle span{display:block;font-size:9pt;margin-top:1mm}.printEventTitle small{display:block;color:#667085;font-size:7.8pt;margin-top:1mm}.printTimes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.2mm 4mm;font-size:8.5pt}.printTimes span{display:flex;justify-content:space-between;gap:2mm}.printFoot{position:fixed;bottom:0;left:0;right:0;border-top:1px solid #d0d5dd;padding-top:3mm;text-align:center;font-size:7.5pt;color:#475467;background:#fff}
 }
