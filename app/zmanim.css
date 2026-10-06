@@ -15,3 +15,6 @@
 /* utility polish */
 .zpage{min-height:auto;padding-top:10px;padding-bottom:10px}.zcard{margin-top:8px;margin-bottom:8px}.zpowered{padding-top:6px!important}.zfooter{min-height:72px}.zprintmenu{justify-content:center;margin:0 0 18px;flex-wrap:wrap}.zlinkbtn{display:inline-block!important;text-decoration:none!important;background:#172b4d;color:#fff!important;border-radius:10px;padding:9px 13px;font-weight:700}.zhcta .zlinkbtn{margin-top:4px}.zhpanel h2,.zhgrid h3,.zparasha{letter-spacing:normal;word-spacing:normal}.znav{flex-wrap:wrap}
 @media(min-width:701px){.zpage{padding-top:8px;padding-bottom:8px}.zcard{margin-top:6px;margin-bottom:6px}}
+
+.printRangeTitle{display:none}.shkiahPrintTable{display:none}
+@media print{.printRangeTitle{display:block!important;text-align:left;margin:0 0 4mm;font-size:15pt}.shkiahPrintTable{display:block!important}.shkiahPrintRow{display:grid;grid-template-columns:1.1fr 1.3fr .6fr;gap:4mm;padding:2.4mm 1mm;border-bottom:1px solid #e4e7ec;font-size:9.5pt;text-align:left;break-inside:avoid}.shkiahPrintRow strong{text-align:right}}
