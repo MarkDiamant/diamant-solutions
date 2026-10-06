@@ -53,7 +53,9 @@ export default function BmsRuntimeGuard(){
       const anchor=target?.closest?.("a") as HTMLAnchorElement|null;
       if(!anchor) return;
       const url=new URL(anchor.href,window.location.href);
-      if(url.origin!==window.location.origin) return;\n      if(anchor.closest("header")&&!url.pathname.startsWith("/api/")){event.preventDefault();const sample=currentSample(),path=url.pathname.startsWith("/bms-runtime")?url.pathname:"/bms-runtime"+(url.pathname==="/"?"/":url.pathname),q=new URLSearchParams(url.search);q.set("sample",sample);window.location.assign(path+"?"+q.toString()+url.hash);return}\n      if(url.pathname==="/admin"||url.pathname.startsWith("/admin/")){
+      if(url.origin!==window.location.origin) return;
+      if(anchor.closest("header")&&!url.pathname.startsWith("/api/")){event.preventDefault();const sample=currentSample(),path=url.pathname.startsWith("/bms-runtime")?url.pathname:"/bms-runtime"+(url.pathname==="/"?"/":url.pathname),q=new URLSearchParams(url.search);q.set("sample",sample);window.location.assign(path+"?"+q.toString()+url.hash);return}
+      if(url.pathname==="/admin"||url.pathname.startsWith("/admin/")){
         event.preventDefault();
         const sample=currentSample();
         url.pathname=url.pathname.slice("/admin".length)||"/";
