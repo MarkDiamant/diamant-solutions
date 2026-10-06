@@ -1,7 +1,7 @@
 "use client";
 import {useLayoutEffect} from "react";
 
-const currentSample=()=>{const fromUrl=new URLSearchParams(window.location.search).get("sample");if(fromUrl){try{window.sessionStorage.setItem("bms-demo-sample",fromUrl)}catch{}return fromUrl}try{return window.sessionStorage.getItem("bms-demo-sample")||"northstar"}catch{return "northstar"}};
+const currentSample=()=>new URLSearchParams(window.location.search).get("sample")||"northstar";
 const withSample=(value:string)=>{const u=new URL(value,window.location.origin),sample=currentSample();if(!u.searchParams.has("sample"))u.searchParams.set("sample",sample);return u.pathname+u.search;};
 const withSamplePage=(value:string)=>{const u=new URL(value,window.location.href);if(u.origin!==window.location.origin)return value;const sample=currentSample();if(!u.searchParams.has("sample"))u.searchParams.set("sample",sample);return u.pathname+u.search+u.hash;};
 const rewrite=(value:string)=>{
@@ -19,13 +19,13 @@ export default function BmsRuntimeGuard(){
     window.fetch=((input:RequestInfo|URL,init?:RequestInit)=>{
       if(typeof input==="string") return originalFetch(rewrite(input),init);
       if(input instanceof URL && input.origin===window.location.origin){
-        const next=new URL(input.toString()); next.pathname=rewrite(next.pathname); return originalFetch(next,init);
+        const rewritten=rewrite(input.pathname+input.search); return originalFetch(new URL(rewritten,window.location.origin),init);
       }
       if(input instanceof Request){
         const url=new URL(input.url);
-        if(url.origin===window.location.origin && (url.pathname.startsWith("/api/admin")||url.pathname.startsWith("/api/integrations"))){
-          url.pathname=rewrite(url.pathname);
-          return originalFetch(new Request(url,input),init);
+        if(url.origin===window.location.origin && (url.pathname.startsWith("/api/admin")||url.pathname.startsWith("/api/integrations")||url.pathname.startsWith("/api/jobs")||url.pathname.startsWith("/api/business-software/prospects"))){
+          const rewritten=new URL(rewrite(url.pathname+url.search),window.location.origin);
+          return originalFetch(new Request(rewritten,input),init);
         }
       }
       return originalFetch(input,init);
