@@ -1,0 +1,11 @@
+'use client';
+import {useEffect,useState} from 'react'; import '../zmanim.css'; import {sunset,formatTime,localDateLabel} from '../../lib/zmanim';
+const KEY='ds-zmanim-location';
+export default function Shkiah(){
+ const [loc,setLoc]=useState(null),[err,setErr]=useState(''),[shift,setShift]=useState(0);
+ const tz=Intl.DateTimeFormat().resolvedOptions().timeZone||'UTC';
+ function ask(){setErr('');navigator.geolocation.getCurrentPosition(p=>{const v={lat:p.coords.latitude,lon:p.coords.longitude};localStorage.setItem(KEY,JSON.stringify(v));setLoc(v)},()=>setErr('Location is needed to calculate Shkiah for your area. Please allow location access and try again.'),{enableHighAccuracy:true,timeout:10000})}
+ useEffect(()=>{try{const v=JSON.parse(localStorage.getItem(KEY));if(v?.lat)setLoc(v);else ask()}catch{ask()}},[]);
+ const d=new Date(); d.setDate(d.getDate()+shift); const s=loc?sunset(new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate(),12)),loc.lat,loc.lon):null;
+ return <main className="zpage"><section className="zcard"><div className="zbrand">A Diamant Solutions project</div><h1 className="ztitle">Shkiah</h1><div className="zdate">{localDateLabel(d,tz)}</div>{loc?<><div className="zlabel">Shkiah</div><div className="ztime">{formatTime(s,tz)}</div><div className="zlocation">📍 Your saved location <button className="zbtn secondary" onClick={ask}>Update</button></div></>:<button className="zbtn" onClick={ask}>Use my location</button>}{err&&<p className="zerror">{err}</p>}<div className="znav"><button className="zbtn secondary" onClick={()=>setShift(x=>x-1)}>← Previous</button><button className="zbtn secondary" onClick={()=>setShift(0)}>Today</button><button className="zbtn secondary" onClick={()=>setShift(x=>x+1)}>Next →</button></div><p className="znote">For time-sensitive mitzvos, do not rely on the final moment. Local horizon, elevation and atmospheric conditions can affect observed sunset. For halachic questions, consult your Rav.</p><div className="zlinks"><a href="/shabbos">Shabbos & Yom Tov times →</a></div></section></main>
+}
