@@ -1,0 +1,1 @@
+import PriceBook from "@/components/admin/PriceBook";export default function Page(){return <PriceBook/>}
