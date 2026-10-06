@@ -42,7 +42,9 @@ export default function BmsRuntimeGuard(){
         if(sample&&!url.searchParams.has("sample"))url.searchParams.set("sample",sample);
         return url.pathname+url.search+url.hash;
       }
-      if(url.origin===window.location.origin&&url.pathname.startsWith("/bms-runtime"))return withSamplePage(url.toString()) as any;\n      return value as any;\n    };
+      if(url.origin===window.location.origin&&url.pathname.startsWith("/bms-runtime"))return withSamplePage(url.toString()) as any;
+      return value as any;
+    };
     history.pushState=((data:any,unused:string,url?:string|URL|null)=>originalPush(data,unused,demoUrl(url))) as typeof history.pushState;
     history.replaceState=((data:any,unused:string,url?:string|URL|null)=>originalReplace(data,unused,demoUrl(url))) as typeof history.replaceState;
 
@@ -54,13 +56,17 @@ export default function BmsRuntimeGuard(){
       if(url.origin!==window.location.origin) return;
       if(url.pathname==="/admin"||url.pathname.startsWith("/admin/")){
         event.preventDefault();
-        const sample=new URLSearchParams(window.location.search).get("sample");
+        const sample=currentSample();
         url.pathname=url.pathname.slice("/admin".length)||"/";
         if(sample&&!url.searchParams.has("sample"))url.searchParams.set("sample",sample);
         window.location.assign(url.pathname+url.search+url.hash);
         return;
       }
-      if(url.pathname.startsWith("/bms-runtime")){\n        const target=withSamplePage(url.toString());\n        if(target!==url.pathname+url.search+url.hash){event.preventDefault();window.location.assign(target);return}\n      }\n      if(url.pathname.startsWith("/api/integrations")){
+      if(url.pathname.startsWith("/bms-runtime")){
+        const target=withSamplePage(url.toString());
+        if(target!==url.pathname+url.search+url.hash){event.preventDefault();window.location.assign(target);return}
+      }
+      if(url.pathname.startsWith("/api/integrations")){
         event.preventDefault();
         window.location.assign("/api/bms-demo/integrations"+url.pathname.slice("/api/integrations".length)+url.search+url.hash);
       }
