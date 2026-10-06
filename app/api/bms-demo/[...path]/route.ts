@@ -31,7 +31,7 @@ const demoStatuses=[
  ...Array(52).fill("completed"),...Array(8).fill("in_progress"),...Array(5).fill("installation_scheduled"),...Array(4).fill("materials_ordered"),...Array(3).fill("deposit_paid"),...Array(3).fill("deposit_requested"),...Array(3).fill("confirmed"),...Array(4).fill("awaiting_final_payment"),...Array(4).fill("quote_sent"),...Array(3).fill("awaiting_customer"),...Array(3).fill("estimate_sent"),...Array(2).fill("estimate_preparing"),...Array(2).fill("site_visit_booked"),...Array(2).fill("site_visit_required"),...Array(2).fill("awaiting_information"),...Array(2).fill("new_enquiry"),...Array(6).fill("declined")
 ] as const;
 const expandedRaw=Array.from({length:120},(_,i)=>{
- const base=raw[i%raw.length],n=150-i,first=demoCustomerNames[i%demoCustomerNames.length][0],last=demoCustomerNames[Math.floor(i/demoCustomerNames.length)%demoCustomerNames.length][1],status=demoStatuses[i];
+ const base=raw[i%raw.length],n=150-i,first=demoCustomerNames[(i*37)%demoCustomerNames.length][0],last=demoCustomerNames[(i*61+Math.floor(i/demoCustomerNames.length)*17)%demoCustomerNames.length][1],status=demoStatuses[i];
  const band=i%12,quoted=band<5?1200+(i%8)*450:band<10?4800+(i%9)*900:14000+(i%5)*3500,cost=Math.round(quoted*(0.58+(i%4)*0.035));
  return [`DS${String(n).padStart(3,"0")}`,first,last,base[3],status,quoted,cost,-(i%75),["Call customer","Follow up quote","Book site visit","Complete works"][i%4],i%6,i%2?"ST":"AD"] as const;
 });
@@ -112,7 +112,7 @@ function jobsForSample(req:NextRequest){
  };
  const targets:number[]=assignmentTargets[key]||assignmentTargets.northstar;
  const assignmentOwner=(i:number)=>{const total=targets.reduce((a,b)=>a+b,0),slot=(i*97+31)%total;let n=0;for(let x=0;x<targets.length;x++){n+=targets[x];if(slot<n)return x}return targets.length-1};
- const uniqueCustomer=(i:number)=>{const offset=Object.keys(profiles).indexOf(key)*43,firsts=demoCustomerNames.map(x=>x[0]),lasts=demoCustomerNames.map(x=>x[1]),index=i+offset,first=firsts[index%firsts.length],last=lasts[Math.floor(index/firsts.length)%lasts.length];return [first,last]};
+ const uniqueCustomer=(i:number)=>{const firsts=Array.from(new Set(demoCustomerNames.map(x=>x[0]))),lasts=Array.from(new Set(demoCustomerNames.map(x=>x[1]))),businessOffset=Object.keys(profiles).indexOf(key)*97,first=firsts[(i*37+businessOffset)%firsts.length],last=lasts[(i*61+Math.floor(i/firsts.length)*17+businessOffset)%lasts.length];return [first,last]};
  const source=Array.from({length:profile.count},(_,i)=>jobs[i%jobs.length]);
  const statusPool=[
    ...Array(profile.completed).fill("completed"),
