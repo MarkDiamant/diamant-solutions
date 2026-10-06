@@ -25,12 +25,15 @@ export function middleware(request:NextRequest){
    return NextResponse.next();
  }
  const demoDeployment=process.env.BMS_DEMO_ONLY==="true",isDemo=demoDeployment||host===DEMO_HOST;
+ const demoKeys=new Set(["northstar","electrical","insurance","studio","consultancy","distribution"]);
+ const demoParts=path.split("/").filter(Boolean),pathSample=demoKeys.has(demoParts[0]||"")?demoParts[0]:null;
+ const demoCleanPath=pathSample?"/"+demoParts.slice(1).join("/"):path;
  if(isDemo&&(path==="/favicon.ico"||path==="/api/business-software/icon")){const url=request.nextUrl.clone();url.pathname="/Icon-512.png";return NextResponse.rewrite(url);}
- const demoSample=request.nextUrl.searchParams.get("sample")||request.headers.get("referer")?.match(/[?&]sample=([^&]+)/)?.[1]||request.cookies.get("bms_demo_sample")?.value||"northstar";
+ const demoSample=pathSample||request.nextUrl.searchParams.get("sample")||request.headers.get("x-bms-demo-sample")||request.headers.get("referer")?.match(/\/(northstar|electrical|insurance|studio|consultancy|distribution)(?:\/|$)/)?.[1]||"northstar";
  if(isDemo&&path.startsWith("/api/jobs")){const url=request.nextUrl.clone();url.pathname="/api/bms-demo/jobs"+path.slice("/api/jobs".length);const headers=new Headers(request.headers);headers.set("x-bms-demo-sample",demoSample);return NextResponse.rewrite(url,{request:{headers}});}
  if(isDemo&&path==="/api/admin/settings"){const url=request.nextUrl.clone();url.pathname="/api/bms-demo/settings";const headers=new Headers(request.headers);headers.set("x-bms-demo-sample",demoSample);return NextResponse.rewrite(url,{request:{headers}});}
  if(isDemo&&path.startsWith("/api/")&&!path.startsWith("/api/bms-demo/")&&path!=="/api/bms-demo"&&path!=="/api/business-software/tenant-logo")return NextResponse.json({error:"Production actions are unavailable in the fictional demo."},{status:403,headers:{"Cache-Control":"no-store"}});
- if(host===DEMO_HOST&&!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){const url=request.nextUrl.clone();const clean=path==="/admin"?"/":path.startsWith("/admin/")?path.slice(6):path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);}
+ if(host===DEMO_HOST&&!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){const url=request.nextUrl.clone();const legacy=demoCleanPath==="/admin"?"/":demoCleanPath.startsWith("/admin/")?demoCleanPath.slice(6):demoCleanPath,clean=legacy.startsWith("/bms-runtime")?(legacy.slice("/bms-runtime".length)||"/"):legacy;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;url.searchParams.set("sample",demoSample);return NextResponse.rewrite(url);}
  return NextResponse.next();
 }
 export const config={matcher:["/((?!_next/static|_next/image|images/).*)"]};
