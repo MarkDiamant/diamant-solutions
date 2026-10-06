@@ -1,7 +1,9 @@
 "use client";
 import {useLayoutEffect} from "react";
 
-const withSample=(value:string)=>{const u=new URL(value,window.location.origin),sample=new URLSearchParams(window.location.search).get("sample")||"northstar";if(!u.searchParams.has("sample"))u.searchParams.set("sample",sample);return u.pathname+u.search;};
+const currentSample=()=>{const fromUrl=new URLSearchParams(window.location.search).get("sample");if(fromUrl){try{window.sessionStorage.setItem("bms-demo-sample",fromUrl)}catch{}return fromUrl}try{return window.sessionStorage.getItem("bms-demo-sample")||"northstar"}catch{return "northstar"}};
+const withSample=(value:string)=>{const u=new URL(value,window.location.origin),sample=currentSample();if(!u.searchParams.has("sample"))u.searchParams.set("sample",sample);return u.pathname+u.search;};
+const withSamplePage=(value:string)=>{const u=new URL(value,window.location.href);if(u.origin!==window.location.origin)return value;const sample=currentSample();if(!u.searchParams.has("sample"))u.searchParams.set("sample",sample);return u.pathname+u.search+u.hash;};
 const rewrite=(value:string)=>{
   if(value==="/api/jobs"||value.startsWith("/api/jobs/")) return withSample("/api/bms-demo/jobs"+value.slice("/api/jobs".length));
   if(value.startsWith("/api/admin")) return withSample("/api/bms-demo"+value.slice("/api/admin".length));
@@ -35,13 +37,12 @@ export default function BmsRuntimeGuard(){
       if(value==null)return value as any;
       const url=new URL(String(value),window.location.href);
       if(url.origin===window.location.origin&&(url.pathname==="/admin"||url.pathname.startsWith("/admin/"))){
-        const sample=new URLSearchParams(window.location.search).get("sample");
+        const sample=currentSample();
         url.pathname=url.pathname.slice("/admin".length)||"/";
         if(sample&&!url.searchParams.has("sample"))url.searchParams.set("sample",sample);
         return url.pathname+url.search+url.hash;
       }
-      return value as any;
-    };
+      if(url.origin===window.location.origin&&url.pathname.startsWith("/bms-runtime"))return withSamplePage(url.toString()) as any;\n      return value as any;\n    };
     history.pushState=((data:any,unused:string,url?:string|URL|null)=>originalPush(data,unused,demoUrl(url))) as typeof history.pushState;
     history.replaceState=((data:any,unused:string,url?:string|URL|null)=>originalReplace(data,unused,demoUrl(url))) as typeof history.replaceState;
 
@@ -59,7 +60,7 @@ export default function BmsRuntimeGuard(){
         window.location.assign(url.pathname+url.search+url.hash);
         return;
       }
-      if(url.pathname.startsWith("/api/integrations")){
+      if(url.pathname.startsWith("/bms-runtime")){\n        const target=withSamplePage(url.toString());\n        if(target!==url.pathname+url.search+url.hash){event.preventDefault();window.location.assign(target);return}\n      }\n      if(url.pathname.startsWith("/api/integrations")){
         event.preventDefault();
         window.location.assign("/api/bms-demo/integrations"+url.pathname.slice("/api/integrations".length)+url.search+url.hash);
       }
