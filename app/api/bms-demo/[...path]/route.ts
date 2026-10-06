@@ -29,8 +29,8 @@ const customerNames=[["Amelia","Hart"],["Oliver","Bennett"],["Sophie","Turner"],
 const demoStatuses=[
  ...Array(52).fill("completed"),...Array(8).fill("in_progress"),...Array(5).fill("installation_scheduled"),...Array(4).fill("materials_ordered"),...Array(3).fill("deposit_paid"),...Array(3).fill("deposit_requested"),...Array(3).fill("confirmed"),...Array(4).fill("awaiting_final_payment"),...Array(4).fill("quote_sent"),...Array(3).fill("awaiting_customer"),...Array(3).fill("estimate_sent"),...Array(2).fill("estimate_preparing"),...Array(2).fill("site_visit_booked"),...Array(2).fill("site_visit_required"),...Array(2).fill("awaiting_information"),...Array(2).fill("new_enquiry"),...Array(6).fill("declined")
 ] as const;
-const expandedRaw=Array.from({length:1300},(_,i)=>{
- const base=raw[i%raw.length],n=150-i,[first,last]=customerNames[i%customerNames.length],status=demoStatuses[i];
+const expandedRaw=Array.from({length:120},(_,i)=>{
+ const base=raw[i%raw.length],n=150-i,[first0,last0]=customerNames[i%customerNames.length],cycle=Math.floor(i/customerNames.length),first=cycle?first0+" "+String(cycle+1):first0,last=last0,status=demoStatuses[i];
  const band=i%12,quoted=band<5?1200+(i%8)*450:band<10?4800+(i%9)*900:14000+(i%5)*3500,cost=Math.round(quoted*(0.58+(i%4)*0.035));
  return [`DS${String(n).padStart(3,"0")}`,first,last,base[3],status,quoted,cost,-(i%75),["Call customer","Follow up quote","Book site visit","Complete works"][i%4],i%6,i%2?"ST":"AD"] as const;
 });
@@ -124,7 +124,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{path?:string
  if(p==="job-types")return ok({options:(sampleFrom(req).workTypes||settings.workTypes).map((name,i)=>({name,count:Math.max(1,8-i)}))});
  if(p==="settings"){const sample=sampleFrom(req);const s={...settings,...sample,businessDetails:{...settings.businessDetails,email:"hello@example-demo.co.uk",website:"example-demo.co.uk",emailSignatureName:`The ${String(sample.businessName).split(" ")[0]} Team`}};return ok({settings:s,tenant:{slug:"demo",business_name:s.businessName,status:"active"}});}
  if(p==="price-book")return ok(demoPriceBook(req));
- if(p==="customers")return ok({customers:jobsForSample(req).map(j=>({id:j.customerId,first_name:j.firstName,last_name:j.lastName,name:j.customerName,email:j.email,phone:j.phone,postcode:j.postcode,address_line_1:j.customerAddressLine1,city:j.customerCity}))});
+ if(p==="customers"){const seen=new Set<string>();const customers=jobsForSample(req).filter((j:any)=>{const key=String(j.email||j.customerName).toLowerCase();if(seen.has(key))return false;seen.add(key);return true}).map((j:any)=>({id:j.customerId,first_name:j.firstName,last_name:j.lastName,name:j.customerName,email:j.email,phone:j.phone,postcode:j.postcode,address_line_1:j.customerAddressLine1,city:j.customerCity}));return ok({customers});}
  if(p==="users")return ok({users:[{id:"u1",email:"alex@example-demo.co.uk",name:"Alex Carter",role:"admin",status:"active",protectedOwner:true,permissions},{id:"u2",email:"sam@example-demo.co.uk",name:"Sophie Reed",role:"manager",status:"active",protectedOwner:false,permissions},{id:"u3",email:"accounts@example-demo.co.uk",name:"Accounts Demo",role:"office",status:"active",protectedOwner:false,permissions}],seatCount:3,seatLimit:5,pricingConnected:false,plan:settings.plan});
  if(p==="billing-access")return ok({blocked:false,businessName:settings.businessName,billing:settings.billing});
  if(p.startsWith("jobs/"))return ok(detail(decodeURIComponent(p.split("/")[1]||"DS042"),jobsForSample(req)));
