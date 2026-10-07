@@ -55,3 +55,5 @@ body:has(.yomiPage)>.zpowered,body:has(.yahrPage)>.zpowered,body:has(.havPage)>.
 @media print{
  .printHead img{display:block;width:42mm;height:auto}.printBrandFallback{display:none!important}.printFoot{display:flex!important;align-items:center;justify-content:center;gap:4mm}.printFoot img{width:28mm;height:auto}.printFoot span{font-size:7.5pt;color:#667085}
 }.toolFineLinks span{font-size:11px;color:#98a2b3}
+/* methodology readability */
+.zinfo h2{letter-spacing:.035em!important;word-spacing:.08em!important}.zmethodButtons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.zmethodButtons a{display:inline-block;text-decoration:none;border:1px solid #d0d5dd;background:#f2f4f7;border-radius:10px;padding:9px 13px;font-weight:700;color:#344054}.zmethodButtons a:hover{background:#e9edf2}
