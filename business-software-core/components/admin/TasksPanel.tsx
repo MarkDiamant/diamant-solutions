@@ -24,7 +24,7 @@ export default function TasksPanel({demo=false}:{demo?:boolean}){
  const dueClass=(t:any)=>{if(t.status==="completed")return "bg-green-100 text-green-800";if(!t.due_at)return "bg-slate-100 text-slate-600";const d=new Date(t.due_at),now=new Date(),end=new Date();end.setHours(23,59,59,999);if(d<now)return "bg-red-100 text-red-800";if(d<=end)return "bg-amber-100 text-amber-800";return "bg-blue-100 text-blue-800"};
  const priorityClass=(p:any)=>String(p)==="urgent"?"bg-red-100 text-red-800":String(p)==="high"?"bg-amber-100 text-amber-800":String(p)==="low"?"bg-slate-100 text-slate-600":"bg-blue-50 text-blue-700";
  const sourceClass=(t:any)=>t.task_source==="business"?"text-orange-800":"text-indigo-700";
- const cardClass=(t:any)=>t.task_source==="business"?"border-orange-200 bg-orange-50/55":String(t.priority)==="urgent"?"border-red-200 bg-red-50/60":"border-indigo-100 bg-indigo-50/35";
+ const cardClass=(t:any)=>String(t.priority)==="urgent"?"border-red-200 bg-red-50/45":"border-black/10 bg-white";
  if(loading)return <main className="mx-auto max-w-6xl p-4 md:p-8">Loading tasks…</main>;
  return <main className="mx-auto max-w-6xl p-3 pb-24 md:p-8">
   <div className="mb-5 flex items-center justify-between gap-3"><div><h1 className="text-2xl font-black">Tasks</h1><p className="text-sm text-black/55">Job next actions and your own tasks, clearly organised.</p></div><button onClick={()=>{setEditing(null);setOpen(true)}} className="rounded-xl bg-[#e66a24] px-4 py-3 text-sm font-black text-white">+ Add task</button></div>
