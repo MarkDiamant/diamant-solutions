@@ -38,6 +38,7 @@ export const STATUS_META: Record<JobStatus, { label: string; order: number; grou
   site_visit_booked: { label: "Site visit booked", order: 40, group: "active" },
   estimate_preparing: { label: "Preparing estimate", order: 50, group: "active" },
   estimate_sent: { label: "Estimate sent", order: 60, group: "active" },
+  pricing_up: { label: "Being priced up", order: 65, group: "active" },
   quote_preparing: { label: "Quote created", order: 70, group: "active" },
   quote_sent: { label: "Quote sent", order: 80, group: "active" },
   awaiting_customer: { label: "Awaiting customer decision", order: 90, group: "active" },
