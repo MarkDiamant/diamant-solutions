@@ -37,7 +37,7 @@ export async function POST(request){
   const now=new Date();
   const next=getNextHavdalahSlot(now);
   if(!next) return twiml('<Say voice="Polly.Amy">Welcome to the Havdalah Hotline. The next live Havdalah time is not available at the moment. Please try again later.</Say><Hangup/>');
-  const intro=`Welcome to the Havdalah Hotline, a project of Diamant Solutions. The next live Havdalah is ${next.label}, ${spokenTime(next.time)}, in approximately ${countdown(next.time,now)}. Please stay on the line. You will be connected automatically when the live Havdalah begins.`;
+  const intro=`Welcome to the Havdalah Hotline, a project of Diamant Solutions. The next live Havdalah is ${next.label}, ${spokenTime(next.time)}, in approximately ${countdown(next.time,now)}. Your call is muted. Nobody on the hotline can hear you. Please stay on the line. You will be connected automatically when the live Havdalah begins.`;
   return twiml(`<Say voice="Polly.Amy">${xmlEscape(intro)}</Say><Dial><Conference muted="true" startConferenceOnEnter="false" endConferenceOnExit="false" beep="false">${xmlEscape(next.conference)}</Conference></Dial>`);
 }
 
