@@ -17,3 +17,6 @@ body:has(.yomiPage)>.toolFineLinks,body:has(.yomiPage)>.toolFineLinks span{backg
 .yomiNav button{border:0!important;border-radius:12px!important;padding:12px 16px!important;font-weight:700!important;background:#f2f4f7!important;color:#344054!important;font-size:initial!important}
 .yomiNav button.active{background:#172b4d!important;color:#fff!important;box-shadow:0 4px 12px #172b4d26!important}
 .yomiNav .datePickerButton{border:1px solid #d0d5dd!important;background:#fff!important;border-radius:9px!important;padding:8px 10px!important;color:#344054!important;font-size:12px!important;font-weight:700!important}
+
+/* Slightly smaller Previous / Current / Next only */
+.yomiNav>button:not(.datePickerButton){padding:10px 12px!important;font-size:12px!important}
