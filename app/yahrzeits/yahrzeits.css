@@ -18,3 +18,10 @@ body:has(.yahrPage)>.yahrPage{flex:0 0 auto!important}.yahrPage{display:block!im
 
 /* Slightly smaller Previous / Current / Next only */
 .yahrNav>button:not(.datePickerButton){padding:10px 12px!important;font-size:12px!important}
+
+/* Yahrzeits only: calendar on its own centred row */
+.yahrNav .datePickerButton{flex-basis:auto!important}
+.yahrNav .datePickerButton:before{content:"";position:absolute}
+.yahrNav:after{content:"";flex-basis:100%;width:0;order:1}
+.yahrNav .datePickerButton{order:2}
+.yahrNav>button:not(.datePickerButton){order:0}
