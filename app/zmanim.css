@@ -54,4 +54,4 @@ body:has(.yomiPage)>.zpowered,body:has(.yahrPage)>.zpowered,body:has(.havPage)>.
 .zprintgroup:nth-child(1){background:#eef6fc!important;border-color:#cfe0ef!important}.zprintgroup:nth-child(2){background:#f8f4fa!important;border-color:#e2d8e8!important}.zprintgroup:nth-child(3){background:#f8f6f1!important;border-color:#e5ded1!important}
 @media print{
  .printHead img{display:block;width:42mm;height:auto}.printBrandFallback{display:none!important}.printFoot{display:flex!important;align-items:center;justify-content:center;gap:4mm}.printFoot img{width:28mm;height:auto}.printFoot span{font-size:7.5pt;color:#667085}
-}
+}.toolFineLinks span{font-size:11px;color:#98a2b3}
