@@ -59,3 +59,5 @@ body:has(.yomiPage)>.zpowered,body:has(.yahrPage)>.zpowered,body:has(.havPage)>.
 .zinfo h2{letter-spacing:.015em!important;word-spacing:.025em!important}.zmethodButtons{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.zmethodButtons a{display:inline-block;text-decoration:none;border:1px solid #d0d5dd;background:#f2f4f7;border-radius:10px;padding:9px 13px;font-weight:700;color:#344054}.zmethodButtons a:hover{background:#e9edf2}
 
 @media(max-width:650px){.toolFooter>.builtBy{order:3}.toolFooter>.toolFooterLinks:first-child{order:1}.toolFooter>.toolFooterRight{order:2}}
+
+@media print{body:has(.zprintRange)>.toolFineLinks,body:has(.zprintRange)>.toolFooter{display:none!important}.zprintRange .printFoot{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1mm!important}.zprintRange .printFoot img{width:28mm!important;height:auto!important}.zprintRange .printFoot span{display:block!important;font-size:7.5pt!important;color:#667085!important}}
