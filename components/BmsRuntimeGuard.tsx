@@ -9,6 +9,7 @@ export default function BmsRuntimeGuard(){
    else if(p==="/api/jobs"||p.startsWith("/api/jobs/"))u.pathname="/api/bms-demo/jobs"+p.slice("/api/jobs".length);
    else if(p.startsWith("/api/integrations/"))u.pathname="/api/bms-demo/integrations/"+p.slice("/api/integrations/".length);
    else if(p==="/api/business-software/prospects"||p.startsWith("/api/business-software/prospects/"))u.pathname="/api/bms-demo/prospects";
+   else if(p==="/api/business-software/campaigns"||p.startsWith("/api/business-software/campaigns/"))u.pathname="/api/bms-demo/campaigns";
    else return path;
    u.searchParams.set("sample",sample);return u.pathname+u.search;
   };
