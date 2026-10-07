@@ -9,3 +9,5 @@ body:has(.yomiPage),body:has(.yomiPage)>.zpowered,body:has(.yomiPage)>.toolFineL
 html:has(.yomiPage),body:has(.yomiPage),body:has(.yomiPage)>.zpowered,body:has(.yomiPage)>.yomiPage,body:has(.yomiPage)>.toolFineLinks{background:#f7f8fb!important;border:0!important;box-shadow:none!important}body:has(.yomiPage)>.zpowered,body:has(.yomiPage)>.toolFineLinks{margin:0!important}
 
 body:has(.yomiPage)>.toolFineLinks{padding-top:0!important;padding-bottom:0!important;min-height:0!important;line-height:1!important}body:has(.yomiPage)>.toolFineLinks span{display:block;padding:5px 12px 8px;background:#f7f8fb!important}
+
+body:has(.yomiPage)>.toolFineLinks,body:has(.yomiPage)>.toolFineLinks span{background:#f7f8fb!important;width:100%!important;box-sizing:border-box!important}
