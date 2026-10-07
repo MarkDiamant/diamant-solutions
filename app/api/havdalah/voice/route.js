@@ -51,16 +51,5 @@ export async function POST(){
 }
 
 export async function GET(){
-  const now=new Date();
-  const next=getNextHavdalahSlot(now);
-  return Response.json({
-    ok:true,
-    service:'Havdalah Hotline',
-    next:next?{
-      type:next.label,
-      time:next.time.toISOString(),
-      slot:next.slot,
-      conference:next.conference,
-    }:null,
-  },{headers:{'Cache-Control':'no-store'}});
+  return POST();
 }
