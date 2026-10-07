@@ -60,16 +60,11 @@ ${crmConfig.businessName}`;
     if(whatsAppBusy)return;
     setWhatsAppBusy(true);
     try{
+      const shortMessage=`Hi ${c.first_name || "there"}, here's the attached quote.`;
+      await navigator.clipboard.writeText(shortMessage).catch(()=>{});
+      document.documentElement.dataset.quoteShare="whatsapp";
       document.getElementById("save-quote-pdf")?.click();
-      const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
-      const digits=raw.replace(/[^\\d+]/g,"");
-      let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
-      if(!/^\\d{8,15}$/.test(number))number="";
-      const whatsappUrl=`https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-      await navigator.clipboard.writeText(message).catch(()=>{});
-      setTimeout(()=>{const opened=window.open(whatsappUrl,"_blank","noopener,noreferrer");if(!opened)window.location.assign(whatsappUrl);},350);
-      alert("The quotation PDF is downloading. Attach it in WhatsApp, check the recipient and press Send.");
-    }catch(error){alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
+    }catch(error){delete document.documentElement.dataset.quoteShare;alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
     finally{setWhatsAppBusy(false);}
   }
 
