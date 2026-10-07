@@ -11,3 +11,9 @@ html:has(.yomiPage),body:has(.yomiPage),body:has(.yomiPage)>.zpowered,body:has(.
 body:has(.yomiPage)>.toolFineLinks{padding-top:0!important;padding-bottom:0!important;min-height:0!important;line-height:1!important}body:has(.yomiPage)>.toolFineLinks span{display:block;padding:5px 12px 8px;background:#f7f8fb!important}
 
 body:has(.yomiPage)>.toolFineLinks,body:has(.yomiPage)>.toolFineLinks span{background:#f7f8fb!important;width:100%!important;box-sizing:border-box!important}
+
+/* Match Shkiah/Shabbos date controls exactly, scoped to Yomi only */
+.yomiNav{gap:8px!important;margin:22px 0!important}
+.yomiNav button{border:0!important;border-radius:12px!important;padding:12px 16px!important;font-weight:700!important;background:#f2f4f7!important;color:#344054!important;font-size:initial!important}
+.yomiNav button.active{background:#172b4d!important;color:#fff!important;box-shadow:0 4px 12px #172b4d26!important}
+.yomiNav .datePickerButton{border:1px solid #d0d5dd!important;background:#fff!important;border-radius:9px!important;padding:8px 10px!important;color:#344054!important;font-size:12px!important;font-weight:700!important}
