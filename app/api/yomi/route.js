@@ -1,14 +1,24 @@
+const descriptions={
+ 'Amud HaYomi (Dirshu)':'One amud (page side) of Babylonian Talmud per day',
+ 'Daf HaYomi B’Halacha (Dirshu)':'Dirshu’s daily Mishnah Berurah program'
+};
+const clean=s=>s.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&rsquo;/g,'’').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/\s+/g,' ').trim();
+function htmlReading(html,name){const start=html.indexOf(name);if(start<0)return null;const end=html.indexOf('Subscribe to '+name,start);if(end<0)return null;let s=clean(html.slice(start+name.length,end));const d=descriptions[name];if(d&&s.startsWith(d))s=s.slice(d.length).trim();return s||null}
 export async function GET(req){
  const {searchParams}=new URL(req.url),date=searchParams.get('date');
- const d=date&&/^\d{4}-\d{2}-\d{2}$/.test(date)?date:new Date().toISOString().slice(0,10);
+ if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date))return Response.json({error:'Invalid date'},{status:400});
  try{
-  const r=await fetch('https://www.hebcal.com/learning/'+d,{next:{revalidate:3600}});
-  if(!r.ok)throw new Error('Hebcal');
-  const html=await r.text();
-  const clean=s=>s.replace(/<[^>]*>/g,' ').replace(/&[^;]+;/g,' ').replace(/\s+/g,' ').trim();
-  const names=['Daf Yomi (Babylonian Talmud)','Amud HaYomi (Dirshu)','Mishna Yomi','Nach Yomi','Daf HaYomi B’Halacha (Dirshu)','Daily Chofetz Chaim','Daily Rambam (Mishneh Torah)','Daily Tehillim (Psalms)'];
-  const items=[];
-  for(const name of names){const i=html.indexOf(name);if(i<0)continue;const chunk=clean(html.slice(i,i+1800));const rest=chunk.slice(name.length).replace(/^\s+/,'');const parts=rest.split(/Subscribe to|Apple Google|####|Daily regimen|One amud|Two Mishnayot|Nevi’im|Dirshu’s|Jewish ethics|Maimonides’|Daily study/);let val=(parts[1]||parts[0]||'').trim();if(val.length>120)val=val.slice(0,120);items.push({name,value:val})}
-  return Response.json({date:d,items});
- }catch{return Response.json({date:d,items:[],error:'Daily learning is temporarily unavailable.'},{status:502})}
+  const q='cfg=json&v=1&start='+date+'&end='+date+'&F=on&myomi=on&nyomi=on&dps=on&dr1=on&dcc=on&dshl=on';
+  const [jr,hr]=await Promise.all([fetch('https://www.hebcal.com/hebcal?'+q,{next:{revalidate:21600}}),fetch('https://www.hebcal.com/learning/'+date,{next:{revalidate:21600}})]);
+  if(!jr.ok||!hr.ok)throw new Error('Hebcal');
+  const json=await jr.json(),html=await hr.text();
+  const wanted={
+   dafyomi:'Daf Yomi',mishnayomi:'Mishnah Yomi',nachyomi:'Nach Yomi',
+   dailyPsalms:'Tehillim Yomi',rambam1:'Rambam Yomi',chofetzChaim:'Chofetz Chaim Yomi',shemiratHaLashon:'Shemiras HaLashon'
+  };
+  const items=(json.items||[]).filter(x=>wanted[x.category]).map(x=>({name:wanted[x.category],value:x.title,hebrew:x.hebrew||'',link:x.link||''}));
+  for(const [source,name] of [['Amud HaYomi (Dirshu)','Amud Yomi'],['Daf HaYomi B’Halacha (Dirshu)','Mishnah Berurah Yomi']]){const value=htmlReading(html,source);if(value)items.push({name,value,link:'https://www.hebcal.com/learning/'+date})}
+  const conv=await fetch('https://www.hebcal.com/converter?cfg=json&date='+date+'&g2h=1&strict=1',{next:{revalidate:86400}}).then(r=>r.json());
+  return Response.json({date,hebrewDate:conv.hebrew||conv.heDateParts?.d+' '+conv.heDateParts?.m+' '+conv.hy,items});
+ }catch{return Response.json({date,items:[],error:'Daily learning is temporarily unavailable.'},{status:502})}
 }
