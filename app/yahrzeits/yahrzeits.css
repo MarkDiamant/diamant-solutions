@@ -9,3 +9,9 @@ body:has(.yahrPage){min-height:100vh;display:flex;flex-direction:column}body:has
 body:has(.yahrPage)>.yahrPage{flex:0 0 auto!important}.yahrPage{display:block!important;padding-top:24px!important;padding-bottom:8px!important}.yahrHead{margin:0 auto!important}.yahrGrid{margin:0 auto!important}.yahrEmpty{margin:10px auto 0!important}
 
 .yahrNoteSpacer{flex:1 0 24px;background:#f7f8fb}
+
+/* Match Shkiah/Shabbos date controls exactly, scoped to Yahrzeits only */
+.yahrNav{gap:8px!important;margin:22px 0!important}
+.yahrNav button{border:0!important;border-radius:12px!important;padding:12px 16px!important;font-weight:700!important;background:#f2f4f7!important;color:#344054!important;font-size:initial!important}
+.yahrNav button.active{background:#172b4d!important;color:#fff!important;box-shadow:0 4px 12px #172b4d26!important}
+.yahrNav .datePickerButton{border:1px solid #d0d5dd!important;background:#fff!important;border-radius:9px!important;padding:8px 10px!important;color:#344054!important;font-size:12px!important;font-weight:700!important}
