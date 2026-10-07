@@ -7,6 +7,7 @@ export type JobStatus =
   | "site_visit_booked"
   | "estimate_preparing"
   | "estimate_sent"
+  | "pricing_up"
   | "quote_preparing"
   | "quote_sent"
   | "awaiting_customer"
