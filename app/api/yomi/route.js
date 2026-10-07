@@ -17,6 +17,9 @@ export async function GET(req){
    dailyPsalms:'Tehillim Yomi',rambam1:'Rambam Yomi',chofetzChaim:'Chofetz Chaim Yomi',shemiratHaLashon:'Shemiras HaLashon',amudYomi:'Amud Yomi',dirshuAmudYomi:'Amud Yomi',dafHaYomiBHalacha:'Mishnah Berurah Yomi',dirshuDafHaYomiBHalacha:'Mishnah Berurah Yomi'
   };
   const items=(json.items||[]).filter(x=>wanted[x.category]).map(x=>({name:wanted[x.category],value:x.title,hebrew:x.hebrew||'',link:x.link||''}));
+  const learning=await fetch('https://www.hebcal.com/learning/'+date,{next:{revalidate:21600}}).then(r=>r.text());
+  const plain=clean(learning);
+  for(const [name,desc,label] of [['Amud HaYomi (Dirshu)','One amud (page side) of Babylonian Talmud per day','Amud Yomi'],['Daf HaYomi B’Halacha (Dirshu)','Dirshu’s daily Mishnah Berurah program','Mishnah Berurah Yomi']]){const marker=name+' '+desc+' ';const a=plain.indexOf(marker);const b=a>=0?plain.indexOf(' Subscribe to '+name,a):-1;if(a>=0&&b>a){const value=plain.slice(a+marker.length,b).trim();if(value&&value.length<100&&!/[<>]/.test(value))items.push({name:label,value,link:'https://www.hebcal.com/learning/'+date})}}
   const conv=await fetch('https://www.hebcal.com/converter?cfg=json&date='+date+'&g2h=1&strict=1',{next:{revalidate:86400}}).then(r=>r.json());
   return Response.json({date,hebrewDate:conv.hebrew||conv.heDateParts?.d+' '+conv.heDateParts?.m+' '+conv.hy,items});
  }catch{return Response.json({date,items:[],error:'Daily learning is temporarily unavailable.'},{status:502})}
