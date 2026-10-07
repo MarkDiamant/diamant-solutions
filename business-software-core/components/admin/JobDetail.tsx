@@ -62,6 +62,7 @@ export default function JobDetail({reference}:{reference:string}){
   const visibleTabs=tabs.filter(x=>x!=="Activity"||canHistory).filter(x=>x!=="Quote"||(crmConfig.modules.quotes&&canPricing)).filter(x=>x!=="Costs & Payments"||((crmConfig.modules.costs&&canCosts)||(crmConfig.modules.payments&&canPayments))).filter(x=>x!=="Files"||(crmConfig.modules.photos&&canFiles)).filter(x=>x!=="Workforce"||(crmConfig.modules.workforce&&canWorkforce));
   const wuaParams=new URLSearchParams({source:"bms",customerName:fullName,customerEmail:String(c.email||""),customerPhone:String(c.phone||""),jobTitle:jobTypes.join(" + "),serviceDescription:String(j.customer_requirements||jobTypes.join(" + "))});
   if(j.status==="completed") wuaParams.set("completionDate",j.completed_at?new Date(j.completed_at).toISOString().slice(0,10):new Date().toISOString().slice(0,10));
+  wuaParams.set("business","mandj-metal-2af957eb");
   const wuaUrl=`https://www.woulduseagain.com/dashboard/requests/new?${wuaParams.toString()}`;
 
   return <main className="min-h-screen bg-[#f5f5f2] text-[#141414]">
