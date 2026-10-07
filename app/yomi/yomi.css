@@ -7,3 +7,5 @@
 body:has(.yomiPage),body:has(.yomiPage)>.zpowered,body:has(.yomiPage)>.toolFineLinks{background:#f7f8fb!important}.yomiPage{margin:0!important}.yomiNav button{border:0!important;border-radius:12px!important;padding:12px 16px!important;background:#f2f4f7!important;color:#344054!important}.yomiNav button.active{background:#172b4d!important;color:#fff!important;box-shadow:0 4px 12px #172b4d26!important}
 
 html:has(.yomiPage),body:has(.yomiPage),body:has(.yomiPage)>.zpowered,body:has(.yomiPage)>.yomiPage,body:has(.yomiPage)>.toolFineLinks{background:#f7f8fb!important;border:0!important;box-shadow:none!important}body:has(.yomiPage)>.zpowered,body:has(.yomiPage)>.toolFineLinks{margin:0!important}
+
+body:has(.yomiPage)>.toolFineLinks{padding-top:0!important;padding-bottom:0!important;min-height:0!important;line-height:1!important}body:has(.yomiPage)>.toolFineLinks span{display:block;padding:5px 12px 8px;background:#f7f8fb!important}
