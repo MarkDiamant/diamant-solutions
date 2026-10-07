@@ -26,3 +26,6 @@
  .print-month .printEvent{padding:4mm 0!important}.print-year .printEvent{padding:2.4mm 0!important}.print-year .printEventTitle b{font-size:9.5pt!important}.print-year .printTimes{font-size:7.8pt!important}
  .print-week .shkiahPrintRow{padding:6mm 2mm!important;font-size:12pt!important}.print-month .shkiahPrintRow{padding:2.2mm 1mm!important;font-size:9pt!important}
 }
+
+/* shared Jewish-tools page shell */
+body:has(.zpowered),body:has(.yomiPage){min-height:100vh;display:flex;flex-direction:column}body:has(.zpowered)>.zpowered{flex:0 0 auto}body:has(.zpowered)>.zpage,body:has(.yomiPage)>.yomiPage{flex:1 0 auto}.zpowered{padding-top:18px!important;padding-bottom:6px!important;background:transparent!important}.zfooter{margin-top:auto!important}@media(max-width:600px){.zpowered{padding-top:12px!important;padding-bottom:4px!important}}
