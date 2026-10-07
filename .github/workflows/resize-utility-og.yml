@@ -1,0 +1,27 @@
+name: Resize utility OG images
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/resize-utility-og.yml'
+permissions:
+  contents: write
+jobs:
+  resize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resize OG images to 1200x630
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          for f in public/og-yomi.png public/og-free-tools.png public/og-shkiah.png public/og-shabbos-yomtov.png public/og-havdalah.png public/og-zmanim-methodology.png; do
+            convert "$f" -resize '1200x630^' -gravity center -extent 1200x630 -strip "$f"
+          done
+      - name: Commit resized images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/og-*.png
+          git commit -m "Resize utility OG images to 1200x630"
+          git push
