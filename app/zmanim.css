@@ -48,3 +48,10 @@ body:has(.zpowered){background:#f7f8fb!important}.zpowered{background:#f7f8fb!im
 /* shared shell/date-picker cleanup */
 body:has(.yomiPage)>.zpowered,body:has(.yahrPage)>.zpowered,body:has(.havPage)>.zpowered{background:#f7f8fb!important}.zpowered{padding-top:7px!important;padding-bottom:3px!important}.toolFineLinks{padding-bottom:8px!important;box-shadow:none!important;border:0!important}.znav{align-items:center}.zprintgroup:nth-child(1){background:#eef6fc!important;border-color:#cfe0ef!important}.zprintgroup:nth-child(2){background:#faf2fb!important;border-color:#e4d4e7!important}.zprintgroup:nth-child(3){background:#f3f8ed!important;border-color:#d9e5ca!important}
 @media print{.print-year .printEvent{grid-template-columns:30% 70%!important;padding:1.5mm 0!important}.print-year .printEventTitle b{font-size:8pt!important}.print-year .printEventTitle span,.print-year .printEventTitle small{font-size:6.5pt!important}.print-year .printTimes{font-size:6.5pt!important;gap:.5mm 2mm!important}.print-year .printTimes span{line-height:1.15!important}}
+
+/* final print/control polish */
+.znav button,.yahrNav button,.yomiNav button{cursor:pointer}
+.zprintgroup:nth-child(1){background:#eef6fc!important;border-color:#cfe0ef!important}.zprintgroup:nth-child(2){background:#f8f4fa!important;border-color:#e2d8e8!important}.zprintgroup:nth-child(3){background:#f8f6f1!important;border-color:#e5ded1!important}
+@media print{
+ .printHead img{display:block;width:42mm;height:auto}.printBrandFallback{display:none!important}.printFoot{display:flex!important;align-items:center;justify-content:center;gap:4mm}.printFoot img{width:28mm;height:auto}.printFoot span{font-size:7.5pt;color:#667085}
+}
