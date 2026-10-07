@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-const statuses:any={to_contact:"To Contact",follow_up:"Follow Up",awaiting_response:"Waiting for Response",interested:"Interested",not_interested:"Not Interested",do_not_contact:"Do Not Contact"};
+const statuses:any={to_contact:"To contact",follow_up:"Follow up",awaiting_response:"Waiting for response",interested:"Interested",not_interested:"Not interested",do_not_contact:"Do not contact"};
 const prospectTypes:any={client:"Potential Client",referral:"Referral Partner"};
 const leadRatings:any={"3":"★★★","2":"★★","1":"★"};
 const businessTypes=["Interior Designer","Contractor","Builder","Gardener","Landscaper","Driveway / Paving","Property Manager","Architect","Estate Agent","Other"];
