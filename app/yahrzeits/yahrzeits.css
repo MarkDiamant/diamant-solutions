@@ -7,3 +7,5 @@ body:has(.yahrPage){min-height:100vh;display:flex;flex-direction:column}body:has
 
 /* final Yahrzeit vertical layout: content high, source/footer independently low */
 body:has(.yahrPage)>.yahrPage{flex:0 0 auto!important}.yahrPage{display:block!important;padding-top:24px!important;padding-bottom:8px!important}.yahrHead{margin:0 auto!important}.yahrGrid{margin:0 auto!important}.yahrEmpty{margin:10px auto 0!important}
+
+.yahrNoteSpacer{flex:1 0 24px;background:#f7f8fb}
