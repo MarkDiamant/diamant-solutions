@@ -3,4 +3,4 @@
 
 @media(max-width:650px){.havPhone a{font-size:46px!important;line-height:1!important;gap:10px!important}.havPhoneIcon{font-size:.9em!important}}
 
-@media(max-width:650px){.havSchedule .havPhone a>span:last-child{font-size:37px!important;line-height:1!important;font-weight:900!important;color:#fff!important}.havSchedule .havPhone .havPhoneIcon{font-size:33px!important}}
+@media(max-width:650px){.havSchedule .havPhone a>span:last-child{font-size:33px!important;line-height:1!important;font-weight:900!important;color:#fff!important}.havSchedule .havPhone .havPhoneIcon{font-size:30px!important}}
