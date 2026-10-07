@@ -5,6 +5,10 @@
     {
       "path": "/api/business-software/tasks/reminders",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/business-software/campaigns/process",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
