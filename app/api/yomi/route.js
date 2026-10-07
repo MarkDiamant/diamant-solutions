@@ -18,7 +18,7 @@ export async function GET(req){
  if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date))return Response.json({error:'Invalid date'},{status:400});
  try{
   const [y,m,d]=date.split('-').map(Number),hd=new HDate(new Date(Date.UTC(y,m-1,d))),items=[];
-  for(const [calendar,name] of SERIES){const ev=DailyLearning.lookup(calendar,hd,false);if(ev)items.push({name,value:ashkenazi(value(ev,'en')),hebrew:hebrewRefs(value(ev,'he'))})}
+  for(const [calendar,name] of SERIES){const ev=DailyLearning.lookup(calendar,hd,false);if(ev)items.push({name,value:ashkenazi(value(ev,'en')),hebrew:hebrewRefs(value(ev,'he')),url:typeof ev.url==='function'?ev.url():''})}
   const hebrewDate=hd.render('en'); const hebrewDateHebrew=hd.render('he');
   return Response.json({date,hebrewDate,hebrewDateHebrew,items,source:'Hebcal @hebcal/learning'});
  }catch(e){return Response.json({date,items:[],error:'Daily learning is temporarily unavailable.'},{status:502})}
