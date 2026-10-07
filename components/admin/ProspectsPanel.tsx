@@ -7,7 +7,7 @@ const businessTypes=["Interior Designer","Contractor","Builder","Gardener","Land
 const methods=["Call","Email","WhatsApp","Text message","In person","Other"];
 const empty:any={company_name:"",contact_name:"",phone:"",email:"",website:"",business_type:"",area:"",postcode:"",prospect_type:"client",lead_rating:"2",status:"to_contact",next_action:"Contact",next_action_at:"",notes:""};
 const rowTone:any={client:"bg-sky-100/80 hover:bg-sky-100",referral:"bg-emerald-100/80 hover:bg-emerald-100"};
-const ratingTone:any={"3":"bg-amber-200 text-amber-950 ring-1 ring-amber-300","2":"bg-slate-200 text-slate-800","1":"bg-stone-100 text-stone-500"};
+const ratingTone:any={"3":"bg-yellow-300 text-yellow-950 ring-1 ring-yellow-400","2":"bg-yellow-200 text-yellow-900 ring-1 ring-yellow-300","1":"bg-yellow-100 text-yellow-800 ring-1 ring-yellow-200"};
 function defaultFollowUp(){const d=new Date();d.setDate(d.getDate()+8);d.setHours(9,0,0,0);while(d.getDay()===0||d.getDay()===6)d.setDate(d.getDate()+1);return d}
 export default function ProspectsPanel(){const [accent,setAccent]=useState("#111827"),[rows,setRows]=useState<any[]>([]),[form,setForm]=useState<any>(empty),[selected,setSelected]=useState<any>(null),[activities,setActivities]=useState<any[]>([]),[filter,setFilter]=useState("active"),[search,setSearch]=useState(""),[busy,setBusy]=useState(false),[message,setMessage]=useState(""),[quickOpen,setQuickOpen]=useState(false),[contact,setContact]=useState<any>({method:"Call",summary:"",occurred_at:""}),[referredJobs,setReferredJobs]=useState<any[]>([]);
 async function load(){const r=await fetch("/api/business-software/prospects",{cache:"no-store"}),b=await r.json();if(r.ok)setRows(b.prospects||[])}
