@@ -1,0 +1,4 @@
+import {ImageResponse} from 'next/og';
+const assets={shkiah:'og-shkiah.png','shabbos-yomtov':'og-shabbos-yomtov.png',havdalah:'og-havdalah.png','zmanim-methodology':'og-zmanim-methodology.png','free-tools':'og-free-tools.png',yomi:'og-yomi.png'};
+export const runtime='edge';
+export async function GET(request,{params}){const {name}=await params,file=assets[name];if(!file)return new Response('Not found',{status:404});const origin=new URL(request.url).origin;return new ImageResponse(<div style={{display:'flex',width:'100%',height:'100%',background:'#fff'}}><img src={origin+'/'+file} width="1200" height="630" style={{width:'100%',height:'100%',objectFit:'cover'}} /></div>,{width:1200,height:630,headers:{'Cache-Control':'public, max-age=86400, s-maxage=31536000, immutable'}})}
