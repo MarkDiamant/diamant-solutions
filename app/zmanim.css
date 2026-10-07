@@ -29,3 +29,9 @@
 
 /* shared Jewish-tools page shell */
 body:has(.zpowered),body:has(.yomiPage){min-height:100vh;display:flex;flex-direction:column}body:has(.zpowered)>.zpowered{flex:0 0 auto}body:has(.zpowered)>.zpage,body:has(.yomiPage)>.yomiPage{flex:1 0 auto}.zpowered{padding-top:18px!important;padding-bottom:6px!important;background:transparent!important}.zfooter{margin-top:auto!important}@media(max-width:600px){.zpowered{padding-top:12px!important;padding-bottom:4px!important}}
+
+.znav .current{background:#172b4d!important;color:#fff!important;box-shadow:0 4px 12px #172b4d26}
+.zrowLabel{display:flex;align-items:center;gap:9px}.zrowLabel i{font-style:normal;width:24px;text-align:center;font-size:17px;opacity:.85}
+.zprintmenu{align-items:stretch}.zprintgroup{display:grid;grid-template-columns:1fr 1fr;gap:5px;min-width:118px;padding:8px;border:1px solid #e4e7ec;border-radius:12px;background:#f8fafc}.zprintgroup b{grid-column:1/-1;font-size:11px;color:#667085;text-transform:uppercase;letter-spacing:.04em}.zprintgroup .zbtn{padding:8px!important}
+body:has(.zpowered){background:#f7f8fb!important}.zpowered{background:#f7f8fb!important}
+@media(max-width:600px){.zprintgroup{min-width:104px;flex:1}.zrowLabel{gap:6px}}
