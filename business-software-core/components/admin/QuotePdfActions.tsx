@@ -50,7 +50,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
         if(frame)frame.style.transform=previousTransform;
         images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});
       }
-      const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});\n      const file=new File([blob],`${reference}-Quote.pdf`,{type:"application/pdf"});
+      const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});\n      const file=new File([pdf],`${reference}-Quote.pdf`,{type:"application/pdf"});
       if(document.documentElement.dataset.quoteShare==="whatsapp"&&navigator.share&&navigator.canShare?.({files:[file]})){delete document.documentElement.dataset.quoteShare;await navigator.share({files:[file]});}\n      else{delete document.documentElement.dataset.quoteShare;const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
     }catch(e){alert(e instanceof Error?e.message:"Could not create PDF");}
