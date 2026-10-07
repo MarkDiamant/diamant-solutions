@@ -11,7 +11,9 @@
     "@supabase/supabase-js": "^2.0.0",
     "next": "15.5.24",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "@hebcal/core": "^6.9.2",
+    "@hebcal/learning": "^6.11.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
