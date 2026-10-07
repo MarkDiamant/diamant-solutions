@@ -2,7 +2,9 @@
 import {useEffect,useMemo,useState} from 'react';import DiamantCredit from '../../components/admin/DiamantCredit';import '../zmanim.css';import './yomi.css';
 const main=['Daf Yomi','Amud Yomi','Mishnah Yomi','Nach Yomi','Mishnah Berurah Yomi'],more=['Chofetz Chaim Yomi','Shemiras HaLashon','Rambam Yomi','Tehillim Yomi'];
 const iso=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
-const fromIso=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};\nconst ordinal=n=>n+(n%100>=11&&n%100<=13?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));\nconst jewishDate=s=>{const m=String(s||'').match(/(\\d+)\\s+([^,]+),\\s*(\\d+)/);return m?ordinal(+m[1])+' of '+m[2]+', '+m[3]:s};
+const fromIso=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const ordinal=n=>n+(n%100>=11&&n%100<=13?'th':({1:'st',2:'nd',3:'rd'}[n%10]||'th'));
+const jewishDate=s=>{const m=String(s||'').match(/(\d+)\s+([^,]+),\s*(\d+)/);return m?ordinal(+m[1])+' of '+m[2]+', '+m[3]:s};
 export default function Yomi(){const today=useMemo(()=>iso(new Date()),[]),[date,setDate]=useState(today),[data,setData]=useState(null),[err,setErr]=useState('');
  useEffect(()=>{setData(null);setErr('');fetch('/api/yomi?date='+date).then(r=>r.json()).then(j=>{setData(j);if(j.error)setErr(j.error)}).catch(()=>setErr('Daily learning is temporarily unavailable.'))},[date]);
  const d=fromIso(date),civil=new Intl.DateTimeFormat('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(d),map=new Map((data?.items||[]).map(x=>[x.name,x]));
