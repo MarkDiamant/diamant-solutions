@@ -1,0 +1,2 @@
+'use client';import {useRef} from 'react';import './DatePicker.css';
+export default function DatePicker({value,onChange}){const ref=useRef(null);const open=()=>{const el=ref.current;if(!el)return;try{el.showPicker?.()}catch{};el.focus()};return <button type="button" className="datePickerButton" onClick={open}><span>Choose date</span><span className="datePickerIcon">▦</span><input ref={ref} type="date" value={value} onChange={e=>e.target.value&&onChange(e.target.value)} onClick={e=>e.stopPropagation()}/></button>}
