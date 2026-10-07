@@ -1,0 +1,1 @@
+import CampaignsPanel from "@/components/admin/CampaignsPanel";export default function Page(){return <CampaignsPanel/>}
