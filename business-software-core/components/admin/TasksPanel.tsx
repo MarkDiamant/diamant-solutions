@@ -21,7 +21,7 @@ export default function TasksPanel({demo=false}:{demo?:boolean}){
  const del=async(id:string)=>{if(!confirm("Delete this task permanently?"))return;await fetch("/api/business-software/tasks?id="+encodeURIComponent(id),{method:"DELETE"});setDetail(null);await load()};
  const user=(id:string)=>(Array.isArray(data.users)?data.users:[]).find((x:any)=>x.id===id)?.display_name||(Array.isArray(data.users)?data.users:[]).find((x:any)=>x.id===id)?.email||"Unassigned";
  const job=(id:string)=>(Array.isArray(data.jobs)?data.jobs:[]).find((x:any)=>x.id===id)?.reference;
- const dueClass=(t:any)=>t.status==="completed"?"bg-green-100 text-green-800":t.due_at&&new Date(t.due_at)<new Date()?"bg-red-100 text-red-800":"bg-black/5 text-black/60";
+ const dueClass=(t:any)=>{if(t.status==="completed")return "bg-green-100 text-green-800";if(!t.due_at)return "bg-slate-100 text-slate-600";const d=new Date(t.due_at),now=new Date(),end=new Date();end.setHours(23,59,59,999);if(d<now)return "bg-red-100 text-red-800";if(d<=end)return "bg-amber-100 text-amber-800";return "bg-blue-100 text-blue-800"};
  const priorityClass=(p:any)=>String(p)==="urgent"?"bg-red-100 text-red-800":String(p)==="high"?"bg-amber-100 text-amber-800":String(p)==="low"?"bg-slate-100 text-slate-600":"bg-blue-50 text-blue-700";
  const sourceClass=(t:any)=>t.task_source==="business"?"text-orange-800":"text-indigo-700";
  const cardClass=(t:any)=>t.task_source==="business"?"border-orange-200 bg-orange-50/55":String(t.priority)==="urgent"?"border-red-200 bg-red-50/60":"border-indigo-100 bg-indigo-50/35";
