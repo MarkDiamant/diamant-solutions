@@ -19,3 +19,10 @@
 .printRangeTitle{display:none}.shkiahPrintTable{display:none}
 @media print{.printRangeTitle{display:block!important;text-align:left;margin:0 0 4mm;font-size:15pt}.shkiahPrintTable{display:block!important}.shkiahPrintRow{display:grid;grid-template-columns:1.1fr 1.3fr .6fr;gap:4mm;padding:2.4mm 1mm;border-bottom:1px solid #e4e7ec;font-size:9.5pt;text-align:left;break-inside:avoid}.shkiahPrintRow strong{text-align:right}}
 .zlocating{padding:12px 0;color:#667085;font-size:14px;font-weight:600}
+/* A4 print polish */
+@media print{
+ .zprintRange{padding-bottom:16mm!important}.printHead{align-items:center!important}.printHead strong{letter-spacing:normal!important}.printFoot{position:fixed!important;bottom:0!important;padding:3mm 0 1mm!important}
+ .print-event .printEvent{display:block!important;border:1px solid #d0d5dd!important;border-radius:4mm!important;padding:10mm!important;margin-top:12mm!important}.print-event .printEventTitle{text-align:center!important;margin-bottom:9mm!important}.print-event .printEventTitle b{font-size:20pt!important}.print-event .printEventTitle span{font-size:14pt!important;margin-top:2mm!important}.print-event .printEventTitle small{font-size:10pt!important;margin-top:3mm!important}.print-event .printTimes{display:block!important;max-width:125mm!important;margin:0 auto!important;font-size:11pt!important}.print-event .printTimes span{padding:4mm 0!important;border-bottom:1px solid #e4e7ec!important}.print-event .printTimes strong{font-size:13pt!important}
+ .print-month .printEvent{padding:4mm 0!important}.print-year .printEvent{padding:2.4mm 0!important}.print-year .printEventTitle b{font-size:9.5pt!important}.print-year .printTimes{font-size:7.8pt!important}
+ .print-week .shkiahPrintRow{padding:6mm 2mm!important;font-size:12pt!important}.print-month .shkiahPrintRow{padding:2.2mm 1mm!important;font-size:9pt!important}
+}
