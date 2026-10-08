@@ -40,7 +40,7 @@ export default function HavdalahAdmin(){
  if(f==='hold_music_url')return <div style={{display:'grid',gap:8}}>
  <input type="file" accept=".mp3,audio/mpeg" style={inputStyle} disabled={busy} onChange={async e=>{
   const file=e.target.files?.[0];if(!file)return;
-  if(!/\\.mp3$/i.test(file.name)||file.size>50*1024*1024){setError('Choose an MP3 file smaller than 50 MB.');return;}
+  if(!/\.mp3$/i.test(file.name)||file.size>50*1024*1024){setError('Choose an MP3 file smaller than 50 MB.');return;}
   setBusy(true);setError('');
   try{
    const res=await fetch('/api/havdalah/admin',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:'prepare_music_upload'})});
