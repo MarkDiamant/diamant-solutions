@@ -19,7 +19,7 @@ export async function POST(request){
  const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned)return xml(`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`);
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
- const next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000)||getNextHavdalahSlot(now);
+ const next=managed===null?getNextHavdalahSlot(now):managed.find(s=>s.time.getTime()>=now.getTime()-10*60000);
  if(!next)return xml('<Say voice="Polly.Amy">Welcome to the Havdalah Hotline. The next live Havdalah time is not available at the moment. Please try again later.</Say><Hangup/>');
  const intro=`Welcome to the Havdalah Hotline, a project of Diamant Solutions. The next live Havdalah is ${next.label}, ${time(next.time)}, in approximately ${left(next.time,now)}. Your call is muted. Nobody on the hotline can hear you. Please stay on the line.`;
  return xml(`<Say voice="Polly.Amy">${x(intro)}</Say><Dial><Conference muted="true" participantLabel="listener-${x(form.get('CallSid')||'caller')}" startConferenceOnEnter="false" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(next.conference)}</Conference></Dial>`);
