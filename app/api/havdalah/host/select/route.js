@@ -11,14 +11,16 @@ export async function POST(request){
  const form=await request.clone().formData().catch(()=>new FormData());
  if(!(await verifyTwilio(request,form)))return new Response('Forbidden',{status:403});
  const now=new Date(),caller=phone(form.get('From'));const settings=await getVoiceSettings();const speak=t=>sayOrPlay(spoken(t,settings),settings.voice);const time=t=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'numeric',minute:'2-digit',hour12:true}).format(t);const date=t=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'long'}).format(t);
+ const remaining=t=>{const m=Math.max(0,Math.ceil((t-now)/60000));const h=Math.floor(m/60),r=m%60;return h?(h+' hour'+(h===1?'':'s')+(r?' and '+r+' minute'+(r===1?'':'s'):'')):(m+' minute'+(m===1?'':'s'))};
+ const hostReply=next=>{const early=next.time.getTime()-now.getTime()>3600000;const vars={day:occasionForSlot(next,settings),date:date(next.time),time:time(next.time),remaining:remaining(next.time)};return speak(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars))+(early?'<Hangup/>':'<Redirect method="POST">/api/havdalah/host/wait?slot='+next.slot+(next.slotId?'&amp;id='+next.slotId:'')+'</Redirect>')};
  const managed=await getManagedSlots(now).catch(()=>null);
  if(managed){
   const next=managed.find(s=>s.time.getTime()>=now.getTime()-10*60000&&s.hosts.some(h=>phone(h.phone)===caller));
   if(!next)return xml(speak('You are not assigned to an upcoming Havdalah session.')+'<Hangup/>');
-  return xml(speak(fillTemplate(settings.host_welcome_text,{day:occasionForSlot(next,settings),date:date(next.time),time:time(next.time)}))+'<Redirect method="POST">/api/havdalah/host/wait?slot='+next.slot+'&amp;id='+next.slotId+'</Redirect>');
+  return xml(hostReply(next));
  }
  const next=getUpcomingHavdalahSlots(now).find(s=>s.slot===1&&s.time.getTime()>=now.getTime()-10*60000);
  if(!next)return xml(speak('Host schedule is temporarily unavailable.')+'<Hangup/>');
- return xml(speak(fillTemplate(settings.host_welcome_text,{day:occasionForSlot(next,settings),date:date(next.time),time:time(next.time)}))+'<Redirect method="POST">/api/havdalah/host/wait?slot='+next.slot+'</Redirect>');
+  return xml(hostReply(next));
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
