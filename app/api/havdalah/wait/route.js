@@ -8,6 +8,6 @@ export async function POST(request){
  if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const settings=await getVoiceSettings();const custom=settings.hold_music_url;const music=typeof custom==='string'&&/^https:\/\//.test(custom)&&!/[<>&"']/.test(custom)?custom:'https://com.twilio.music.classical.s3.amazonaws.com/BusyStrings.mp3';
  const tick=Math.max(0,Number(new URL(request.url).searchParams.get('tick'))||0); const next=getNextHavdalahSlot(new Date()); const mins=next?Math.max(0,Math.ceil((next.time-Date.now())/60000)):0; const message=tick&&mins?sayOrPlay('Your live Huvdollar session begins in '+mins+' minutes. Please remain on the line.',settings.voice):'';
- return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${message}<Play>/api/havdalah/music/chunk?tick=${tick}</Play><Redirect method="POST">/api/havdalah/wait?tick=${tick+1}</Redirect></Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});
+ return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${message}<Play>${new URL("/api/havdalah/music/chunk?tick="+tick,request.url).toString().replace(/&/g,"&amp;")}</Play><Redirect method="POST">/api/havdalah/wait?tick=${tick+1}</Redirect></Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
