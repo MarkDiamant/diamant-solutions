@@ -18,8 +18,8 @@ function header(b,p){
 export async function GET(request){
  const settings=await getVoiceSettings();
  const custom=settings.hold_music_url;
- const music=typeof custom==='string'&&/^https:\/\//.test(custom)&&!/[<>&"']/.test(custom)?custom:'https://com.twilio.music.classical.s3.amazonaws.com/BusyStrings.mp3';
- const allowed=[new URL(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://invalid.example').hostname,'com.twilio.music.classical.s3.amazonaws.com'];
+ const music=typeof custom==='string'&&/^https:\/\//.test(custom)&&!/[<>&"']/.test(custom)?custom:'https://s3.amazonaws.com/com.twilio.music.classical/BusyStrings.mp3';
+ const allowed=[new URL(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://invalid.example').hostname,'s3.amazonaws.com'];
  if(!allowed.includes(new URL(music).hostname))return new Response('Invalid music host',{status:400});
  const res=await fetch(music,{signal:AbortSignal.timeout(18000)});
  if(!res.ok)return new Response('Music unavailable',{status:502});
