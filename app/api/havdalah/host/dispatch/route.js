@@ -12,6 +12,7 @@ export async function GET(request){
  const auth='Basic '+Buffer.from(key+':'+secret).toString('base64');
  const results=[];
  for(const slot of slots){
+  if(slot.isTest)continue;
   const elapsed=(now-slot.time)/60000;
   if(elapsed<0||elapsed>15||!slot.hosts.length)continue;
   const date=new Intl.DateTimeFormat('en-CA',{timeZone:slot.location.timezone,year:'numeric',month:'2-digit',day:'2-digit'}).format(slot.time);
