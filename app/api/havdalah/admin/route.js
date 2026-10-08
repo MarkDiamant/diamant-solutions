@@ -29,7 +29,7 @@ export async function GET(req){
 }
 
 const editable={
- havdalah_voice_settings:['opening_text','sponsor_text','waiting_text','pre_live_text','closing_text','host_ready_text','sponsor_enabled','alternate_sponsor_text','alternate_sponsor_enabled','alternate_sponsor_from','alternate_sponsor_until','voice','pronunciation_havdalah','pronunciation_diamant'],
+ havdalah_voice_settings:['opening_text','sponsor_text','waiting_text','pre_live_text','closing_text','host_ready_text','hold_music_url','sponsor_enabled','alternate_sponsor_text','alternate_sponsor_enabled','alternate_sponsor_from','alternate_sponsor_until','voice','pronunciation_havdalah','pronunciation_diamant'],
  havdalah_locations:['name','country_code','timezone','latitude','longitude','havdalah_degrees','enabled'],
  havdalah_lines:['number','location_id','enabled'],
  havdalah_hosts:['name','phone','enabled'],
