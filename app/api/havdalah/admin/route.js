@@ -7,7 +7,7 @@ async function access(req){
  if(!token)return null;
  const url=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL;
  const anon=process.env.SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
- const service=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
+ const service=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY;
  if(!url||!anon||!service)return {error:'Admin server configuration is incomplete',status:503};
  const publicClient=createClient(url,anon);
  const {data:{user},error}=await publicClient.auth.getUser(token);
