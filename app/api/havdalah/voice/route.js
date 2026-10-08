@@ -2,7 +2,7 @@ import {sayOrPlay} from '../../../../lib/havdalahGoogleVoice';
 import {getVoiceSettings,spoken,activeSponsor,fillTemplate,occasionForSlot} from '../../../../lib/havdalahVoiceSettings';
 import {verifyTwilio} from '../../../../lib/havdalahTwilioAuth';
 import {getNextHavdalahSlot} from '../../../../lib/havdalahSchedule';
-import {getManagedSlots} from '../../../../lib/havdalahManaged';
+import {getManagedSlots,getActiveTestSlot} from '../../../../lib/havdalahManaged';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -25,7 +25,8 @@ export async function POST(request){
  const now=new Date();
  const settings=await getVoiceSettings();
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
- const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},2500))]);
+ const test=await getActiveTestSlot(now,phone(form.get('To'))).catch(e=>{console.error('HAVDALAH_TEST_LOOKUP',e);return null;});
+ const managed=test?[test]:await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},2500))]);
  const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
