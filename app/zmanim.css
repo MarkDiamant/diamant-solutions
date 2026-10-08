@@ -64,3 +64,6 @@ body:has(.yomiPage)>.zpowered,body:has(.yahrPage)>.zpowered,body:has(.havPage)>.
 
 /* Desktop only: centre calendar beneath the three navigation controls on Shkiah and Shabbos */
 @media(min-width:651px){body:has(.shkiahPage) .znav,body:has(.shabbosPage) .znav{flex-wrap:wrap}body:has(.shkiahPage) .znav .datePickerButton,body:has(.shabbosPage) .znav .datePickerButton{margin-left:calc(50% - 55px);margin-right:calc(50% - 55px)}}
+
+/* Desktop date picker: force separate full-width row, centre actual button */
+@media(min-width:651px){body:has(.znav) .znav{flex-wrap:wrap!important}body:has(.znav) .znav>.datePickerButton{margin:0!important;white-space:nowrap!important}body:has(.znav) .znav::before{content:"";order:1;flex-basis:100%;height:0}body:has(.znav) .znav>.datePickerButton{order:2}}
