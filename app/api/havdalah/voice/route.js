@@ -10,7 +10,8 @@ export const maxDuration=60;
 const TZ='Europe/London';
 
 function x(v=''){return String(v).replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));}
-function time(d,tz=TZ){return new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit',hour12:true}).format(d);}
+function time(d,tz=TZ){return new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(d);}
+function date(d,tz=TZ){return new Intl.DateTimeFormat('en-GB',{timeZone:tz,day:'numeric',month:'long'}).format(d);}
 function left(t,n){const m=Math.max(0,Math.ceil((t-n)/60000));if(m<60)return `${m} minute${m===1?'':'s'}`;const h=Math.floor(m/60),r=m%60;return r?`${h} hour${h===1?'':'s'} and ${r} minute${r===1?'':'s'}`:`${h} hour${h===1?'':'s'}`;}
 function phone(v=''){return String(v).replace(/[^+\d]/g,'');}
 function host(v=''){return (process.env.HAVDALAH_HOST_NUMBERS||'').split(',').map(phone).filter(Boolean).includes(phone(v));}
@@ -25,7 +26,7 @@ export async function POST(request){
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
  const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},2500))]);
  const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
- if(assigned)return xml(sayOrPlay(spoken(fillTemplate(settings.host_welcome_text,{day:occasionForSlot(assigned,settings),time:time(assigned.time,assigned.location?.timezone||TZ)}),settings),settings.voice)+`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`);
+ if(assigned)return xml(sayOrPlay(spoken(fillTemplate(settings.host_welcome_text,{day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ)}),settings),settings.voice)+`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`);
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  let next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
  if(!next){try{next=getNextHavdalahSlot(now);}catch(error){console.error('HAVDALAH_SCHEDULE_ERROR',error);}}
@@ -33,8 +34,8 @@ export async function POST(request){
  if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' The next live Havdalah time is not available at the moment. Please try again later.',settings),settings.voice)+'<Hangup/>');
  const minutesUntil=Math.ceil((next.time.getTime()-now.getTime())/60000);
  console.log('HAVDALAH_CALL_BRANCH',{managedSlots:managed?.length??null,nextFound:!!next,minutesUntil,branch:minutesUntil>Math.max(1,Number(settings.listener_window_minutes)||240)?'future':'waiting'});
- if(minutesUntil>Math.max(1,Number(settings.listener_window_minutes)||240))return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+fillTemplate(settings.early_call_text,{day:occasionForSlot(next,settings),time:time(next.time,next.location?.timezone||TZ),remaining:left(next.time,now),sponsor:activeSponsor(settings)}),settings),settings.voice)+'<Hangup/>');
- const intro=settings.opening_text+' '+fillTemplate(settings.listener_intro_text,{day:occasionForSlot(next,settings),time:time(next.time,next.location?.timezone||TZ),remaining:left(next.time,now)});const sponsor=activeSponsor(settings);
+ if(minutesUntil>Math.max(1,Number(settings.listener_window_minutes)||240))return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+fillTemplate(settings.early_call_text,{day:occasionForSlot(next,settings),date:date(next.time,next.location?.timezone||TZ),time:time(next.time,next.location?.timezone||TZ),remaining:left(next.time,now),sponsor:activeSponsor(settings)}),settings),settings.voice)+'<Hangup/>');
+ const intro=settings.opening_text+' '+fillTemplate(settings.listener_intro_text,{day:occasionForSlot(next,settings),date:date(next.time,next.location?.timezone||TZ),time:time(next.time,next.location?.timezone||TZ),remaining:left(next.time,now)});const sponsor=activeSponsor(settings);
  return xml(`<Pause length="2"/>${sayOrPlay(spoken(intro,settings),settings.voice)}${sponsor?sayOrPlay(spoken(sponsor,settings),settings.voice):''}<Dial><Conference muted="true" participantLabel="listener-${x(form.get('CallSid')||'caller')}" startConferenceOnEnter="false" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(next.conference)}</Conference></Dial>`);
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
