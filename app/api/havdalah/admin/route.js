@@ -44,6 +44,12 @@ const editable={
 export async function POST(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const body=await req.json().catch(()=>null);
+ if(body?.action==='prepare_music_upload'){
+  const path='hold-music/'+crypto.randomUUID()+'.mp3';
+  const {data,error}=await a.db.storage.from('havdalah-audio').createSignedUploadUrl(path);
+  if(error)return Response.json({error:error.message},{status:500});
+  return Response.json({path,token:data.token},{headers:{'Cache-Control':'no-store'}});
+ }
  if(body?.action==='preview_context'){
   const now=new Date();
   let slots=null;
