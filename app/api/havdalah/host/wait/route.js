@@ -17,6 +17,6 @@ export async function POST(request){
  if(target.hosts&&!target.hosts.some(h=>h.phone===caller))return xml(sayOrPlay(spoken('You are not assigned to this session.',settings),settings.voice)+'<Hangup/>');
  const due=target.time.getTime()<=now.getTime();const id=target.slotId?'&amp;id='+target.slotId:'';
  const gather=due?`<Gather input="dtmf" numDigits="1" timeout="30" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST"><Pause length="30"/></Gather>`:'<Pause length="30"/>';
- return xml(`${sayOrPlay(spoken(target.time.getTime()<=now.getTime()?settings.host_due_text:fillTemplate(settings.host_countdown_text,{minutes:Math.ceil((target.time.getTime()-now.getTime())/60000)}),settings),settings.voice)}${gather}<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}</Redirect>`);
+ return xml(`${sayOrPlay(spoken(target.time.getTime()<=now.getTime()?settings.host_due_text:fillTemplate(settings.host_countdown_text,{minutes:Math.ceil((target.time.getTime()-now.getTime())/60000),remaining:(()=>{const m=Math.max(0,Math.ceil((target.time.getTime()-now.getTime())/60000)),h=Math.floor(m/60),r=m%60;return h?h+' hour'+(h===1?'':'s')+(r?' and '+r+' minute'+(r===1?'':'s'):''):m+' minute'+(m===1?'':'s')})()}),settings),settings.voice)}${gather}<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}</Redirect>`);
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
