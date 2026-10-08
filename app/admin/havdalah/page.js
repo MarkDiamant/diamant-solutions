@@ -37,7 +37,24 @@ export default function HavdalahAdmin(){
  const url=URL.createObjectURL(await r.blob());const audio=new Audio(url);audio.onended=()=>URL.revokeObjectURL(url);await audio.play();setError('');
  }catch(e){setError(e.message)}};
  const field=(f)=>{const v=form[f]??'';const update=x=>setForm(y=>({...y,[f]:x}));if(f==='early_call_text'||f==='host_early_text'||f==='optional_wait_text'||f==='listener_intro_text'||f==='host_welcome_text'||f==='host_countdown_text'||f==='host_due_text'||f==='opening_text'||f==='sponsor_text'||f==='waiting_text'||f==='pre_live_text'||f==='closing_text'||f==='host_ready_text'||f==='alternate_sponsor_text')return <div><textarea style={{...inputStyle,minHeight:95,resize:'vertical'}} value={v} onChange={e=>update(e.target.value)} /><button type="button" style={{...btn(),marginTop:6}} onClick={()=>preview(f)}>▶ Preview selected Google voice</button></div>;
- if(f==='hold_music_url')return <div><input style={inputStyle} type="url" placeholder="Optional HTTPS MP3 URL" value={v} onChange={e=>update(e.target.value)} /><small style={{color:colors.muted}}>Leave blank to use the built-in hold music. The recording repeats automatically.</small></div>;
+ if(f==='hold_music_url')return <div style={{display:'grid',gap:8}}>
+ <input type="file" accept=".mp3,audio/mpeg" style={inputStyle} disabled={busy} onChange={async e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  if(!/\\.mp3$/i.test(file.name)||file.size>50*1024*1024){setError('Choose an MP3 file smaller than 50 MB.');return;}
+  setBusy(true);setError('');
+  try{
+   const res=await fetch('/api/havdalah/admin',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:'prepare_music_upload'})});
+   const j=await res.json();if(!res.ok)throw Error(j.error||'Cannot prepare upload');
+   const uploaded=await supa.storage.from('havdalah-audio').uploadToSignedUrl(j.path,j.token,file,{contentType:'audio/mpeg'});
+   if(uploaded.error)throw uploaded.error;
+   const url=supa.storage.from('havdalah-audio').getPublicUrl(j.path).data.publicUrl;
+   update(url);setNotice('Music uploaded. Press Save changes to activate it.');
+  }catch(err){setError(err.message||'Music upload failed')}finally{setBusy(false)}
+ }}/>
+ <input style={inputStyle} type="url" placeholder="Or enter an HTTPS MP3 URL" value={v} onChange={e=>update(e.target.value)} />
+ <small style={{color:colors.muted}}>Optional. Upload a 5 to 10-minute MP3, or leave blank for built-in music. The track repeats automatically. Press Save changes after uploading.</small>
+ {v&&/^https:\/\//.test(v)&&<audio controls preload="none" src={v} style={{width:'100%'}}/>}
+ </div>;
  if(f==='voice')return <select style={inputStyle} value={v} onChange={e=>update(e.target.value)}><option value="en-GB-Chirp3-HD-Callirrhoe">Callirrhoe (default)</option><option value="en-GB-Chirp3-HD-Algenib">Algenib</option><option value="en-GB-Chirp3-HD-Leda">Leda</option><option value="en-GB-Chirp3-HD-Sadaltager">Sadaltager</option></select>;
  if(f==='enabled'||f==='disabled'||f==='sponsor_enabled'||f==='alternate_sponsor_enabled')return <select style={inputStyle} value={String(v)} onChange={e=>update(e.target.value==='true')}><option value="true">Yes</option><option value="false">No</option></select>;
  if(f.endsWith('_id')){const t=f==='location_id'?'havdalah_locations':f==='host_id'?'havdalah_hosts':'havdalah_slots';return <select required style={inputStyle} value={v} onChange={e=>update(e.target.value)}><option value="">Choose {labels[f].toLowerCase()}</option>{(data[t]||[]).map(x=><option key={x.id} value={x.id}>{x.name||x.label||x.number}{x.country_code?' ('+x.country_code+')':''}</option>)}</select>}
