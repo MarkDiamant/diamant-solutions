@@ -26,11 +26,12 @@ export async function POST(request){
  const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned)return xml(`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`);
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
- const next=managed===null?getNextHavdalahSlot(now):managed.find(s=>s.time.getTime()>=now.getTime()-10*60000);
+ const next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000)||getNextHavdalahSlot(now);
+ console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
  if(!next)return xml(sayOrPlay(spoken(settings.opening_text+' The next live Havdalah time is not available at the moment. Please try again later.',settings),settings.voice)+'<Hangup/>');
  const minutesUntil=Math.ceil((next.time.getTime()-now.getTime())/60000);
  console.log('HAVDALAH_CALL_BRANCH',{managedSlots:managed?.length??null,nextFound:!!next,minutesUntil,branch:minutesUntil>120?'future':'waiting'});
- if(minutesUntil>120)return xml(sayOrPlay(spoken(settings.opening_text+' The next live Havdalah is '+next.label+', '+time(next.time,next.location?.timezone||TZ)+'. Please call back closer to that time.',settings),settings.voice)+'<Hangup/>');
+ if(minutesUntil>120)return xml(sayOrPlay(spoken(settings.opening_text+' The next live Havdalah is '+next.label+', '+time(next.time,next.location?.timezone||TZ)+'. '+activeSponsor(settings)+' Please call back closer to that time.',settings),settings.voice)+'<Hangup/>');
  const intro=`${settings.opening_text} The next live Havdalah is ${next.label}, ${time(next.time,next.location?.timezone||TZ)}, in approximately ${left(next.time,now)}. ${activeSponsor(settings)} Your call is muted. Nobody on the hotline can hear you. Please stay on the line.`;
  return xml(`${sayOrPlay(spoken(intro,settings),settings.voice)}<Dial><Conference muted="true" participantLabel="listener-${x(form.get('CallSid')||'caller')}" startConferenceOnEnter="false" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(next.conference)}</Conference></Dial>`);
 }
