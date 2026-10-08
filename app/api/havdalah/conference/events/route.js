@@ -25,6 +25,16 @@ export async function POST(request){
    const url=new URL('/api/havdalah/announcement',request.url).toString();
    await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});
   }
+  if(event==='participant-leave'&&label==='host-primary'){
+   const {sid,auth}=credentials();
+   const list=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Conferences/'+conference+'/Participants.json?PageSize=100',{headers:{Authorization:auth}});
+   if(!list.ok)throw new Error('Closing participant lookup failed: '+list.status);
+   const data=await list.json();
+   const closing=new URL('/api/havdalah/closing',request.url).toString();
+   for(const participant of data.participants||[]){
+    if(participant.label?.startsWith('listener-'))await twilio('Calls/'+participant.call_sid+'.json',{Url:closing,Method:'POST'});
+   }
+  }
   if(event==='announcement-end'){
    const {sid,auth}=credentials();
    const list=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Conferences/'+conference+'/Participants.json?PageSize=100',{headers:{Authorization:auth}});
