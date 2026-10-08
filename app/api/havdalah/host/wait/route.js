@@ -6,7 +6,7 @@ function xml(b){return new Response(`<?xml version="1.0" encoding="UTF-8"?><Resp
 function slotFor(n,now=new Date()){return getUpcomingHavdalahSlots(now).find(s=>s.slot===n&&s.time.getTime()>=now.getTime()-10*60000)||null;}
 function msg(target,now){const sec=Math.ceil((target-now)/1000);if(sec<=0)return 'Havdalah is due to start now. You are still completely private. Press 1 when you are ready to begin.';const m=Math.ceil(sec/60);return `Your Havdalah slot is in approximately ${m} minute${m===1?'':'s'}. You are completely private and nobody can hear you. Please remain on the line.`;}
 export async function POST(request){
- const authForm=await request.formData().catch(()=>new FormData());
+ const authForm=await request.clone().formData().catch(()=>new FormData());
  if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const url=new URL(request.url),slot=Number(url.searchParams.get('slot'));
  if(![1,2,3].includes(slot))return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
