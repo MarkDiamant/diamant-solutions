@@ -7,17 +7,18 @@ async function access(req){
  if(!token)return null;
  const url=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL;
  const anon=process.env.SUPABASE_ANON_KEY||process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
- const service=process.env.DS_SUPABASE_SERVICE_ROLE_KEY;
- if(!url||!anon||!service)return null;
+ const service=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
+ if(!url||!anon||!service)return {error:'Admin server configuration is incomplete',status:503};
  const publicClient=createClient(url,anon);
  const {data:{user},error}=await publicClient.auth.getUser(token);
- if(error||!user)return null;
+ if(error||!user)return {error:'Your login session has expired. Please sign out and sign in again.',status:401};
  const db=createClient(url,service,{auth:{persistSession:false}});
- const {data:admin}=await db.from('internal_admins').select('user_id').eq('user_id',user.id).maybeSingle();
- return admin?{db,user}:null;
+ const {data:admin,error:dbError}=await db.from('internal_admins').select('user_id').eq('user_id',user.id).maybeSingle();
+ if(dbError)return {error:'Admin database connection failed: '+dbError.message,status:503};
+ return admin?{db,user}:{error:'This account is not registered as a hotline administrator.',status:403};
 }
 export async function GET(req){
- const a=await access(req);if(!a)return Response.json({error:'Unauthorized'},{status:401});
+ const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const result={};
  for(const name of tableNames){
   const {data,error}=await a.db.from(name).select('*').limit(500);
@@ -37,7 +38,7 @@ const editable={
  havdalah_host_absences:['host_id','session_date','reason']
 };
 export async function POST(req){
- const a=await access(req);if(!a)return Response.json({error:'Unauthorized'},{status:401});
+ const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const body=await req.json().catch(()=>null);
  const table=body?.table,action=body?.action,fields=editable[table];
  if(!fields||!['create','update','delete'].includes(action))return Response.json({error:'Invalid request'},{status:400});
