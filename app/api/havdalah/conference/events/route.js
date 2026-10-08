@@ -1,3 +1,4 @@
+import {verifyTwilio} from '../../../../../lib/havdalahTwilioAuth';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 function credentials(){
@@ -11,6 +12,8 @@ async function twilio(path,params){
  if(!res.ok)throw new Error('Twilio conference update failed: '+res.status);
 }
 export async function POST(request){
+ const authForm=await request.formData().catch(()=>new FormData());
+ if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const form=await request.formData().catch(()=>new FormData());
  const event=String(form.get('StatusCallbackEvent')||'');
  const conference=String(form.get('ConferenceSid')||'');
