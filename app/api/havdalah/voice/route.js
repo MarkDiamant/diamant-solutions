@@ -14,7 +14,7 @@ function host(v=''){return (process.env.HAVDALAH_HOST_NUMBERS||'').split(',').ma
 function xml(body){return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${body}</Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});}
 
 export async function POST(request){
- const authForm=await request.formData().catch(()=>new FormData());
+ const authForm=await request.clone().formData().catch(()=>new FormData());
  if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const form=await request.formData().catch(()=>new FormData());
  const now=new Date();
