@@ -33,7 +33,7 @@ export default function HavdalahAdmin(){
  const contextResponse=await fetch('/api/havdalah/admin',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:'preview_context'})});
  const vars=await contextResponse.json();
  if(!contextResponse.ok)throw Error(vars.error||'Cannot retrieve the next scheduled Havdalah time');
- let t=String(form[f]||'').replace(/\\{(day|date|time|remaining|minutes)\\}/g,(_,key)=>String(vars[key]||''));
+ let t=String(form[f]||'').replace(/\{(day|date|time|remaining|minutes)\}/g,(_,key)=>String(vars[key]||''));
  if(!t.trim())return;
  const r=await fetch('/api/havdalah/admin',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+session.access_token},body:JSON.stringify({action:'preview_voice',voice:form.voice,text:t})});
  if(!r.ok){const j=await r.json();throw Error(j.error||'Preview unavailable')}
