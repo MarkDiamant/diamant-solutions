@@ -29,7 +29,7 @@ export async function GET(req){
 }
 
 const editable={
- havdalah_voice_settings:['opening_text','sponsor_text','waiting_text','voice','pronunciation_havdalah','pronunciation_diamant'],
+ havdalah_voice_settings:['opening_text','sponsor_text','waiting_text','pre_live_text','closing_text','sponsor_enabled','alternate_sponsor_text','alternate_sponsor_enabled','alternate_sponsor_from','alternate_sponsor_until','voice','pronunciation_havdalah','pronunciation_diamant'],
  havdalah_locations:['name','country_code','timezone','latitude','longitude','havdalah_degrees','enabled'],
  havdalah_lines:['number','location_id','enabled'],
  havdalah_hosts:['name','phone','enabled'],
@@ -42,7 +42,7 @@ export async function POST(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const body=await req.json().catch(()=>null);
  const table=body?.table,action=body?.action,fields=editable[table];
- if(!fields||!['create','update','delete'].includes(action))return Response.json({error:'Invalid request'},{status:400});
+ if(!fields||!['create','update','delete'].includes(action)||(table==='havdalah_voice_settings'&&action!=='update'))return Response.json({error:'Invalid request'},{status:400});
  const values=Object.fromEntries(Object.entries(body.values||{}).filter(([key])=>fields.includes(key)));
  let q;
  if(action==='create')q=a.db.from(table).insert(values);
