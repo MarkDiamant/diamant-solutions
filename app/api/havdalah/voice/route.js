@@ -25,7 +25,7 @@ export async function POST(request){
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
  const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},2500))]);
  const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
- if(assigned)return xml(`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`);
+ if(assigned)return xml(sayOrPlay(spoken(fillTemplate(settings.host_welcome_text,{day:assigned.label,time:time(assigned.time,assigned.location?.timezone||TZ)}),settings),settings.voice)+`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`);
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  let next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
  if(!next){try{next=getNextHavdalahSlot(now);}catch(error){console.error('HAVDALAH_SCHEDULE_ERROR',error);}}
