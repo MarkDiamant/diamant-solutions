@@ -7,7 +7,7 @@ export const dynamic='force-dynamic';
 const TZ='Europe/London';
 
 function x(v=''){return String(v).replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));}
-function time(d){return new Intl.DateTimeFormat('en-GB',{timeZone:TZ,weekday:'long',hour:'numeric',minute:'2-digit',hour12:true}).format(d);}
+function time(d,tz=TZ){return new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'long',hour:'numeric',minute:'2-digit',hour12:true}).format(d);}
 function left(t,n){const m=Math.max(0,Math.ceil((t-n)/60000));if(m<60)return `${m} minute${m===1?'':'s'}`;const h=Math.floor(m/60),r=m%60;return r?`${h} hour${h===1?'':'s'} and ${r} minute${r===1?'':'s'}`:`${h} hour${h===1?'':'s'}`;}
 function phone(v=''){return String(v).replace(/[^+\d]/g,'');}
 function host(v=''){return (process.env.HAVDALAH_HOST_NUMBERS||'').split(',').map(phone).filter(Boolean).includes(phone(v));}
@@ -24,7 +24,7 @@ export async function POST(request){
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  const next=managed===null?getNextHavdalahSlot(now):managed.find(s=>s.time.getTime()>=now.getTime()-10*60000);
  if(!next)return xml('<Say voice="Polly.Amy">Welcome to the Havdalah Hotline. The next live Havdalah time is not available at the moment. Please try again later.</Say><Hangup/>');
- const intro=`Welcome to the Havdalah Hotline, a project of Diamant Solutions. The next live Havdalah is ${next.label}, ${time(next.time)}, in approximately ${left(next.time,now)}. Your call is muted. Nobody on the hotline can hear you. Please stay on the line.`;
+ const intro=`Welcome to the Havdalah Hotline, a project of Diamant Solutions. The next live Havdalah is ${next.label}, ${time(next.time,next.location?.timezone||TZ)}, in approximately ${left(next.time,now)}. Your call is muted. Nobody on the hotline can hear you. Please stay on the line.`;
  return xml(`<Say voice="Polly.Amy">${x(intro)}</Say><Dial><Conference muted="true" participantLabel="listener-${x(form.get('CallSid')||'caller')}" startConferenceOnEnter="false" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(next.conference)}</Conference></Dial>`);
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
