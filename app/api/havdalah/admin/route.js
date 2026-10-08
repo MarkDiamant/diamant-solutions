@@ -41,6 +41,18 @@ const editable={
 export async function POST(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const body=await req.json().catch(()=>null);
+ if(body?.action==='preview_voice'){
+  const allowed=['en-GB-Chirp3-HD-Callirrhoe','en-GB-Chirp3-HD-Algenib','en-GB-Chirp3-HD-Leda','en-GB-Chirp3-HD-Sadaltager'];
+  if(!allowed.includes(body.voice)||typeof body.text!=='string'||!body.text.trim()||body.text.length>4500)return Response.json({error:'Invalid voice or text'},{status:400});
+  if(!process.env.GOOGLE_TTS_API_KEY)return Response.json({error:'Google voice API key is not configured'},{status:503});
+  try{
+   const google=await fetch('https://texttospeech.googleapis.com/v1/text:synthesize?key='+encodeURIComponent(process.env.GOOGLE_TTS_API_KEY),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({input:{text:body.text},voice:{languageCode:'en-GB',name:body.voice},audioConfig:{audioEncoding:'MP3'}}),signal:AbortSignal.timeout(15000)});
+   if(!google.ok){console.error('HAVDALAH_PREVIEW_GOOGLE_TTS',google.status,(await google.text()).slice(0,350));return Response.json({error:'Google voice request failed (HTTP '+google.status+')'},{status:502})}
+   const result=await google.json();
+   return new Response(Buffer.from(result.audioContent,'base64'),{headers:{'Content-Type':'audio/mpeg','Cache-Control':'no-store'}});
+  }catch(e){console.error('HAVDALAH_PREVIEW_GOOGLE_TTS',e);return Response.json({error:'Google voice preview failed'},{status:502})}
+ }
+
  const table=body?.table,action=body?.action,fields=editable[table];
  if(!fields||!['create','update','delete'].includes(action)||(table==='havdalah_voice_settings'&&action!=='update'))return Response.json({error:'Invalid request'},{status:400});
  const values=Object.fromEntries(Object.entries(body.values||{}).filter(([key])=>fields.includes(key)).map(([key,value])=>[key,['alternate_sponsor_from','alternate_sponsor_until'].includes(key)&&value===''?null:value]));
