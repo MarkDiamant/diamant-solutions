@@ -30,7 +30,7 @@ export async function GET(request){
   const host=eligible[eligible.length-1];
   const {error}=await db.from('havdalah_host_dispatch').insert({slot_id:slot.slotId,session_date:date,host_id:host.id,status:'pending'});
   if(error){if(error.code!=='23505')results.push({slot:slot.slot,error:error.message});continue;}
-  const params=new URLSearchParams({To:host.phone,From:process.env.HAVDALAH_TWILIO_NUMBER||'+442039122476',Url:origin+'/api/havdalah/voice',Method:'POST'});
+  const params=new URLSearchParams({To:host.phone,From:process.env.HAVDALAH_TWILIO_NUMBER||'+442039122476',Url:origin+'/api/havdalah/host/wait?slot='+slot.slot+'&id='+slot.slotId,Method:'POST'});
   const call=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Calls.json',{method:'POST',headers:{Authorization:auth,'Content-Type':'application/x-www-form-urlencoded'},body:params});
   const body=await call.json().catch(()=>({}));
   await db.from('havdalah_host_dispatch').update({status:call.ok?'called':'failed',call_sid:body.sid||null}).eq('slot_id',slot.slotId).eq('session_date',date).eq('host_id',host.id);
