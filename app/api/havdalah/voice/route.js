@@ -37,7 +37,7 @@ export async function POST(request){
  let next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
  if(!next && managed === null){try{next=getNextHavdalahSlot(now);}catch(error){console.error('HAVDALAH_SCHEDULE_ERROR',error);}}
  console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
- if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' There are no further live Havdalah sessions tonight. Thank you for calling.',settings),settings.voice)+'<Hangup/>');
+ if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' There are no further live Havdalah sessions tonight. Thank you for calling. Goodbye.',settings),settings.voice)+'<Hangup/>');
  const minutesUntil=Math.ceil((next.time.getTime()-now.getTime())/60000);const finalWindow=Math.max(1,Number(settings.listener_window_minutes)||15);const optionalWindow=Math.max(finalWindow,Number(settings.callback_window_minutes)||60);
  console.log('HAVDALAH_CALL_BRANCH',{managedSlots:managed?.length??null,nextFound:!!next,minutesUntil,branch:minutesUntil>optionalWindow?'callback':minutesUntil>finalWindow?'optional':'waiting'});
  if(minutesUntil>optionalWindow)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+fillTemplate(settings.early_call_text,{day:occasionForSlot(next,settings),date:date(next.time,next.location?.timezone||TZ),time:time(next.time,next.location?.timezone||TZ),remaining:left(next.time,now),when:when(next.time,now,next.location?.timezone||TZ),sponsor:activeSponsor(settings)}),settings),settings.voice)+'<Hangup/>');
