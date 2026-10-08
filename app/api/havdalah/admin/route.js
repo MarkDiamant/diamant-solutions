@@ -43,7 +43,7 @@ export async function POST(req){
  const body=await req.json().catch(()=>null);
  const table=body?.table,action=body?.action,fields=editable[table];
  if(!fields||!['create','update','delete'].includes(action)||(table==='havdalah_voice_settings'&&action!=='update'))return Response.json({error:'Invalid request'},{status:400});
- const values=Object.fromEntries(Object.entries(body.values||{}).filter(([key])=>fields.includes(key)));
+ const values=Object.fromEntries(Object.entries(body.values||{}).filter(([key])=>fields.includes(key)).map(([key,value])=>[key,['alternate_sponsor_from','alternate_sponsor_until'].includes(key)&&value===''?null:value]));
  let q;
  if(action==='create')q=a.db.from(table).insert(values);
  else{
