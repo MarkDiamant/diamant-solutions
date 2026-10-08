@@ -1,7 +1,7 @@
 import {createClient} from '@supabase/supabase-js';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
-const tableNames=['havdalah_locations','havdalah_lines','havdalah_hosts','havdalah_slots','havdalah_assignments','havdalah_exceptions','havdalah_host_absences','havdalah_audit'];
+const tableNames=['havdalah_locations','havdalah_lines','havdalah_hosts','havdalah_slots','havdalah_assignments','havdalah_exceptions','havdalah_host_absences','havdalah_audit','havdalah_voice_settings'];
 async function access(req){
  const token=(req.headers.get('authorization')||'').replace(/^Bearer /,'');
  if(!token)return null;
@@ -29,6 +29,7 @@ export async function GET(req){
 }
 
 const editable={
+ havdalah_voice_settings:['opening_text','sponsor_text','waiting_text','voice','pronunciation_havdalah','pronunciation_diamant'],
  havdalah_locations:['name','country_code','timezone','latitude','longitude','havdalah_degrees','enabled'],
  havdalah_lines:['number','location_id','enabled'],
  havdalah_hosts:['name','phone','enabled'],
@@ -46,7 +47,7 @@ export async function POST(req){
  let q;
  if(action==='create')q=a.db.from(table).insert(values);
  else{
-  if(!/^[a-f0-9-]{36}$/i.test(body.id||''))return Response.json({error:'Invalid ID'},{status:400});
+  if(!(table==='havdalah_voice_settings'&&body.id==='main')&&!/^[a-f0-9-]{36}$/i.test(body.id||''))return Response.json({error:'Invalid ID'},{status:400});
   q=action==='delete'?a.db.from(table).delete().eq('id',body.id):a.db.from(table).update(values).eq('id',body.id);
  }
  const {data,error}=await q.select().single();
