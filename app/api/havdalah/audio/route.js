@@ -1,10 +1,11 @@
 import {validateAudio,isGoogleVoice} from '../../../../lib/havdalahGoogleVoice';
+import {inflateRawSync} from 'node:zlib';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export async function GET(request){
  const url=new URL(request.url),data=url.searchParams.get('d'),expires=url.searchParams.get('e'),sig=url.searchParams.get('s');
  if(!validateAudio(data,expires,sig))return new Response('Forbidden',{status:403});
- let item;try{item=JSON.parse(Buffer.from(data,'base64url').toString('utf8'))}catch{return new Response('Bad request',{status:400})}
+ let item;try{item=JSON.parse(inflateRawSync(Buffer.from(data,'base64url')).toString('utf8'))}catch{return new Response('Bad request',{status:400})}
  if(!isGoogleVoice(item.voice)||typeof item.text!=='string'||item.text.length>4500)return new Response('Bad request',{status:400});
  const key=process.env.GOOGLE_TTS_API_KEY;
  if(!key)return new Response('Voice service not configured',{status:503});
