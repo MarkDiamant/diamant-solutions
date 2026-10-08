@@ -1,5 +1,5 @@
-import DiamantCredit from '../../../components/admin/DiamantCredit';
 'use client';
+import DiamantCredit from '../../../components/admin/DiamantCredit';
 import {useEffect,useState} from 'react';
 import {createClient} from '@supabase/supabase-js';
 import '../../zmanim.css';
