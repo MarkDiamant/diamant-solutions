@@ -4,6 +4,7 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export async function GET(request){
  const url=new URL(request.url),data=url.searchParams.get('d'),expires=url.searchParams.get('e'),sig=url.searchParams.get('s');
+ console.log('HAVDALAH_AUDIO_REQUEST',{dataLength:data?.length||0,valid:validateAudio(data,expires,sig)});
  if(!validateAudio(data,expires,sig))return new Response('Forbidden',{status:403});
  let item;try{item=JSON.parse(inflateRawSync(Buffer.from(data,'base64url')).toString('utf8'))}catch{return new Response('Bad request',{status:400})}
  if(!isGoogleVoice(item.voice)||typeof item.text!=='string'||item.text.length>4500)return new Response('Bad request',{status:400});
