@@ -15,3 +15,6 @@
 /* UK flag in upper right of schedule box */
 .havSchedule{position:relative}
 .havSchedule .havFlagImg{position:absolute;top:14px;right:17px;width:28px;height:28px;margin:0;vertical-align:baseline}
+
+/* Desktop-only schedule: times above centred telephone number */
+@media(min-width:651px){.havSchedule{grid-template-columns:1fr!important;gap:12px!important}.havSchedule>div:first-child{display:contents!important}.havSchedule>div:first-child>span,.havSchedule>div:first-child>h2{display:none!important}.havSchedule .havTimes{grid-row:1;grid-column:1;width:100%;max-width:650px;margin:0 auto}.havSchedule .havPhone{grid-row:2;grid-column:1;text-align:center;margin:0!important}.havSchedule .havPhone a{justify-content:center!important}.havSchedule .havPhone a>span:last-child{font-size:clamp(38px,3.7vw,52px)!important}.havSchedule .havPhone .havPhoneIcon{font-size:clamp(36px,3.5vw,49px)!important}.havSchedule .havScheduleNote{grid-row:3;grid-column:1}.havSchedule .havFlagImg{z-index:2}}
