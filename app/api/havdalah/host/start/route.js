@@ -5,7 +5,7 @@ function x(v=''){return String(v).replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;',
 function xml(b){return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${b}</Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});}
 function slotFor(n,now=new Date()){return getUpcomingHavdalahSlots(now).find(s=>s.slot===n&&s.time.getTime()>=now.getTime()-10*60000)||null;}
 export async function POST(request){
- const authForm=await request.formData().catch(()=>new FormData());
+ const authForm=await request.clone().formData().catch(()=>new FormData());
  if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const form=await request.formData().catch(()=>new FormData()),url=new URL(request.url),slot=Number(url.searchParams.get('slot')),target=slotFor(slot,new Date());
  if(slot!==1)return xml('<Say>This host number is assigned to the first session only.</Say><Hangup/>');
