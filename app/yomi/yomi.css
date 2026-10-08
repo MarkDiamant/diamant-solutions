@@ -20,3 +20,5 @@ body:has(.yomiPage)>.toolFineLinks,body:has(.yomiPage)>.toolFineLinks span{backg
 
 /* Slightly smaller Previous / Current / Next only */
 .yomiNav>button:not(.datePickerButton){padding:10px 12px!important;font-size:12px!important}
+
+@media(min-width:651px){.yomiNav .datePickerButton{margin-left:calc(50% - 55px)!important;margin-right:calc(50% - 55px)!important}}
