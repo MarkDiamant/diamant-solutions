@@ -22,3 +22,5 @@ body:has(.yomiPage)>.toolFineLinks,body:has(.yomiPage)>.toolFineLinks span{backg
 .yomiNav>button:not(.datePickerButton){padding:10px 12px!important;font-size:12px!important}
 
 @media(min-width:651px){.yomiNav .datePickerButton{margin-left:calc(50% - 55px)!important;margin-right:calc(50% - 55px)!important}}
+
+@media(min-width:651px){.yomiNav{flex-wrap:wrap!important}.yomiNav::before{content:"";order:1;flex-basis:100%;height:0}.yomiNav>.datePickerButton{order:2;margin:0!important;flex:0 0 auto!important;width:auto!important;white-space:nowrap!important;min-width:max-content!important}}
