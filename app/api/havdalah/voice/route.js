@@ -1,3 +1,4 @@
+import {verifyTwilio} from '../../../../lib/havdalahTwilioAuth';
 import {getNextHavdalahSlot} from '../../../../lib/havdalahSchedule';
 import {getManagedSlots} from '../../../../lib/havdalahManaged';
 
@@ -13,6 +14,8 @@ function host(v=''){return (process.env.HAVDALAH_HOST_NUMBERS||'').split(',').ma
 function xml(body){return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${body}</Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});}
 
 export async function POST(request){
+ const authForm=await request.formData().catch(()=>new FormData());
+ if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const form=await request.formData().catch(()=>new FormData());
  const now=new Date();
  const managed=await getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;});
@@ -24,4 +27,4 @@ export async function POST(request){
  const intro=`Welcome to the Havdalah Hotline, a project of Diamant Solutions. The next live Havdalah is ${next.label}, ${time(next.time)}, in approximately ${left(next.time,now)}. Your call is muted. Nobody on the hotline can hear you. Please stay on the line.`;
  return xml(`<Say voice="Polly.Amy">${x(intro)}</Say><Dial><Conference muted="true" participantLabel="listener-${x(form.get('CallSid')||'caller')}" startConferenceOnEnter="false" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(next.conference)}</Conference></Dial>`);
 }
-export async function GET(request){return POST(request);}
+export async function GET(){return new Response('Method Not Allowed',{status:405});}
