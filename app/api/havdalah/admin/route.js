@@ -1,3 +1,6 @@
+import {getManagedSlots} from '../../../../lib/havdalahManaged';
+import {getNextHavdalahSlot} from '../../../../lib/havdalahSchedule';
+import {occasionForSlot} from '../../../../lib/havdalahVoiceSettings';
 import {createClient} from '@supabase/supabase-js';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -41,6 +44,19 @@ const editable={
 export async function POST(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const body=await req.json().catch(()=>null);
+ if(body?.action==='preview_context'){
+  const now=new Date();
+  let slots=null;
+  try{slots=await getManagedSlots(now);}catch(e){console.error('HAVDALAH_PREVIEW_SLOTS',e);}
+  let next=slots?.find(s=>s.time.getTime()>=now.getTime()-600000);
+  if(!next)try{next=getNextHavdalahSlot(now);}catch(e){console.error('HAVDALAH_PREVIEW_FALLBACK',e);}
+  if(!next)return Response.json({error:'No upcoming Havdalah session is available'},{status:404});
+  const tz=next.location?.timezone||'Europe/London';
+  const fmt=(options)=>new Intl.DateTimeFormat('en-GB',{timeZone:tz,...options}).format(next.time);
+  const minutes=Math.max(0,Math.ceil((next.time-now)/60000));
+  const remaining=minutes<60?minutes+' minute'+(minutes===1?'':'s'):Math.floor(minutes/60)+' hour'+(Math.floor(minutes/60)===1?'':'s')+(minutes%60?' and '+minutes%60+' minute'+(minutes%60===1?'':'s'):'');
+  return Response.json({date:fmt({day:'numeric',month:'long'}),time:fmt({hour:'numeric',minute:'2-digit',hour12:true}),remaining,minutes:String(minutes),day:occasionForSlot(next,{})},{headers:{'Cache-Control':'no-store'}});
+ }
  if(body?.action==='preview_voice'){
   const allowed=['en-GB-Chirp3-HD-Callirrhoe','en-GB-Chirp3-HD-Algenib','en-GB-Chirp3-HD-Leda','en-GB-Chirp3-HD-Sadaltager'];
   if(!allowed.includes(body.voice)||typeof body.text!=='string'||!body.text.trim()||body.text.length>4500)return Response.json({error:'Invalid voice or text'},{status:400});
