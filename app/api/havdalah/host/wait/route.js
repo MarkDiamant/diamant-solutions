@@ -13,8 +13,8 @@ export async function POST(request){
  if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const url=new URL(request.url),slot=Number(url.searchParams.get('slot'));
  if(![1,2,3].includes(slot))return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
- const settings=await getVoiceSettings();const caller=String(authForm.get('From')||'');const now=new Date();const managed=url.searchParams.get('id')?await getManagedSlots(now).catch(()=>null):null;const target=managed?.find(s=>s.slotId===url.searchParams.get('id')&&s.time.getTime()>=now.getTime()-10*60000)||(!url.searchParams.get('id')?slotFor(slot,now):null);if(!target)return xml('${sayOrPlay(spoken('That Havdalah slot is no longer available.',settings),settings.voice)}<Hangup/>');
- if(target.hosts&&!target.hosts.some(h=>h.phone===caller))return xml('${sayOrPlay(spoken('You are not assigned to this session.',settings),settings.voice)}<Hangup/>');
+ const settings=await getVoiceSettings();const caller=String(authForm.get('From')||'');const now=new Date();const managed=url.searchParams.get('id')?await getManagedSlots(now).catch(()=>null):null;const target=managed?.find(s=>s.slotId===url.searchParams.get('id')&&s.time.getTime()>=now.getTime()-10*60000)||(!url.searchParams.get('id')?slotFor(slot,now):null);if(!target)return xml(sayOrPlay(spoken('That Havdalah slot is no longer available.',settings),settings.voice)+'<Hangup/>');
+ if(target.hosts&&!target.hosts.some(h=>h.phone===caller))return xml(sayOrPlay(spoken('You are not assigned to this session.',settings),settings.voice)+'<Hangup/>');
  const due=target.time.getTime()<=now.getTime();const id=target.slotId?'&amp;id='+target.slotId:'';
  const gather=due?`<Gather input="dtmf" numDigits="1" timeout="30" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST"><Pause length="30"/></Gather>`:'<Pause length="30"/>';
  return xml(`${sayOrPlay(spoken(msg(target.time,now),settings),settings.voice)}${gather}<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}</Redirect>`);
