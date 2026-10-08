@@ -61,3 +61,6 @@ body:has(.yomiPage)>.zpowered,body:has(.yahrPage)>.zpowered,body:has(.havPage)>.
 @media(max-width:650px){.toolFooter>.builtBy{order:3}.toolFooter>.toolFooterLinks:first-child{order:1}.toolFooter>.toolFooterRight{order:2}}
 
 @media print{body:has(.zprintRange)>.toolFineLinks,body:has(.zprintRange)>.toolFooter{display:none!important}.zprintRange .printFoot{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:1mm!important}.zprintRange .printFoot img{width:28mm!important;height:auto!important}.zprintRange .printFoot span{display:block!important;font-size:7.5pt!important;color:#667085!important}}
+
+/* Desktop only: centre calendar beneath the three navigation controls on Shkiah and Shabbos */
+@media(min-width:651px){body:has(.shkiahPage) .znav,body:has(.shabbosPage) .znav{flex-wrap:wrap}body:has(.shkiahPage) .znav .datePickerButton,body:has(.shabbosPage) .znav .datePickerButton{margin-left:calc(50% - 55px);margin-right:calc(50% - 55px)}}
