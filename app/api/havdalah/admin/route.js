@@ -26,3 +26,30 @@ export async function GET(req){
  }
  return Response.json(result,{headers:{'Cache-Control':'no-store'}});
 }
+
+const editable={
+ havdalah_locations:['name','country_code','timezone','latitude','longitude','havdalah_degrees','enabled'],
+ havdalah_lines:['number','location_id','enabled'],
+ havdalah_hosts:['name','phone','enabled'],
+ havdalah_slots:['location_id','label','offset_minutes','enabled','sort_order'],
+ havdalah_assignments:['slot_id','host_id','priority'],
+ havdalah_exceptions:['slot_id','session_date','disabled','notes'],
+ havdalah_host_absences:['host_id','session_date','reason']
+};
+export async function POST(req){
+ const a=await access(req);if(!a)return Response.json({error:'Unauthorized'},{status:401});
+ const body=await req.json().catch(()=>null);
+ const table=body?.table,action=body?.action,fields=editable[table];
+ if(!fields||!['create','update','delete'].includes(action))return Response.json({error:'Invalid request'},{status:400});
+ const values=Object.fromEntries(Object.entries(body.values||{}).filter(([key])=>fields.includes(key)));
+ let q;
+ if(action==='create')q=a.db.from(table).insert(values);
+ else{
+  if(!/^[a-f0-9-]{36}$/i.test(body.id||''))return Response.json({error:'Invalid ID'},{status:400});
+  q=action==='delete'?a.db.from(table).delete().eq('id',body.id):a.db.from(table).update(values).eq('id',body.id);
+ }
+ const {data,error}=await q.select().single();
+ if(error)return Response.json({error:error.message},{status:400});
+ await a.db.from('havdalah_audit').insert({actor:a.user.id,action:action+' '+table,details:{id:data.id}});
+ return Response.json({record:data});
+}
