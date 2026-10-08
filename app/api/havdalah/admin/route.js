@@ -23,6 +23,8 @@ async function access(req){
 export async function GET(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const result={};
+ const {data:tests}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at,enabled').eq('enabled',true).gte('scheduled_at',new Date(Date.now()-10*60000).toISOString()).order('scheduled_at');
+ result.test_sessions=tests||[];
  for(const name of tableNames){
   const {data,error}=await a.db.from(name).select('*').limit(500);
   if(error)return Response.json({error:error.message},{status:500});
@@ -44,6 +46,19 @@ const editable={
 export async function POST(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const body=await req.json().catch(()=>null);
+ if(body?.action==='start_test_session'){
+  const {data:assignment,error:assignmentError}=await a.db.from('havdalah_assignments').select('slot_id,priority').eq('priority',1).limit(1).maybeSingle();
+  if(assignmentError||!assignment)return Response.json({error:'Assign a primary host to a session first.'},{status:400});
+  await a.db.from('havdalah_test_sessions').update({enabled:false}).eq('enabled',true);
+  const {data:test,error}=await a.db.from('havdalah_test_sessions').insert({slot_id:assignment.slot_id,scheduled_at:new Date(Date.now()+5*60000).toISOString()}).select('id,scheduled_at').single();
+  if(error)return Response.json({error:error.message},{status:400});
+  return Response.json({test},{headers:{'Cache-Control':'no-store'}});
+ }
+ if(body?.action==='stop_test_session'){
+  const {error}=await a.db.from('havdalah_test_sessions').update({enabled:false}).eq('enabled',true);
+  if(error)return Response.json({error:error.message},{status:400});
+  return Response.json({ok:true});
+ }
  if(body?.action==='prepare_music_upload'){
   const path='hold-music/'+crypto.randomUUID()+'.mp3';
   const {data,error}=await a.db.storage.from('havdalah-audio').createSignedUploadUrl(path);
