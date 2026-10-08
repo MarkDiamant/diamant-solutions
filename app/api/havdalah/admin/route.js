@@ -34,7 +34,7 @@ export async function GET(req){
 }
 
 const editable={
- havdalah_voice_settings:['listener_window_minutes','callback_window_minutes','optional_wait_text','early_call_text','listener_intro_text','host_early_text','host_welcome_text','host_countdown_text','host_due_text','opening_text','sponsor_text','waiting_text','pre_live_text','closing_text','host_ready_text','hold_music_url','sponsor_enabled','alternate_sponsor_text','alternate_sponsor_enabled','alternate_sponsor_from','alternate_sponsor_until','voice','pronunciation_havdalah','pronunciation_diamant','pronunciation_motzei_shabbos','pronunciation_motzei_yom_tov'],
+ havdalah_voice_settings:['no_more_sessions_text','listener_window_minutes','callback_window_minutes','optional_wait_text','early_call_text','listener_intro_text','host_early_text','host_welcome_text','host_countdown_text','host_due_text','opening_text','sponsor_text','waiting_text','pre_live_text','closing_text','host_ready_text','hold_music_url','sponsor_enabled','alternate_sponsor_text','alternate_sponsor_enabled','alternate_sponsor_from','alternate_sponsor_until','voice','pronunciation_havdalah','pronunciation_diamant','pronunciation_motzei_shabbos','pronunciation_motzei_yom_tov'],
  havdalah_locations:['name','country_code','timezone','latitude','longitude','havdalah_degrees','enabled'],
  havdalah_lines:['number','location_id','enabled'],
  havdalah_hosts:['name','phone','enabled'],
