@@ -25,6 +25,9 @@ export async function GET(req){
  const result={};
  const {data:tests}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at,enabled').eq('enabled',true).gte('scheduled_at',new Date(Date.now()-10*60000).toISOString()).order('scheduled_at');
  result.test_sessions=tests||[];
+ const {data:attendance,error:attendanceError}=await a.db.from('havdalah_call_events').select('call_sid,conference_sid,conference_name,participant_label,event_type,occurred_at').order('occurred_at',{ascending:false}).limit(1000);
+ if(attendanceError)return Response.json({error:attendanceError.message},{status:500});
+ result.call_events=attendance||[];
  for(const name of tableNames){
   const {data,error}=await a.db.from(name).select('*').limit(500);
   if(error)return Response.json({error:error.message},{status:500});
