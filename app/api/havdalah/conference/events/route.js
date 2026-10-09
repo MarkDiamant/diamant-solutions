@@ -1,3 +1,4 @@
+import {createClient} from '@supabase/supabase-js';
 import {verifyTwilio} from '../../../../../lib/havdalahTwilioAuth';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -19,6 +20,19 @@ export async function POST(request){
  const conference=String(form.get('ConferenceSid')||'');
  const label=String(form.get('ParticipantLabel')||'');
  const call=String(form.get('CallSid')||'');
+ const conferenceName=String(form.get('FriendlyName')||'');
+ if(['participant-join','participant-leave','conference-start','conference-end'].includes(event)){
+  try{
+   const url=process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL;
+   const key=process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY;
+   if(!url||!key)throw Error('Database configuration unavailable');
+   const db=createClient(url,key,{auth:{persistSession:false}});
+   const eventKey=[conference,event,call,label].join(':');
+   const {error}=await db.from('havdalah_call_events').upsert({event_key:eventKey,call_sid:call||null,conference_sid:conference||null,conference_name:conferenceName||null,participant_label:label||null,event_type:event},{onConflict:'event_key',ignoreDuplicates:true});
+   if(error)throw error;
+  }catch(e){console.error('HAVDALAH_CALL_LOG_ERROR',e);}
+ }
+
  try{
   if(!/^CF[a-fA-F0-9]{32}$/.test(conference))return new Response(null,{status:204});
   if(event==='participant-join'&&label==='host-primary'){
