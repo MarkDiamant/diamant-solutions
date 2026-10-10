@@ -18,6 +18,6 @@ export async function POST(request){
  const id=target.slotId?'&amp;id='+target.slotId:'';
  if(form.get('Digits')!=='1')return xml(`<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}</Redirect>`);
  
- return xml(`<Dial timeLimit="600"><Conference muted="true" participantLabel="host-primary" startConferenceOnEnter="true" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait?conference=${encodeURIComponent(target.conference)}" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(target.conference)}</Conference></Dial>`);
+ return xml(`${sayOrPlay(spoken(settings.host_ready_text||'You are still private. Please begin immediately after the five second countdown.',settings),settings.voice)}<Dial timeLimit="600"><Conference muted="true" participantLabel="host-primary" startConferenceOnEnter="true" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait?conference=${encodeURIComponent(target.conference)}" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(target.conference)}</Conference></Dial>`);
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
