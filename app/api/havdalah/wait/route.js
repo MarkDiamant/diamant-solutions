@@ -13,7 +13,7 @@ export async function POST(request){
  let next=null;try{const slots=await getManagedSlots(new Date());next=slots?.find(s=>s.conference===conference)||null;}catch(e){console.error('HAVDALAH_WAIT_MANAGED',e);}
  const remainingMs=next?next.time.getTime()-Date.now():-1;
  const bucket=remainingMs>0?Math.ceil(remainingMs/60000):0;
- const changed=remainingMs>0&&Date.now()-started>=60000&&bucket!==last&&last>=0&&bucket<initial&&bucket<=60;
+ const changed=remainingMs>0&&Date.now()-started>=60000&&bucket!==last&&bucket<initial&&bucket<=60;
  const remaining=remainingMs<60000?'less than a minute':Math.ceil(remainingMs/60000)+' minutes';
  const message=changed?sayOrPlay(fillTemplate(settings.waiting_text,{remaining,minutes:Math.ceil(remainingMs/60000)}),settings.voice):'';
  const musicUrl=new URL('/api/havdalah/music/chunk?duration=60&tick='+tick,request.url).toString().replace(/&/g,'&amp;');
