@@ -26,15 +26,16 @@ export async function POST(request){
  const settings=await getVoiceSettings();
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
  const test=await getActiveTestSlot(now,phone(form.get('To'))).catch(e=>{console.error('HAVDALAH_TEST_LOOKUP',e);return null;});
- const managed=test?[test]:await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},12000))]);
- const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
+ const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},12000))]);
+ const activeSlots=test?[test]:managed;
+ const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
   const vars={day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ),remaining:left(assigned.time,now)};
   return xml(sayOrPlay(spoken(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars),settings),settings.voice)+(early?'<Hangup/>':`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`));
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
- let next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
+ let next=activeSlots?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
  if(managed===null){console.error('HAVDALAH_MANAGED_UNAVAILABLE_NO_FALLBACK');return xml(sayOrPlay(spoken('The hotline is temporarily unavailable. Please call back shortly.',settings),settings.voice)+'<Hangup/>');}
  console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
  if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+settings.no_more_sessions_text,settings),settings.voice)+'<Hangup/>');
