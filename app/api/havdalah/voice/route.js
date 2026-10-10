@@ -13,7 +13,7 @@ function x(v=''){return String(v).replace(/[<>&'"]/g,c=>({'<':'&lt;','>':'&gt;',
 function time(d,tz=TZ){return new Intl.DateTimeFormat('en-GB',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(d);}
 function date(d,tz=TZ){return new Intl.DateTimeFormat('en-GB',{timeZone:tz,day:'numeric',month:'long'}).format(d);}
 function when(t,n,tz=TZ){const key=d=>new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).format(d);return key(t)===key(n)?'tonight':'on '+date(t,tz);}
-function left(t,n){const m=Math.max(0,Math.floor((t-n)/60000));if(m<1)return 'less than a minute';if(m<60)return `${m} minute${m===1?'':'s'}`;const h=Math.floor(m/60),r=m%60;return r?`${h} hour${h===1?'':'s'} and ${r} minute${r===1?'':'s'}`:`${h} hour${h===1?'':'s'}`;}
+function left(t,n){const m=Math.max(0,Math.ceil((t-n)/60000));if(m<1)return 'less than a minute';if(m<60)return `${m} minute${m===1?'':'s'}`;const h=Math.floor(m/60),r=m%60;return r?`${h} hour${h===1?'':'s'} and ${r} minute${r===1?'':'s'}`:`${h} hour${h===1?'':'s'}`;}
 function phone(v=''){return String(v).replace(/[^+\d]/g,'');}
 function host(v=''){return (process.env.HAVDALAH_HOST_NUMBERS||'').split(',').map(phone).filter(Boolean).includes(phone(v));}
 function xml(body){return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${body}</Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});}
@@ -31,7 +31,7 @@ export async function POST(request){
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
   const vars={day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),when:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ),remaining:left(assigned.time,now)};
-  return xml(sayOrPlay(spoken(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars),settings),settings.voice)+(early?'<Hangup/>':`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`));
+  return xml(sayOrPlay(spoken(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars),settings),settings.voice)+(early?'<Hangup/>':`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}&amp;last=${Math.ceil((assigned.time.getTime()-now.getTime())/60000)}&amp;initial=${Math.ceil((assigned.time.getTime()-now.getTime())/60000)}&amp;started=${Date.now()}</Redirect>`));
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  let next=activeSlots?.find(s=>s.time.getTime()>=now.getTime()-5000);
