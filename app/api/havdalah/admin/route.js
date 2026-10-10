@@ -54,7 +54,7 @@ export async function POST(req){
   const {data:assignment,error:assignmentError}=await a.db.from('havdalah_assignments').select('slot_id,priority').eq('priority',1).limit(1).maybeSingle();
   if(assignmentError||!assignment)return Response.json({error:'Assign a primary host to a session first.'},{status:400});
   const {error:disableError}=await a.db.from('havdalah_test_sessions').update({enabled:false}).eq('enabled',true);if(disableError)return Response.json({error:disableError.message},{status:500});
-  const {data:test,error}=await a.db.from('havdalah_test_sessions').insert({slot_id:assignment.slot_id,scheduled_at:new Date(Date.now()+5*60000).toISOString()}).select('id,scheduled_at').single();
+  const {data:test,error}=await a.db.from('havdalah_test_sessions').insert({slot_id:assignment.slot_id,scheduled_at:new Date(Math.ceil((Date.now()+5*60000)/60000)*60000).toISOString()}).select('id,scheduled_at').single();
   if(error)return Response.json({error:error.message},{status:400});
   const {data:active,error:checkError}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at').eq('enabled',true).order('scheduled_at',{ascending:false}).limit(2);if(checkError||active?.length!==1||active[0]?.id!==test.id)return Response.json({error:'Test session could not be verified. Please retry.'},{status:500});
   return Response.json({test},{headers:{'Cache-Control':'no-store'}});
