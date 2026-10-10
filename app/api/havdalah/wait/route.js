@@ -16,7 +16,7 @@ export async function POST(request){
  const changed=remainingMs>0&&bucket!==last&&last>=0&&bucket<=60;
  const remaining=remainingMs<60000?'less than a minute':Math.ceil(remainingMs/60000)+' minutes';
  const message=changed?sayOrPlay(fillTemplate(settings.waiting_text,{remaining,minutes:Math.ceil(remainingMs/60000)}),settings.voice):'';
- const musicUrl=new URL('/api/havdalah/music/chunk?duration=115&tick='+tick,request.url).toString().replace(/&/g,'&amp;');
+ const musicUrl=new URL('/api/havdalah/music/chunk?duration=60&tick='+tick,request.url).toString().replace(/&/g,'&amp;');
  return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${message}<Play>${musicUrl}</Play><Redirect method="POST">/api/havdalah/wait?conference=${encodeURIComponent(conference||'')}&amp;last=${bucket}&amp;tick=${tick+1}</Redirect></Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});
 
 }
