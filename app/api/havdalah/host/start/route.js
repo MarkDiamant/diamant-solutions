@@ -11,7 +11,7 @@ export async function POST(request){
  const authForm=await request.clone().formData().catch(()=>new FormData());
  if(!(await verifyTwilio(request,authForm)))return new Response('Forbidden',{status:403});
  const settings=await getVoiceSettings();const speak=t=>sayOrPlay(spoken(t,settings),settings.voice);
- const form=await request.formData().catch(()=>new FormData()),url=new URL(request.url),slot=Number(url.searchParams.get('slot')),managed=url.searchParams.get('id')?await getManagedSlots(new Date()).catch(()=>null):null,target=(await getActiveTestSlot(new Date()).catch(()=>null))?.slotId===url.searchParams.get('id')?await getActiveTestSlot(new Date()):managed?.find(s=>s.slotId===url.searchParams.get('id')&&s.time.getTime()>=Date.now()-10*60000)||(!url.searchParams.get('id')?slotFor(slot,new Date()):null);
+ const form=await request.formData().catch(()=>new FormData()),url=new URL(request.url),slot=Number(url.searchParams.get('slot')),managed=url.searchParams.get('id')?await getManagedSlots(new Date()).catch(()=>null):null,target=managed?.find(s=>s.slotId===url.searchParams.get('id')&&s.time.getTime()>=Date.now()-10*60000)||null;
  if(!url.searchParams.get('id')&&slot!==1)return xml(speak('This host number is assigned to the first session only.')+'<Hangup/>');
  if(target?.hosts&&!target.hosts.some(h=>h.phone===form.get('From')))return xml(speak('This host is not assigned to this session.')+'<Hangup/>');
  if(!target)return xml(speak('That Havdalah slot is no longer available.')+'<Hangup/>');
