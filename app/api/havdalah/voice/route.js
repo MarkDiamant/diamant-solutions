@@ -35,7 +35,7 @@ export async function POST(request){
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  let next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
- if(!next && managed === null)console.error('HAVDALAH_MANAGED_UNAVAILABLE_NO_FALLBACK');
+ if(managed===null){console.error('HAVDALAH_MANAGED_UNAVAILABLE_NO_FALLBACK');return xml(sayOrPlay(spoken('The hotline is temporarily unavailable. Please call back shortly.',settings),settings.voice)+'<Hangup/>');}
  console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
  if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+settings.no_more_sessions_text,settings),settings.voice)+'<Hangup/>');
  const minutesUntil=Math.ceil((next.time.getTime()-now.getTime())/60000);const finalWindow=Math.max(1,Number(settings.listener_window_minutes)||15);const optionalWindow=Math.max(finalWindow,Number(settings.callback_window_minutes)||60);
