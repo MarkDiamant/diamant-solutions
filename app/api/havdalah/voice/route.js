@@ -30,7 +30,7 @@ export async function POST(request){
  const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-5000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
-  const vars={day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ),remaining:left(assigned.time,now)};
+  const vars={day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),when:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ),remaining:left(assigned.time,now)};
   return xml(sayOrPlay(spoken(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars),settings),settings.voice)+(early?'<Hangup/>':`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}</Redirect>`));
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
