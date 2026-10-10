@@ -32,7 +32,7 @@ export async function GET(request){
  while(pos+4<b.length){const h=header(b,pos);if(!h)break;frames.push({pos,len:h.len,t:seconds});seconds+=h.seconds;pos+=h.len;}
  if(!frames.length)return new Response('Unsupported MP3',{status:422});
  const tick=Math.max(0,Math.floor(Number(new URL(request.url).searchParams.get('tick'))||0));
- const requested=Number(new URL(request.url).searchParams.get('duration'));const duration=requested===15?15:115;
+ const requested=Number(new URL(request.url).searchParams.get('duration'));const duration=requested===60?60:requested===15?15:115;
  const offset=seconds>duration?tick*duration%seconds:0;
  let start=frames.findIndex(f=>f.t>=offset);
  if(start<0)start=0;
