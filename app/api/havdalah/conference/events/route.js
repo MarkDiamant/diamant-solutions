@@ -10,7 +10,7 @@ function credentials(){
 async function twilio(path,params){
  const {sid,auth}=credentials();
  const res=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+encodeURIComponent(sid)+'/'+path,{method:'POST',headers:{Authorization:auth,'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(params)});
- if(!res.ok)throw new Error('Twilio conference update failed: '+res.status);
+ if(!res.ok)throw new Error('Twilio conference update failed: '+res.status+' '+(await res.text()).slice(0,500));
 }
 export async function POST(request){
  const authForm=await request.clone().formData().catch(()=>new FormData());
@@ -37,7 +37,7 @@ export async function POST(request){
   if(!/^CF[a-fA-F0-9]{32}$/.test(conference))return new Response(null,{status:204});
   if(event==='participant-join'&&label==='host-primary'){
    const url=new URL('/api/havdalah/announcement',request.url).toString();
-   await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});
+   for(let attempt=0;attempt<5;attempt++){try{await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});break;}catch(e){if(attempt===4)throw e;await new Promise(resolve=>setTimeout(resolve,500*(attempt+1)));}}
   }
   if(event==='participant-leave'&&label==='host-primary'){
    const {sid,auth}=credentials();
