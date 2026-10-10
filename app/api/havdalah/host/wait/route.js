@@ -23,7 +23,7 @@ export async function POST(request){
  const prompt=due?(remainingMs<=0?'Your Havdalah is due to start now. Press 1 to begin.':settings.host_due_text):(announce?fillTemplate(settings.host_countdown_text,{minutes:Math.ceil(remainingMs/60000),remaining}):'');
  const announcement=prompt?sayOrPlay(spoken(prompt,settings),settings.voice):'';
  const tick=Math.max(0,Number(url.searchParams.get('tick'))||0);
- const gather=due?`<Gather input="dtmf" numDigits="1" timeout="10" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST">${announcement}<Pause length="10"/></Gather>`:`<Play>${new URL('/api/havdalah/music/chunk?duration=15&tick='+Math.max(0,Number(url.searchParams.get('tick'))||0),request.url).toString().replace(/&/g,'&amp;')}</Play>`;
+ const gather=due?`<Gather input="dtmf" numDigits="1" timeout="10" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST">${announcement}<Pause length="10"/></Gather>`:`<Play>${new URL('/api/havdalah/music/chunk?duration=115&tick='+Math.max(0,Number(url.searchParams.get('tick'))||0),request.url).toString().replace(/&/g,'&amp;')}</Play>`;
  return xml(`${due?'':announcement}${gather}<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}&amp;last=${due?last:bucket}&amp;tick=${tick+1}</Redirect>`);
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
