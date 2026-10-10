@@ -23,7 +23,8 @@ async function access(req){
 export async function GET(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const result={};
- const {data:tests}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at,enabled').eq('enabled',true).gte('scheduled_at',new Date(Date.now()-10*60000).toISOString()).order('scheduled_at');
+ const {error:expiryError}=await a.db.from('havdalah_test_sessions').update({enabled:false}).eq('enabled',true).lt('scheduled_at',new Date(Date.now()-5*60000).toISOString());if(expiryError)console.error('HAVDALAH_TEST_EXPIRY',expiryError.message);
+ const {data:tests}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at,enabled').eq('enabled',true).gte('scheduled_at',new Date(Date.now()-5*60000).toISOString()).order('scheduled_at');
  result.test_sessions=tests||[];
  const {data:attendance,error:attendanceError}=await a.db.from('havdalah_call_events').select('call_sid,conference_sid,conference_name,participant_label,event_type,occurred_at').order('occurred_at',{ascending:false}).limit(1000);
  if(attendanceError)return Response.json({error:attendanceError.message},{status:500});
