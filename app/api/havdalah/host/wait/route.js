@@ -19,11 +19,11 @@ export async function POST(request){
  const last=Number(url.searchParams.get('last')||-1);
  const bucket=remainingMs>0?Math.ceil(remainingMs/60000):0;
  const announce=!due&&bucket!==last&&bucket<=60;
- const remaining=remainingMs<60000?'less than a minute':Math.floor(remainingMs/60000)+' minutes';
- const prompt=due?(remainingMs<=0?'Your Havdalah is due to start now. Press 1 to begin.':settings.host_due_text):(announce?fillTemplate(settings.host_countdown_text,{minutes:Math.floor(remainingMs/60000),remaining}):'');
+ const remaining=remainingMs<60000?'less than a minute':Math.ceil(remainingMs/60000)+' minutes';
+ const prompt=due?(remainingMs<=0?'Your Havdalah is due to start now. Press 1 to begin.':settings.host_due_text):(announce?fillTemplate(settings.host_countdown_text,{minutes:Math.ceil(remainingMs/60000),remaining}):'');
  const announcement=prompt?sayOrPlay(spoken(prompt,settings),settings.voice):'';
- const duration=due?10:Math.max(1,Math.min(15,Math.ceil(Math.max(0,remainingMs-60000)/1000)));
- const gather=due?`<Gather input="dtmf" numDigits="1" timeout="10" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST">${announcement}<Pause length="10"/></Gather>`:`<Play>${new URL('/api/havdalah/music/chunk?duration=15&tick='+Math.floor(Date.now()/15000),request.url).toString().replace(/&/g,'&amp;')}</Play>`;
- return xml(`${due?'':announcement}${gather}<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}&amp;last=${due?last:bucket}</Redirect>`);
+ const tick=Math.max(0,Number(url.searchParams.get('tick'))||0);
+ const gather=due?`<Gather input="dtmf" numDigits="1" timeout="10" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST">${announcement}<Pause length="10"/></Gather>`:`<Play>${new URL('/api/havdalah/music/chunk?duration=15&tick='+Math.max(0,Number(url.searchParams.get('tick'))||0),request.url).toString().replace(/&/g,'&amp;')}</Play>`;
+ return xml(`${due?'':announcement}${gather}<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}&amp;last=${due?last:bucket}&amp;tick=${tick+1}</Redirect>`);
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
