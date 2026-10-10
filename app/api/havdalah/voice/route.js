@@ -26,7 +26,7 @@ export async function POST(request){
  const settings=await getVoiceSettings();
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
  const test=await getActiveTestSlot(now,phone(form.get('To'))).catch(e=>{console.error('HAVDALAH_TEST_LOOKUP',e);return null;});
- const managed=test?[test]:await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},2500))]);
+ const managed=test?[test]:await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},12000))]);
  const assigned=managed?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
@@ -35,7 +35,7 @@ export async function POST(request){
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  let next=managed?.find(s=>s.time.getTime()>=now.getTime()-10*60000);
- if(!next && managed === null){try{next=getNextHavdalahSlot(now);}catch(error){console.error('HAVDALAH_SCHEDULE_ERROR',error);}}
+ if(!next && managed === null)console.error('HAVDALAH_MANAGED_UNAVAILABLE_NO_FALLBACK');
  console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
  if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+settings.no_more_sessions_text,settings),settings.voice)+'<Hangup/>');
  const minutesUntil=Math.ceil((next.time.getTime()-now.getTime())/60000);const finalWindow=Math.max(1,Number(settings.listener_window_minutes)||15);const optionalWindow=Math.max(finalWindow,Number(settings.callback_window_minutes)||60);
