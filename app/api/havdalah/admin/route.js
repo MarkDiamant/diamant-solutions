@@ -22,6 +22,31 @@ async function access(req){
 }
 export async function GET(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
+ const requestedConference=new URL(req.url).searchParams.get('conference_sid');
+ if(requestedConference){
+  if(!/^CF[a-fA-F0-9]{32}$/.test(requestedConference))return Response.json({error:'Invalid conference'},{status:400});
+  const {data:events,error:eventError}=await a.db.from('havdalah_call_events').select('call_sid,participant_label,event_type,occurred_at').eq('conference_sid',requestedConference).order('occurred_at',{ascending:true}).limit(1000);
+  if(eventError)return Response.json({error:eventError.message},{status:500});
+  const joined=(events||[]).filter(e=>e.event_type==='participant-join'&&e.call_sid);
+  const calls=[...new Map(joined.map(e=>[e.call_sid,e])).values()];
+  const sid=process.env.TWILIO_ACCOUNT_SID;
+  const key=process.env.TWILIO_API_KEY_SID,secret=process.env.TWILIO_API_KEY_SECRET;
+  if(!sid||!key||!secret)return Response.json({error:'Twilio call lookup is not configured'},{status:503});
+  const auth='Basic '+Buffer.from(key+':'+secret).toString('base64');
+  const details=[];
+  for(let i=0;i<calls.length;i+=8){
+   const group=await Promise.all(calls.slice(i,i+8).map(async e=>{
+    try{
+     const response=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+encodeURIComponent(sid)+'/Calls/'+encodeURIComponent(e.call_sid)+'.json',{headers:{Authorization:auth},signal:AbortSignal.timeout(8000),cache:'no-store'});
+     if(!response.ok)return {...e,number:null,lookup_error:'Twilio lookup failed ('+response.status+')'};
+     const call=await response.json();
+     return {...e,number:call.from||null,called:call.to||null,started_at:call.start_time||null};
+    }catch{return {...e,number:null,lookup_error:'Number lookup unavailable'};}
+   }));
+   details.push(...group);
+  }
+  return Response.json({calls:details},{headers:{'Cache-Control':'no-store'}});
+ }
  const result={};
  const {error:expiryError}=await a.db.from('havdalah_test_sessions').update({enabled:false}).eq('enabled',true).lt('scheduled_at',new Date(Date.now()-5*60000).toISOString());if(expiryError)console.error('HAVDALAH_TEST_EXPIRY',expiryError.message);
  const {data:tests}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at,enabled').eq('enabled',true).gte('scheduled_at',new Date(Date.now()-5*60000).toISOString()).order('scheduled_at');
