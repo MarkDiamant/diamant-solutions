@@ -15,7 +15,7 @@ export async function POST(request){
  const hostReply=next=>{const early=next.time.getTime()-now.getTime()>3600000;const vars={day:occasionForSlot(next,settings),date:date(next.time),time:time(next.time),remaining:remaining(next.time)};return speak(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars))+(early?'<Hangup/>':'<Redirect method="POST">/api/havdalah/host/wait?slot='+next.slot+(next.slotId?'&amp;id='+next.slotId:'')+'</Redirect>')};
  const managed=await getManagedSlots(now).catch(()=>null);
  if(managed){
-  const next=managed.find(s=>s.time.getTime()>=now.getTime()-10*60000&&s.hosts.some(h=>phone(h.phone)===caller));
+  const next=managed.find(s=>s.time.getTime()>=now.getTime()-5000&&s.hosts.some(h=>phone(h.phone)===caller));
   if(!next)return xml(speak('You are not assigned to an upcoming Havdalah session.')+'<Hangup/>');
   return xml(hostReply(next));
  }
