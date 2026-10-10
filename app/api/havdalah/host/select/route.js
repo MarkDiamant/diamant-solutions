@@ -19,8 +19,6 @@ export async function POST(request){
   if(!next)return xml(speak('You are not assigned to an upcoming Havdalah session.')+'<Hangup/>');
   return xml(hostReply(next));
  }
- const next=getUpcomingHavdalahSlots(now).find(s=>s.slot===1&&s.time.getTime()>=now.getTime()-10*60000);
- if(!next)return xml(speak('Host schedule is temporarily unavailable.')+'<Hangup/>');
-  return xml(hostReply(next));
+ return xml(speak('Host schedule is temporarily unavailable. Please try again shortly.')+'<Hangup/>');
 }
 export async function GET(){return new Response('Method Not Allowed',{status:405});}
