@@ -13,9 +13,9 @@ export async function POST(request){
  let next=null;try{const slots=await getManagedSlots(new Date());next=slots?.find(s=>s.conference===conference)||null;}catch(e){console.error('HAVDALAH_WAIT_MANAGED',e);}
  const remainingMs=next?next.time.getTime()-Date.now():-1;
  const bucket=remainingMs>0?Math.floor(remainingMs/60000):0;
- const changed=remainingMs>=60000&&Date.now()-started>=60000&&bucket!==last&&bucket<initial&&bucket<=60;
+ const changed=remainingMs>0&&Date.now()-started>=60000&&bucket!==last&&bucket<initial&&bucket<=60;
  const remaining=remainingMs<60000?'less than a minute':Math.floor(remainingMs/60000)+' minutes';
- const message=changed?sayOrPlay(fillTemplate(settings.waiting_text,{remaining,minutes:Math.floor(remainingMs/60000)}),settings.voice):'';
+ const message=changed?sayOrPlay(fillTemplate(settings.waiting_text,{remaining,minutes:remainingMs<60000?'less than a minute':Math.floor(remainingMs/60000)}),settings.voice):'';
  const musicUrl=new URL('/api/havdalah/music/chunk?duration=60&tick='+tick,request.url).toString().replace(/&/g,'&amp;');
  return new Response(`<?xml version="1.0" encoding="UTF-8"?><Response>${message}<Play>${musicUrl}</Play><Redirect method="POST">/api/havdalah/wait?conference=${encodeURIComponent(conference||'')}&amp;last=${bucket}&amp;tick=${tick+1}&amp;started=${started}&amp;initial=${initial}</Redirect></Response>`,{headers:{'Content-Type':'text/xml; charset=utf-8','Cache-Control':'no-store'}});
 
