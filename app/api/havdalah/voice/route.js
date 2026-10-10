@@ -25,9 +25,8 @@ export async function POST(request){
  const now=new Date();
  const settings=await getVoiceSettings();
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
- const test=await getActiveTestSlot(now,phone(form.get('To'))).catch(e=>{console.error('HAVDALAH_TEST_LOOKUP',e);return null;});
  const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},12000))]);
- const activeSlots=test?[test]:managed;
+ const activeSlots=managed?.some(s=>s.isTest)?managed.filter(s=>s.isTest):managed;
  const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
