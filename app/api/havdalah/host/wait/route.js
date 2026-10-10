@@ -17,10 +17,10 @@ export async function POST(request){
  if(target.hosts&&!target.hosts.some(h=>h.phone===caller))return xml(sayOrPlay(spoken('You are not assigned to this session.',settings),settings.voice)+'<Hangup/>');
  const remainingMs=target.time.getTime()-Date.now(),due=remainingMs<=60000,id=target.slotId?'&amp;id='+target.slotId:'';
  const last=Number(url.searchParams.get('last')??'-1');const initial=Number(url.searchParams.get('initial'))||0;const started=Number(url.searchParams.get('started'))||Date.now();
- const bucket=remainingMs>0?Math.ceil(remainingMs/60000):0;
+ const bucket=remainingMs>0?Math.floor(remainingMs/60000):0;
  const announce=!due&&Date.now()-started>=60000&&bucket!==last&&bucket<initial&&bucket<=60;
- const remaining=remainingMs<60000?'less than a minute':Math.ceil(remainingMs/60000)+' minutes';
- const prompt=due?(remainingMs<=0?'Your Havdalah is due to start now. Press 1 to begin.':settings.host_due_text):(announce?fillTemplate(settings.host_countdown_text,{minutes:Math.ceil(remainingMs/60000),remaining}):'');
+ const remaining=remainingMs<60000?'less than a minute':Math.floor(remainingMs/60000)+' minutes';
+ const prompt=due?(remainingMs<=0?'Your Havdalah is due to start now. Press 1 to begin.':settings.host_due_text):(announce?fillTemplate(settings.host_countdown_text,{minutes:Math.floor(remainingMs/60000),remaining}):'');
  const announcement=prompt?sayOrPlay(spoken(prompt,settings),settings.voice):'';
  const tick=Math.max(0,Number(url.searchParams.get('tick'))||0);
  const gather=due?`<Gather input="dtmf" numDigits="1" timeout="10" action="/api/havdalah/host/start?slot=${slot}${id}" method="POST">${announcement}<Pause length="10"/></Gather>`:`<Play>${new URL('/api/havdalah/music/chunk?duration=60&tick='+Math.max(0,Number(url.searchParams.get('tick'))||0),request.url).toString().replace(/&/g,'&amp;')}</Play>`;
