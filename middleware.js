@@ -4,6 +4,7 @@ const CENTRAL_BMS_HOSTS=new Set(["bms.diamantsolutions.co.uk","mjmetal.diamantso
 
 export function middleware(request){
  const host=(request.headers.get("host")||"").split(":")[0].toLowerCase();
+ if(host==="sites.diamantsolutions.co.uk")return NextResponse.redirect(new URL("https://diamantsolutions.co.uk/websites"),308);
  if(!CENTRAL_BMS_HOSTS.has(host))return NextResponse.next();
  const path=request.nextUrl.pathname;
  if(path.startsWith("/_next/")||path.startsWith("/api/")||path.startsWith("/bms-runtime")||path.startsWith("/bms-demo")||path.startsWith("/bms-mj-preview")||path.startsWith("/images/")||path.includes("."))return NextResponse.next();
