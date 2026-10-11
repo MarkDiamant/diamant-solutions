@@ -11,7 +11,7 @@ const sites=[
  {name:'Sam Certs',url:'https://www.samcerts.co.uk'},
  {name:'Edible Print',url:'https://edibleprint.uk',image:'/Pink Poppy Flowers.avif'},
  {name:'Would Use Again',url:'https://www.woulduseagain.com'},
- {name:'TYH Consulting',url:'https://tyhconsulting.preview.diamantsolutions.co.uk'},
+ {name:'TYH Consulting',url:'https://tyhconsultants.com'},
  {name:'Zehavah Handler Therapy',url:'https://zehavah.sites.diamantsolutions.co.uk'}
 ];
 
