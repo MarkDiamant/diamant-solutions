@@ -10,7 +10,9 @@ const sites=[
  {name:'Luton Circumcision',url:'https://luton-circumcision.vercel.app',previewUrl:'https://luton-circumcision.vercel.app'},
  {name:'Sam Certs',url:'https://www.samcerts.co.uk'},
  {name:'Edible Print',url:'https://edibleprint.uk',image:'/Pink Poppy Flowers.avif'},
- {name:'Would Use Again',url:'https://www.woulduseagain.com'}
+ {name:'Would Use Again',url:'https://www.woulduseagain.com'},
+ {name:'TYH Consulting',url:'https://tyhconsulting.preview.diamantsolutions.co.uk'},
+ {name:'Zehavah Handler Therapy',url:'https://zehavah.sites.diamantsolutions.co.uk'}
 ];
 
 function card(site){
