@@ -52,7 +52,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       }
       const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"}); if(document.documentElement.dataset.quoteEmailPdf==="1"){delete document.documentElement.dataset.quoteEmailPdf;const base64=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||"").split(",")[1]||"");r.onerror=()=>reject(new Error("Could not prepare PDF"));r.readAsDataURL(blob);});window.dispatchEvent(new CustomEvent("quote-email-pdf",{detail:{pdfBase64:base64,pdfName:`${reference}-Quote.pdf`}}));return;}
       const file=new File([pdf],`${reference}-Quote.pdf`,{type:"application/pdf"});
-      if(document.documentElement.dataset.quoteShare==="whatsapp"&&navigator.share&&navigator.canShare?.({files:[file]})){delete document.documentElement.dataset.quoteShare;await navigator.share({files:[file]});}
+      if(document.documentElement.dataset.quoteShare==="whatsapp"&&navigator.share&&navigator.canShare?.({files:[file]})){delete document.documentElement.dataset.quoteShare;await navigator.share({files:[file]});window.dispatchEvent(new Event("quote-whatsapp-shared"));}
       else{delete document.documentElement.dataset.quoteShare;const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 
     }catch(e){alert(e instanceof Error?e.message:"Could not create PDF");}
