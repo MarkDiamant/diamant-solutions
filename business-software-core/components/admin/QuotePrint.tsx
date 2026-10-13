@@ -123,7 +123,7 @@ ${crmConfig.businessName}`;
         <div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">{isMj ? "Project Overview & Lead Times" : "Project"}</p><p className="mt-1 text-lg font-black">{j.job_type}</p>{j.dimensions && <p className="mt-1 text-sm text-black/65">Approx. dimensions: {j.dimensions}</p>}{j.material && <p className="text-sm text-black/65">Material: {j.material}</p>}{(j.finishes || []).length > 0 && <p className="text-sm text-black/65">Finish: {(j.finishes || []).join(" + ")}{j.colour ? `, ${j.colour}` : ""}</p>}</div>
       </section>
 
-      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-black/75">{quote.scope_text}</div>{isMjTenant&&<p className="mt-3 text-[12px] leading-[18px] text-black/65">{mjCompletionText}</p>}</section>}
+      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-black/75">{quote.scope_text}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-[12px] leading-[18px] text-black/65">{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-3 text-[12px] leading-[18px] text-black/65">{mjCompletionText}</p>}</section>}
 
       
 
