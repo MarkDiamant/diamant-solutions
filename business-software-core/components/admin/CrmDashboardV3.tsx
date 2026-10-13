@@ -250,7 +250,7 @@ export default function CrmDashboardV3() {
     const customer:Record<string,unknown>={},job:Record<string,unknown>={...overrides};
     if(savedDraft){
       customer.first_name=savedDraft.firstName||(j.isPlaceholder?"Details TBC":null);customer.last_name=savedDraft.lastName||null;customer.phone=savedDraft.phone||null;customer.email=savedDraft.email||null;
-      job.site_address_line_1=savedDraft.siteAddressLine1||null;job.site_postcode=savedDraft.sitePostcode||null;job.job_types=savedDraft.jobTypes;job.job_type=savedDraft.jobTypes[0]||null;job.status=savedDraft.status;
+      job.site_address_line_1=savedDraft.siteAddressLine1||null;job.site_postcode=savedDraft.sitePostcode||null;job.job_types=savedDraft.jobTypes;job.job_type=savedDraft.jobTypes[0]||j.jobType||"Other";job.status=savedDraft.status;
       job.manager=savedDraft.manager||null;job.enquiry_source=savedDraft.source||null;if(crmConfig.modules.finishes)job.finishes=savedDraft.finishes;
       if(crmConfig.modules.quotes){job.preliminary_estimate=savedDraft.preliminaryEstimate===""?null:parseMoney(savedDraft.preliminaryEstimate);job.quoted_amount=savedDraft.quotedAmount===""?null:parseMoney(savedDraft.quotedAmount);}
       job.internal_notes=savedDraft.jobNotes||null;job.dimensions=savedDraft.dimensions||null;job.material=savedDraft.material||null;job.colour=savedDraft.colour||null;job.customer_requirements=savedDraft.customerRequirements||null;
