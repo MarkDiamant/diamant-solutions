@@ -41,6 +41,7 @@ export const STATUS_META: Record<JobStatus, { label: string; order: number; grou
   quote_preparing: { label: "Quote created", order: 70, group: "active" },
   quote_sent: { label: "Quote sent", order: 80, group: "active" },
   awaiting_customer: { label: "Awaiting customer decision", order: 90, group: "active" },
+  dormant_enquiry: { label: "Dormant enquiry", order: 115, group: "closed" },
   interested_not_ready: { label: "Interested, not ready", order: 100, group: "active" },
   customer_unsure: { label: "Customer unsure", order: 110, group: "active" },
   confirmed: { label: "Confirmed", order: 120, group: "active" },
