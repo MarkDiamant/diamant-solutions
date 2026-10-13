@@ -29,6 +29,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   }, [reference]);
 
   const quote = useMemo(() => data?.quotes?.find((q: any) => q.id === quoteId), [data, quoteId]);
+  useEffect(()=>{const onShared=async()=>{try{const res=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/share-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId})});const body=await res.json().catch(()=>({}));if(!res.ok)throw new Error(body.error||"Could not update job");setSentMessage("Quote shared via WhatsApp. Job updated; follow-up scheduled.");}catch{setSentMessage("WhatsApp share completed, but job status could not be updated.");}};window.addEventListener("quote-whatsapp-shared",onShared);return()=>window.removeEventListener("quote-whatsapp-shared",onShared);},[reference,quoteId]);
   if (error) return <main className="p-10">{error}</main>;
   if (!data) return <main className="p-10">Loading quote...</main>;
   if (!quote) return <main className="p-10">Quote not found.</main>;
@@ -73,7 +74,7 @@ ${crmConfig.businessName}`;
     finally{setWhatsAppBusy(false);}
   }
 
-  useEffect(()=>{const onShared=async()=>{try{const res=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/share-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId})});const body=await res.json().catch(()=>({}));if(!res.ok)throw new Error(body.error||"Could not update job");setSentMessage("Quote shared via WhatsApp. Job updated; follow-up scheduled.");}catch{setSentMessage("WhatsApp share completed, but job status could not be updated.");}};window.addEventListener("quote-whatsapp-shared",onShared);return()=>window.removeEventListener("quote-whatsapp-shared",onShared);},[reference,quoteId]);
+
 
   async function sendQuote() {
     if (!c.email) { alert("Add the customer's email address to the job first."); return; }
