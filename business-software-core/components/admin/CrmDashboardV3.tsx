@@ -13,7 +13,7 @@ function localInput(value?: string) { if (!value) return ""; const d = new Date(
 function iso(value?: string) { return value ? new Date(value).toISOString() : null; }
 function suggestedDue(days=3) { const d=new Date(); d.setDate(d.getDate()+days); d.setHours(9,0,0,0); return localInput(d.toISOString()); }
 function finishDatePick(e:React.ChangeEvent<HTMLInputElement>, set:(value:string)=>void){set(e.target.value); requestAnimationFrame(()=>e.target.blur());}
-function closed(value: string) { return ["completed","declined","cancelled"].includes(value); }
+function closed(value: string) { return ["completed","declined","cancelled","dormant_enquiry"].includes(value); }
 function statusLabel(value: unknown) { return STATUS_META[value as JobStatus]?.label ?? String(value || ""); }
 function actionUrgency(value?:string){if(!value)return "none";const due=new Date(value);const now=new Date();const start=new Date(now.getFullYear(),now.getMonth(),now.getDate());const end=new Date(start);end.setDate(end.getDate()+1);return due<start?"overdue":due<end?"today":"future";}
 function missingForDraft(d:QuickDraft,config:CrmConfig){const warnings:string[]=[];const won=["confirmed","deposit_requested","deposit_paid","materials_ordered","fabrication","installation_scheduled","in_progress","awaiting_final_payment","completed"].includes(d.status);if(config.modules.quotes&&won&&!d.quotedAmount)warnings.push("Final Quote missing");if(config.modules.costs&&["fabrication","installation_scheduled","in_progress","awaiting_final_payment","completed"].includes(d.status)&&!d.finalCost)warnings.push("Final Cost missing");if(config.modules.scheduling&&d.status==="installation_scheduled"&&!d.scheduledAt)warnings.push("Installation date missing");if(!closed(d.status)&&!d.nextAction)warnings.push("Next Action missing");if(!closed(d.status)&&!d.nextActionAt)warnings.push("Next Action date missing");return warnings;}
@@ -42,6 +42,7 @@ const NEXT_ACTION_OPTIONS = [
   "Send quote",
   "Follow up quote",
   "Follow up customer",
+  "No follow-up required",
   "Customer confirmed / proceed",
   "Request deposit",
   "Confirm deposit received",
