@@ -14,6 +14,7 @@ export type CrmConfig = {
   enquirySources: string[];
   fileCategories: string[];
   quoteTemplate: "mj-signature" | "clean" | "classic";
+  quoteDefaultText: string;
   invoiceTemplate: "mj-signature" | "clean" | "classic";
   tenantKey: string;
   plan: { includedUsers:number; licensedUsers:number; additionalUserMonthly:number; aiAssistantMonthly:number; annualMonthsCharged:number; aiIncluded:boolean; };
@@ -26,7 +27,7 @@ export type CrmConfig = {
 export const SHARED_BUSINESS_SOFTWARE_DEFAULTS: CrmConfig = {
   businessName:"Your Business", systemName:"Business Management Software", logoUrl:"/Icon-512.png", accentColour:"#e66a24",
   workforceTitle:"Team", workforceSingular:"team member", workforceRoles:["Engineer","Technician","Contractor","Subcontractor","Surveyor","Project manager","Electrician","Plumber","Carpenter","Builder","Cleaner","Driver","Consultant","Salesperson","Other"],
-  managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", invoiceTemplate:"clean", tenantKey:"demo",
+  managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", quoteDefaultText:"", invoiceTemplate:"clean", tenantKey:"demo",
   plan:{includedUsers:1,licensedUsers:1,additionalUserMonthly:10,aiAssistantMonthly:15,annualMonthsCharged:10,aiIncluded:false}, ai:{enabled:false,textAssist:false,voiceAssist:false,includedTextActions:null,includedVoiceMinutes:null}, billing:{mode:"free",interval:null,status:"active",resumeUrl:"",customerId:"",subscriptionId:"",currentPeriodEnd:"",cancelAtPeriodEnd:false},
   businessDetails:{phone:"",email:"",website:"",companyNumber:"",officeAddress:"",registeredAddress:"",bankName:"",accountNumber:"",sortCode:"",vatRegistered:false,vatNumber:"",defaultDepositPercent:50,quoteValidityDays:30,paymentTerms:"50% deposit, with the remaining balance due on completion.",defaultVatRate:20,emailSignatureName:"The Team",emailSignatureTagline:""},
   modules:{photos:true,workforce:true,commission:true,payments:true,costs:true,finishes:true,siteVisits:true,scheduling:true,quotes:true,invoices:true,prospects:true,tasks:true,campaigns:true,priceBook:true,files:true,integrations:true}
@@ -42,6 +43,7 @@ export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined)
     ...(value || {}),
     tenantKey,
     quoteTemplate,
+    quoteDefaultText: typeof value?.quoteDefaultText === "string" ? value.quoteDefaultText.slice(0,1200) : "",
     invoiceTemplate,
     modules: { ...DEFAULT_CRM_CONFIG.modules, ...(value?.modules || {}) },
     businessDetails: { ...DEFAULT_CRM_CONFIG.businessDetails, ...(value?.businessDetails || {}) },
