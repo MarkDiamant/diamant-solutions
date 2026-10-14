@@ -1,5 +1,6 @@
-import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
+
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { ALL_STATUSES } from "@/lib/crm/constants";
