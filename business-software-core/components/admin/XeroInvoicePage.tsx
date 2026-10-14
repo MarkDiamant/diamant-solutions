@@ -1,5 +1,6 @@
-import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
+
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
