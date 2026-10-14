@@ -59,7 +59,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
       const base=`/api/admin/jobs/${encodeURIComponent(reference)}/invoice-share`;
       if(action==="whatsapp"){
         const response=await fetch(`${base}?invoiceId=${encodeURIComponent(invoice.id)}`,{cache:"no-store"});
-        if(!response.ok){const b=await response.json().catch(()=>({}));throw new Error(b.error||"Could not retrieve invoice PDF");}
+        if(!response.ok){const b=await response.json().catch(()=>({}));throw new Error(friendlyError(b.error)||"Could not retrieve invoice PDF");}
         const blob=await response.blob(),file=new File([blob],`${invoice.invoice_number||reference}-Invoice.pdf`,{type:"application/pdf"});
         const raw=String(jobData?.customer?.mobile||jobData?.customer?.phone||"").trim();const digits=raw.replace(/[^\\d+]/g,"");
         let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
@@ -76,10 +76,10 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         setMessage("Invoice PDF downloaded. Attach it in WhatsApp, review the recipient and press Send.");
       }else{
         const response=await fetch(base,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({invoiceId:invoice.id,action})});
-        const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Invoice email failed");
+        const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(friendlyError(result.error)||"Invoice email failed");
         setMessage(action==="draft"?"Invoice email draft created in connected Gmail with PDF attached. Open Gmail to review it.":`Invoice emailed with PDF to ${result.to}.`);
       }
-    }catch(e){setError(e instanceof Error?e.message:"Could not share invoice");}
+    }catch(e){setError(friendlyError(e):"Could not share invoice");}
     finally{setSharing("");}
   }
 
