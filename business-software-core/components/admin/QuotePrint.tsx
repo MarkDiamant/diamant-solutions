@@ -113,12 +113,12 @@ ${crmConfig.businessName}`;
     const groups=scopeParts(scope);
     if(groups.length<2)return jobTitle;
     const descriptions=groups.map(group=>group.description.toLowerCase());
-    const hasGates=descriptions.some(x=>/\\bgates?\\b/.test(x));
-    const hasGrate=descriptions.some(x=>/\\bgrate\\b/.test(x));
+    const hasGates=descriptions.some(x=>/\bgates?\b/.test(x));
+    const hasGrate=descriptions.some(x=>/\bgrate\b/.test(x));
     if(hasGates&&hasGrate)return /passage/i.test(jobTitle)?"Side Passage Gates & Galvanised Steel Grate":"Gates & Galvanised Steel Grate";
     const headings=groups.map(group=>{
-      const text=group.description.replace(/^\\s*(?:supply(?:\\s+and\\s+installation)?|installation|manufacture(?:\\s+and\\s+installation)?)\\s+(?:of\\s+)?/i,"").replace(/^(?:a|an|the|two|three|four|\\d+)\\s+/i,"");
-      return text.split(/,|\\s+approximately\\s+|\\s+including\\s+|\\s+with\\s+|\\s+to\\s+suit\\s+/i)[0].trim().split(/\\s+/).slice(0,7).join(" ");
+      const text=group.description.replace(/^\s*(?:supply(?:\s+and\s+installation)?|installation|manufacture(?:\s+and\s+installation)?)\s+(?:of\s+)?/i,"").replace(/^(?:a|an|the|two|three|four|\d+)\s+/i,"");
+      return text.split(/,|\s+approximately\s+|\s+including\s+|\s+with\s+|\s+to\s+suit\s+/i)[0].trim().split(/\s+/).slice(0,7).join(" ");
     }).filter(Boolean);
     const distinct=[...new Set(headings)];
     return distinct.length>1?distinct.join(" & "):jobTitle;
