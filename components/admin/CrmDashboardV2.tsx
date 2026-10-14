@@ -1,4 +1,5 @@
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -117,7 +118,7 @@ export default function CrmDashboardV2() {
     }
     const response = await fetch(`/api/admin/jobs/${encodeURIComponent(j.reference)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ customer, job }) });
     const body = await response.json().catch(() => ({})); setSavingRef(null);
-    if (!response.ok) { setFlash(body.error || `Could not save ${j.reference}`); return; }
+    if (!response.ok) { setFlash(friendlyError(body.error) || `Could not save ${j.reference}`); return; }
     setFlash(`${j.reference} saved`); await load(); setTimeout(() => setFlash(""), 1800);
   }
 
@@ -125,7 +126,7 @@ export default function CrmDashboardV2() {
     setSavingRef(reference); setFlash("");
     const response = await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const body = await response.json().catch(() => ({})); setSavingRef(null);
-    if (!response.ok) { setFlash(body.error || "Could not save"); return false; }
+    if (!response.ok) { setFlash(friendlyError(body.error) || "Could not save"); return false; }
     await load(); setFlash(`${reference} updated`); setTimeout(() => setFlash(""), 1800); return true;
   }
 
