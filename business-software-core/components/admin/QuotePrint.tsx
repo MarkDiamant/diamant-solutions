@@ -20,8 +20,8 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       if(!page||!body)return;
       const paddingTop=parseFloat(getComputedStyle(page).paddingTop)||0;
       const paddingBottom=parseFloat(getComputedStyle(page).paddingBottom)||0;
-      const available=page.clientHeight-paddingTop-paddingBottom-28;
-      const measure=()=>body.scrollHeight*Number(page.style.getPropertyValue("--quote-fit")||1);
+      const available=page.clientHeight-paddingTop-paddingBottom-80;
+      const measure=()=>body.getBoundingClientRect().height;
       page.style.setProperty("--quote-fit","1");
       if(measure()>available){
         let low=.45,high=1;
@@ -157,7 +157,7 @@ ${crmConfig.businessName}`;
 
   return <><main className="min-h-screen bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":quoteBrand} as React.CSSProperties}>
     <style>{`
-      .quote-page { width: 794px; min-width: 794px; }\n      .quote-fit-body { zoom: var(--quote-fit, 1); }
+      .quote-page { width: 794px; min-width: 794px; }\n      .quote-fit-body { zoom: var(--quote-fit, 1); word-spacing: 1.4px; letter-spacing: normal; }
       .quote-preview-scroll { overflow: auto; padding: 0 16px 24px; -webkit-overflow-scrolling: touch; }
       .quote-mobile-frame { width: 900px; transform-origin: top center; }
       @media (max-width: 932px) {
@@ -165,7 +165,7 @@ ${crmConfig.businessName}`;
         .quote-mobile-frame { transform-origin: top left; transform: scale(.4); margin-bottom: -672px; }
         .quote-page { width: 794px !important; min-width: 794px !important; max-width: 794px !important; padding-left: 30px !important; padding-right: 30px !important; }
       }
-      @media print { @page { size: A4; margin: 0; } .quote-preview-scroll { overflow: visible !important; padding: 0 !important; } .quote-mobile-frame { width: auto !important; transform: none !important; margin: 0 !important; } .quote-page { width: 210mm !important; min-width: 210mm !important; max-width: 210mm !important; height: 297mm !important; min-height: 297mm; padding-left: 8mm !important; padding-right: 8mm !important; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }
+      @media print { @page { size: A4; margin: 0; } .quote-preview-scroll { overflow: visible !important; padding: 0 !important; } .quote-mobile-frame { width: auto !important; transform: none !important; margin: 0 !important; } .quote-page { width: 210mm !important; min-width: 210mm !important; max-width: 210mm !important; height: 297mm !important; min-height: 297mm; padding-left: 8mm !important; padding-right: 8mm !important; padding-bottom: 13mm !important; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }
     `}</style>
     <div className="mx-auto mb-4 flex max-w-[900px] flex-wrap items-center justify-end gap-2 px-4 print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-bold text-green-700">{sentMessage}</span>}
