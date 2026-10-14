@@ -1,4 +1,5 @@
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,7 +34,7 @@ export default function CrmDashboard() {
       const response = await fetch("/api/admin/jobs", { cache: "no-store" });
       if (response.status === 401) { router.replace("/admin/login"); return; }
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) { if (!cancelled) { setError(data.error || "Unable to load jobs"); setLoading(false); } return; }
+      if (!response.ok) { if (!cancelled) { setError(friendlyError(data.error) || "Unable to load jobs"); setLoading(false); } return; }
       if (!cancelled) { setJobs(data.jobs || []); setAdminName(data.admin?.display_name || ""); setLoading(false); }
     }
     load(); return () => { cancelled = true; };
