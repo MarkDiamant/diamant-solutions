@@ -1,4 +1,5 @@
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
 import { useState } from "react";
 
@@ -55,7 +56,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       if(document.documentElement.dataset.quoteShare==="whatsapp"&&navigator.share&&navigator.canShare?.({files:[file]})){delete document.documentElement.dataset.quoteShare;await navigator.share({files:[file]});if(window.confirm("Did you send the quote to the customer via WhatsApp? Press OK to mark it as sent and schedule the follow-up."))window.dispatchEvent(new Event("quote-whatsapp-shared"));}
       else{const wasWhatsApp=document.documentElement.dataset.quoteShare==="whatsapp";delete document.documentElement.dataset.quoteShare;const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);if(wasWhatsApp&&window.confirm("The quote PDF has downloaded. Once you have sent it to the customer via WhatsApp, press OK to mark the quote as sent and schedule a follow-up. Press Cancel if you have not sent it."))window.dispatchEvent(new Event("quote-whatsapp-shared"));}
 
-    }catch(e){alert(e instanceof Error?e.message:"Could not create PDF");}
+    }catch(e){alert(friendlyError(e):"Could not create PDF");}
     finally{setBusy(false);document.querySelector<HTMLElement>("[data-pdf-status-listener]")?.click();}
   }
   return <button id="save-quote-pdf" onClick={()=>void generate()} disabled={busy} className="hidden">{busy?"Saving...":"Save PDF"}</button>;
