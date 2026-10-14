@@ -85,20 +85,20 @@ ${crmConfig.businessName}`;
   const isMj=template==="mj-signature";
   const isMjTenant=String(crmConfig.businessName||"").trim().toLowerCase()==="m&j metal";
   const displayScope=(value:string)=>String(value||"")
-    .replace(/(?:^|\\n)([^\\n]*?)\\b1\\s*[x×]\\s*£([\\d,]+(?:\\.\\d{1,2})?)\\s*=\\s*£([\\d,]+(?:\\.\\d{1,2})?)/gi,(_m,prefix,_unit,total)=>"\\n"+prefix.trimEnd().replace(/[\\s:|.-]+$/,"")+": £"+total)
-    .replace(/(?:^|\\n)([^\\n]*?)\\b1\\s*[x×]\\s*£([\\d,]+(?:\\.\\d{1,2})?)/gi,(_m,prefix,price)=>"\\n"+prefix.trimEnd().replace(/[\\s:|.-]+$/,"")+": £"+price)
+    .replace(/(?:^|\n)([^\n]*?)\b1\s*[x×]\s*£([\d,]+(?:\.\d{1,2})?)\s*=\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_m,prefix,_unit,total)=>"\n"+prefix.trimEnd().replace(/[\s:|.-]+$/,"")+": £"+total)
+    .replace(/(?:^|\n)([^\n]*?)\b1\s*[x×]\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_m,prefix,price)=>"\n"+prefix.trimEnd().replace(/[\s:|.-]+$/,"")+": £"+price)
     .trim();
   const scopeParts=(value:string)=>{
     const cleaned=displayScope(value);
-    const lines=cleaned.split(/\\n/).map(x=>x.trim()).filter(Boolean);
-    const priceLine=(line:string)=>/£[\\d,]+(?:\\.\\d{1,2})?/.test(line);
+    const lines=cleaned.split(/\n/).map(x=>x.trim()).filter(Boolean);
+    const priceLine=(line:string)=>/£[\d,]+(?:\.\d{1,2})?/.test(line);
     const groups:{description:string;price:string}[]=[];
     let descriptions:string[]=[];
     for(const line of lines){
       if(priceLine(line)){
-        groups.push({description:descriptions.join(" "),price:line.replace(/^\\s*\\d+[.)]\\s*/,"")});
+        groups.push({description:descriptions.join(" "),price:line.replace(/^\s*\d+[.)]\s*/,"")});
         descriptions=[];
-      }else descriptions.push(line.replace(/^\\s*\\d+[.)]\\s*/,""));
+      }else descriptions.push(line.replace(/^\s*\d+[.)]\s*/,""));
     }
     if(descriptions.length&&groups.length)groups[groups.length-1].description+=" "+descriptions.join(" ");
     if(groups.length===0)return [{description:cleaned,price:""}];
@@ -108,7 +108,7 @@ ${crmConfig.businessName}`;
     const groups=scopeParts(value);
     return <div className="space-y-3">{groups.map((group,index)=><div key={index} className="space-y-1.5"><p className="whitespace-pre-wrap">{groups.length>1?<strong className="mr-1 font-black">{index+1}.</strong>:null}{group.description}</p>{group.price&&<p className="font-bold">{group.price}</p>}</div>)}</div>;
   };
-  const formatNumberedScope=(value:string)=>scopeParts(value).map((g,i)=>(scopeParts(value).length>1?(i+1)+". ":"")+g.description+(g.price?"\\n"+g.price:"")).join("\\n\\n");
+  const formatNumberedScope=(value:string)=>scopeParts(value).map((g,i)=>(scopeParts(value).length>1?(i+1)+". ":"")+g.description+(g.price?"\n"+g.price:"")).join("\n\n");
   const scopeLength=String(quote?.scope_text||"").length+String(crmConfig.quoteDefaultText||"").length+(isMjTenant?420:0);
   const scopeFontSize=15;
   const scopeTypography={fontSize:scopeFontSize+"px",lineHeight:Math.round(scopeFontSize*1.5)+"px"};
