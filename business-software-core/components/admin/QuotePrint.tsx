@@ -11,33 +11,29 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const [data, setData] = useState<any>(null);
   const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
   const printableRef=useRef<HTMLElement|null>(null);
-  const [fitScale,setFitScale]=useState(1);
-  const [fitStatus,setFitStatus]=useState<"checking"|"fitted"|"overflow">("checking");
   useEffect(()=>{
     if(!data)return;
     let frame=0;
     const fit=()=>{
       const page=printableRef.current;
-      if(!page)return;
-      const available=1122;
-      const body=page.querySelector<HTMLElement>("[data-quote-body]");
-      if(!body)return;
-      const previous=page.style.getPropertyValue("--quote-fit");
+      const body=page?.querySelector<HTMLElement>("[data-quote-body]");
+      if(!page||!body)return;
+      const paddingTop=parseFloat(getComputedStyle(page).paddingTop)||0;
+      const paddingBottom=parseFloat(getComputedStyle(page).paddingBottom)||0;
+      const available=page.clientHeight-paddingTop-paddingBottom-18;
+      const measure=()=>body.getBoundingClientRect().height;
       page.style.setProperty("--quote-fit","1");
-      const natural=page.scrollHeight;
-      let chosen=1;
-      if(natural>available){
-        let low=.68,high=1;
-        for(let n=0;n<13;n++){
+      if(measure()>available){
+        let low=.55,high=1;
+        for(let n=0;n<15;n++){
           const mid=(low+high)/2;
           page.style.setProperty("--quote-fit",String(mid));
-          if(page.scrollHeight<=available){chosen=mid;low=mid;}else high=mid;
+          if(measure()<=available)low=mid;
+          else high=mid;
         }
+        page.style.setProperty("--quote-fit",String(low));
       }
-      page.style.setProperty("--quote-fit",String(chosen));
-      setFitScale(chosen);
-      setFitStatus(page.scrollHeight<=available+2?"fitted":"overflow");
-      if(previous===String(chosen))return;
+      page.dataset.quoteFit=measure()<=available+1?"fitted":"overflow";
     };
     const schedule=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(fit);};
     schedule();
@@ -175,7 +171,7 @@ ${crmConfig.businessName}`;
 
     <div className="quote-preview-scroll print:contents">
     <div className="quote-mobile-frame mx-auto">
-    <article ref={printableRef} style={{height:"1122px",maxHeight:"1122px",overflow:"hidden"} as React.CSSProperties} className={`quote-page ${pageClass} mx-auto mt-0 flex flex-col bg-white px-10 py-9 shadow-xl print:mt-0 sm:px-14`}>\n      <div data-quote-body className="quote-fit-body flex min-h-full flex-col">
+    <article ref={printableRef} style={{height:"1122px",maxHeight:"1122px",overflow:"hidden"} as React.CSSProperties} className={`quote-page ${pageClass} mx-auto mt-0 flex flex-col bg-white px-10 py-9 shadow-xl print:mt-0 sm:px-14`}>\n      <div data-quote-body className="quote-fit-body flex flex-col" style={{minHeight:"1050px"}}>
       <header className={`flex items-center justify-between ${isClassic?"border-b border-black pb-4":isModern?"border-b-4 border-[var(--brand)] pb-2":"border-b-2 border-[var(--brand)] pb-4"}`} style={isModern?{height:"64px",minHeight:"64px",position:"relative"}:undefined}>{tenantLogoSrc&&<img src={tenantLogoSrc} alt={crmConfig.businessName} className={logoImgClass} style={isModern?{height:"64px",width:"auto",maxWidth:"340px",display:"block"}:undefined}/>}<div className="flex flex-col justify-center text-right" style={isModern?{position:"absolute",right:0,top:"8px"}:undefined}><p className="font-black">{isModern ? j.reference : `${j.reference} / V${quote.version}`}</p><p className="text-xs text-black/45">Quotation details</p></div></header>{isModern&&<section className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] gap-5"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Client Information</p><p className="mt-1 text-base font-black">{name}</p>{site&&<p className="mt-1 text-xs leading-5 text-black/65">{site}</p>}{(c.phone||c.email)&&<p className="mt-1 text-xs text-black/55">{c.phone}{c.phone&&c.email&&" · "}{c.email}</p>}</div><div className="ml-auto w-full max-w-[245px]"><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Project</p><p className="mt-1 text-base font-black">{j.job_type}</p><p className="mt-1 text-xs text-black/55">Issued {new Date(quote.created_at).toLocaleDateString("en-GB")}{quote.valid_until?` · Valid until ${new Date(`${quote.valid_until}T12:00:00`).toLocaleDateString("en-GB")}`:""}</p></div></section>}
       {isModern && <section className={`${panelClass}`} style={{marginTop:"14px"}}><div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-black/45">Quotation total</p><p className="mt-1 text-3xl font-black">{money(quote.amount)}</p><p className="mt-1 text-[10px] text-black/45">{crmConfig.businessDetails.vatRegistered&&Number(quote.vat_rate||0)>0?`VAT ${Number(quote.vat_rate)}%`:"VAT not charged"}</p></div><div className="text-right text-sm leading-5 text-black/60">{quote.deposit_amount && <p><b>Deposit:</b> {money(quote.deposit_amount)}</p>}{quote.lead_time && <p><b>Estimated lead time:</b> {quote.lead_time}</p>}</div></div></section>}
       {isModern && <section style={{marginTop:"16px"}}><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of Works</h2><div className="mt-2 whitespace-pre-wrap text-black/75" style={scopeTypography}>{displayScope(quote.scope_text)}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-black/75" style={scopeTypography}>{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-2 text-black/75" style={scopeTypography}>{mjCompletionText}</p>}</section>}
