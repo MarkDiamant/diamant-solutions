@@ -198,7 +198,6 @@ ${crmConfig.businessName}`;
       {!isMj && <section className={`mt-auto ${panelClass}`}><div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-black/45">Quotation total</p><p className="mt-1 text-3xl font-black">{money(quote.amount)}</p><p className="mt-1 text-[10px] text-black/45">{crmConfig.businessDetails.vatRegistered&&Number(quote.vat_rate||0)>0?`VAT ${Number(quote.vat_rate)}%`:"VAT not charged"}</p></div><div className="text-right text-sm leading-5 text-black/60">{quote.deposit_amount && <p style={{fontWeight:800,color:"#111"}}>Deposit: {money(quote.deposit_amount)}</p>}{quote.lead_time && <p style={{fontWeight:800,color:"#111"}}>Estimated lead time: {quote.lead_time}</p>}</div></div></section>}
       <footer className="mt-4 text-[10px] leading-4 text-black/45">{crmConfig.businessName}{crmConfig.businessDetails.companyNumber?` · Company No. ${crmConfig.businessDetails.companyNumber}`:""}{crmConfig.businessDetails.phone?` · ${crmConfig.businessDetails.phone}`:""}{crmConfig.businessDetails.email?` · ${crmConfig.businessDetails.email}`:""}{crmConfig.businessDetails.website?` · ${crmConfig.businessDetails.website}`:""}</footer>
     </article>
-    </div>
 
     <div className="quote-preview-scroll print:contents">
     <div className="quote-mobile-frame mx-auto">
