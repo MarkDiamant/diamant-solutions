@@ -1,4 +1,5 @@
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 import {useEffect,useMemo,useState} from "react";
 import Link from "next/link";
 import {supabase} from "@/lib/supabase-browser";
@@ -11,7 +12,7 @@ export default function MjOperationalDirectory({view}:{view:View}){
  const [token,setToken]=useState(""),[rows,setRows]=useState<Row[]>([]),[jobs,setJobs]=useState<Row[]>([]),[customers,setCustomers]=useState<Row[]>([]),[search,setSearch]=useState(""),[error,setError]=useState(""),[loading,setLoading]=useState(true);
  useEffect(()=>{supabase.auth.getSession().then(({data})=>setToken(data.session?.access_token||""));const {data:{subscription}}=supabase.auth.onAuthStateChange((_event,session)=>setToken(session?.access_token||""));return()=>subscription.unsubscribe()},[]);
  useEffect(()=>{if(!token){setLoading(false);setError("Sign in to M&J staging first.");return}let active=true;setLoading(true);setError("");
- const get=async(resource:string)=>{const response=await fetch("/api/business-software/tenant-data?"+new URLSearchParams({tenant_id:TENANT,resource}),{headers:{Authorization:"Bearer "+token},cache:"no-store"});const body=await response.json();if(!response.ok)throw Error(body.error||"Unable to load "+resource);return body.data as Row[]};
+ const get=async(resource:string)=>{const response=await fetch("/api/business-software/tenant-data?"+new URLSearchParams({tenant_id:TENANT,resource}),{headers:{Authorization:"Bearer "+token},cache:"no-store"});const body=await response.json();if(!response.ok)throw Error(friendlyError(body.error)||"Unable to load "+resource);return body.data as Row[]};
  Promise.all([get(resources[view]),get("jobs"),get("customers")]).then(([data,j,c])=>{if(active){setRows(data);setJobs(j);setCustomers(c)}}).catch(e=>{if(active)setError(e.message)}).finally(()=>{if(active)setLoading(false)});
  return()=>{active=false}},[token,view]);
  const names=useMemo(()=>new Map(customers.map(c=>[c.id,[c.first_name,c.last_name].filter(Boolean).join(" ")])),[customers]);
