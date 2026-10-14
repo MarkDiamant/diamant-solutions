@@ -84,33 +84,31 @@ ${crmConfig.businessName}`;
   const isClassic=template==="classic";
   const isMj=template==="mj-signature";
   const isMjTenant=String(crmConfig.businessName||"").trim().toLowerCase()==="m&j metal";
-  const displayScope=(value:string)=>String(value||"").replace(/(\|\s*)1\s*x\s*£([\d,]+(?:\.\d{1,2})?)\s*=\s*£[\d,]+(?:\.\d{1,2})?/gi,(_match,prefix,price)=>prefix+"£"+price).replace(/(\|\s*)1\s*x\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_match,prefix,price)=>prefix+"£"+price);
-  const formatNumberedScope=(value:string)=>{
-    const cleaned=displayScope(value).trim();
-    const paragraphs=cleaned.split(/\n\s*\n/).map(part=>part.trim()).filter(Boolean);
-    // A price line normally completes a distinct work package. Some AI quotes
-    // put the next description immediately after that line with only one newline.
-    const lines=cleaned.split(/\n/).map(line=>line.trim()).filter(Boolean);
-    const priceLine=(line:string)=>/£[\d,]+(?:\.\d{1,2})?/.test(line);
-    const pricedLines=lines.filter(priceLine);
-    if(pricedLines.length<2)return cleaned;
-    const groups:string[]=[];
-    let current:string[]=[];
+  const displayScope=(value:string)=>String(value||"")
+    .replace(/(?:^|\\n)([^\\n]*?)\\b1\\s*[x×]\\s*£([\\d,]+(?:\\.\\d{1,2})?)\\s*=\\s*£([\\d,]+(?:\\.\\d{1,2})?)/gi,(_m,prefix,_unit,total)=>"\\n"+prefix.trimEnd().replace(/[\\s:|.-]+$/,"")+": £"+total)
+    .replace(/(?:^|\\n)([^\\n]*?)\\b1\\s*[x×]\\s*£([\\d,]+(?:\\.\\d{1,2})?)/gi,(_m,prefix,price)=>"\\n"+prefix.trimEnd().replace(/[\\s:|.-]+$/,"")+": £"+price)
+    .trim();
+  const scopeParts=(value:string)=>{
+    const cleaned=displayScope(value);
+    const lines=cleaned.split(/\\n/).map(x=>x.trim()).filter(Boolean);
+    const priceLine=(line:string)=>/£[\\d,]+(?:\\.\\d{1,2})?/.test(line);
+    const groups:{description:string;price:string}[]=[];
+    let descriptions:string[]=[];
     for(const line of lines){
-      current.push(line);
       if(priceLine(line)){
-        groups.push(current.join("\n"));
-        current=[];
-      }
+        groups.push({description:descriptions.join(" "),price:line.replace(/^\\s*\\d+[.)]\\s*/,"")});
+        descriptions=[];
+      }else descriptions.push(line.replace(/^\\s*\\d+[.)]\\s*/,""));
     }
-    if(current.length&&groups.length)groups[groups.length-1]+="\n"+current.join("\n");
-    if(groups.length<2)return cleaned;
-    return groups.map((group,index)=>{
-      const parts=group.split("\n");
-      const first=parts[0].replace(/^\s*\d+[.)]\s*/,"");
-      return (index+1)+". "+first+(parts.length>1?"\n"+parts.slice(1).join("\n"):"");
-    }).join("\n\n");
+    if(descriptions.length&&groups.length)groups[groups.length-1].description+=" "+descriptions.join(" ");
+    if(groups.length===0)return [{description:cleaned,price:""}];
+    return groups;
   };
+  const renderScope=(value:string)=>{
+    const groups=scopeParts(value);
+    return <div className="space-y-3">{groups.map((group,index)=><div key={index} className="space-y-1.5"><p className="whitespace-pre-wrap">{groups.length>1?<strong className="mr-1 font-black">{index+1}.</strong>:null}{group.description}</p>{group.price&&<p className="font-bold">{group.price}</p>}</div>)}</div>;
+  };
+  const formatNumberedScope=(value:string)=>scopeParts(value).map((g,i)=>(scopeParts(value).length>1?(i+1)+". ":"")+g.description+(g.price?"\\n"+g.price:"")).join("\\n\\n");
   const scopeLength=String(quote?.scope_text||"").length+String(crmConfig.quoteDefaultText||"").length+(isMjTenant?420:0);
   const scopeFontSize=15;
   const scopeTypography={fontSize:scopeFontSize+"px",lineHeight:Math.round(scopeFontSize*1.5)+"px"};
@@ -165,7 +163,7 @@ ${crmConfig.businessName}`;
         .quote-mobile-frame { transform-origin: top left; transform: scale(.4); margin-bottom: -672px; }
         .quote-page { width: 794px !important; min-width: 794px !important; max-width: 794px !important; padding-left: 30px !important; padding-right: 30px !important; }
       }
-      @media print { @page { size: A4; margin: 0; } .quote-preview-scroll { overflow: visible !important; padding: 0 !important; } .quote-mobile-frame { width: auto !important; transform: none !important; margin: 0 !important; } .quote-page { width: 210mm !important; min-width: 210mm !important; max-width: 210mm !important; height: 297mm !important; min-height: 297mm; padding-left: 8mm !important; padding-right: 8mm !important; padding-bottom: 13mm !important; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }
+      @media print { @page { size: A4; margin: 0; } .quote-preview-scroll { overflow: visible !important; padding: 0 !important; } .quote-mobile-frame { width: 210mm !important; max-width: 210mm !important; transform: none !important; margin: 0 !important; } .quote-page { box-sizing: border-box !important; width: 210mm !important; min-width: 210mm !important; max-width: 210mm !important; height: 297mm !important; min-height: 297mm; padding-left: 8mm !important; padding-right: 8mm !important; padding-bottom: 18mm !important; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }
     `}</style>
     <div className="mx-auto mb-4 flex max-w-[900px] flex-wrap items-center justify-end gap-2 px-4 print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-bold text-green-700">{sentMessage}</span>}
@@ -187,7 +185,7 @@ ${crmConfig.businessName}`;
         <div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">{isMj ? "Project Overview & Lead Times" : "Project"}</p><p className="mt-1 text-lg font-black">{j.job_type}</p>{j.dimensions && <p className="mt-1 text-sm text-black/65">Approx. dimensions: {j.dimensions}</p>}{j.material && <p className="text-sm text-black/65">Material: {j.material}</p>}{(j.finishes || []).length > 0 && <p className="text-sm text-black/65">Finish: {(j.finishes || []).join(" + ")}{j.colour ? `, ${j.colour}` : ""}</p>}</div>
       </section>
 
-      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-black/75">{formatNumberedScope(quote.scope_text)}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-[12px] leading-[18px] text-black/65">{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-3 text-[12px] leading-[18px] text-black/65">{mjCompletionText}</p>}</section>}
+      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-black/75">{renderScope(quote.scope_text)}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-[12px] leading-[18px] text-black/65">{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-3 text-[12px] leading-[18px] text-black/65">{mjCompletionText}</p>}</section>}
 
       
 
@@ -205,7 +203,7 @@ ${crmConfig.businessName}`;
       {quote.exclusions && <section className={isModern?"":"mt-6"} style={isModern?{marginTop:"18px"}:undefined}><h2 className={isModern?"border-b border-black/15 pb-1.5 text-base font-black":"text-base font-black"}>{isModern ? "Exclusions" : "Project notes"}</h2><div className="mt-2 whitespace-pre-wrap text-sm leading-5 text-black/70">{quote.exclusions}</div></section>}
       {isModern ? <section style={{marginTop:"20px"}}><div className="rounded-xl bg-[#fafaf8] p-5 text-[14px] leading-6 text-black/80"><h2 className="mb-3 border-b border-black/15 pb-1.5 text-base font-black text-black">Payment & Terms</h2><p><b>Payment:</b> {quote.deposit_amount ? `${money(quote.deposit_amount)} deposit, with the balance due on completion.` : crmConfig.businessDetails.paymentTerms}</p><p className="mt-2"><b>Terms:</b> Quote valid for {crmConfig.businessDetails.quoteValidityDays} days. Final site measurements apply. Any additional or changed work will be agreed separately. Lead times are estimates and may change due to access, materials or circumstances outside our control. Fabricated items remain our property until paid in full.</p>{crmConfig.businessDetails.bankName&&<div className="mt-3 border-t border-black/10 pt-3 text-[14px] leading-6 text-black/80"><p className="font-black">Bank details</p><p>Account name: {crmConfig.businessDetails.bankName}</p><p>Sort code: {crmConfig.businessDetails.sortCode}</p><p>Account number: {crmConfig.businessDetails.accountNumber}</p></div>}</div></section> : <section className="mt-6"><h2 className="text-base font-black">Payment & key terms</h2><div className="mt-3 grid gap-x-8 gap-y-2 text-[12px] leading-5 text-black/65 sm:grid-cols-2"><p><b>Payment:</b> {quote.deposit_amount ? `${money(quote.deposit_amount)} deposit. ${crmConfig.businessDetails.paymentTerms.replace(/^\s*\d+(?:\.\d+)?%\s+deposit\s*,?\s*/i,"")}` : crmConfig.businessDetails.paymentTerms}</p><p><b>Validity:</b> This quotation is valid for {crmConfig.businessDetails.quoteValidityDays} days unless another validity date is shown above.</p><p><b>Scope:</b> The price covers only the works specifically described in this quotation. Additional or changed works will be agreed separately.</p><p><b>Measurements:</b> Final site measurements take precedence over preliminary dimensions.</p><p><b>Lead times:</b> Dates and lead times are estimates and may change due to access, materials or circumstances outside our control.</p><p><b>Ownership:</b> Fabricated items remain the property of the supplier until paid for in full.</p></div></section>}
 {isModern&&<div className="mt-auto flex min-h-[56px] items-center justify-center"><p className="text-center text-[13px] font-semibold text-black/65">{isMjTenant ? "To proceed, please confirm your acceptance of this quotation. Thank you for the opportunity to quote for your project. We look forward to working with you." : "Thank you for the opportunity to quote for your project. We look forward to working with you."}</p></div>}{!isModern&&<section className="mt-7"><h2 className="text-base font-black">Acceptance</h2><p className="mt-2 text-sm leading-5 text-black/65">I/We accept this quotation and authorise {crmConfig.businessName} to proceed with the works described.</p><div className="mt-8 grid grid-cols-3 gap-5 text-xs"><div className="border-t border-black/35 pt-2">Name</div><div className="border-t border-black/35 pt-2">Signature</div><div className="border-t border-black/35 pt-2">Date</div></div></section>}
-      <footer className={isModern?"mt-auto rounded-xl text-center text-white":"mt-auto border-t border-black/10 pt-4 text-[10px] leading-4 text-black/45"} style={isModern?{backgroundColor:quoteBrand,color:"#fff",padding:"1px 12px",fontSize:"8px",lineHeight:"9px"}:undefined}>{isModern?<><p className="font-bold text-white" style={{whiteSpace:"nowrap"}}>{crmConfig.businessName.toUpperCase()}<span className="font-normal">{crmConfig.businessDetails.officeAddress?` · ${crmConfig.businessDetails.officeAddress}`:""}</span></p><p className="mt-0.5">{[crmConfig.businessDetails.phone,crmConfig.businessDetails.email,crmConfig.businessDetails.website,crmConfig.businessDetails.companyNumber?`Company No. ${crmConfig.businessDetails.companyNumber}`:"",crmConfig.businessDetails.vatRegistered&&crmConfig.businessDetails.vatNumber?`VAT ${crmConfig.businessDetails.vatNumber}`:""].filter(Boolean).join(" · ")}</p></>:<><p className="font-bold text-black/60">{crmConfig.businessName.toUpperCase()}</p><p>{crmConfig.businessDetails.officeAddress}</p><p>{[crmConfig.businessDetails.phone,crmConfig.businessDetails.email,crmConfig.businessDetails.website,crmConfig.businessDetails.companyNumber?`Company No. ${crmConfig.businessDetails.companyNumber}`:"",crmConfig.businessDetails.vatRegistered&&crmConfig.businessDetails.vatNumber?`VAT ${crmConfig.businessDetails.vatNumber}`:""].filter(Boolean).join(" · ")}</p>{crmConfig.businessDetails.bankName&&<p className="mt-1">Payment: {crmConfig.businessDetails.bankName} · Sort code {crmConfig.businessDetails.sortCode} · Account {crmConfig.businessDetails.accountNumber}</p>}</>}</footer>
+      <footer className={isModern?"mt-auto mb-4 rounded-xl text-center text-white":"mt-auto border-t border-black/10 pt-4 text-[10px] leading-4 text-black/45"} style={isModern?{backgroundColor:quoteBrand,color:"#fff",padding:"1px 12px",fontSize:"8px",lineHeight:"9px"}:undefined}>{isModern?<><p className="font-bold text-white" style={{whiteSpace:"nowrap"}}>{crmConfig.businessName.toUpperCase()}<span className="font-normal">{crmConfig.businessDetails.officeAddress?` · ${crmConfig.businessDetails.officeAddress}`:""}</span></p><p className="mt-0.5">{[crmConfig.businessDetails.phone,crmConfig.businessDetails.email,crmConfig.businessDetails.website,crmConfig.businessDetails.companyNumber?`Company No. ${crmConfig.businessDetails.companyNumber}`:"",crmConfig.businessDetails.vatRegistered&&crmConfig.businessDetails.vatNumber?`VAT ${crmConfig.businessDetails.vatNumber}`:""].filter(Boolean).join(" · ")}</p></>:<><p className="font-bold text-black/60">{crmConfig.businessName.toUpperCase()}</p><p>{crmConfig.businessDetails.officeAddress}</p><p>{[crmConfig.businessDetails.phone,crmConfig.businessDetails.email,crmConfig.businessDetails.website,crmConfig.businessDetails.companyNumber?`Company No. ${crmConfig.businessDetails.companyNumber}`:"",crmConfig.businessDetails.vatRegistered&&crmConfig.businessDetails.vatNumber?`VAT ${crmConfig.businessDetails.vatNumber}`:""].filter(Boolean).join(" · ")}</p>{crmConfig.businessDetails.bankName&&<p className="mt-1">Payment: {crmConfig.businessDetails.bankName} · Sort code {crmConfig.businessDetails.sortCode} · Account {crmConfig.businessDetails.accountNumber}</p>}</>}</footer>
       </div>
     </article>
     </div>
