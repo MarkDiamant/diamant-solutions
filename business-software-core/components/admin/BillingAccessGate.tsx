@@ -1,3 +1,4 @@
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
 import {useCallback,useEffect,useState} from "react";
 
@@ -8,7 +9,7 @@ export default function BillingAccessGate({children}:{children:React.ReactNode})
   const check=useCallback(()=>{fetch("/api/admin/billing-access",{cache:"no-store"}).then(async r=>{
     const body=await r.json().catch(()=>({}));
     if(r.status===401){if(window.location.pathname!=="/login")window.location.replace("/login");return;}
-    if(r.ok)setState(body);else if(body.reason==="payment")setState({...body,blocked:true,error:false});else setState({error:true,reason:body.reason,message:body.message||"We couldn’t open your Business Management Software just now. Please try again."});
+    if(r.ok)setState(body);else if(body.reason==="payment")setState({...body,blocked:true,error:false});else setState({error:true,reason:body.reason,message:friendlyError(body.message)||"We couldn’t open your Business Management Software just now. Please try again."});
   }).catch(()=>setState({error:true,message:"We couldn’t open your Business Management Software just now. Please try again."}));},[]);
   useEffect(()=>{if(window.location.pathname!=="/login"&&window.location.pathname!=="/admin/login")check();},[check]);
   if(typeof window!=="undefined"&&(window.location.pathname==="/login"||window.location.pathname==="/admin/login"))return <>{children}</>;
