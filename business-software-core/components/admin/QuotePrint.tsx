@@ -20,12 +20,12 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       if(!page||!body)return;
       const paddingTop=parseFloat(getComputedStyle(page).paddingTop)||0;
       const paddingBottom=parseFloat(getComputedStyle(page).paddingBottom)||0;
-      const available=page.clientHeight-paddingTop-paddingBottom-18;
-      const measure=()=>body.getBoundingClientRect().height;
+      const available=page.clientHeight-paddingTop-paddingBottom-28;
+      const measure=()=>body.scrollHeight*Number(page.style.getPropertyValue("--quote-fit")||1);
       page.style.setProperty("--quote-fit","1");
       if(measure()>available){
-        let low=.55,high=1;
-        for(let n=0;n<15;n++){
+        let low=.45,high=1;
+        for(let n=0;n<16;n++){
           const mid=(low+high)/2;
           page.style.setProperty("--quote-fit",String(mid));
           if(measure()<=available)low=mid;
@@ -85,6 +85,23 @@ ${crmConfig.businessName}`;
   const isMj=template==="mj-signature";
   const isMjTenant=String(crmConfig.businessName||"").trim().toLowerCase()==="m&j metal";
   const displayScope=(value:string)=>String(value||"").replace(/(\|\s*)1\s*x\s*£([\d,]+(?:\.\d{1,2})?)\s*=\s*£[\d,]+(?:\.\d{1,2})?/gi,(_match,prefix,price)=>prefix+"£"+price).replace(/(\|\s*)1\s*x\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_match,prefix,price)=>prefix+"£"+price);
+  const formatNumberedScope=(value:string)=>{
+    const cleaned=displayScope(value).trim();
+    const paragraphs=cleaned.split(/\\n\\s*\\n/).map(part=>part.trim()).filter(Boolean);
+    const priced=paragraphs.map((part,index)=>/£[\\d,]+(?:\\.\\d{1,2})?/.test(part)?index:-1).filter(index=>index>=0);
+    if(priced.length<2)return cleaned;
+    const groups:string[]=[];
+    let pending:string[]=[];
+    for(const part of paragraphs){
+      pending.push(part);
+      if(/£[\\d,]+(?:\\.\\d{1,2})?/.test(part)){
+        groups.push(pending.join("\\n\\n"));
+        pending=[];
+      }
+    }
+    if(pending.length&&groups.length)groups[groups.length-1]+="\\n\\n"+pending.join("\\n\\n");
+    return groups.length>1?groups.map((group,index)=>(index+1)+". "+group).join("\\n\\n"):cleaned;
+  };
   const scopeLength=String(quote?.scope_text||"").length+String(crmConfig.quoteDefaultText||"").length+(isMjTenant?420:0);
   const scopeFontSize=15;
   const scopeTypography={fontSize:scopeFontSize+"px",lineHeight:Math.round(scopeFontSize*1.5)+"px"};
@@ -137,9 +154,9 @@ ${crmConfig.businessName}`;
       @media (max-width: 932px) {
         .quote-preview-scroll { padding-left: 8px; padding-right: 8px; }
         .quote-mobile-frame { transform-origin: top left; transform: scale(.4); margin-bottom: -672px; }
-        .quote-page { width: 900px !important; min-width: 900px !important; max-width: 900px !important; padding-left: 56px !important; padding-right: 56px !important; }
+        .quote-page { width: 794px !important; min-width: 794px !important; max-width: 794px !important; padding-left: 30px !important; padding-right: 30px !important; }
       }
-      @media print { @page { size: A4; margin: 0; } .quote-preview-scroll { overflow: visible !important; padding: 0 !important; } .quote-mobile-frame { width: auto !important; transform: none !important; margin: 0 !important; } .quote-page { width: 210mm !important; min-width: 210mm !important; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }
+      @media print { @page { size: A4; margin: 0; } .quote-preview-scroll { overflow: visible !important; padding: 0 !important; } .quote-mobile-frame { width: auto !important; transform: none !important; margin: 0 !important; } .quote-page { width: 210mm !important; min-width: 210mm !important; max-width: 210mm !important; height: 297mm !important; min-height: 297mm; padding-left: 8mm !important; padding-right: 8mm !important; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }
     `}</style>
     <div className="mx-auto mb-4 flex max-w-[900px] flex-wrap items-center justify-end gap-2 px-4 print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-bold text-green-700">{sentMessage}</span>}
@@ -161,7 +178,7 @@ ${crmConfig.businessName}`;
         <div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">{isMj ? "Project Overview & Lead Times" : "Project"}</p><p className="mt-1 text-lg font-black">{j.job_type}</p>{j.dimensions && <p className="mt-1 text-sm text-black/65">Approx. dimensions: {j.dimensions}</p>}{j.material && <p className="text-sm text-black/65">Material: {j.material}</p>}{(j.finishes || []).length > 0 && <p className="text-sm text-black/65">Finish: {(j.finishes || []).join(" + ")}{j.colour ? `, ${j.colour}` : ""}</p>}</div>
       </section>
 
-      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-black/75">{displayScope(quote.scope_text)}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-[12px] leading-[18px] text-black/65">{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-3 text-[12px] leading-[18px] text-black/65">{mjCompletionText}</p>}</section>}
+      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-3 whitespace-pre-wrap text-[14px] leading-6 text-black/75">{formatNumberedScope(quote.scope_text)}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-[12px] leading-[18px] text-black/65">{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-3 text-[12px] leading-[18px] text-black/65">{mjCompletionText}</p>}</section>}
 
       
 
@@ -171,8 +188,8 @@ ${crmConfig.businessName}`;
 
     <div className="quote-preview-scroll print:contents">
     <div className="quote-mobile-frame mx-auto">
-    <article ref={printableRef} style={{height:"1122px",maxHeight:"1122px",overflow:"hidden"} as React.CSSProperties} className={`quote-page ${pageClass} mx-auto mt-0 flex flex-col bg-white px-10 py-9 shadow-xl print:mt-0 sm:px-14`}>
-      <div data-quote-body className="quote-fit-body flex flex-col" style={{minHeight:"1050px"}}>
+    <article ref={printableRef} style={{height:"1122px",maxHeight:"1122px",overflow:"hidden"} as React.CSSProperties} className={`quote-page ${pageClass} mx-auto mt-0 flex flex-col bg-white px-8 py-7 shadow-xl print:mt-0`}>
+      <div data-quote-body className="quote-fit-body flex flex-col">
       <header className={`flex items-center justify-between ${isClassic?"border-b border-black pb-4":isModern?"border-b-4 border-[var(--brand)] pb-2":"border-b-2 border-[var(--brand)] pb-4"}`} style={isModern?{height:"64px",minHeight:"64px",position:"relative"}:undefined}>{tenantLogoSrc&&<img src={tenantLogoSrc} alt={crmConfig.businessName} className={logoImgClass} style={isModern?{height:"64px",width:"auto",maxWidth:"340px",display:"block"}:undefined}/>}<div className="flex flex-col justify-center text-right" style={isModern?{position:"absolute",right:0,top:"8px"}:undefined}><p className="font-black">{isModern ? j.reference : `${j.reference} / V${quote.version}`}</p><p className="text-xs text-black/45">Quotation details</p></div></header>{isModern&&<section className="mt-3 grid grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)] gap-5"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Client Information</p><p className="mt-1 text-base font-black">{name}</p>{site&&<p className="mt-1 text-xs leading-5 text-black/65">{site}</p>}{(c.phone||c.email)&&<p className="mt-1 text-xs text-black/55">{c.phone}{c.phone&&c.email&&" · "}{c.email}</p>}</div><div className="ml-auto w-full max-w-[245px]"><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Project</p><p className="mt-1 text-base font-black">{j.job_type}</p><p className="mt-1 text-xs text-black/55">Issued {new Date(quote.created_at).toLocaleDateString("en-GB")}{quote.valid_until?` · Valid until ${new Date(`${quote.valid_until}T12:00:00`).toLocaleDateString("en-GB")}`:""}</p></div></section>}
       {isModern && <section className={`${panelClass}`} style={{marginTop:"14px"}}><div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-black/45">Quotation total</p><p className="mt-1 text-3xl font-black">{money(quote.amount)}</p><p className="mt-1 text-[10px] text-black/45">{crmConfig.businessDetails.vatRegistered&&Number(quote.vat_rate||0)>0?`VAT ${Number(quote.vat_rate)}%`:"VAT not charged"}</p></div><div className="text-right text-sm leading-5 text-black/60">{quote.deposit_amount && <p><b>Deposit:</b> {money(quote.deposit_amount)}</p>}{quote.lead_time && <p><b>Estimated lead time:</b> {quote.lead_time}</p>}</div></div></section>}
       {isModern && <section style={{marginTop:"16px"}}><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of Works</h2><div className="mt-2 whitespace-pre-wrap text-black/75" style={scopeTypography}>{displayScope(quote.scope_text)}</div>{crmConfig.quoteDefaultText?.trim()&&<p className="mt-2 whitespace-pre-wrap text-black/75" style={scopeTypography}>{crmConfig.quoteDefaultText.trim()}</p>}{isMjTenant&&<p className="mt-2 text-black/75" style={scopeTypography}>{mjCompletionText}</p>}</section>}
