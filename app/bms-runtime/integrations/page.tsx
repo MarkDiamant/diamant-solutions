@@ -1,4 +1,5 @@
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 import { useEffect, useState } from "react";
 import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/lib/crm/config";
 
@@ -17,7 +18,7 @@ export default function IntegrationsPage() {
     const response = await fetch("/api/admin/integrations/xero/status", { cache: "no-store" });
     if (response.status === 401) { window.location.href = "/admin/login"; return; }
     const body = await response.json().catch(() => ({}));
-    if (!response.ok) setError(body.error || "Unable to check Xero");
+    if (!response.ok) setError(friendlyError(body.error) || "Unable to check Xero");
     else { setConnected(Boolean(body.connected)); setTenantName(body.tenantName || null); setError(""); }
     setLoading(false);
   }
