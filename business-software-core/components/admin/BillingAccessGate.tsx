@@ -1,5 +1,6 @@
-import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
+
 import {useCallback,useEffect,useState} from "react";
 
 type AccessState={blocked?:boolean;reason?:"payment"|"account"|"signed_out";message?:string;businessName?:string;billing?:{interval?:string;resumeUrl?:string};error?:boolean};
