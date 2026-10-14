@@ -87,20 +87,20 @@ ${crmConfig.businessName}`;
   const displayScope=(value:string)=>String(value||"").replace(/(\|\s*)1\s*x\s*£([\d,]+(?:\.\d{1,2})?)\s*=\s*£[\d,]+(?:\.\d{1,2})?/gi,(_match,prefix,price)=>prefix+"£"+price).replace(/(\|\s*)1\s*x\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_match,prefix,price)=>prefix+"£"+price);
   const formatNumberedScope=(value:string)=>{
     const cleaned=displayScope(value).trim();
-    const paragraphs=cleaned.split(/\\n\\s*\\n/).map(part=>part.trim()).filter(Boolean);
-    const priced=paragraphs.map((part,index)=>/£[\\d,]+(?:\\.\\d{1,2})?/.test(part)?index:-1).filter(index=>index>=0);
+    const paragraphs=cleaned.split(/\n\s*\n/).map(part=>part.trim()).filter(Boolean);
+    const priced=paragraphs.map((part,index)=>/£[\d,]+(?:\.\d{1,2})?/.test(part)?index:-1).filter(index=>index>=0);
     if(priced.length<2)return cleaned;
     const groups:string[]=[];
     let pending:string[]=[];
     for(const part of paragraphs){
       pending.push(part);
-      if(/£[\\d,]+(?:\\.\\d{1,2})?/.test(part)){
-        groups.push(pending.join("\\n\\n"));
+      if(/£[\d,]+(?:\.\d{1,2})?/.test(part)){
+        groups.push(pending.join("\n\n"));
         pending=[];
       }
     }
-    if(pending.length&&groups.length)groups[groups.length-1]+="\\n\\n"+pending.join("\\n\\n");
-    return groups.length>1?groups.map((group,index)=>(index+1)+". "+group).join("\\n\\n"):cleaned;
+    if(pending.length&&groups.length)groups[groups.length-1]+="\n\n"+pending.join("\n\n");
+    return groups.length>1?groups.map((group,index)=>(index+1)+". "+group).join("\n\n"):cleaned;
   };
   const scopeLength=String(quote?.scope_text||"").length+String(crmConfig.quoteDefaultText||"").length+(isMjTenant?420:0);
   const scopeFontSize=15;
