@@ -1,3 +1,4 @@
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,7 +34,7 @@ export default function NewJobForm() {
     const response = await fetch("/api/admin/jobs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     if (response.status === 401) { router.replace("/admin/login"); return; }
     const result = await response.json().catch(() => ({}));
-    if (!response.ok) { setError(result.error || "Unable to create job"); setSaving(false); return; }
+    if (!response.ok) { setError(friendlyError(result.error) || "Unable to create job"); setSaving(false); return; }
     router.push(`/admin/jobs/${result.job.reference}`); router.refresh();
   }
 
