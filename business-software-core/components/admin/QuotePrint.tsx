@@ -88,19 +88,28 @@ ${crmConfig.businessName}`;
   const formatNumberedScope=(value:string)=>{
     const cleaned=displayScope(value).trim();
     const paragraphs=cleaned.split(/\n\s*\n/).map(part=>part.trim()).filter(Boolean);
-    const priced=paragraphs.map((part,index)=>/£[\d,]+(?:\.\d{1,2})?/.test(part)?index:-1).filter(index=>index>=0);
-    if(priced.length<2)return cleaned;
+    // A price line normally completes a distinct work package. Some AI quotes
+    // put the next description immediately after that line with only one newline.
+    const lines=cleaned.split(/\n/).map(line=>line.trim()).filter(Boolean);
+    const priceLine=(line:string)=>/£[\d,]+(?:\.\d{1,2})?/.test(line);
+    const pricedLines=lines.filter(priceLine);
+    if(pricedLines.length<2)return cleaned;
     const groups:string[]=[];
-    let pending:string[]=[];
-    for(const part of paragraphs){
-      pending.push(part);
-      if(/£[\d,]+(?:\.\d{1,2})?/.test(part)){
-        groups.push(pending.join("\n\n"));
-        pending=[];
+    let current:string[]=[];
+    for(const line of lines){
+      current.push(line);
+      if(priceLine(line)){
+        groups.push(current.join("\n"));
+        current=[];
       }
     }
-    if(pending.length&&groups.length)groups[groups.length-1]+="\n\n"+pending.join("\n\n");
-    return groups.length>1?groups.map((group,index)=>(index+1)+". "+group).join("\n\n"):cleaned;
+    if(current.length&&groups.length)groups[groups.length-1]+="\n"+current.join("\n");
+    if(groups.length<2)return cleaned;
+    return groups.map((group,index)=>{
+      const parts=group.split("\n");
+      const first=parts[0].replace(/^\s*\d+[.)]\s*/,"");
+      return (index+1)+". "+first+(parts.length>1?"\n"+parts.slice(1).join("\n"):"");
+    }).join("\n\n");
   };
   const scopeLength=String(quote?.scope_text||"").length+String(crmConfig.quoteDefaultText||"").length+(isMjTenant?420:0);
   const scopeFontSize=15;
