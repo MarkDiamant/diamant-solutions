@@ -9,7 +9,7 @@ function MobileQuickEditFix() {
     const style = document.createElement("style");
     style.dataset.bmsMobileQuickEditFix = "1";
     style.textContent = `
-      @media (max-width: 767px) {
+      @media (max-width: 767px) {\n        main [data-bms-quick-actions] { justify-content: center !important; }\n        main [data-bms-quick-actions] > button:last-child { flex: 0 0 auto !important; width: auto !important; margin: 0 auto; }
         body { overflow-x: hidden; }
         main, main > div, main section, main form, main label, main input, main select, main textarea { min-width: 0; max-width: 100%; }
         main input, main select, main textarea { box-sizing: border-box; }
