@@ -1,3 +1,4 @@
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
 
 import { useEffect, useState } from "react";
@@ -62,7 +63,7 @@ export default function JobWorkflowPanel({ reference }: { reference: string }) {
     const response = await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ job: patch }) });
     const body = await response.json().catch(() => ({}));
     setSaving(false);
-    if (!response.ok) { setMessage(body.error || "Could not save workflow"); return; }
+    if (!response.ok) { setMessage(friendlyError(body.error) || "Could not save workflow"); return; }
     setMessage("Saved"); await load(); setTimeout(() => setMessage(""), 1800);
   }
 
