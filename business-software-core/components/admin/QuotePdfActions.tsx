@@ -46,7 +46,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
         const frame=page.closest<HTMLElement>(".quote-mobile-frame");
         const previousTransform=frame?.style.transform||"";
         if(frame)frame.style.transform="none";
-        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,width:900,windowWidth:1200});
+        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,width:page.offsetWidth,height:page.offsetHeight,windowWidth:1200,windowHeight:1200,scrollX:0,scrollY:0});
         if(frame)frame.style.transform=previousTransform;
         images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});
       }
