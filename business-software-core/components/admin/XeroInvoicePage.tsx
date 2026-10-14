@@ -1,3 +1,4 @@
+import { friendlyError } from "@/business-software-core/lib/friendly-error";
 "use client";
 
 import Link from "next/link";
@@ -43,7 +44,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
       body: JSON.stringify({ action: actionName }),
     });
     const body = await res.json().catch(() => ({}));
-    if (!res.ok) { setError(body.error || "Xero action failed"); setMessage(""); setBusy(false); return; }
+    if (!res.ok) { setError(friendlyError(body.error) || "Xero action failed"); setMessage(""); setBusy(false); return; }
     setMessage(actionName === "create" ? "Draft invoice created in Xero" : "Xero status updated");
     
     await load(); setBusy(false);
