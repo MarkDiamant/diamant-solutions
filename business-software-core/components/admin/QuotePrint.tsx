@@ -149,7 +149,7 @@ ${crmConfig.businessName}`;
     if(whatsAppBusy)return;
     setWhatsAppBusy(true);
     try{
-      const customerName=String(c.first_name||c.last_name||"").trim();
+      const customerName=String(c.first_name||"").trim().split(/\s+/)[0];
       const shortMessage=`Hi${customerName?" "+customerName:""}, please find your quote attached. If you have any questions or would like to go ahead and book the work in, just let us know. Many thanks!`;
       await navigator.clipboard.writeText(shortMessage);
       setSentMessage("Message copied. Paste it into WhatsApp.");
