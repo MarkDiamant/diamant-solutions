@@ -74,10 +74,11 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   if (!quote) return <main className="p-10">Quote not found.</main>;
 
   const j = data.job, c = data.customer || {};
-  const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
+  const name = String(c.company || c.company_name || "").trim() || [c.first_name, c.last_name].filter(Boolean).join(" ");
+  const greetingFirstName = String(c.first_name || "").trim().split(/\s+/)[0] || "there";
   const site = [j.site_address_line_1 || c.address_line_1, j.site_address_line_2 || c.address_line_2, j.site_city || c.city, j.site_postcode || c.postcode].filter(Boolean).join(", ");
   // Job photos/files stay internal to the job record. Quotes and invoices never depend on them.
-  const message = `Hi ${c.first_name || ""},
+  const message = `Hi ${greetingFirstName},
 
 Please find our quotation ${j.reference} for ${String(j.job_type || "metalwork").toLowerCase()} at ${site}.
 
