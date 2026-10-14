@@ -9,6 +9,7 @@ function money(value: number | string | null | undefined) {
 
 export default function QuotePrint({ reference, quoteId }: { reference: string; quoteId: string }) {
   const [data, setData] = useState<any>(null);
+  const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
   const printableRef=useRef<HTMLElement|null>(null);
   const [fitScale,setFitScale]=useState(1);
   const [fitStatus,setFitStatus]=useState<"checking"|"fitted"|"overflow">("checking");
@@ -50,7 +51,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const [sending, setSending] = useState(false);
   const [sentMessage, setSentMessage] = useState("");
   const [pdfBusy, setPdfBusy] = useState(false);
-  const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
+
   const [connectedGmail,setConnectedGmail]=useState<string|null>(null);
   const [drafting,setDrafting]=useState(false);
   const [whatsAppBusy,setWhatsAppBusy]=useState(false);
