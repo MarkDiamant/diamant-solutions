@@ -11,6 +11,7 @@ export type JobStatus =
   | "quote_preparing"
   | "quote_sent"
   | "awaiting_customer"
+  | "dormant_enquiry"
   | "interested_not_ready"
   | "customer_unsure"
   | "confirmed"
