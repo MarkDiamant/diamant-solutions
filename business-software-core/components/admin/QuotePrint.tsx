@@ -110,24 +110,11 @@ ${crmConfig.businessName}`;
     if(groups.length===0)return [{description:cleaned,price:""}];
     return groups;
   };
-  const quoteProjectTitle=(jobTitle:string,scope:string)=>{
-    const groups=scopeParts(scope);
-    if(groups.length<2)return jobTitle;
-    const descriptions=groups.map(group=>group.description.toLowerCase());
-    const hasGates=descriptions.some(x=>/\bgates?\b/.test(x));
-    const hasGrate=descriptions.some(x=>/\bgrate\b/.test(x));
-    if(hasGates&&hasGrate)return /passage/i.test(jobTitle)?"Side Passage Gates & Galvanised Steel Grate":"Gates & Galvanised Steel Grate";
-    const headings=groups.map(group=>{
-      const text=group.description.replace(/^\s*(?:supply(?:\s+and\s+installation)?|installation|manufacture(?:\s+and\s+installation)?)\s+(?:of\s+)?/i,"").replace(/^(?:a|an|the|two|three|four|\d+)\s+/i,"");
-      return text.split(/,|\s+approximately\s+|\s+including\s+|\s+with\s+|\s+to\s+suit\s+/i)[0].trim().split(/\s+/).slice(0,7).join(" ");
-    }).filter(Boolean);
-    const distinct=[...new Set(headings)];
-    return distinct.length>1?distinct.join(" & "):jobTitle;
-  };
+  const quoteProjectTitle=(jobTitle:string,_scope:string)=>jobTitle.trim()||"Project";
   const renderScope=(value:string)=>{
     const groups=scopeParts(value);
     return <div className="space-y-3">{groups.map((group,index)=><div key={index} className="space-y-2" style={{paddingLeft:groups.length>1?"25px":0}}>
-      <p className="whitespace-pre-wrap">{groups.length>1?<span style={{fontWeight:900,display:"inline-block",width:"25px",marginLeft:"-25px",color:"#111"}}>{index+1}.</span>:null}{group.description}</p>
+      <p className="whitespace-pre-wrap">{groups.length>1?<span style={{fontWeight:900,display:"inline-block",width:"25px",marginLeft:"-25px",color:"#111"}}>{index+1}.</span>:null}{(()=>{const match=group.description.match(/^([^:]{3,80}):\s*(.+)$/s);return match?<><strong className="font-black text-black">{match[1]}:</strong>{" "+match[2]}</>:group.description;})()}</p>
       {group.price&&<p style={{fontWeight:900,color:"#111",marginTop:"5px",marginBottom:"9px"}}><b style={{fontWeight:900}}>{group.price}</b></p>}
     </div>)}</div>;
   };
