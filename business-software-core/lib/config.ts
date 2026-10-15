@@ -10,6 +10,9 @@ export type CrmConfig = {
   workforceRoles: string[];
   managers: Array<{value:string;label:string}>;
   workTypes: string[];
+  statusLabels?: Record<string,string>;
+  statusOrder?: string[];
+  nextActionOptions?: string[];
   finishOptions: string[];
   enquirySources: string[];
   fileCategories: string[];
@@ -27,6 +30,7 @@ export type CrmConfig = {
 export const SHARED_BUSINESS_SOFTWARE_DEFAULTS: CrmConfig = {
   businessName:"Your Business", systemName:"Business Management Software", logoUrl:"/Icon-512.png", accentColour:"#e66a24",
   workforceTitle:"Team", workforceSingular:"team member", workforceRoles:["Engineer","Technician","Contractor","Subcontractor","Surveyor","Project manager","Electrician","Plumber","Carpenter","Builder","Cleaner","Driver","Consultant","Salesperson","Other"],
+  statusLabels:{}, statusOrder:[], nextActionOptions:["Contact customer","Request information","Schedule appointment","Prepare estimate","Send quote","Follow up","Confirm booking","Assign team","Start work","Check progress","Complete work","Send invoice","Follow up payment","Close job","No follow-up required"],
   managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", quoteDefaultText:"", invoiceTemplate:"clean", tenantKey:"demo",
   plan:{includedUsers:1,licensedUsers:1,additionalUserMonthly:10,aiAssistantMonthly:15,annualMonthsCharged:10,aiIncluded:false}, ai:{enabled:false,textAssist:false,voiceAssist:false,includedTextActions:null,includedVoiceMinutes:null}, billing:{mode:"free",interval:null,status:"active",resumeUrl:"",customerId:"",subscriptionId:"",currentPeriodEnd:"",cancelAtPeriodEnd:false},
   businessDetails:{phone:"",email:"",website:"",companyNumber:"",officeAddress:"",registeredAddress:"",bankName:"",accountNumber:"",sortCode:"",vatRegistered:false,vatNumber:"",defaultDepositPercent:50,quoteValidityDays:30,paymentTerms:"50% deposit, with the remaining balance due on completion.",defaultVatRate:20,emailSignatureName:"The Team",emailSignatureTagline:""},
@@ -50,6 +54,9 @@ export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined)
     plan: { ...DEFAULT_CRM_CONFIG.plan, ...(value?.plan || {}) },
     ai: { ...DEFAULT_CRM_CONFIG.ai, ...(value?.ai || {}) },
     billing: { ...DEFAULT_CRM_CONFIG.billing, ...(value?.billing || {}) },
+    statusLabels: value?.statusLabels && typeof value.statusLabels==="object" && !Array.isArray(value.statusLabels) ? value.statusLabels : {},
+    statusOrder: Array.isArray(value?.statusOrder) ? value.statusOrder : [],
+    nextActionOptions: Array.isArray(value?.nextActionOptions) ? value.nextActionOptions : DEFAULT_CRM_CONFIG.nextActionOptions,
     workTypes: Array.isArray(value?.workTypes) && value!.workTypes!.length ? value!.workTypes! : DEFAULT_CRM_CONFIG.workTypes,
     finishOptions: Array.isArray(value?.finishOptions) && value!.finishOptions!.length ? value!.finishOptions! : DEFAULT_CRM_CONFIG.finishOptions,
     enquirySources: Array.isArray(value?.enquirySources) && value!.enquirySources!.length ? value!.enquirySources! : DEFAULT_CRM_CONFIG.enquirySources,
