@@ -79,7 +79,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(friendlyError(result.error)||"Invoice email failed");
         setMessage(action==="draft"?"Invoice email draft created in connected Gmail with PDF attached. Open Gmail to review it.":`Invoice emailed with PDF to ${result.to}.`);
       }
-    }catch(e){setError(friendlyError(e):"Could not share invoice");}
+    }catch(e){setError(friendlyError(e)||"Could not share invoice");}
     finally{setSharing("");}
   }
 
