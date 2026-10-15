@@ -101,7 +101,7 @@ export default function CrmDashboardV3() {
   useEffect(()=>{const sync=()=>{if(window.location.hash==="#quick-add"){setQuickAddOpen(true);requestAnimationFrame(()=>document.getElementById("quick-add")?.scrollIntoView({behavior:"smooth",block:"start"}));}};sync();window.addEventListener("hashchange",sync);return()=>window.removeEventListener("hashchange",sync);},[]);
 
   const configuredStatuses=useMemo(()=>{const base=ALL_STATUSES.map(x=>({...x,label:crmConfig.statusLabels?.[x.value]||x.label}));const order=crmConfig.statusOrder||[];return order.length?base.sort((a,b)=>{const ai=order.indexOf(a.value),bi=order.indexOf(b.value);return (ai<0?999:ai)-(bi<0?999:bi);}):base;},[crmConfig.statusLabels,crmConfig.statusOrder]);
-  const actionOptions=crmConfig.nextActionOptions??(crmConfig.tenantKey==="mj-metal"?NEXT_ACTION_OPTIONS:DEFAULT_CRM_CONFIG.nextActionOptions??[]);
+  const actionOptions=crmConfig.tenantKey==="mj-metal"&&!crmConfig.nextActionOptions?.length?NEXT_ACTION_OPTIONS:(crmConfig.nextActionOptions??DEFAULT_CRM_CONFIG.nextActionOptions??[]);
   const typeOptions = useMemo(()=>{
     const items=[...jobTypeOptions];
     return jobTypeSort==="az" ? items.sort((a,b)=>a.name.localeCompare(b.name,"en-GB")) : items.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,"en-GB"));
