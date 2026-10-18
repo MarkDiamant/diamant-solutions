@@ -15,6 +15,6 @@ export async function GET(){
     if(!image.ok)return new NextResponse(null,{status:502});
     const type=image.headers.get("content-type")||"image/png";
     if(!["image/png","image/jpeg","image/webp","image/gif"].includes(type.split(";")[0].trim().toLowerCase()))return new NextResponse(null,{status:415});
-    const bytes=await image.arrayBuffer();if(bytes.byteLength>2_000_000)return new NextResponse(null,{status:413});return new NextResponse(bytes,{headers:{"Content-Type":type,"Cache-Control":"private, max-age=300","Access-Control-Allow-Origin":"*"}});
+    const bytes=await image.arrayBuffer();if(bytes.byteLength>2_000_000)return new NextResponse(null,{status:413});return new NextResponse(bytes,{headers:{"Content-Type":type,"Cache-Control":"private, max-age=300","X-Content-Type-Options":"nosniff"}});
   }catch{return new NextResponse(null,{status:500});}
 }
