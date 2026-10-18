@@ -5,7 +5,7 @@ function hostname(value:string|null|undefined){return String(value||"").trim().t
 
 export function middleware(request:NextRequest){
  const requestHost=hostname(request.nextUrl.hostname),hostHeader=hostname(request.headers.get("host")),forwardedHost=hostname(request.headers.get("x-forwarded-host"));
- const hosts=[requestHost,hostHeader,forwardedHost],host=hosts.includes(DEMO_HOST)?DEMO_HOST:(forwardedHost||hostHeader||requestHost),path=request.nextUrl.pathname;
+ const hosts=[requestHost,hostHeader,forwardedHost],host=hosts.includes(DEMO_HOST)?DEMO_HOST:(requestHost||hostHeader),path=request.nextUrl.pathname;
  if(host==="sites.diamantsolutions.co.uk"){return NextResponse.redirect(new URL("https://diamantsolutions.co.uk/websites#work"),308);}
  const tenantHost=host.endsWith(".diamantsolutions.co.uk")&&host!==DEMO_HOST&&host!=="www.diamantsolutions.co.uk";
  if(tenantHost&&path==="/admin"){const url=request.nextUrl.clone();url.pathname="/";return NextResponse.redirect(url,308);}
