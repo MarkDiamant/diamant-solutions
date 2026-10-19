@@ -59,6 +59,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const [draftNotice,setDraftNotice]=useState<{email:string}|null>(null); const [dialog,setDialog]=useState<{title:string;message:string}|null>(null);
   useEffect(()=>{fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.settings)setCrmConfig(b.settings);}}).catch(()=>{});fetch("/api/admin/integrations/google/status",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.connected&&b.email)setConnectedGmail(String(b.email));}}).catch(()=>{});},[]);
   useEffect(()=>{const handler=async(ev:Event)=>{const detail=(ev as CustomEvent).detail||{};try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId,pdfBase64:detail.pdfBase64,pdfName:detail.pdfName})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});}catch(error){setDialog({title:"Could not create email draft",message:error instanceof Error?error.message:"Could not create Gmail draft"});}finally{setDrafting(false);}};window.addEventListener("quote-email-pdf",handler);return()=>window.removeEventListener("quote-email-pdf",handler);},[reference,quoteId,connectedGmail]);
+  useEffect(()=>{const handler=async(ev:Event)=>{const detail=(ev as CustomEvent).detail||{};try{if(!detail.pdfBase64)throw new Error("Quote PDF could not be generated");const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/send-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId,pdfBase64:detail.pdfBase64,pdfName:detail.pdfName})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not send quote");setSentMessage(`Sent to ${body.sentTo||"customer"}`);}catch(error){setDialog({title:"Could not send quote",message:error instanceof Error?error.message:"Could not send quote"});}finally{setSending(false);}};window.addEventListener("quote-send-pdf",handler);return()=>window.removeEventListener("quote-send-pdf",handler);},[reference,quoteId]);
   useEffect(() => {
     fetch(`/api/admin/jobs/${encodeURIComponent(reference)}`, { cache: "no-store" }).then(async (res) => {
       if (res.status === 401) { window.location.href = "/admin/login"; return; }
@@ -153,15 +154,8 @@ ${crmConfig.businessName}`;
     if (!c.email) { alert("Add the customer's email address to the job first."); return; }
     if (!window.confirm(`Send quotation ${j.reference} V${quote.version} to ${c.email}?`)) return;
     setSending(true); setSentMessage("");
-    const response = await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/send-quote`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quoteId: quote.id }),
-    });
-    const body = await response.json().catch(() => ({}));
-    setSending(false);
-    if (!response.ok) { setDialog({title:"Could not send quote",message:body.error || "Unable to send quote"}); return; }
-    setSentMessage(`Sent to ${body.sentTo}`);
+    document.documentElement.dataset.quoteEmailPdf="send";
+    document.getElementById("save-quote-pdf")?.click();
   }
 
   return <><main className="min-h-screen bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":quoteBrand} as React.CSSProperties}>
