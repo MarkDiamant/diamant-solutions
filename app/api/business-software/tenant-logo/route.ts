@@ -9,9 +9,9 @@ export async function GET(){
     const r=await centralRest("business_software_tenant_settings?tenant_id=eq."+encodeURIComponent(tenant.id)+"&select=logo_url,app_config&limit=1",{cache:"no-store"});
     const row=r.ok?(await r.json().catch(()=>[]))[0]:null;
     const configured=String(row?.logo_url||row?.app_config?.logoUrl||"").trim();
-    const fallback=["mjmetal","mj-metal"].includes(String(tenant.slug||""))?"https://mjmetal.co.uk/images/logo.png":"";
+    const fallback=["mjmetal","mj-metal"].includes(String(tenant.slug||""))?"https://raw.githubusercontent.com/MarkDiamant/mjmetal/main/public/images/logo.png":"";
     const sources=[configured,fallback].filter(Boolean);
-    const allowed=new Set(["mjmetal.co.uk","www.mjmetal.co.uk","iepqggrfenfqrqyzqyed.supabase.co",...(process.env.BMS_LOGO_ALLOWED_HOSTS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)]);
+    const allowed=new Set(["mjmetal.co.uk","www.mjmetal.co.uk","raw.githubusercontent.com","iepqggrfenfqrqyzqyed.supabase.co",...(process.env.BMS_LOGO_ALLOWED_HOSTS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)]);
     for(const src of sources){
       try{
         const url=new URL(src);
