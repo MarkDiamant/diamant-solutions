@@ -220,7 +220,8 @@ if(["update_user","update_settings","disconnect_integration"].includes(plan.kind
  if(!["draft","send"].includes(data.action)||!data.invoiceId)return NextResponse.json({error:"Choose an invoice and email action"},{status:400});
  const raw=await jobDetail(tenantId,parts[1],member._token),customer=raw?.customer||{},invoice=(raw?.invoices||[]).find((x:any)=>x.id===data.invoiceId&&x.provider==="bms");
  if(!invoice)return NextResponse.json({error:"BMS invoice not found"},{status:404});
- if(invoice.status!=="AUTHORISED"&&invoice.status!=="PAID")return NextResponse.json({error:"Approve the invoice before emailing or creating a draft"},{status:409});
+ if(!["AUTHORISED","SENT","PAID"].includes(invoice.status))return NextResponse.json({error:"Approve the invoice before emailing or creating a draft"},{status:409});
+ if(data.action==="send"&&invoice.status==="SENT")return NextResponse.json({error:"This invoice is already recorded as sent. Review its delivery history before sending again."},{status:409});
  if(!customer.email)return NextResponse.json({error:"Customer email is missing"},{status:400});
  const encoded=String(data.pdfBase64||"");
  if(!encoded||encoded.length>14000000||!/^[A-Za-z0-9+/=]+$/.test(encoded))return NextResponse.json({error:"Valid invoice PDF required (maximum 10 MB)"},{status:400});
@@ -232,6 +233,7 @@ if(["update_user","update_settings","disconnect_integration"].includes(plan.kind
  const send=data.action==="send",endpoint=send?"messages/send":"drafts";
  const gr=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+endpoint,{method:"POST",headers:{"Authorization":"Bearer "+gmail.token,"Content-Type":"application/json"},body:JSON.stringify(send?{raw:mime}:{message:{raw:mime}})});
  if(!gr.ok)return NextResponse.json({error:"Gmail could not "+(send?"send":"create")+" the invoice email"},{status:502});
+ if(send){const saved=await centralRest("business_software_invoices?id=eq."+encodeURIComponent(invoice.id)+"&tenant_id=eq."+encodeURIComponent(tenantId),{method:"PATCH",body:JSON.stringify({status:"SENT",synced_at:new Date().toISOString()})});if(!saved.ok)return NextResponse.json({error:"Gmail sent the invoice, but BMS could not update its status. Do not resend before checking Gmail."},{status:502});}
  return NextResponse.json({ok:true,to:customer.email,action:data.action});
  }catch(e){return NextResponse.json({error:e instanceof Error?e.message:"Unable to email invoice"},{status:409});}
 }
