@@ -67,9 +67,9 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
   const active=(accounts.Accounts||[]).filter((a:any)=>a.Status==="ACTIVE"&&a.Code);
   const account=active.find((a:any)=>a.Code==="200")||active[0];
   if(!account)throw new Error("No active sales revenue account is available in Xero.");
-  const description=String(quote?.scope_text||job.customer_requirements||job.job_type||"Works as agreed").slice(0,3900);
+  const description=String(job.job_type||"Metalwork services").replace(/\s+/g," ").trim().slice(0,160);
   const today=new Date().toISOString().slice(0,10);
-  const created=await xeroRequest(tenantId,"Invoices","POST",{Invoices:[{Type:"ACCREC",Contact:{ContactID:contactId},Date:today,DueDate:today,Status:"DRAFT",Reference:job.reference,LineAmountTypes:"Exclusive",LineItems:[{Description:description,Quantity:1,UnitAmount:amount,AccountCode:account.Code,...(Number(quote?.vat_rate??0)===0?{TaxType:"NONE"}:{})}]}]});
+  const created=await xeroRequest(tenantId,"Invoices","POST",{Invoices:[{Type:"ACCREC",Contact:{ContactID:contactId},Date:today,DueDate:today,Status:"DRAFT",InvoiceNumber:job.reference,Reference:job.reference,LineAmountTypes:"Exclusive",LineItems:[{Description:description,Quantity:1,UnitAmount:amount,AccountCode:account.Code,...(Number(quote?.vat_rate??0)===0?{TaxType:"NONE"}:{})}]}]});
   invoice=created.Invoices?.[0];
   if(!invoice?.InvoiceID)throw new Error("Xero did not return an invoice ID. Check Xero before retrying.");
  }
