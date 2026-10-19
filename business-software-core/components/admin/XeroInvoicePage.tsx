@@ -20,6 +20,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
+  const [sharePrompt,setSharePrompt]=useState<{file:File;text:string;number:string;invoiceNumber:string}|null>(null);
 
   const load = useCallback(async () => {
     setLoading(true); setError("");
@@ -105,16 +106,10 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         const raw=String(jobData?.customer?.mobile||jobData?.customer?.phone||"").trim();const digits=raw.replace(/[^\\d+]/g,"");
         let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
         if(!/^\\d{8,15}$/.test(number))number="";
-        const text=`Hello ${jobData?.customer?.first_name||""}, please find attached invoice ${invoice.invoice_number||reference} from ${crmConfig.businessName}. If you have any questions, please let us know.`;
-        if(navigator.share&&navigator.canShare?.({files:[file]})){
-          const choice=window.confirm(number?`Share PDF using your phone's share menu? Choose WhatsApp and select ${raw}. Cancel to open WhatsApp with this number and message, then attach the downloaded PDF.`:"Share PDF using your phone's share menu? Choose WhatsApp and select a contact. Cancel to open WhatsApp with the message and attach the downloaded PDF.");
-          if(choice){try{await navigator.share({files:[file],text,title:`Invoice ${invoice.invoice_number||reference}`});return;}catch(e){if((e as DOMException)?.name==="AbortError")return;}}
-        }
-        const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-        await navigator.clipboard.writeText(text).catch(()=>{});
-        const target=`https://wa.me/${number}?text=${encodeURIComponent(text)}`;
-        const opened=window.open(target,"_blank","noopener,noreferrer");if(!opened)window.location.assign(target);
-        setMessage("Message copied to clipboard where permitted. Invoice PDF downloaded. Paste the message, attach the PDF in WhatsApp, check the recipient and press Send.");
+        const firstName=String(jobData?.customer?.first_name||"").trim().split(/\s+/)[0]||"there";
+        const text=`Hi ${firstName},\n\nPlease find attached invoice ${invoice.invoice_number||reference} for ${String(jobData?.job?.job_type||"the work carried out").toLowerCase()}.\n\nThank you for your business, we really appreciate it. If you have any questions, please get in touch.\n\nKind regards,\n${crmConfig.businessName}`;
+        setSharePrompt({file,text,number,invoiceNumber:String(invoice.invoice_number||reference)});
+        setMessage("Review the invoice sharing details below before proceeding.");
       }else{
         const response=await fetch(base,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({invoiceId:invoice.id,action})});
         const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(friendlyError(result.error)||"Invoice email failed");
