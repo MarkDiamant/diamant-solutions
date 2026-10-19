@@ -17,6 +17,8 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const [busy, setBusy] = useState(false);
   const [sharing,setSharing]=useState("");
   const [pdfDownloading,setPdfDownloading]=useState(false);
+  const [pdfPreview,setPdfPreview]=useState("");
+  const [confirmAction,setConfirmAction]=useState<"approve"|"approve_send"|"approve_bms"|null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
@@ -55,7 +57,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
 
   async function approveOnly(){
     const invoice=invoices[0];if(!invoice||busy||invoice.provider==="bms")return;
-    if(!window.confirm(`${crmConfig.businessName}: Approve invoice ${invoice.invoice_number||reference} for ${money(invoice.total)} in Xero? This will NOT email the customer. You can then send via Gmail, create a draft or share via WhatsApp.`))return;
+    
     setBusy(true);setError("");setMessage("");
     try{
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/xero`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"approve",invoiceId:invoice.id,confirm:true})});
@@ -68,8 +70,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
     const invoice=invoices[0];if(!invoice||busy)return;
     const recipient=String(jobData?.customer?.email||"").trim();
     if(!recipient){setError("Customer email is missing. Add it before sending.");return;}
-    const confirmed=window.confirm(`Approve and send invoice ${invoice.invoice_number||reference} for ${money(invoice.total)} via Xero to ${recipient}? This emails the customer immediately and records approval in Xero.`);
-    if(!confirmed)return;
+    
     setBusy(true);setError("");setMessage("Approving and sending through Xero...");
     try{
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/xero`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"approve_send",invoiceId:invoice.id,confirmedEmail:recipient,confirm:true})});
@@ -78,6 +79,27 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
       setMessage("Invoice sent through Xero to "+recipient);await load();
     }catch(e){setError(friendlyError(e)||"Unable to send invoice");setMessage("");}
     finally{setBusy(false);}
+  }
+
+  async function approveBms(){
+    const invoice=invoices[0];if(!invoice||busy||invoice.provider!=="bms")return;
+    setBusy(true);setError("");setMessage("");
+    try{
+      const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/xero`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"approve_bms",invoiceId:invoice.id,confirm:true})});
+      const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(friendlyError(data.error)||"Could not approve invoice");
+      await load();setMessage("BMS invoice approved. No email has been sent.");
+    }catch(e){setError(friendlyError(e)||"Could not approve invoice");}finally{setBusy(false);}
+  }
+
+  async function viewXeroPdf(){
+    const invoice=invoices[0];if(!invoice||pdfDownloading)return;
+    setPdfDownloading(true);setError("");setMessage("Loading invoice preview...");
+    try{
+      const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/invoice-share?invoiceId=${encodeURIComponent(invoice.id)}`,{cache:"no-store"});
+      if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(friendlyError(body.error)||"Unable to view invoice");}
+      const blob=await response.blob();if(!blob.type.includes("pdf"))throw new Error("Xero did not return a PDF");
+      const url=URL.createObjectURL(blob);setPdfPreview(old=>{if(old)URL.revokeObjectURL(old);return url;});setMessage("");
+    }catch(e){setError(friendlyError(e)||"Could not view invoice");setMessage("");}finally{setPdfDownloading(false);}
   }
 
   async function openXeroPdf(){
