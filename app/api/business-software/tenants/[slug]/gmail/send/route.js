@@ -27,7 +27,7 @@ export async function createGmailMessage(request,{params},draft=false){
   try{
     const settingsResponse=await centralRest(`business_software_tenant_settings?tenant_id=eq.${encodeURIComponent(tenant.id)}&select=logo_url,app_config&limit=1`,{cache:"no-store"});
     const settings=settingsResponse.ok?(await settingsResponse.json())?.[0]:null;
-    const logoUrl=String(settings?.logo_url||settings?.app_config?.logoUrl||"").trim();
+    const logoUrl=String(body.logoUrl||settings?.logo_url||settings?.app_config?.logoUrl||(slug==="mjmetal"?"https://mjmetal.co.uk/images/logo.png":"")).trim();
     if(logoUrl){
       const u=new URL(logoUrl),allowed=new Set(["mjmetal.co.uk","www.mjmetal.co.uk","iepqggrfenfqrqyzqyed.supabase.co",...(process.env.BMS_LOGO_ALLOWED_HOSTS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)]);
       if(u.protocol==="https:"&&allowed.has(u.hostname.toLowerCase())&&!u.username&&!u.password){
