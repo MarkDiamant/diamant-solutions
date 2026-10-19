@@ -17,6 +17,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const [busy, setBusy] = useState(false);
   const [sharing,setSharing]=useState("");
   const [pdfDownloading,setPdfDownloading]=useState(false);
+  const [pdfPreviewLoading,setPdfPreviewLoading]=useState(false);
   const [pdfPreview,setPdfPreview]=useState("");
   const [xeroConnected,setXeroConnected]=useState<boolean|null>(null);
   const [confirmAction,setConfirmAction]=useState<"approve"|"approve_send"|"approve_bms"|null>(null);
@@ -93,14 +94,14 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   }
 
   async function viewXeroPdf(){
-    const invoice=invoices[0];if(!invoice||pdfDownloading)return;
-    setPdfDownloading(true);setError("");setMessage("Loading invoice preview...");
+    const invoice=invoices[0];if(!invoice||pdfPreviewLoading)return;
+    setPdfPreviewLoading(true);setError("");setMessage("Loading invoice preview...");
     try{
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/invoice-share?invoiceId=${encodeURIComponent(invoice.id)}`,{cache:"no-store"});
       if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(friendlyError(body.error)||"Unable to view invoice");}
       const blob=await response.blob();if(!blob.type.includes("pdf"))throw new Error("Xero did not return a PDF");
       const url=URL.createObjectURL(blob);setPdfPreview(old=>{if(old)URL.revokeObjectURL(old);return url;});setMessage("");
-    }catch(e){setError(friendlyError(e)||"Could not view invoice");setMessage("");}finally{setPdfDownloading(false);}
+    }catch(e){setError(friendlyError(e)||"Could not view invoice");setMessage("");}finally{setPdfPreviewLoading(false);}
   }
 
   async function openXeroPdf(){
@@ -169,7 +170,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
     <style>{`@media print{@page{size:A4;margin:0}body{background:white}.invoice-controls{display:none!important}.invoice-sheet{display:flex!important;width:210mm;min-height:297mm;margin:0!important;box-shadow:none!important;border:0!important}}`}</style><div className="mx-auto max-w-4xl">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><div className="mb-3 flex items-center gap-4"><img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="h-10 max-w-32 object-contain"/><p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--invoice-accent)]">{invoiceTemplate==="mj-signature"?"Invoice":"Xero invoice"}</p></div><h1 className="mt-1 text-3xl font-black">{reference} invoice</h1><p className="mt-2 text-sm text-black/55">{name} · {job.job_type || "Job"}</p></div>
-        <div className="invoice-controls flex gap-2">{invoices.length>0&&invoices[0].provider!=="bms"&&<button type="button" disabled={pdfDownloading} onClick={()=>void viewXeroPdf()} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-black">{pdfDownloading?"Loading preview...":"View invoice PDF"}</button>}{invoices.length>0&&invoices[0].provider!=="bms"&&<button type="button" disabled={pdfDownloading} onClick={()=>void openXeroPdf()} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 text-sm font-black text-white">{pdfDownloading?"Downloading PDF...":"Download Xero invoice PDF"}</button>}<Link href={`/admin/jobs/${reference}`} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold">Back to job</Link></div>
+        <div className="invoice-controls flex gap-2">{invoices.length>0&&invoices[0].provider!=="bms"&&<button type="button" disabled={pdfPreviewLoading||pdfDownloading} onClick={()=>void viewXeroPdf()} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-black">{pdfPreviewLoading?"Loading preview...":"View invoice PDF"}</button>}{invoices.length>0&&invoices[0].provider!=="bms"&&<button type="button" disabled={pdfDownloading} onClick={()=>void openXeroPdf()} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 text-sm font-black text-white">{pdfDownloading?"Downloading PDF...":"Download Xero invoice PDF"}</button>}<Link href={`/admin/jobs/${reference}`} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold">Back to job</Link></div>
       </div>
 
       {confirmAction&&invoices[0]&&<section role="dialog" aria-modal="true" aria-label="Confirm invoice approval" className="invoice-controls mt-5 rounded-2xl border-2 border-[var(--invoice-accent)] bg-white p-5 shadow-lg"><div className="flex items-center gap-3">{crmConfig.logoUrl&&<img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="h-10 max-w-28 object-contain"/>}<div><p className="font-black text-[var(--invoice-accent)]">{crmConfig.businessName}</p><h2 className="text-lg font-black">Confirm invoice approval</h2></div></div><p className="mt-3 text-sm">Invoice <strong>{invoices[0].invoice_number||reference}</strong> for <strong>{name}</strong>, amount <strong>{money(invoices[0].total)}</strong>.</p><p className="mt-2 text-sm">{confirmAction==="approve_send"?"This will approve the invoice in Xero and email it immediately to "+String(customer.email||"the customer")+".":confirmAction==="approve"?"This will approve the invoice in Xero without sending an email. You can then choose Gmail or WhatsApp.":"This will approve the BMS invoice without sending an email."}</p><div className="mt-4 flex gap-2"><button disabled={busy} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 font-bold text-white" onClick={()=>{const choice=confirmAction;setConfirmAction(null);if(choice==="approve_send")void approveAndSend();else if(choice==="approve_bms")void approveBms();else void approveOnly();}}>Confirm</button><button className="rounded-xl border border-black/15 px-4 py-2.5 font-bold" onClick={()=>setConfirmAction(null)}>Cancel</button></div></section>}
