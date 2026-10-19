@@ -217,7 +217,8 @@ if(["update_user","update_settings","disconnect_integration"].includes(plan.kind
  const businessName=String(raw?.settings?.businessName||tenant.business_name||"M&J Metal");
  const number=String(result.invoice.invoice_number||parts[1]);
  const subject=businessName+" invoice "+number;
- const body="Hi "+String(customer.first_name||"")+",\n\nPlease find attached your invoice "+number+".\n\nIf you have any questions, please let us know.\n\nKind regards,\n"+businessName;
+ const firstName=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
+ const body="Hi "+firstName+",\n\nPlease find attached your invoice "+number+".\n\nThank you for your business, we really appreciate it. If you have any questions, please get in touch.\n\nKind regards,\n"+businessName;
  const mime=rawEmail(String(customer.email),subject,body,{name:number+"-Invoice.pdf",data:result.pdf.toString("base64")});
  const send=data.action==="send",endpoint=send?"messages/send":"drafts";
  const gr=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+endpoint,{method:"POST",headers:{"Authorization":"Bearer "+gmail.token,"Content-Type":"application/json"},body:JSON.stringify(send?{raw:mime}:{message:{raw:mime}})});
