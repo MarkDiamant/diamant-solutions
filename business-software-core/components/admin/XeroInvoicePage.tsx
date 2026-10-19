@@ -102,7 +102,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         await navigator.clipboard.writeText(text).catch(()=>{});
         const target=`https://wa.me/${number}?text=${encodeURIComponent(text)}`;
         const opened=window.open(target,"_blank","noopener,noreferrer");if(!opened)window.location.assign(target);
-        setMessage("Invoice PDF downloaded. Attach it in WhatsApp, review the recipient and press Send.");
+        setMessage("Message copied to clipboard where permitted. Invoice PDF downloaded. Paste the message, attach the PDF in WhatsApp, check the recipient and press Send.");
       }else{
         const response=await fetch(base,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({invoiceId:invoice.id,action})});
         const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(friendlyError(result.error)||"Invoice email failed");
