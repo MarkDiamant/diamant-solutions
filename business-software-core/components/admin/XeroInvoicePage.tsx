@@ -118,7 +118,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const latestQuote=[...(jobData?.quotes||[])].sort((a:any,b:any)=>Number(b.version||0)-Number(a.version||0))[0];
   const amount = Number(job.agreed_amount || latestQuote?.amount || job.quoted_amount || 0);
   const invoiceDescription=job.job_type||"Metalwork services";
-  const name = [customer.first_name, customer.last_name].filter(Boolean).join(" ") || "Customer";
+  const name = String(customer.last_name||customer.first_name||"Customer").trim();
   const invoiceTemplate=crmConfig.invoiceTemplate;
   const invoiceClass=invoiceTemplate==="classic"?"font-serif":"";
   const invoiceAccent=invoiceTemplate==="classic"?"#141414":invoiceTemplate==="mj-signature"?crmConfig.accentColour:"#141414";
