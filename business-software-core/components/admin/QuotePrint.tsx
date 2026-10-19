@@ -111,10 +111,11 @@ ${crmConfig.businessName}`;
     return groups;
   };
   const quoteProjectTitle=(jobTitle:string,_scope:string)=>jobTitle.trim()||"Project";
+  const renderBold=(value:string)=>String(value||"").split(/(\*\*[^*\n]+\*\*)/g).map((part,i)=>part.startsWith("**")&&part.endsWith("**")?<strong key={i} className="font-black text-black">{part.slice(2,-2)}</strong>:part);
   const renderScope=(value:string)=>{
     const groups=scopeParts(value);
     return <div className="space-y-3">{groups.map((group,index)=><div key={index} className="space-y-2" style={{paddingLeft:groups.length>1?"25px":0}}>
-      <p className="whitespace-pre-wrap">{groups.length>1?<span style={{fontWeight:900,display:"inline-block",width:"25px",marginLeft:"-25px",color:"#111"}}>{index+1}.</span>:null}{(()=>{const match=group.description.match(/^([^:]{3,80}):\s*(.+)$/s);return match?<><strong className="font-black text-black">{match[1]}:</strong>{" "+match[2]}</>:group.description;})()}</p>
+      <p className="whitespace-pre-wrap">{groups.length>1?<span style={{fontWeight:900,display:"inline-block",width:"25px",marginLeft:"-25px",color:"#111"}}>{index+1}.</span>:null}{(()=>{const match=group.description.match(/^([^:]{3,80}):\s*(.+)$/s);return match?<><strong className="font-black text-black">{renderBold(match[1])}:</strong>{" "}{renderBold(match[2])}</>:renderBold(group.description);})()}</p>
       {group.price&&<p style={{fontWeight:900,color:"#111",marginTop:"5px",marginBottom:"9px"}}><b style={{fontWeight:900}}>{group.price}</b></p>}
     </div>)}</div>;
   };
