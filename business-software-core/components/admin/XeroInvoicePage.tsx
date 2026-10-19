@@ -99,8 +99,8 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   if (loading && !jobData) return <main className="min-h-screen bg-[#f5f5f2] p-10 text-center">Loading Xero...</main>;
   const job = jobData?.job || {};
   const customer = jobData?.customer || {};
-  const amount = Number(job.quoted_amount ?? 0);
   const latestQuote=[...(jobData?.quotes||[])].sort((a:any,b:any)=>Number(b.version||0)-Number(a.version||0))[0];
+  const amount = Number(job.agreed_amount || latestQuote?.amount || job.quoted_amount || 0);
   const invoiceDescription=latestQuote?.scope_text||job.customer_requirements||job.job_type||"Works as agreed";
   const name = [customer.first_name, customer.last_name].filter(Boolean).join(" ") || "Customer";
   const invoiceTemplate=crmConfig.invoiceTemplate;
@@ -118,12 +118,12 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
       {message && <p className="mt-5 rounded-xl bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800">{message}</p>}
 
       <section className="invoice-controls mt-6 rounded-2xl border border-black/10 bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-        <div className="grid gap-4 sm:grid-cols-3"><div><p className="text-xs font-bold uppercase text-black/45">Customer</p><p className="mt-1 font-black">{name}</p></div><div><p className="text-xs font-bold uppercase text-black/45">Final quote</p><p className="mt-1 text-xl font-black">{money(amount)}</p><p className="mt-1 text-xs text-black/45">{crmConfig.businessDetails.vatRegistered?"VAT charged according to business settings":"VAT not charged"}</p></div><div><p className="text-xs font-bold uppercase text-black/45">CRM reference</p><p className="mt-1 font-black text-[var(--invoice-accent)]">{reference}</p></div></div>
+        <div className="grid gap-4 sm:grid-cols-3"><div><p className="text-xs font-bold uppercase text-black/45">Customer</p><p className="mt-1 font-black">{name}</p></div><div><p className="text-xs font-bold uppercase text-black/45">Invoice amount</p><p className="mt-1 text-xl font-black">{money(amount)}</p><p className="mt-1 text-xs text-black/45">{crmConfig.businessDetails.vatRegistered?"VAT charged according to business settings":"VAT not charged"}</p></div><div><p className="text-xs font-bold uppercase text-black/45">CRM reference</p><p className="mt-1 font-black text-[var(--invoice-accent)]">{reference}</p></div></div>
         {invoices.length>0&&<div className="mt-6 rounded-xl border border-black/10 bg-[#f7f7f4] p-4"><p className="mb-3 text-sm font-black">Send or share invoice</p><div className="flex flex-wrap gap-2"><button disabled={!!sharing} onClick={()=>void shareInvoice(invoices[0],"draft")} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold disabled:opacity-50">Create Gmail draft</button><button disabled={!!sharing||String(invoices[0].status).toUpperCase()==="DRAFT"} onClick={()=>void shareInvoice(invoices[0],"send")} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40">Email invoice directly</button><button disabled={!!sharing} onClick={()=>void shareInvoice(invoices[0],"whatsapp")} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold disabled:opacity-50">Share via WhatsApp</button></div><p className="mt-2 text-xs text-black/55">Uses the PDF supplied by Xero. Approve draft invoices in Xero before direct emailing. WhatsApp always requires you to review and send.</p></div>}
         <div className="mt-6 flex flex-wrap gap-3">
           {invoices.length === 0 ? <button disabled={busy || amount <= 0} onClick={() => void action("create")} className="rounded-xl bg-[var(--invoice-accent)] px-5 py-3 text-sm font-black text-white disabled:opacity-50">Create Xero invoice draft</button> : <button disabled={busy} onClick={() => void action("sync")} className="rounded-xl bg-[var(--invoice-accent)] px-5 py-3 text-sm font-black text-white disabled:opacity-50">Sync status from Xero</button>}
         </div>
-        {invoices.length === 0 && <p className="mt-4 text-sm leading-6 text-black/55">{amount<=0?"Add a final quote amount before creating the invoice.":"This creates a draft sales invoice in Xero using the final quote amount and your business VAT settings. Review and approve it in Xero before sending or posting it to the accounts."}</p>}
+        {invoices.length === 0 && <p className="mt-4 text-sm leading-6 text-black/55">{amount<=0?"Add an agreed or quoted amount before creating the invoice.":"This creates a draft sales invoice in Xero using the final quote amount and your business VAT settings. Review and approve it in Xero before sending or posting it to the accounts."}</p>}
       </section>
 
 
