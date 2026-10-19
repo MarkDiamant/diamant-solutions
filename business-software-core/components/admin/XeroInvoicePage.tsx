@@ -119,6 +119,18 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
     finally{setSharing("");}
   }
 
+  async function finishWhatsAppShare(nativeShare:boolean){
+    const prompt=sharePrompt;if(!prompt)return;setSharePrompt(null);
+    if(nativeShare&&navigator.share&&navigator.canShare?.({files:[prompt.file]})){
+      try{await navigator.share({files:[prompt.file],text:prompt.text,title:"Invoice "+prompt.invoiceNumber});setMessage("Sharing opened. Confirm the recipient in WhatsApp.");return;}catch(e){if((e as DOMException)?.name==="AbortError")return;}
+    }
+    const url=URL.createObjectURL(prompt.file),a=document.createElement("a");a.href=url;a.download=prompt.file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    let copied=false;try{await navigator.clipboard.writeText(prompt.text);copied=true;}catch{}
+    const target="https://wa.me/"+prompt.number+"?text="+encodeURIComponent(prompt.text);
+    const opened=window.open(target,"_blank","noopener,noreferrer");if(!opened)window.location.assign(target);
+    setMessage(copied?"Message copied. Attach the downloaded invoice PDF in WhatsApp before sending.":"Invoice PDF downloaded. Attach it in WhatsApp before sending.");
+  }
+
   if (loading && !jobData) return <main className="min-h-screen bg-[#f5f5f2] p-10 text-center">Loading Xero...</main>;
   const job = jobData?.job || {};
   const customer = jobData?.customer || {};
