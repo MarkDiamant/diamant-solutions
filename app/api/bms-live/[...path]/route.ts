@@ -54,7 +54,7 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
    if((found.Contacts||[]).length===1)contactId=found.Contacts[0].ContactID;
   }
   if(!contactId){
-   const name=[customer.first_name,customer.last_name].filter(Boolean).join(" ").trim();
+   const name=String(customer.last_name||customer.first_name||"").trim();
    if(!name)throw new Error("Customer name is required for Xero.");
    const byName=await xeroRequest(tenantId,"Contacts?where="+encodeURIComponent('Name=="'+name.replace(/"/g,"")+'"'));
    if((byName.Contacts||[]).length===1)contactId=byName.Contacts[0].ContactID;
