@@ -226,7 +226,7 @@ if(["update_user","update_settings","disconnect_integration"].includes(plan.kind
  const encoded=String(data.pdfBase64||"");
  if(!encoded||encoded.length>14000000||!/^[A-Za-z0-9+/=]+$/.test(encoded))return NextResponse.json({error:"Valid invoice PDF required (maximum 10 MB)"},{status:400});
  const pdf=Buffer.from(encoded,"base64");if(pdf.subarray(0,5).toString()!=="%PDF-")return NextResponse.json({error:"Invalid PDF attachment"},{status:400});
- const gmail=await googleAccessToken(tenantId);if(!gmail.token)return NextResponse.json({error:"Connect Gmail in Integrations"},{status:409});
+ const gmail=await googleAccessToken(tenantId);if(!gmail.token)return NextResponse.json({error:gmail.account?"Gmail is linked to "+gmail.account+", but authorisation has expired. Reconnect Gmail in Integrations.":"Connect Gmail in Integrations"},{status:409});
  const businessName=String(raw?.settings?.businessName||tenant.business_name||"Business"),number=String(invoice.invoice_number||parts[1]),first=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
  const subject=businessName+" invoice "+number,body="Hi "+first+",\n\nPlease find attached your invoice "+number+".\n\nThank you for your business, we really appreciate it. If you have any questions, please get in touch.\n\nKind regards,\n"+businessName;
  const mime=rawEmail(String(customer.email),subject,body,{name:number+"-Invoice.pdf",data:encoded});
@@ -248,7 +248,7 @@ if(parts[0]==="jobs"&&parts[2]==="invoice-share"){if(!canBms(member,"view_paymen
   if(!["AUTHORISED","PAID"].includes(status))return NextResponse.json({error:"Approve the invoice in Xero and sync its status before emailing."},{status:409});
  }
  const gmail=await googleAccessToken(tenantId);
- if(!gmail.token)return NextResponse.json({error:"Connect Gmail in Integrations to email invoices."},{status:409});
+ if(!gmail.token)return NextResponse.json({error:gmail.account?"Gmail is linked to "+gmail.account+", but Google authorisation has expired. Please reconnect Gmail in Integrations, then try again.":"Connect Gmail in Integrations to email invoices."},{status:409});
  const businessName=String(raw?.settings?.businessName||tenant.business_name||"M&J Metal");
  const number=String(result.invoice.invoice_number||parts[1]);
  const subject=businessName+" invoice "+number;
