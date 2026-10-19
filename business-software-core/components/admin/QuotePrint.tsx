@@ -150,12 +150,11 @@ ${crmConfig.businessName}`;
 
 
 
-  function confirmSendQuote(){ setSendConfirmation(false); setSending(true); setSentMessage(""); document.documentElement.dataset.quoteEmailPdf="send"; document.getElementById("save-quote-pdf")?.click(); }\n\n  async function sendQuote() {
-    if (!c.email) { alert("Add the customer's email address to the job first."); return; }
-    setSendConfirmation(true); return;
-    setSending(true); setSentMessage("");
-    document.documentElement.dataset.quoteEmailPdf="send";
-    document.getElementById("save-quote-pdf")?.click();
+  function confirmSendQuote(){ setSendConfirmation(false); setSending(true); setSentMessage(""); document.documentElement.dataset.quoteEmailPdf="send"; document.getElementById("save-quote-pdf")?.click(); }
+
+  async function sendQuote() {
+    if (!c.email) { setDialog({title:"Email address required",message:"Add the customer email address to the job first."}); return; }
+    setSendConfirmation(true);
   }
 
   return <><main className="min-h-screen bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":quoteBrand} as React.CSSProperties}>
