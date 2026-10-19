@@ -22,9 +22,31 @@ export async function createGmailMessage(request,{params},draft=false){
   const r=await centralRest(`business_software_integrations?tenant_id=eq.${encodeURIComponent(tenant.id)}&provider=eq.google&status=eq.connected&select=*&limit=1`);const row=r.ok?(await r.json())?.[0]:null;if(!row)return NextResponse.json({error:"Gmail is not connected"},{status:409});
   const token=await accessToken(row),from=String(row.provider_account||""),to=String(body.to||"").trim(),subject=String(body.subject||"").slice(0,500),html=String(body.html||"");
   if(!from||!to||!subject||!html)return NextResponse.json({error:"Email details are incomplete"},{status:400});
+  // Embed tenant branding as an inline MIME image: Gmail cannot load private BMS URLs.
+  let brandedHtml=html,inlineLogo=null;
+  try{
+    const settingsResponse=await centralRest(`business_software_tenant_settings?tenant_id=eq.${encodeURIComponent(tenant.id)}&select=logo_url,app_config&limit=1`,{cache:"no-store"});
+    const settings=settingsResponse.ok?(await settingsResponse.json())?.[0]:null;
+    const logoUrl=String(settings?.logo_url||settings?.app_config?.logoUrl||"").trim();
+    if(logoUrl){
+      const u=new URL(logoUrl),allowed=new Set(["mjmetal.co.uk","www.mjmetal.co.uk","iepqggrfenfqrqyzqyed.supabase.co",...(process.env.BMS_LOGO_ALLOWED_HOSTS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean)]);
+      if(u.protocol==="https:"&&allowed.has(u.hostname.toLowerCase())&&!u.username&&!u.password){
+        const response=await fetch(u,{cache:"no-store",redirect:"error",signal:AbortSignal.timeout(8000)});
+        const type=(response.headers.get("content-type")||"").split(";")[0].toLowerCase();
+        if(response.ok&&["image/png","image/jpeg","image/gif"].includes(type)){
+          const bytes=Buffer.from(await response.arrayBuffer());
+          if(bytes.length>0&&bytes.length<=2000000){
+            inlineLogo={type,base64:bytes.toString("base64")};
+            brandedHtml=brandedHtml.replace(/<img\\b[^>]*>/gi,tag=>/logo|brand|tenant-logo/i.test(tag)?tag.replace(/src\\s*=\\s*(["'])[^"']*\\1/i,'src="cid:ds-tenant-logo"'):tag);
+          }
+        }
+      }
+    }
+  }catch{/* Keep original email if tenant has no reachable configured logo. */}
   const boundary="ds_"+crypto.randomBytes(12).toString("hex"),name=String(body.fromName||"Business").replace(/[\r\n]/g," "),reply=String(body.replyTo||from).replace(/[\r\n]/g," ");
   const headers=[`From: ${name} <${from}>`,`To: ${to.replace(/[\r\n]/g,"")}`,`Subject: =?UTF-8?B?${Buffer.from(subject).toString("base64")}?=`,`Reply-To: ${reply}`,"MIME-Version: 1.0",`Content-Type: multipart/mixed; boundary="${boundary}"`].join("\r\n");
-  let raw=`${headers}\r\n\r\n--${boundary}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${Buffer.from(html).toString("base64")}\r\n`;
+  let raw=`${headers}\r\n\r\n--${boundary}\r\nContent-Type: text/html; charset=UTF-8\r\nContent-Transfer-Encoding: base64\r\n\r\n${Buffer.from(brandedHtml).toString("base64")}\r\n`;
+  if(inlineLogo&&brandedHtml.includes("cid:ds-tenant-logo"))raw+=`--${boundary}\\r\\nContent-Type: ${inlineLogo.type}\\r\\nContent-ID: <ds-tenant-logo>\\r\\nContent-Disposition: inline\\r\\nContent-Transfer-Encoding: base64\\r\\n\\r\\n${inlineLogo.base64}\\r\\n`;
   if(body.attachment?.contentBase64){const filename=String(body.attachment.filename||"attachment").replace(/["\r\n]/g,""),mime=String(body.attachment.mimeType||"application/octet-stream").replace(/[\r\n]/g,"");raw+=`--${boundary}\r\nContent-Type: ${mime}; name="${filename}"\r\nContent-Disposition: attachment; filename="${filename}"\r\nContent-Transfer-Encoding: base64\r\n\r\n${body.attachment.contentBase64}\r\n`;}raw+=`--${boundary}--`;
   const sent=await fetch(draft?DRAFT_URL:SEND_URL,{method:"POST",headers:{Authorization:`Bearer ${token}`,"Content-Type":"application/json"},body:JSON.stringify(draft?{message:{raw:b64(raw)}}:{raw:b64(raw)}),cache:"no-store"});const result=await sent.json().catch(()=>({}));if(!sent.ok)return NextResponse.json({error:result?.error?.message||(draft?"Gmail could not create the draft":"Gmail could not send the message")},{status:502});
   await centralRest("business_software_audit_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({tenant_id:tenant.id,actor:email,action:draft?"email_draft_created":"email_sent",entity_type:"integration",entity_id:"google",metadata:{to,subject}})});
