@@ -1,5 +1,5 @@
-import {formatQuoteLines,quoteAmountFromText} from "@/business-software-core/lib/quote-format";
 "use client";
+import {formatQuoteLines,quoteAmountFromText} from "@/business-software-core/lib/quote-format";
 import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
 
