@@ -1,5 +1,5 @@
-import {quoteAmountFromText} from "@/business-software-core/lib/quote-format";
 "use client";
+import {quoteAmountFromText} from "@/business-software-core/lib/quote-format";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
