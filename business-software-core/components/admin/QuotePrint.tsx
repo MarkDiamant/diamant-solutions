@@ -111,14 +111,28 @@ ${crmConfig.businessName}`;
     if(groups.length===0)return [{description:cleaned,price:""}];
     return groups;
   };
-  const quoteProjectTitle=(jobTitle:string,_scope:string)=>jobTitle.trim()||"Project";
-  const renderBold=(value:string)=>String(value||"").split(/(\*\*[^*\n]+\*\*)/g).map((part,i)=>part.startsWith("**")&&part.endsWith("**")?<strong key={i} className="font-black text-black">{part.slice(2,-2)}</strong>:part);
+  const quoteProjectTitle=(jobTitle:string,scope:string)=>{
+    const title=jobTitle.trim()||"Project";
+    if(!isMjTenant||!/^railings?$/i.test(title))return title;
+    const parts=[/railing|balustrade/i.test(scope)?"Railings":null,/\\bgate\\b/i.test(scope)?"Gate":null,/handrail/i.test(scope)?"Handrails":null].filter(Boolean);
+    return parts.length>1?parts.join(", "):title;
+  };
+  const renderBold=(value:string)=>String(value||"").split(/(\\*\\*[^*\\n]+\\*\\*)/g).map((part,i)=>part.startsWith("**")&&part.endsWith("**")?<strong key={i} className="font-black text-black">{part.slice(2,-2)}</strong>:part);
+  const plain=(value:string)=>String(value||"").replace(/\\*\\*/g,"");
   const renderScope=(value:string)=>{
     const groups=scopeParts(value);
-    return <div className="space-y-3">{groups.map((group,index)=><div key={index} className="space-y-2" style={{paddingLeft:groups.length>1?"25px":0}}>
-      <p className="whitespace-pre-wrap">{groups.length>1?<span style={{fontWeight:900,display:"inline-block",width:"25px",marginLeft:"-25px",color:"#111"}}>{index+1}.</span>:null}{(()=>{const match=group.description.match(/^([^:]{3,80}):\s*(.+)$/s);return match?<><strong className="font-black text-black">{renderBold(match[1])}:</strong>{" "}{renderBold(match[2])}</>:renderBold(group.description);})()}</p>
-      {group.price&&<p style={{fontWeight:900,color:"#111",marginTop:"5px",marginBottom:"9px"}}><b style={{fontWeight:900}}>{group.price}</b></p>}
-    </div>)}</div>;
+    return <div className="space-y-3">{groups.map((group,index)=>{
+      const description=plain(group.description).replace(/^\\d+[.)]\\s*/,"");
+      const match=description.match(/^([^:]{3,80}):\\s*(.+)$/s);
+      const price=plain(group.price);
+      const priceMatch=price.match(/£[\\d,]+(?:\\.\\d{1,2})?/);
+      const priceStart=priceMatch?.index??-1;
+      const priceText=priceMatch?.[0]||"";
+      return <div key={index} className="flex items-start gap-2">
+        {groups.length>1&&<span className="w-5 shrink-0 font-black text-black">{index+1}.</span>}
+        <div className="min-w-0 flex-1 whitespace-pre-wrap">{match?<><strong className="font-black text-black">{match[1]}:</strong>{" "}{isMjTenant?match[2]:renderBold(group.description.slice(group.description.indexOf(":")+1).trim())}</>:isMjTenant?description:renderBold(group.description)}{price&&<span>{match||description?" ":""}{priceStart>=0?<>{price.slice(0,priceStart)}<strong className="font-black text-black">{priceText}</strong>{price.slice(priceStart+priceText.length)}</>:price}</span>}</div>
+      </div>;
+    })}</div>;
   };
   const formatNumberedScope=(value:string)=>scopeParts(value).map((g,i)=>(scopeParts(value).length>1?(i+1)+". ":"")+g.description+(g.price?"\n"+g.price:"")).join("\n\n");
   const scopeLength=String(quote?.scope_text||"").length+String(crmConfig.quoteDefaultText||"").length+(isMjTenant?420:0);
