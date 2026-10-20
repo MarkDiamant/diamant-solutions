@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import CrmDashboardV3 from "@/components/admin/CrmDashboardV3";
+import CrmDashboardV3 from "./CrmDashboardV3";
 
 function money(value: number) {
   return new Intl.NumberFormat("en-GB", {
