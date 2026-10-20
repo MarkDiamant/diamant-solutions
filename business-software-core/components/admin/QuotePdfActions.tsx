@@ -1,5 +1,4 @@
 "use client";
-import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
 import { useState } from "react";
 
@@ -11,15 +10,13 @@ function bytes(text:string){return new TextEncoder().encode(text);}
 function join(parts:Uint8Array[]){const n=parts.reduce((s,p)=>s+p.length,0),out=new Uint8Array(n);let o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;}
 async function jpegBytes(canvas:HTMLCanvasElement){const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not render quote")),"image/jpeg",0.96));return new Uint8Array(await blob.arrayBuffer());}
 function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
-  const parts:Uint8Array[]=[bytes("%PDF-1.4\n%BMS Quote\n")], offsets:number[]=[0]; let length=parts[0].length;
+  const parts:Uint8Array[]=[bytes("%PDF-1.4\n%M&J Quote\n")], offsets:number[]=[0]; let length=parts[0].length;
   const add=(num:number,body:Uint8Array)=>{offsets[num]=length;const h=bytes(`${num} 0 obj\n`),t=bytes("\nendobj\n");parts.push(h,body,t);length+=h.length+body.length+t.length;};
   const pageNums=images.map((_,i)=>3+i*3), imageNums=images.map((_,i)=>4+i*3), contentNums=images.map((_,i)=>5+i*3);
   add(1,bytes("<< /Type /Catalog /Pages 2 0 R >>"));
   add(2,bytes(`<< /Type /Pages /Kids [${pageNums.map(n=>`${n} 0 R`).join(" ")}] /Count ${images.length} >>`));
   images.forEach((img,i)=>{
-    const page=pageNums[i],image=imageNums[i],content=contentNums[i];
-    const fit=Math.min(595/img.width,842/img.height),drawWidth=img.width*fit,drawHeight=img.height*fit;
-    const stream=bytes(`q\n${drawWidth.toFixed(4)} 0 0 ${drawHeight.toFixed(4)} ${((595-drawWidth)/2).toFixed(4)} ${((842-drawHeight)/2).toFixed(4)} cm\n/Im0 Do\nQ\n`);
+    const page=pageNums[i],image=imageNums[i],content=contentNums[i],stream=bytes(`q\n595 0 0 842 0 0 cm\n/Im0 Do\nQ\n`);
     add(page,bytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${image} 0 R >> >> /Contents ${content} 0 R >>`));
     add(image,join([bytes(`<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.data.length} >>\nstream\n`),img.data,bytes("\nendstream")]));
     add(content,join([bytes(`<< /Length ${stream.length} >>\nstream\n`),stream,bytes("endstream")]));
@@ -40,26 +37,14 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none");
       if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");
       const images=[] as {data:Uint8Array;width:number;height:number}[];
-      for(const page of pages){
-        const imgs=Array.from(page.querySelectorAll<HTMLImageElement>("img"));
-        await Promise.all(imgs.map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():new Promise<void>(resolve=>{const done=()=>resolve();img.addEventListener("load",done,{once:true});img.addEventListener("error",done,{once:true});setTimeout(done,3000);})));
-        await document.fonts.ready;
-        await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
-        // Render from the canonical desktop quote geometry even when Save PDF is pressed on mobile.
-        // The on-screen mobile preview is only a scaled view of this same 900px layout.
-        const frame=page.closest<HTMLElement>(".quote-mobile-frame");
-        const previousTransform=frame?.style.transform||"";
-        if(frame)frame.style.transform="none";
-        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,width:page.offsetWidth,height:page.offsetHeight,windowWidth:1200,windowHeight:1200,scrollX:0,scrollY:0,onclone:(doc:Document)=>{for(const frame of Array.from(doc.querySelectorAll<HTMLElement>(".quote-mobile-frame"))){frame.style.setProperty("transform","none","important");frame.style.setProperty("width","794px","important");frame.style.setProperty("max-width","794px","important");}for(const sheet of Array.from(doc.querySelectorAll<HTMLElement>(".quote-page"))){sheet.style.setProperty("transform","none","important");sheet.style.setProperty("width","794px","important");sheet.style.setProperty("min-width","794px","important");sheet.style.setProperty("max-width","794px","important");sheet.style.setProperty("font-stretch","normal","important");}}});
-        if(frame)frame.style.transform=previousTransform;
-        images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});
-      }
-      const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"}); if(document.documentElement.dataset.quoteEmailPdf==="1"||document.documentElement.dataset.quoteEmailPdf==="send"){const emailMode=document.documentElement.dataset.quoteEmailPdf;delete document.documentElement.dataset.quoteEmailPdf;const base64=await new Promise<string>((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result||"").split(",")[1]||"");r.onerror=()=>reject(new Error("Could not prepare PDF"));r.readAsDataURL(blob);});window.dispatchEvent(new CustomEvent(emailMode==="send"?"quote-send-pdf":"quote-email-pdf",{detail:{pdfBase64:base64,pdfName:`${reference}-Quote.pdf`}}));return;}
-      const file=new File([pdf],`${reference}-Quote.pdf`,{type:"application/pdf"});
-      if(document.documentElement.dataset.quoteShare==="whatsapp"&&navigator.share&&navigator.canShare?.({files:[file]})){delete document.documentElement.dataset.quoteShare;await navigator.share({files:[file]});if(window.confirm("Did you send the quote to the customer via WhatsApp? Press OK to mark it as sent and schedule the follow-up."))window.dispatchEvent(new Event("quote-whatsapp-shared"));}
-      else{const wasWhatsApp=document.documentElement.dataset.quoteShare==="whatsapp";delete document.documentElement.dataset.quoteShare;const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);if(wasWhatsApp&&window.confirm("The quote PDF has downloaded. Once you have sent it to the customer via WhatsApp, press OK to mark the quote as sent and schedule a follow-up. Press Cancel if you have not sent it."))window.dispatchEvent(new Event("quote-whatsapp-shared"));}
+      for(const page of pages){const canvas=await window.html2canvas(page,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false});images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}
+      const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});
 
-    }catch(e){alert(friendlyError(e)||"Could not create PDF");}
+      const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quoteId)}/pdf`,{method:"POST",headers:{"Content-Type":"application/pdf"},body:blob});
+      const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not save PDF");
+      const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+
+    }catch(e){alert(e instanceof Error?e.message:"Could not create PDF");}
     finally{setBusy(false);document.querySelector<HTMLElement>("[data-pdf-status-listener]")?.click();}
   }
   return <button id="save-quote-pdf" onClick={()=>void generate()} disabled={busy} className="hidden">{busy?"Saving...":"Save PDF"}</button>;
