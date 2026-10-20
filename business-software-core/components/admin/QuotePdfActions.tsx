@@ -17,7 +17,7 @@ function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
   add(1,bytes("<< /Type /Catalog /Pages 2 0 R >>"));
   add(2,bytes(`<< /Type /Pages /Kids [${pageNums.map(n=>`${n} 0 R`).join(" ")}] /Count ${images.length} >>`));
   images.forEach((img,i)=>{
-    const page=pageNums[i],image=imageNums[i],content=contentNums[i],stream=bytes(`q\n595 0 0 842 0 0 cm\n/Im0 Do\nQ\n`);
+    const page=pageNums[i],image=imageNums[i],content=contentNums[i];\n    const fit=Math.min(595/img.width,842/img.height),drawWidth=img.width*fit,drawHeight=img.height*fit;\n    const stream=bytes(`q\n${drawWidth.toFixed(4)} 0 0 ${drawHeight.toFixed(4)} ${((595-drawWidth)/2).toFixed(4)} ${((842-drawHeight)/2).toFixed(4)} cm\n/Im0 Do\nQ\n`);
     add(page,bytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${image} 0 R >> >> /Contents ${content} 0 R >>`));
     add(image,join([bytes(`<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.data.length} >>\nstream\n`),img.data,bytes("\nendstream")]));
     add(content,join([bytes(`<< /Length ${stream.length} >>\nstream\n`),stream,bytes("endstream")]));
