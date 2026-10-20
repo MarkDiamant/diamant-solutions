@@ -1,4 +1,5 @@
 "use client";
+import {bmsMoney,bmsLocalInput} from "../../lib/presentation";
 import {quoteAmountFromText,validateTidiedQuote,normaliseQuoteDescription} from "@/business-software-core/lib/quote-format";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
@@ -11,9 +12,9 @@ import DiamantCredit from "@/components/admin/DiamantCredit";
 import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
 function friendlyBmsError(value:unknown):string { const raw=String(value||"").trim(); if(!raw)return "Something went wrong. Please try again."; if(/(?:chunkloaderror|loading chunk|failed to fetch dynamically imported module|networkerror|failed to fetch|unexpected token|internal server error|hydration|timeout|gateway|service unavailable|\b5\d\d\b)/i.test(raw))return "There was a temporary problem loading this page. Please refresh and try again. If it continues, contact support."; if(/(?:stack trace|syntaxerror|typeerror|referenceerror|postgres|supabase|sqlstate|\bat [A-Za-z_$]+.*:\d+|\{.*\})/i.test(raw))return "Something went wrong. Please try again. If it continues, contact support."; return raw.length>220?"Something went wrong. Please try again. If it continues, contact support.":raw; }
-function money(value?: number | string) { return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(Number(value || 0)); }
+const money=(value?:number|string)=>bmsMoney(value,0);
 function when(value?: string) { return value ? new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric", hour:"2-digit", minute:"2-digit" }).format(new Date(value)) : "Not set"; }
-function localInput(value?: string) { if (!value) return ""; const d = new Date(value); const p=(n:number)=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
+const localInput=bmsLocalInput;
 function iso(value?: string) { return value ? new Date(value).toISOString() : null; }
 function suggestedDue(days=3) { const d=new Date(); d.setDate(d.getDate()+days); d.setHours(9,0,0,0); return localInput(d.toISOString()); }
 function finishDatePick(e:React.ChangeEvent<HTMLInputElement>, set:(value:string)=>void){set(e.target.value); requestAnimationFrame(()=>e.target.blur());}
