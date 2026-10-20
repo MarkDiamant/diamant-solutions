@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import CrmDashboardV4 from "@/components/admin/CrmDashboardV4";
-import TaskReminderBanner from "@/components/admin/TaskReminderBanner";
+import CrmDashboardV4 from "./CrmDashboardV4";
+import TaskReminderBanner from "./TaskReminderBanner";
 
 function MobileQuickEditFix() {
   useEffect(() => {
