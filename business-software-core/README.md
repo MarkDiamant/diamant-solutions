@@ -31,3 +31,9 @@ The current M&J deployment still contains a synchronised runtime copy of these c
 - `lib/ruby-quote.ts` and `lib/quote-pdf.ts`: canonical Ruby quote validation and PDF generation.
 - M&J currently mirrors these core files under `business-software-core/` and re-exports its legacy `lib/crm/` entrypoints. The app routes are thin tenant adapters mapping BMS logical resources to M&J's existing tables and file bucket.
 - This is a transitional mirror, not yet a single deployed package dependency. The shared admin UI also has remaining tenant-specific runtime copies. Keep core and mirrors in sync until a shared-package build migration is complete.
+
+## Canonical UI consolidation, 20 October 2026
+
+The fine-tuned M&J implementations of `components/admin/JobDetail.tsx`, `CrmDashboardV3.tsx`, `QuotePrint.tsx`, and `QuotePdfActions.tsx` are now the **canonical BMS admin components**. Their content SHA is identical in the BMS repository and the mirrored M&J `business-software-core/components/admin/` folder. M&J's original `components/admin/` paths are compatibility re-exports only. The former `components/tenant-default/` duplicates were removed. Both production builds passed after this alignment.
+
+**Next change rule:** Edit the canonical BMS component first, then synchronise the same bytes to the tenant mirror; never edit a tenant's mirrored component independently. The remaining mirror exists because the tenant is deployed from a separate Git repository. Moving to a single versioned package or monorepo is a separate infrastructure migration, not a licence to fork product behaviour.
