@@ -1,0 +1,22 @@
+name: Build BMS core package
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Validate and pack canonical BMS core without publishing
+        run: |
+          set -euo pipefail
+          cd business-software-core
+          node -e 'const p=require("./package.json");if(p.name!=="@markdiamant/business-software-core"||!p.version)process.exit(1)'
+          npm pack --dry-run --json > /tmp/bms-package-manifest.json
+          node -e 'const f=require("/tmp/bms-package-manifest.json")[0].files.map(x=>x.path);for(const p of ["components/admin/JobDetail.tsx","components/admin/CrmDashboardV3.tsx","components/admin/QuotePrint.tsx","server/ruby-handler.ts","lib/tenant-resource-adapter.ts"])if(!f.includes(p))throw Error("Missing "+p);console.log("BMS package contents verified:",f.length,"files")'
