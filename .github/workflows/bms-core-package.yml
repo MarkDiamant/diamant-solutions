@@ -1,6 +1,11 @@
 name: Build BMS core package
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'business-software-core/**'
+      - '.github/workflows/bms-core-package.yml'
 permissions:
   contents: read
 jobs:
