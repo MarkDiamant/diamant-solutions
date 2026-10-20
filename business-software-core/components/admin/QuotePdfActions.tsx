@@ -41,13 +41,14 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       for(const page of pages){
         const imgs=Array.from(page.querySelectorAll<HTMLImageElement>("img"));
         await Promise.all(imgs.map(img=>img.complete&&img.naturalWidth>0?Promise.resolve():new Promise<void>(resolve=>{const done=()=>resolve();img.addEventListener("load",done,{once:true});img.addEventListener("error",done,{once:true});setTimeout(done,3000);})));
+        await document.fonts.ready;
         await new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve())));
         // Render from the canonical desktop quote geometry even when Save PDF is pressed on mobile.
         // The on-screen mobile preview is only a scaled view of this same 900px layout.
         const frame=page.closest<HTMLElement>(".quote-mobile-frame");
         const previousTransform=frame?.style.transform||"";
         if(frame)frame.style.transform="none";
-        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:true,width:page.offsetWidth,height:page.offsetHeight,windowWidth:1200,windowHeight:1200,scrollX:0,scrollY:0});
+        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,width:page.offsetWidth,height:page.offsetHeight,windowWidth:1200,windowHeight:1200,scrollX:0,scrollY:0});
         if(frame)frame.style.transform=previousTransform;
         images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});
       }
