@@ -1,0 +1,27 @@
+{
+  "name": "@markdiamant/business-software-core",
+  "version": "1.0.0",
+  "private": false,
+  "description": "Canonical tenant-neutral BMS core, M&J workflow defaults",
+  "license": "UNLICENSED",
+  "files": [
+    "components",
+    "lib",
+    "server",
+    "README.md"
+  ],
+  "exports": {
+    "./components/admin/*": "./components/admin/*",
+    "./lib/*": "./lib/*",
+    "./server/*": "./server/*"
+  },
+  "peerDependencies": {
+    "next": ">=15 <17",
+    "react": ">=19 <20",
+    "react-dom": ">=19 <20"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "restricted"
+  }
+}
