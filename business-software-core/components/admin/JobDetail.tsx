@@ -1,4 +1,5 @@
 "use client";
+import {bmsMoney,bmsLocalInput} from "../../lib/presentation";
 import {formatQuoteLines,quoteAmountFromText,validateTidiedQuote} from "@/business-software-core/lib/quote-format";
 import { friendlyError } from "@/business-software-core/lib/friendly-error";
 
@@ -12,8 +13,8 @@ const tabs = ["Overview", "Activity", "Quote", "Costs & Payments", "Files", "Wor
 type Tab = (typeof tabs)[number];
 type Bundle = any;
 
-function money(value: number | string | null | undefined) { return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0)); }
-function localInput(value?: string | null) { if (!value) return ""; const d=new Date(value); const p=(n:number)=>String(n).padStart(2,"0"); return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
+const money=bmsMoney;
+const localInput=bmsLocalInput;
 function iso(value: FormDataEntryValue | null) { const s=String(value||"").trim(); return s?new Date(s).toISOString():null; }
 function text(fd:FormData,key:string){const v=String(fd.get(key)||"").trim();return v||null;}
 function num(fd:FormData,key:string){const v=String(fd.get(key)||"").trim().replace(/,/g,"");if(!v)return null;const n=Number(v);return Number.isFinite(n)?n:null;}
