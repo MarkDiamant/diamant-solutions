@@ -1,5 +1,5 @@
 "use client";
-import { friendlyError } from "@/business-software-core/lib/friendly-error";
+import { friendlyError } from "../../lib/friendly-error";
 import {useEffect,useMemo,useState} from "react";
 import {useSearchParams} from "next/navigation";
 const snoozeChoices=[1,3,5,7,14,30];
