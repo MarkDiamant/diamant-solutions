@@ -4,18 +4,18 @@
   "captured": "2026-09-23",
   "note": "Pinned, reviewed canonical BMS component source baselines; M&J default workflows, no production customer data copied.",
   "components": {
-    "AdminBrandBar": "230acb2c13449280dc5b6d66ae2478ee28406c29",
-    "CrmDashboardV3": "3e7c3163cba1688486bf2b304cfca8b48c7ed260",
-    "CrmDashboardV4": "2de870ed954958de1b11fbde25f7f3ebf0577897",
-    "CrmDashboardV5": "f0303bee87bb9a83acdd461079d729bf9b0031b1",
-    "JobDetail": "8381383acee89f46dfdd0fc8c3a70c29ead8faf3",
-    "JobWorkflowPanel": "e7f4c23aff311d3e7468a2acb38bc008fc9d9b4b",
-    "NewJobForm": "0ebbffe66b743bf80ebcecfd1d4b33d78f59007c",
-    "NewJobFormV2": "cd8310efb9753e917c1f234a5cba9f62ebe5228c",
+    "AdminBrandBar": "91c8ac0b1312c0faa97fb387f755b69d6aba6b81",
+    "CrmDashboardV3": "6c01398aa0c2e99f973d4ab9fd2e1653b9625901",
+    "CrmDashboardV4": "0686a852fdc9680e96eff78bdd3e7f3cb54e4801",
+    "CrmDashboardV5": "11dc8baa50b76ef9b58df7c5a1db7669cd50898f",
+    "JobDetail": "11b006ec567a2ea5a86ab0cb491fc02fa17f8d9a",
+    "JobWorkflowPanel": "c5a93a0851d50da504e8f3d1eac7019129b4c526",
+    "NewJobForm": "aa064fe6fdafb9a9c112454e259d0eb8bfb45b94",
+    "NewJobFormV2": "129c1fd3a5fc9c9c566c19de29311fadfb742862",
     "QuotePdfActions": "ee128efeece17c83dd9c10aba3eb2e5ae02c6378",
     "QuotePrint": "6ae1d8e2a54ca5db231a400449c5b7c762d42fc5",
     "SetupRequired": "08d9ac9ff1d5402364d5ad2e5fc8157ad5dfeae5",
-    "XeroInvoicePage": "074777948b910208f69cacf8f308f75056932633"
+    "XeroInvoicePage": "b56f8ad0a1cc4872dd9aba4c67c9b387dfc73806"
   },
   "lastReviewed": "2026-10-20"
 }
