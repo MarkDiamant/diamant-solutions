@@ -1,5 +1,5 @@
 "use client";
-import { friendlyError } from "@/business-software-core/lib/friendly-error";
+import { friendlyError } from "../../lib/friendly-error";
 import {useEffect,useMemo,useState} from "react";
 type Row={id?:string;name:string;category?:string;unit:string;cost_net?:number|null;cost_rate?:number|null;cost_vat_rate?:number;pricing_method?:string;markup_percent?:number|null;margin_percent?:number|null;fixed_sell_net?:number|null;fixed_sell_rate?:number|null;person_id?:string|null;person_name?:string|null;active?:boolean};
 const gbp=(n:number)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(n||0);
