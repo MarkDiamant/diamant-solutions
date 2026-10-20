@@ -1,0 +1,51 @@
+name: Release canonical BMS package
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'business-software-core/**'
+      - '.github/workflows/release-bms-core.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Verify package and create immutable release archive
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd business-software-core
+          node <<'NODE'
+          const fs=require('fs'),path=require('path'),pkg=require('./package.json');
+          if(pkg.name!=='@markdiamant/business-software-core')throw Error('Unexpected package identity');
+          for(const entry of ['components/admin/JobDetail.tsx','components/admin/CrmDashboardV3.tsx','components/admin/QuotePrint.tsx','server/ruby-handler.ts','lib/tenant-resource-adapter.ts']){
+            if(!fs.existsSync(entry))throw Error('Missing package module '+entry);
+          }
+          function scan(dir){for(const entry of fs.readdirSync(dir,{withFileTypes:true})){const file=path.join(dir,entry.name);if(entry.isDirectory())scan(file);else if(/\.[jt]sx?$/.test(file)){const src=fs.readFileSync(file,'utf8');if(src.includes('@/business-software-core/'))throw Error('Host-specific BMS alias in '+file);}}}
+          scan('components');scan('lib');scan('server');
+          NODE
+          archive="$(npm pack --pack-destination "$RUNNER_TEMP" --silent)"
+          printf 'archive=%s\n' "$RUNNER_TEMP/$archive" >> "$GITHUB_OUTPUT"
+          printf 'tag=bms-core-v%s\n' "$(node -p 'require("./package.json").version')" >> "$GITHUB_OUTPUT"
+      - name: Publish versioned GitHub release if absent
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.package.outputs.tag }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Immutable release $TAG already exists, leaving it unchanged."
+          else
+            gh release create "$TAG" "$ARCHIVE" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "BMS core $TAG" --notes "Canonical shared BMS core package. M&J data is not included."
+          fi
