@@ -1,11 +1,10 @@
 "use client";
+import {bmsMoney,bmsLocalInput} from "../../lib/presentation";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_CRM_CONFIG } from "@/lib/crm/config";
 
-function money(value: number | string | null | undefined) {
-  return new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" }).format(Number(value || 0));
-}
+const money=bmsMoney;
 
 export default function QuotePrint({ reference, quoteId }: { reference: string; quoteId: string }) {
   const [data, setData] = useState<any>(null);
