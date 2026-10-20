@@ -96,6 +96,11 @@ ${crmConfig.businessName}`;
     .replace(/(?:^|\n)([^\n]*?)\b1\s*[x×]\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_m,prefix,price)=>"\n"+prefix.trimEnd().replace(/[\s:|.-]+$/,"")+": £"+price)
     .trim();
   const scopeParts=(value:string)=>{
+    const structured=[...String(value||"").matchAll(/^(.+?)\\s+\\|\\s+(\\d+(?:\\.\\d+)?)\\s+x\\s+£([\\d,]+(?:\\.\\d{1,2})?)\\s*=\\s*£([\\d,]+(?:\\.\\d{1,2})?)\\s*$/gm)];
+    if(structured.length){
+      const prefix=String(value||"").replace(/^.+?\\s+\\|\\s+\\d+(?:\\.\\d+)?\\s+x\\s+£[\\d,]+(?:\\.\\d{1,2})?\\s*=\\s*£[\\d,]+(?:\\.\\d{1,2})?\\s*$/gm,"").trim();
+      return [...(prefix?[{description:prefix,price:""}]:[]),...structured.map(m=>({description:m[1],price:Number(m[2])===1?"£"+m[4] : m[2]+" × £"+m[3]+" = £"+m[4]}))];
+    }
     const cleaned=displayScope(value);
     const lines=cleaned.split(/\n/).map(x=>x.trim()).filter(Boolean);
     const priceLine=(line:string)=>/£[\d,]+(?:\.\d{1,2})?/.test(line);
