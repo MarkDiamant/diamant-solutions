@@ -11,9 +11,9 @@
     "README.md"
   ],
   "exports": {
-    "./components/admin/*": "./components/admin/*",
-    "./lib/*": "./lib/*",
-    "./server/*": "./server/*"
+    "./components/admin/*": "./components/admin/*.tsx",
+    "./lib/*": "./lib/*.ts",
+    "./server/*": "./server/*.ts"
   },
   "peerDependencies": {
     "next": ">=15 <17",
