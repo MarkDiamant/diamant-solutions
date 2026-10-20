@@ -96,9 +96,9 @@ ${crmConfig.businessName}`;
     .replace(/(?:^|\n)([^\n]*?)\b1\s*[x×]\s*£([\d,]+(?:\.\d{1,2})?)/gi,(_m,prefix,price)=>"\n"+prefix.trimEnd().replace(/[\s:|.-]+$/,"")+": £"+price)
     .trim();
   const scopeParts=(value:string)=>{
-    const structured=[...String(value||"").matchAll(/^(.+?)\\s+\\|\\s+(\\d+(?:\\.\\d+)?)\\s+x\\s+£([\\d,]+(?:\\.\\d{1,2})?)\\s*=\\s*£([\\d,]+(?:\\.\\d{1,2})?)\\s*$/gm)];
+    const structured=[...String(value||"").matchAll(/^(.+?)\s+\|\s+(\d+(?:\.\d+)?)\s+x\s+£([\d,]+(?:\.\d{1,2})?)\s*=\s*£([\d,]+(?:\.\d{1,2})?)\s*$/gm)];
     if(structured.length){
-      const prefix=String(value||"").replace(/^.+?\\s+\\|\\s+\\d+(?:\\.\\d+)?\\s+x\\s+£[\\d,]+(?:\\.\\d{1,2})?\\s*=\\s*£[\\d,]+(?:\\.\\d{1,2})?\\s*$/gm,"").trim();
+      const prefix=String(value||"").replace(/^.+?\s+\|\s+\d+(?:\.\d+)?\s+x\s+£[\d,]+(?:\.\d{1,2})?\s*=\s*£[\d,]+(?:\.\d{1,2})?\s*$/gm,"").trim();
       return [...(prefix?[{description:prefix,price:""}]:[]),...structured.map(m=>({description:m[1],price:Number(m[2])===1?"£"+m[4] : m[2]+" × £"+m[3]+" = £"+m[4]}))];
     }
     const cleaned=displayScope(value);
@@ -121,7 +121,7 @@ ${crmConfig.businessName}`;
   const quoteProjectTitle=(jobTitle:string,scope:string)=>{
     const title=jobTitle.trim()||"Project";
     if(!isMjTenant||!/^railings?$/i.test(title))return title;
-    const parts=[/railing|balustrade/i.test(scope)?"Railings":null,/\\bgate\\b/i.test(scope)?"Gate":null,/handrail/i.test(scope)?"Handrails":null].filter(Boolean);
+    const parts=[/railing|balustrade/i.test(scope)?"Railings":null,/\bgate\b/i.test(scope)?"Gate":null,/handrail/i.test(scope)?"Handrails":null].filter(Boolean);
     return parts.length>1?parts.join(", "):title;
   };
   const renderBold=(value:string)=>String(value||"").split(/(\\*\\*[^*\\n]+\\*\\*)/g).map((part,i)=>part.startsWith("**")&&part.endsWith("**")?<strong key={i} className="font-black text-black">{part.slice(2,-2)}</strong>:part);
