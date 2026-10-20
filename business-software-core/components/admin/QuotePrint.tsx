@@ -122,15 +122,16 @@ ${crmConfig.businessName}`;
   const renderScope=(value:string)=>{
     const groups=scopeParts(value);
     return <div className="space-y-3">{groups.map((group,index)=>{
-      const description=plain(group.description).replace(/^\\d+[.)]\\s*/,"");
-      const match=description.match(/^([^:]{3,80}):\\s*(.+)$/s);
+      const description=group.description.replace(/^\\d+[.)]\\s*/,"").trim();
+      const match=plain(description).match(/^([^:]{3,80}):\\s*(.+)$/s);
+      const colonIndex=description.indexOf(":");
       const price=plain(group.price);
       const priceMatch=price.match(/£[\\d,]+(?:\\.\\d{1,2})?/);
       const priceStart=priceMatch?.index??-1;
       const priceText=priceMatch?.[0]||"";
       return <div key={index} className="flex items-start gap-2">
         {groups.length>1&&<span className="w-5 shrink-0 font-black text-black">{index+1}.</span>}
-        <div className="min-w-0 flex-1 whitespace-pre-wrap">{match?<><strong className="font-black text-black">{match[1]}:</strong>{" "}{isMjTenant?match[2]:renderBold(group.description.slice(group.description.indexOf(":")+1).trim())}</>:isMjTenant?description:renderBold(group.description)}{price&&<span>{match||description?" ":""}{priceStart>=0?<>{price.slice(0,priceStart)}<strong className="font-black text-black">{priceText}</strong>{price.slice(priceStart+priceText.length)}</>:price}</span>}</div>
+        <div className="min-w-0 flex-1 whitespace-pre-wrap">{match&&colonIndex>=0?<><strong className="font-black text-black">{plain(description.slice(0,colonIndex+1))}</strong>{" "}{renderBold(description.slice(colonIndex+1).trim())}</>:renderBold(description)}{price&&<span>{description?" ":""}{priceStart>=0?<>{renderBold(price.slice(0,priceStart))}<strong className="font-black text-black">{priceText}</strong>{renderBold(price.slice(priceStart+priceText.length))}</>:renderBold(price)}</span>}</div>
       </div>;
     })}</div>;
   };
