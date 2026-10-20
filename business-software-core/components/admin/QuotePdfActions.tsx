@@ -50,7 +50,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
         const frame=page.closest<HTMLElement>(".quote-mobile-frame");
         const previousTransform=frame?.style.transform||"";
         if(frame)frame.style.transform="none";
-        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,width:page.offsetWidth,height:page.offsetHeight,windowWidth:1200,windowHeight:1200,scrollX:0,scrollY:0});
+        const canvas=await window.html2canvas(page,{scale:2,useCORS:true,allowTaint:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,width:page.offsetWidth,height:page.offsetHeight,windowWidth:1200,windowHeight:1200,scrollX:0,scrollY:0,onclone:(doc:Document)=>{for(const frame of Array.from(doc.querySelectorAll<HTMLElement>(".quote-mobile-frame"))){frame.style.setProperty("transform","none","important");frame.style.setProperty("width","794px","important");frame.style.setProperty("max-width","794px","important");}for(const sheet of Array.from(doc.querySelectorAll<HTMLElement>(".quote-page"))){sheet.style.setProperty("transform","none","important");sheet.style.setProperty("width","794px","important");sheet.style.setProperty("min-width","794px","important");sheet.style.setProperty("max-width","794px","important");sheet.style.setProperty("font-stretch","normal","important");}}});
         if(frame)frame.style.transform=previousTransform;
         images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});
       }
