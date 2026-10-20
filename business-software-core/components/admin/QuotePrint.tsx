@@ -102,6 +102,8 @@ ${crmConfig.businessName}`;
       return [...(prefix?[{description:prefix,price:""}]:[]),...structured.map(m=>({description:m[1],price:Number(m[2])===1?"£"+m[4] : m[2]+" × £"+m[3]+" = £"+m[4]}))];
     }
     const cleaned=displayScope(value);
+    const natural=cleaned.split(/\n/).map(x=>x.trim()).filter(Boolean);
+    if(natural.length&&natural.every(line=>/£[\d,]+(?:\.\d{1,2})?/.test(line))){return natural.map(line=>({description:line,price:""}));}
     const lines=cleaned.split(/\n/).map(x=>x.trim()).filter(Boolean);
     const priceLine=(line:string)=>/£[\d,]+(?:\.\d{1,2})?/.test(line);
     const groups:{description:string;price:string}[]=[];
