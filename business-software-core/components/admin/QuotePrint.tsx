@@ -103,7 +103,7 @@ ${crmConfig.businessName}`;
     }
     const cleaned=displayScope(value);
     const natural=cleaned.split(/\n/).map(x=>x.trim()).filter(Boolean);
-    if(natural.length&&natural.every(line=>/£[\d,]+(?:\.\d{1,2})?/.test(line))){return natural.map(line=>({description:line,price:""}));}
+    if(natural.length&&natural.every(line=>/£[\d,]+(?:\.\d{1,2})?/.test(line))){return natural.map(line=>{const m=line.match(/^(.*?)(:\s*(?:\d+(?:\.\d+)?\s*[×x]\s*)?£[\d,]+(?:\.\d{1,2})?(?:\s*=\s*£[\d,]+(?:\.\d{1,2})?)?)\s*$/);return m?{description:m[1].trim(),price:m[2].trim()}:{description:line,price:""};});}
     const lines=cleaned.split(/\n/).map(x=>x.trim()).filter(Boolean);
     const priceLine=(line:string)=>/£[\d,]+(?:\.\d{1,2})?/.test(line);
     const groups:{description:string;price:string}[]=[];
