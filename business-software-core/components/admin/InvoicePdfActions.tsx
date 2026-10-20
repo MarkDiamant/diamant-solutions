@@ -1,6 +1,6 @@
 "use client";
 import {useState} from "react";
-import {friendlyError} from "@/business-software-core/lib/friendly-error";
+import {friendlyError} from "../../lib/friendly-error";
 declare global {
   interface Window { html2canvas?: (element: HTMLElement, options?: Record<string, unknown>) => Promise<HTMLCanvasElement>; }
 }
