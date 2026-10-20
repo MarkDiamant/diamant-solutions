@@ -22,3 +22,12 @@ The current M&J deployment still contains a synchronised runtime copy of these c
 - Demo tenants run the same shared features but retain their own fictional and isolated data. Never expose real tenant records or credentials in demos.
 - While tenant runtime components remain copied into separate repositories, synchronise each core change into those runtime copies and verify both builds. A successful core-site build alone does not prove tenant integration.
 - Prefer eliminating runtime copies through shared-package imports in a future migration; do not claim that migration is complete until tenant apps actually import the shared code.
+
+## Implemented shared server ownership (October 2026)
+
+- `server/ruby-handler.ts`: canonical Ruby question handling, quote creation/update, permissions and pricing rules. Tenant API routes only inject permission/database adapters.
+- `server/quote-tidy-handler.ts`: canonical AI quotation tidy with server-side item/price preservation.
+- `server/quote-pdf-handler.ts`: canonical PDF generation, storage retrieval and fresh download of existing quotations.
+- `lib/ruby-quote.ts` and `lib/quote-pdf.ts`: canonical Ruby quote validation and PDF generation.
+- M&J currently mirrors these core files under `business-software-core/` and re-exports its legacy `lib/crm/` entrypoints. The app routes are thin tenant adapters mapping BMS logical resources to M&J's existing tables and file bucket.
+- This is a transitional mirror, not yet a single deployed package dependency. The shared admin UI also has remaining tenant-specific runtime copies. Keep core and mirrors in sync until a shared-package build migration is complete.
