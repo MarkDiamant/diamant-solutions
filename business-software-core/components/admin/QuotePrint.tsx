@@ -58,7 +58,7 @@ ${crmConfig.businessName}`;
     setWhatsAppBusy(true);
     try {
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf`,{cache:"no-store"});
-      if(!response.ok){const body=await response.json().catch(()=>({}));throw new Error(body.error||"Could not load quote PDF");}
+      if(!response.ok){const body=await response.json().catch(()=>({}));const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();const digits=raw.replace(/[^\d+]/g,"");const number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;const target=/^\d{8,15}$/.test(number)?number:"";const url=`https://wa.me/${target}?text=${encodeURIComponent(message)}`;window.open(url,"_blank","noopener,noreferrer");alert("WhatsApp message prepared. The quotation PDF is not available yet ("+(body.error||"not generated")+"). Save or download the PDF first, then attach it in WhatsApp.");return;}
       const blob=await response.blob();
       const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
       const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
