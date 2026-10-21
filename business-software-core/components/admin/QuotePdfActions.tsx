@@ -40,7 +40,29 @@ async function renderQuotePage(page:HTMLElement){
   }));
   const logo=page.querySelector<HTMLImageElement>("header img");
   let embeddedLogo:string|null=null;
-  if(logo?.src){try{const response=await fetch(logo.src,{mode:"cors",cache:"force-cache"});if(response.ok){const blob=await response.blob();embeddedLogo=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("Logo encoding failed"));reader.readAsDataURL(blob);});}}catch{/* Try the restricted same-origin logo proxy below. */}if(!embeddedLogo){try{const response=await fetch("/api/business-software/quote-logo?url="+encodeURIComponent(logo.src),{cache:"force-cache"});if(response.ok){const blob=await response.blob();embeddedLogo=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("Logo encoding failed"));reader.readAsDataURL(blob);});}}catch{/* Preserve working PDF generation if logo cannot be fetched. */}}}
+  if(logo?.src){
+    // Fetch through our own origin FIRST. The configured M&J URL redirects
+    // from apex to www and cannot reliably be read by Android canvas.
+    const isMjLogo=/^https:\/\/(?:www\.)?mjmetal\.co\.uk\/images\/logo\.png(?:\?.*)?$/i.test(logo.src);
+    const sources=isMjLogo
+      ? ["/api/business-software/quote-logo?url="+encodeURIComponent("https://www.mjmetal.co.uk/images/logo.png")]
+      : ["/api/business-software/quote-logo?url="+encodeURIComponent(logo.src),logo.src];
+    for(const source of sources){
+      try{
+        const response=await fetch(source,{cache:"no-store",credentials:"same-origin"});
+        if(!response.ok||!(response.headers.get("content-type")||"").startsWith("image/"))continue;
+        const blob=await response.blob();
+        embeddedLogo=await new Promise<string>((resolve,reject)=>{
+          const reader=new FileReader();
+          reader.onload=()=>resolve(String(reader.result));
+          reader.onerror=()=>reject(new Error("Logo encoding failed"));
+          reader.readAsDataURL(blob);
+        });
+        if(embeddedLogo)break;
+      }catch{/* Try next approved source. */}
+    }
+    if(isMjLogo&&!embeddedLogo)throw new Error("M&J logo could not be loaded. PDF not saved without the logo.");
+  }
   // html2canvas clones the page asynchronously. Setting the logo only inside
   // onclone races image loading, so it can capture a blank logo on mobile.
   // Load the embedded image on the live page before starting the capture.
@@ -89,7 +111,7 @@ async function renderQuotePage(page:HTMLElement){
           result.getContext("2d")?.drawImage(image,x,y,w,h);
         }
       }
-    }catch{/* Never break a successful PDF download because of its logo. */}
+    }catch(error){if(logo?.src.includes("mjmetal.co.uk"))throw new Error("M&J logo could not be drawn into PDF: "+String(error));}
     return result;
   }finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
