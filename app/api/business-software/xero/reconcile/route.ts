@@ -53,7 +53,9 @@ export async function GET(request:Request){
   // Contractor bill matching is intentionally advisory until a bill-to-job link is confirmed.
   // Xero purchase bills are ACCPAY; never treat these as customer receipts.
   const contractorBillCandidates:any[]=[];
-  for(const [tenantId] of groups){
+  const connectedTenants=await rows("business_software_integrations?provider=eq.xero&status=eq.connected&select=tenant_id&limit=1000");
+  const tenantIds=[...new Set([...groups.keys(),...connectedTenants.map((r:any)=>String(r.tenant_id)).filter(Boolean)])];
+  for(const tenantId of tenantIds){
    try{
     const credentials=await access(tenantId);
     const [jobs,people]=await Promise.all([rows("business_software_jobs?tenant_id=eq."+enc(tenantId)+"&select=id,reference&limit=1000"),rows("business_software_job_people?tenant_id=eq."+enc(tenantId)+"&select=id,job_id,person_id,agreed_cost,paid_amount&limit=1000")]);
