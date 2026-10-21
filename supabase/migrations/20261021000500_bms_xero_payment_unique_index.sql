@@ -1,0 +1,1 @@
+create unique index if not exists business_software_payments_xero_idempotency_uidx on public.business_software_payments(tenant_id,notes) where direction='subcontractor_out' and notes like 'XERO_PAYMENT_ID:%';
