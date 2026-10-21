@@ -38,6 +38,9 @@ async function renderQuotePage(page:HTMLElement){
     if(!img.complete)await new Promise<void>(resolve=>{img.addEventListener("load",()=>resolve(),{once:true});img.addEventListener("error",()=>resolve(),{once:true});});
     if(img.complete&&img.naturalWidth>0&&img.decode)await img.decode().catch(()=>{});
   }));
+  const logo=page.querySelector<HTMLImageElement>("header img");
+  let embeddedLogo:string|null=null;
+  if(logo?.src){try{const response=await fetch(logo.src,{mode:"cors",cache:"force-cache"});if(response.ok){const blob=await response.blob();embeddedLogo=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("Logo encoding failed"));reader.readAsDataURL(blob);});}}catch{/* Keep original logo when remote embedding is unavailable. */}}
   const previous={width:page.style.width,minWidth:page.style.minWidth,maxWidth:page.style.maxWidth,zoom:page.style.zoom};
   page.style.width="900px";page.style.minWidth="900px";page.style.maxWidth="900px";page.style.zoom="1";
   try{return await window.html2canvas(page,{
@@ -45,6 +48,7 @@ async function renderQuotePage(page:HTMLElement){
     windowWidth:1200,
     onclone:(doc:Document)=>{
       const cloned=doc.querySelector<HTMLElement>(".quote-page:not(.hidden)");
+      if(cloned&&embeddedLogo){const image=cloned.querySelector<HTMLImageElement>("header img");if(image){image.src=embeddedLogo;image.removeAttribute("crossorigin");}}
       if(cloned){cloned.style.width="900px";cloned.style.minWidth="900px";cloned.style.maxWidth="900px";cloned.style.marginLeft="0";cloned.style.marginRight="0";cloned.style.zoom="1";}
       const viewport=doc.querySelector<HTMLMetaElement>('meta[name="viewport"]');
       if(viewport)viewport.setAttribute("content","width=1200, initial-scale=1");
