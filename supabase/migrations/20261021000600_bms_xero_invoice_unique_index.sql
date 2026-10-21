@@ -1,0 +1,1 @@
+create unique index if not exists business_software_invoices_xero_external_uidx on public.business_software_invoices(tenant_id,lower(external_invoice_id)) where provider='xero' and external_invoice_id is not null;
