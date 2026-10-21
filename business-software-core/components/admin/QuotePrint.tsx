@@ -63,9 +63,9 @@ ${crmConfig.businessName}`;
       const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
       const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
       // UK numbers use +44; international numbers must include their country code.
-      const digits=raw.replace(/[^\\d+]/g,"");
+      const digits=raw.replace(/[^\d+]/g,"");
       let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
-      if(!/^\\d{8,15}$/.test(number))number="";
+      if(!/^\d{8,15}$/.test(number))number="";
       const whatsappUrl=`https://wa.me/${number}?text=${encodeURIComponent(message)}`;
       // Native sharing can pass the PDF and message, but cannot reliably preselect a WhatsApp recipient.
       if(navigator.share && navigator.canShare?.({files:[file]})){
