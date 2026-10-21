@@ -41,6 +41,24 @@ async function renderQuotePage(page:HTMLElement){
   const logo=page.querySelector<HTMLImageElement>("header img");
   let embeddedLogo:string|null=null;
   if(logo?.src){try{const response=await fetch(logo.src,{mode:"cors",cache:"force-cache"});if(response.ok){const blob=await response.blob();embeddedLogo=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("Logo encoding failed"));reader.readAsDataURL(blob);});}}catch{/* Try the restricted same-origin logo proxy below. */}if(!embeddedLogo){try{const response=await fetch("/api/business-software/quote-logo?url="+encodeURIComponent(logo.src),{cache:"force-cache"});if(response.ok){const blob=await response.blob();embeddedLogo=await new Promise<string>((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result));reader.onerror=()=>reject(new Error("Logo encoding failed"));reader.readAsDataURL(blob);});}}catch{/* Preserve working PDF generation if logo cannot be fetched. */}}}
+  // html2canvas clones the page asynchronously. Setting the logo only inside
+  // onclone races image loading, so it can capture a blank logo on mobile.
+  // Load the embedded image on the live page before starting the capture.
+  const originalLogoSrc=logo?.getAttribute("src")??null;
+  let replacedLogo=false;
+  if(logo&&embeddedLogo){
+    const preload=new Image();
+    preload.src=embeddedLogo;
+    await new Promise<void>(resolve=>{
+      if(preload.complete){resolve();return;}
+      preload.onload=()=>resolve();
+      preload.onerror=()=>resolve();
+    });
+    if(preload.naturalWidth>0){
+      logo.src=embeddedLogo;
+      replacedLogo=true;
+    }
+  }
   const previous={width:page.style.width,minWidth:page.style.minWidth,maxWidth:page.style.maxWidth,zoom:page.style.zoom};
   page.style.width="900px";page.style.minWidth="900px";page.style.maxWidth="900px";page.style.zoom="1";
   try{return await window.html2canvas(page,{
@@ -53,7 +71,7 @@ async function renderQuotePage(page:HTMLElement){
       const viewport=doc.querySelector<HTMLMetaElement>('meta[name="viewport"]');
       if(viewport)viewport.setAttribute("content","width=1200, initial-scale=1");
     }
-  });}finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;}
+  });}finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
 
 export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
