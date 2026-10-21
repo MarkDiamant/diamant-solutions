@@ -72,3 +72,7 @@
 /* Non-proceeding outcomes are separate, both using red-family warning colours. */
 .bms-shell .bms-money-tiles>button:nth-child(8){background:#fff3f1;border-color:#f4c9c3}
 .bms-shell .bms-money-tiles>button:nth-child(8)>p:nth-child(2){color:#b42318!important}
+
+/* Keep every Money Overview KPI in the same two-column grid, including the demo. */
+.bms-shell .bms-money-tiles>button{grid-column:span 1 / span 1!important}
+@media(max-width:640px){.bms-shell header .builtByCompact .builtByLogo img{width:48px!important;max-width:48px!important;max-height:13px!important}.bms-shell header .builtByCompact .builtByPrefix{font-size:8px!important}.bms-shell header .builtByCompact .builtByLine{gap:3px}.bms-shell header a:has(.builtByCompact){min-width:0}.bms-shell header img{max-width:100px}}
