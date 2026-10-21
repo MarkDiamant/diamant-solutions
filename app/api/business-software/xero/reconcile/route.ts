@@ -52,7 +52,7 @@ export async function GET(request:Request){
     }
    }catch(e){failed+=items.length;errors.push("Tenant "+tenantId+": "+(e instanceof Error?e.message:"Unknown error"));}
   }
-  // Contractor bill matching is intentionally advisory until a bill-to-job link is confirmed.
+  // Auto-post only exact, identity-verified matches through an atomic idempotent RPC; leave all ambiguous bills for review.
   // Xero purchase bills are ACCPAY; never treat these as customer receipts.
   const contractorBillCandidates:any[]=[],unlinkedCustomerInvoiceCandidates:any[]=[];let customerInvoicesLinked=0;const autoLinkCustomerInvoices=process.env.BMS_XERO_AUTO_CUSTOMER_INVOICE_LINK==="true";let contractorPaymentsPosted=0,contractorPaymentsAlreadyPosted=0;const autoPostContractors=process.env.BMS_XERO_AUTO_CONTRACTOR_PAYMENTS==="true";
   const connectedTenants=await rows("business_software_integrations?provider=eq.xero&status=eq.connected&select=tenant_id&limit=1000");
