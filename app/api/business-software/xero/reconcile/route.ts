@@ -42,7 +42,8 @@ export async function GET(request:Request){
       if(x.Type!=="ACCREC")throw new Error("Expected customer sales invoice; refused to reconcile purchase bill as incoming payment");
       const next={status:String(x.Status||invoice.status),invoice_number:x.InvoiceNumber||null,total:Number(x.Total??0),amount_due:Number(x.AmountDue??0),amount_paid:Number(x.AmountPaid??0),currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()};
       if(![next.total,next.amount_due,next.amount_paid].every(Number.isFinite)||next.total<0||next.amount_due<0||next.amount_paid<0)throw new Error("Invalid Xero invoice amounts");
-      if(Math.abs(next.total-next.amount_due-next.amount_paid)>0.02)throw new Error("Xero invoice balance does not reconcile to total; local record left unchanged");
+      const credited=Number(x.AmountCredited??0);if(!Number.isFinite(credited)||credited<0)throw new Error("Invalid Xero credit amount");
+      if(Math.abs(next.total-next.amount_due-next.amount_paid-credited)>0.02)throw new Error("Xero invoice balance does not reconcile after credits; local record left unchanged");
       if(next.status==="PAID"&&next.amount_due>0.01)throw new Error("Xero reports PAID but an amount is still due; local record left unchanged");
       const saved=await centralRest("business_software_invoices?id=eq."+enc(String(invoice.id))+"&tenant_id=eq."+enc(tenantId)+"&provider=eq.xero&external_invoice_id=eq."+enc(String(invoice.external_invoice_id)),{method:"PATCH",body:JSON.stringify(next)});
       if(!saved.ok)throw new Error("Database invoice update "+saved.status);
