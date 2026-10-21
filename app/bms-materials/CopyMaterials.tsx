@@ -1,0 +1,9 @@
+"use client";
+import {useEffect,useState} from "react";
+export default function CopyMaterials({orderId,onCopied}:{orderId:string;onCopied:()=>void}){
+ const [orders,setOrders]=useState<any[]>([]),[source,setSource]=useState(""),[lines,setLines]=useState<any[]>([]),[selected,setSelected]=useState<string[]>([]),[message,setMessage]=useState("");
+ useEffect(()=>{fetch("/api/bms-materials").then(r=>r.json()).then(v=>setOrders(v.orders||[])).catch(()=>{})},[orderId]);
+ useEffect(()=>{if(!source){setLines([]);return}fetch("/api/bms-materials?order="+encodeURIComponent(source)).then(r=>r.json()).then(v=>{setLines(v.lines||[]);setSelected([])}).catch(()=>{})},[source]);
+ const copy=async()=>{const r=await fetch("/api/bms-materials",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"copy",source_order_id:source,target_order_id:orderId,line_ids:selected})});const v=await r.json();if(!r.ok){setMessage(v.error||"Unable to copy");return}setMessage("Copied "+(v.records?.length||0)+" lines. Review their current prices.");onCopied()};
+ return <section style={{marginTop:20,border:"1px solid #ddd",borderRadius:12,padding:12}}><h2>Copy from another order</h2><label>Source order <select value={source} onChange={e=>setSource(e.target.value)}><option value="">Choose an order</option>{orders.filter(o=>o.id!==orderId).map(o=><option key={o.id} value={o.id}>{o.reference||"Unassigned"} · {new Date(o.created_at).toLocaleDateString("en-GB")}</option>)}</select></label>{lines.map(l=><label key={l.id} style={{display:"block",padding:8}}><input type="checkbox" checked={selected.includes(l.id)} onChange={e=>setSelected(v=>e.target.checked?[...v,l.id]:v.filter(x=>x!==l.id))}/> {l.name} · {l.quantity} × £{Number(l.cost_net).toFixed(2)}</label>)}<button disabled={!selected.length} onClick={copy}>Copy selected rows</button>{message&&<p role="status">{message}</p>}</section>;
+}
