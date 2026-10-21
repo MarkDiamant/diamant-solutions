@@ -21,7 +21,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
          if(!piece)continue;
          const marked=piece.startsWith("**")&&piece.endsWith("**")&&piece.length>4;
          const content=marked?piece.slice(2,-2):piece;
-         if(bold||marked){const strong=document.createElement("strong");strong.textContent=content;host.appendChild(strong);}
+         if(bold||marked){const strong=document.createElement("strong");strong.textContent=content;strong.style.fontWeight="700";host.appendChild(strong);}
          else host.appendChild(document.createTextNode(content));
        }
      };
