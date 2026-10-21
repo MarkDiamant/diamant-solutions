@@ -1,6 +1,6 @@
 "use client";
 import {bmsMoney,bmsLocalInput,bmsQuoteScope} from "../../lib/presentation";
-import {downloadQuotePdf} from "./QuotePdfActions";
+import {downloadQuotePdf,createQuotePdfBlob} from "./QuotePdfActions";
 
 
 import { useEffect, useMemo, useState } from "react";
@@ -61,6 +61,14 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       try{await navigator.clipboard.writeText(message);copied=true;}catch{}
       let downloaded=false;
       try{
+        const blob=await createQuotePdfBlob();
+        const file=new File([blob],`${reference}-Quote.pdf`,{type:"application/pdf"});
+        if(typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})){
+          if(whatsappTab)whatsappTab.close();
+          await navigator.share({files:[file],title:`Quotation ${reference}`});
+          alert(copied?"Quotation PDF shared. Message copied. Press Ctrl+V to paste the message in WhatsApp.":"Quotation PDF shared. Paste your quotation message in WhatsApp.");
+          return;
+        }
         await downloadQuotePdf(reference);
         downloaded=true;
       }catch(error){
