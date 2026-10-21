@@ -108,8 +108,10 @@ async function renderQuotePage(page:HTMLElement){
           const y=(rect.top-box.top)*result.height/box.height;
           const w=rect.width*result.width/box.width;
           const h=rect.height*result.height/box.height;
-          result.getContext("2d")?.drawImage(image,x,y,w,h);
-        }
+          const context=result.getContext("2d");
+          if(!context)throw new Error("PDF image canvas unavailable");
+          context.drawImage(image,x,y,w,h);
+        }else if(logo?.src.includes("mjmetal.co.uk"))throw new Error("M&J logo image failed to decode");
       }
     }catch(error){if(logo?.src.includes("mjmetal.co.uk"))throw new Error("M&J logo could not be drawn into PDF: "+String(error));}
     return result;
