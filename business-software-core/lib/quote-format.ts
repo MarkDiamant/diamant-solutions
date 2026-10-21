@@ -22,3 +22,13 @@ export function normaliseQuoteScope(input:string){
     return out;
   }).join("\n");
 }
+
+/** One-time migration for legacy quotations whose numbers were added only at print time.
+ * Existing user-edited numbering is never changed. */
+export function seedLegacyQuoteNumbers(input:string){
+ const text=normaliseQuoteScope(input);
+ const lines=text.split("\n");
+ if(lines.some(x=>/^\s*\d+[.)]\s+/.test(x)))return text;
+ let index=0;
+ return lines.map(line=>/£[\d,]+(?:\.\d{1,2})?/.test(line)?(++index)+". "+line:line).join("\n");
+}
