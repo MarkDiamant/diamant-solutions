@@ -1,0 +1,8 @@
+"use client";
+import {useEffect,useMemo,useState} from "react";
+export default function MaterialsHistory(){
+ const [data,setData]=useState<any>(null),[query,setQuery]=useState(""),[open,setOpen]=useState(false);
+ useEffect(()=>{if(open)fetch("/api/bms-materials",{cache:"no-store"}).then(r=>r.json()).then(setData).catch(()=>{})},[open]);
+ const summary=useMemo(()=>{const m=new Map<string,{name:string;stock:number;spent:number;orders:number}>();for(const v of data?.history||[]){const key=v.product_id||v.name;const x=m.get(key)||{name:v.name,stock:0,spent:0,orders:0};x.spent+=Number(v.quantity)*Number(v.cost_net);x.orders+=1;m.set(key,x)}for(const v of data?.movements||[]){const key=v.product_id||"";const x=m.get(key);if(x)x.stock+=Number(v.quantity_delta)}return [...m.values()].sort((a,b)=>a.name.localeCompare(b.name))},[data]);
+ return <section style={{marginTop:24,borderTop:"1px solid #ddd",paddingTop:16}}><button onClick={()=>setOpen(v=>!v)}>{open?"Hide":"Show"} product history & stock</button>{open&&<div><p>Historical purchase values are snapshots. Stock balances are calculated from recorded stock movements.</p><input placeholder="Search products" aria-label="Search product history" value={query} onChange={e=>setQuery(e.target.value)} style={{padding:10,width:"100%",maxWidth:380}}/>{summary.filter(v=>v.name.toLowerCase().includes(query.toLowerCase())).map(v=><article key={v.name} style={{borderBottom:"1px solid #ddd",padding:12}}><strong>{v.name}</strong><div>Purchase lines: {v.orders} · Historical order value ex VAT: £{v.spent.toFixed(2)} · Recorded stock: {v.stock}</div></article>)}</div>}</section>;
+}
