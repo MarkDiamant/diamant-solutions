@@ -39,6 +39,7 @@ export async function GET(request:Request){
       if(!r.ok)throw new Error("Xero invoice lookup "+r.status);
       const x=(await r.json()).Invoices?.[0];
       if(!x||String(x.InvoiceID).toLowerCase()!==String(invoice.external_invoice_id).toLowerCase())throw new Error("Xero invoice ID mismatch");
+      if(x.Type!=="ACCREC")throw new Error("Expected customer sales invoice; refused to reconcile purchase bill as incoming payment");
       const next={status:String(x.Status||invoice.status),invoice_number:x.InvoiceNumber||null,total:Number(x.Total??0),amount_due:Number(x.AmountDue??0),amount_paid:Number(x.AmountPaid??0),currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()};
       if(![next.total,next.amount_due,next.amount_paid].every(Number.isFinite)||next.total<0||next.amount_due<0||next.amount_paid<0)throw new Error("Invalid Xero invoice amounts");
       if(Math.abs(next.total-next.amount_due-next.amount_paid)>0.02)throw new Error("Xero invoice balance does not reconcile to total; local record left unchanged");
