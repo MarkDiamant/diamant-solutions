@@ -1,6 +1,6 @@
 @import "tailwindcss";
 /* The public marketing site's unscoped header/nav/heading rules must not affect BMS. */
-.bms-shell{font-family:Arial,Helvetica,sans-serif;color:#171717;background:#f5f5f2;min-height:100vh}
+.bms-shell{font-family:Arial,Helvetica,sans-serif;color:#171717;background:#f5f5f2;min-height:100vh;display:flex;flex-direction:column}.bms-shell>main,.bms-shell>.bms-main{flex:1 0 auto}.bms-shell>footer.bms-footer{margin-top:auto;flex-shrink:0}
 .bms-shell header{height:auto;min-height:0;display:block;padding:0;position:sticky;top:0;z-index:40;background:rgba(255,255,255,.95);border-bottom:1px solid #00000014}
 .bms-shell header nav{display:block;gap:0;font-size:inherit;font-weight:inherit;background:#fffaf6}
 .bms-shell h2{font-size:inherit;letter-spacing:normal;line-height:normal}
