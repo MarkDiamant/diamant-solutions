@@ -7,3 +7,18 @@ export function quoteAmountFromText(text:string){return String(text||"").split("
 
 /** Refuse AI rewrites that drop work items or change any quoted monetary amount. */
 export function validateTidiedQuote(before:string,after:string){const lines=(v:string)=>v.split("\n").map(x=>x.trim()).filter(Boolean);const priced=(v:string)=>[...v.matchAll(/£([\d,]+(?:\.\d{1,2})?)/g)].map(m=>Number(m[1].replace(/,/g,"")).toFixed(2)).sort();const a=lines(before),b=lines(after);if(b.length<a.length)throw Error("AI removed quotation lines. Original wording preserved.");const oldPrices=priced(before),newPrices=priced(after);if(JSON.stringify(oldPrices)!==JSON.stringify(newPrices))throw Error("AI changed or removed prices. Original wording preserved.");const oldPriced=a.filter(x=>/£[\d,]+(?:\.\d{1,2})?/.test(x));const newPriced=b.filter(x=>/£[\d,]+(?:\.\d{1,2})?/.test(x));if(oldPriced.some((line,i)=>newPriced[i]!==line))throw Error("AI altered a priced quotation line. Original wording preserved.");return after;}
+
+/** Canonical invoice-style quote lines. Preserve descriptions, numbering and bold markup. */
+export function normaliseQuoteScope(input:string){
+  return String(input||"").split("\n").map(line=>{
+    let out=line.trim();
+    // Remove a duplicated number from earlier rich-text serialization.
+    out=out.replace(/^(\d+[.)])\s+\1\s+/,"$1 ");
+    // Legacy item arithmetic: show just the amount for a single unit.
+    out=out.replace(/\s*\|\s*1\s*[x×]\s*£[\d,]+(?:\.\d{1,2})?\s*=\s*(£[\d,]+(?:\.\d{1,2})?)\s*$/i," – $1");
+    out=out.replace(/\s*\|\s*(£[\d,]+(?:\.\d{1,2})?)\s*$/i," – $1");
+    out=out.replace(/\s*\|\s*(\d+(?:\.\d+)?)\s*[x×]\s*(£[\d,]+(?:\.\d{1,2})?)\s*=\s*(£[\d,]+(?:\.\d{1,2})?)\s*$/i,(_,qty,unit,total)=>Number(qty)===1?" – "+total:" – "+qty+" × "+unit+" = "+total);
+    out=out.replace(/\s*[–-]\s*1\s*[x×]\s*£[\d,]+(?:\.\d{1,2})?\s*=\s*(£[\d,]+(?:\.\d{1,2})?)\s*$/i," – $1");
+    return out;
+  }).join("\n");
+}
