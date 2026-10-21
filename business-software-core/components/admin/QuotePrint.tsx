@@ -1,6 +1,6 @@
 "use client";
 import {bmsMoney,bmsLocalInput,bmsQuoteScope} from "../../lib/presentation";
-import {downloadQuotePdf,createQuotePdfBlob} from "./QuotePdfActions";
+import {downloadQuotePdf} from "./QuotePdfActions";
 
 
 import { useEffect, useMemo, useState } from "react";
@@ -50,35 +50,31 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
 
   async function shareWhatsApp() {
     if(whatsAppBusy)return;
+    const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
+    const digits=raw.replace(/[^\d+]/g,"");
+    let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
+    if(!/^\d{8,15}$/.test(number))number="";
     const whatsappTab=window.open("about:blank","_blank");
     setWhatsAppBusy(true);
-    try {
-      let blob:Blob|null=null;
-      let pdfError="";
-      try{blob=await createQuotePdfBlob();}catch(err){pdfError=err instanceof Error?err.message:String(err);}
-      if(!blob){if(whatsappTab)whatsappTab.location.href=`https://wa.me/?text=${encodeURIComponent(message)}`;const copied=await navigator.clipboard.writeText(message).then(()=>true).catch(()=>false);alert(`WhatsApp message prepared${copied?" and copied":""}. The PDF could not be generated (${pdfError}). Use Save PDF, attach it to WhatsApp and press Ctrl+V to paste the message.`);return;}
-      const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
-      const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
-      // UK numbers use +44; international numbers must include their country code.
-      const digits=raw.replace(/[^\d+]/g,"");
-      let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
-      if(!/^\d{8,15}$/.test(number))number="";
-      const whatsappUrl=`https://wa.me/${number}`;
-      // Native sharing can pass the PDF and message, but cannot reliably preselect a WhatsApp recipient.
-      if(navigator.share && navigator.canShare?.({files:[file]})){
-        const choice=window.confirm(number
-          ?`Share the PDF using your phone's share menu? Choose WhatsApp and select ${raw} as the recipient. Press Cancel to open WhatsApp with the customer's number and prepared message instead (attach the downloaded PDF manually).`
-          :"Share the PDF using your phone's share menu? Choose WhatsApp and select a contact. Press Cancel to open WhatsApp with the prepared message instead (attach the downloaded PDF manually).");
-        if(choice){try{await navigator.share({files:[file],text:message,title:`Quotation ${j.reference}`});return;}catch(error){if((error as DOMException)?.name==="AbortError")return;}}
+    try{
+      let copied=false;
+      try{await navigator.clipboard.writeText(message);copied=true;}catch{}
+      let downloaded=false;
+      try{
+        await downloadQuotePdf(reference);
+        downloaded=true;
+      }catch(error){
+        // Keep WhatsApp usable even when a browser cannot render a PDF.
+        console.error("Quote PDF download failed",error);
       }
-      // Browser WhatsApp links support recipient and text, not file attachments.
-      const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=file.name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-      const copied=await navigator.clipboard.writeText(message).then(()=>true).catch(()=>false);
-      if(whatsappTab)whatsappTab.location.href=whatsappUrl;
-      else window.location.assign(whatsappUrl);
-      alert(copied?"Quotation PDF downloaded. Message copied. Attach the PDF in WhatsApp and press Ctrl+V to paste your message.":"Quotation PDF downloaded. Attach it in WhatsApp and paste the message.");
-    }catch(error){whatsappTab?.close();alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
-    finally{setWhatsAppBusy(false);}
+      const url="https://wa.me/"+number;
+      if(whatsappTab)whatsappTab.location.href=url;else window.location.href=url;
+      if(downloaded){
+        alert(copied?"Quotation PDF downloaded and message copied. Attach the PDF in WhatsApp, then press Ctrl+V to paste the message.":"Quotation PDF downloaded. Attach the PDF in WhatsApp and paste your message.");
+      }else{
+        alert(copied?"Message copied. Use Save PDF to download the quotation, attach it in WhatsApp, then press Ctrl+V to paste the message.":"Please use Save PDF, attach it in WhatsApp and paste the quotation message.");
+      }
+    }finally{setWhatsAppBusy(false);}
   }
 
   async function sendQuote() {
@@ -100,13 +96,13 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
 
   return <><main className="min-h-screen overflow-x-auto bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":crmConfig.accentColour} as React.CSSProperties}>
     <style>{`@media screen and (max-width: 899px) { .quote-page { zoom: calc(100vw / 900px); } } @media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
-    <div className="mx-auto mb-3 flex w-full max-w-[900px] flex-wrap items-center justify-center gap-1.5 px-2 print:hidden">
+    <div className="mx-auto mb-3 flex w-full max-w-[900px] flex-wrap items-center justify-center gap-1.5 px-2 text-center print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700">{sentMessage}</span>}
-      <button onClick={()=>void savePdf()} disabled={pdfBusy} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
-      <button onClick={() => void sendQuote()} disabled={sending} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
-      <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener,noreferrer");}catch(error){alert(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm disabled:opacity-50">{drafting?"Creating Gmail draft...":"Open email draft"}</button>
-      <button onClick={() => void shareWhatsApp()} disabled={whatsAppBusy} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm disabled:opacity-50">{whatsAppBusy?"Preparing WhatsApp...":"Share via WhatsApp"}</button>
-      <a href={`/admin/jobs/${reference}`} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm">Back to job</a><a href="/admin" className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm">Back to admin</a>
+      <button onClick={()=>void savePdf()} disabled={pdfBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
+      <button onClick={() => void sendQuote()} disabled={sending} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
+      <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener,noreferrer");}catch(error){alert(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{drafting?"Creating Gmail draft...":"Open email draft"}</button>
+      <button onClick={() => void shareWhatsApp()} disabled={whatsAppBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{whatsAppBusy?"Preparing WhatsApp...":"Share via WhatsApp"}</button>
+      <a href={`/admin/jobs/${reference}`} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white">Back to job</a><a href="/admin" className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white">Back to admin</a>
     </div>
 
     <article className={`quote-page ${pageClass} relative z-0 mx-auto flex min-h-[1120px] w-[900px] min-w-[900px] max-w-none flex-col bg-white px-10 py-9 shadow-xl sm:px-14 hidden`}>
