@@ -16,7 +16,7 @@ function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
   add(1,bytes("<< /Type /Catalog /Pages 2 0 R >>"));
   add(2,bytes(`<< /Type /Pages /Kids [${pageNums.map(n=>`${n} 0 R`).join(" ")}] /Count ${images.length} >>`));
   images.forEach((img,i)=>{
-    const page=pageNums[i],image=imageNums[i],content=contentNums[i],stream=bytes(`q\n595 0 0 842 0 0 cm\n/Im0 Do\nQ\n`);
+    const page=pageNums[i],image=imageNums[i],content=contentNums[i],ratio=Math.min(595/img.width,842/img.height),w=img.width*ratio,h=img.height*ratio,stream=bytes(`q\n${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${((595-w)/2).toFixed(2)} ${((842-h)/2).toFixed(2)} cm\n/Im0 Do\nQ\n`);
     add(page,bytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${image} 0 R >> >> /Contents ${content} 0 R >>`));
     add(image,join([bytes(`<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.data.length} >>\nstream\n`),img.data,bytes("\nendstream")]));
     add(content,join([bytes(`<< /Length ${stream.length} >>\nstream\n`),stream,bytes("endstream")]));
@@ -27,6 +27,8 @@ async function ensureRenderer(){
   if(window.html2canvas)return;
   await new Promise<void>((resolve,reject)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/html2canvas-pro@2.4.3/dist/html2canvas-pro.min.js";s.onload=()=>resolve();s.onerror=()=>reject(new Error("Could not load PDF renderer"));document.head.appendChild(s);});
 }
+
+export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await window.html2canvas(page,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false});images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 
 export default function QuotePdfActions({ reference, quoteId }: { reference: string; quoteId: string }) {
   const [busy,setBusy]=useState(false);
