@@ -52,9 +52,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
     if(whatsAppBusy)return;
     setWhatsAppBusy(true);
     try {
-      const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf`,{cache:"no-store"});
-      let blob:Blob;
-      if(response.ok)blob=await response.blob();else blob=await createQuotePdfBlob();
+      const blob=await createQuotePdfBlob();
       const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
       const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
       // UK numbers use +44; international numbers must include their country code.
@@ -98,11 +96,11 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
 
   return <><main className="min-h-screen overflow-x-auto bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":crmConfig.accentColour} as React.CSSProperties}>
     <style>{`@media screen and (max-width: 899px) { .quote-page { zoom: calc(100vw / 900px); } } @media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
-    <div className="mx-auto mb-3 flex max-w-[900px] flex-wrap justify-center gap-1.5 px-2 sm:justify-end print:hidden">
+    <div className="mx-auto mb-3 flex max-w-[900px] flex-wrap justify-center gap-1.5 px-2 print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-bold text-green-700">{sentMessage}</span>}
-      <button onClick={()=>void savePdf()} disabled={pdfBusy} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-black text-white sm:px-3 sm:text-sm disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
-      <button onClick={() => void sendQuote()} disabled={sending} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-black text-white sm:px-3 sm:text-sm disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
-      <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});}catch(error){alert(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-bold text-white sm:px-3 sm:text-sm disabled:opacity-50">{drafting?"Creating Gmail draft...":"Open email draft"}</button>
+      <button onClick={()=>void savePdf()} disabled={pdfBusy} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
+      <button onClick={() => void sendQuote()} disabled={sending} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-medium text-white sm:px-3 sm:text-sm disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
+      <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener,noreferrer");}catch(error){alert(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-bold text-white sm:px-3 sm:text-sm disabled:opacity-50">{drafting?"Creating Gmail draft...":"Open email draft"}</button>
       <button onClick={() => void shareWhatsApp()} disabled={whatsAppBusy} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-bold text-white sm:px-3 sm:text-sm disabled:opacity-50">{whatsAppBusy?"Preparing WhatsApp...":"Share via WhatsApp"}</button>
       <a href={`/admin/jobs/${reference}`} className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-bold text-white sm:px-3 sm:text-sm">Back to job</a><a href="/admin" className="rounded-lg bg-[var(--brand)] px-2.5 py-2 text-xs font-bold text-white sm:px-3 sm:text-sm">Back to admin</a>
     </div>
