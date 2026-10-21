@@ -1,6 +1,6 @@
 "use client";
 import {bmsMoney,bmsLocalInput,bmsQuoteScope} from "../../lib/presentation";
-import {downloadQuotePdf} from "./QuotePdfActions";
+import {downloadQuotePdf,createQuotePdfBlob} from "./QuotePdfActions";
 
 
 import { useEffect, useMemo, useState } from "react";
@@ -38,14 +38,9 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
   const site = [j.site_address_line_1 || c.address_line_1, j.site_address_line_2 || c.address_line_2, j.site_city || c.city, j.site_postcode || c.postcode].filter(Boolean).join(", ");
   // Job photos/files stay internal to the job record. Quotes and invoices never depend on them.
-  const message = `Hi ${c.first_name || ""},
-
-Please find our quotation ${j.reference} for ${String(j.job_type || "metalwork").toLowerCase()} at ${site}.
-
-Quotation: ${money(quote.amount)}
-
-Kind regards,
-${crmConfig.businessName}`;
+  const sender=String(data?.currentUser?.name||data?.user?.name||crmConfig?.businessDetails?.contactName||crmConfig?.businessDetails?.contactPerson||"The Team").trim();
+  const business=String(crmConfig.businessName||"").replace(/\\s+(?:Ltd\\.?|Limited)\\s*$/i,"").trim();
+  const message = `Hi ${String(c.first_name||name||"there").trim().split(/\\s+/)[0]},\n\nThank you for your enquiry. Please find attached our quotation ${j.reference} for ${String(j.job_type || "the work").toLowerCase()} at ${site}.\n\nQuotation: ${money(quote.amount)}\n\nIf you have any questions, please feel free to get in touch. Thank you again, and we look forward to hearing from you.\n\nKind regards,\n${sender}\n${business}`;
   const template=crmConfig.quoteTemplate;
   const isClassic=template==="classic";
   const isMj=template==="mj-signature";
@@ -58,9 +53,7 @@ ${crmConfig.businessName}`;
     setWhatsAppBusy(true);
     try {
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf`,{cache:"no-store"});
-      if(!response.ok){const body=await response.json().catch(()=>({}));const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();const digits=raw.replace(/[^\d+]/g,"");const number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;const target=/^\d{8,15}$/.test(number)?number:"";const url=`https://wa.me/${target}?text=${encodeURIComponent(message)}`;window.open(url,"_blank","noopener,noreferrer");alert("WhatsApp message prepared. The quotation PDF is not available yet ("+(body.error||"not generated")+"). Save or download the PDF first, then attach it in WhatsApp.");return;}
-      const blob=await response.blob();
-      const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
+      let blob:Blob;\n      if(response.ok)blob=await response.blob();else blob=await createQuotePdfBlob();\n      const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
       const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
       // UK numbers use +44; international numbers must include their country code.
       const digits=raw.replace(/[^\d+]/g,"");
@@ -79,7 +72,7 @@ ${crmConfig.businessName}`;
       const copied=await navigator.clipboard.writeText(message).then(()=>true).catch(()=>false);
       const opened=window.open(whatsappUrl,"_blank","noopener,noreferrer");
       if(!opened)window.location.assign(whatsappUrl);
-      alert(`Quotation PDF downloaded. ${copied?"The message was also copied. ":""}Attach the PDF in WhatsApp, check the recipient and press Send.`);
+      alert(copied?"Quotation PDF downloaded and message copied. Attach the PDF in WhatsApp, then press Ctrl+V to paste your message.":"Quotation PDF downloaded. Attach it in WhatsApp and paste the prepared message.");
     }catch(error){alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
     finally{setWhatsAppBusy(false);}
   }
