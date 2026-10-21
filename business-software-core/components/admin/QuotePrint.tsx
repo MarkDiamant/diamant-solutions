@@ -51,38 +51,27 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   async function shareWhatsApp() {
     if(whatsAppBusy)return;
     const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
-    const digits=raw.replace(/[^\d+]/g,"");
+    const digits=raw.replace(/[^\\d+]/g,"");
     let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
-    if(!/^\d{8,15}$/.test(number))number="";
-    const whatsappTab=window.open("about:blank","_blank");
+    if(!/^\\d{8,15}$/.test(number))number="";
+    const url="https://wa.me/"+number+"?text="+encodeURIComponent(message);
+    // Open WhatsApp synchronously in the click handler, before any awaited PDF work.
+    // Otherwise browsers can block the popup and leave the user with only an alert.
+    const whatsappTab=window.open(url,"_blank");
+    if(!whatsappTab)window.location.href=url;
     setWhatsAppBusy(true);
-    try{
-      let copied=false;
-      try{await navigator.clipboard.writeText(message);copied=true;}catch{}
-      let downloaded=false;
-      try{
-        const blob=await createQuotePdfBlob();
-        const file=new File([blob],`${reference}-Quote.pdf`,{type:"application/pdf"});
-        if(typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})){
-          if(whatsappTab)whatsappTab.close();
-          await navigator.share({files:[file],title:`Quotation ${reference}`});
-          alert(copied?"Quotation PDF shared. Message copied. Press Ctrl+V to paste the message in WhatsApp.":"Quotation PDF shared. Paste your quotation message in WhatsApp.");
-          return;
-        }
-        await downloadQuotePdf(reference);
-        downloaded=true;
-      }catch(error){
-        // Keep WhatsApp usable even when a browser cannot render a PDF.
-        console.error("Quote PDF download failed",error);
+    try {
+      const blob=await createQuotePdfBlob();
+      const file=new File([blob],`${reference}-Quote.pdf`,{type:"application/pdf"});
+      if(typeof navigator.share==="function"&&typeof navigator.canShare==="function"&&navigator.canShare({files:[file]})){
+        try { await navigator.share({files:[file],title:`Quotation ${reference}`});return; } catch(error) { console.warn("Native PDF share unavailable",error); }
       }
-      const url="https://wa.me/"+number;
-      if(whatsappTab)whatsappTab.location.href=url;else window.location.href=url;
-      if(downloaded){
-        alert(copied?"Quotation PDF downloaded and message copied. Attach the PDF in WhatsApp, then press Ctrl+V to paste the message.":"Quotation PDF downloaded. Attach the PDF in WhatsApp and paste your message.");
-      }else{
-        alert(copied?"Message copied. Use Save PDF to download the quotation, attach it in WhatsApp, then press Ctrl+V to paste the message.":"Please use Save PDF, attach it in WhatsApp and paste the quotation message.");
-      }
-    }finally{setWhatsAppBusy(false);}
+      await downloadQuotePdf(reference);
+      setSentMessage("WhatsApp opened with the quotation message. Attach the downloaded PDF to the conversation.");
+    } catch(error) {
+      console.error("Quote PDF download failed",error);
+      setSentMessage("WhatsApp opened with the quotation message. Use Save PDF and attach the file manually.");
+    } finally {setWhatsAppBusy(false);}
   }
 
   async function sendQuote() {
