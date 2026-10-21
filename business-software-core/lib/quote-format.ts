@@ -33,7 +33,9 @@ export function normaliseQuoteScope(input:string){
 export function seedLegacyQuoteNumbers(input:string){
  const text=normaliseQuoteScope(input);
  const lines=text.split("\n");
- if(lines.some(x=>/^\s*\d+[.)]\s+/.test(x)))return text;
+ const priced=lines.filter(line=>/£[\d,]+(?:\.\d{1,2})?/.test(line));
+ if(priced.length<=1)return text.replace(/^(1[.)])\s+(?=\*\*1[.)]\s)/m,"");
+ if(lines.some(line=>/^\s*\d+[.)]\s+/.test(line)))return text;
  let index=0;
  return lines.map(line=>/£[\d,]+(?:\.\d{1,2})?/.test(line)?(++index)+". "+line:line).join("\n");
 }
