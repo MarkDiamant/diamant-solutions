@@ -16,7 +16,7 @@
     },
     {
       "path": "/api/business-software/xero/reconcile",
-      "schedule": "* * * * *"
+      "schedule": "*/30 * * * *"
     },
     {
       "path": "/api/onboarding/publish-assets",
