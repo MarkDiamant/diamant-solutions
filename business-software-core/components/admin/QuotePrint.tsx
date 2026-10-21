@@ -110,13 +110,9 @@ ${crmConfig.businessName}`;
         const error=await response.json().catch(()=>({}));
         throw new Error(error.error||`PDF generation failed (${response.status})`);
       }
-      const blob=await response.blob();
-      if(!blob.size||!blob.type.includes("pdf"))throw new Error("Server did not return a valid PDF");
-      const objectUrl=URL.createObjectURL(blob);
-      const link=document.createElement("a");
-      link.href=objectUrl;link.download=`${reference}-Quote-V${quote.version}.pdf`;
-      document.body.appendChild(link);link.click();link.remove();
-      setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+      // Let the browser handle the PDF attachment itself, avoiding blob URL
+      // download restrictions in embedded Android browsers.
+      window.location.assign(url);
     }catch(error){alert("Could not save PDF: "+(error instanceof Error?error.message:String(error)));}
     finally{setPdfBusy(false);}
   }
