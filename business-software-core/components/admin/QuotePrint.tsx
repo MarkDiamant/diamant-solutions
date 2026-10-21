@@ -38,9 +38,9 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
   const site = [j.site_address_line_1 || c.address_line_1, j.site_address_line_2 || c.address_line_2, j.site_city || c.city, j.site_postcode || c.postcode].filter(Boolean).join(", ");
   // Job photos/files stay internal to the job record. Quotes and invoices never depend on them.
-  const sender=String(data?.currentUser?.name||data?.user?.name||data?.admin?.name||data?.admin?.display_name||"The Team").trim().split(/\s+/)[0];
+  const sender=String(data?.currentUser?.name||data?.user?.name||data?.admin?.name||data?.admin?.display_name||data?.currentAdmin?.name||"The Team").trim().split(/\s+/)[0];
   const business=String(crmConfig.businessName||"").replace(/\s+(?:Ltd\.?|Limited)\s*$/i,"").trim();
-  const message = `Hi ${String(c.first_name||name||"there").trim().split(/\s+/)[0]},\n\nThank you for your enquiry. Please find attached our quotation ${j.reference} for ${String(j.job_type || "the work").toLowerCase()} at ${site}.\n\nQuotation: ${money(quote.amount)}\n\nIf you have any questions, please feel free to get in touch. Thank you again, and we look forward to hearing from you.\n\nKind regards,\n${sender}\n${business}`;
+  const message = `Hi ${String(c.first_name||name||"there").trim().split(/\s+/)[0]},\n\nThank you for your enquiry. Please find attached our quotation ${j.reference} for ${String(j.job_type || "the work").toLowerCase()} at ${site}.\n\nIf you have any questions, please feel free to get in touch. We look forward to hearing from you.\n\nKind regards,\n${sender}\n${business}`;
   const template=crmConfig.quoteTemplate;
   const isClassic=template==="classic";
   const isMj=template==="mj-signature";
@@ -53,14 +53,17 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
     const whatsappTab=window.open("about:blank","_blank");
     setWhatsAppBusy(true);
     try {
-      const blob=await createQuotePdfBlob();
+      let blob:Blob|null=null;
+      let pdfError="";
+      try{blob=await createQuotePdfBlob();}catch(err){pdfError=err instanceof Error?err.message:String(err);}
+      if(!blob){if(whatsappTab)whatsappTab.location.href=`https://wa.me/?text=${encodeURIComponent(message)}`;const copied=await navigator.clipboard.writeText(message).then(()=>true).catch(()=>false);alert(`WhatsApp message prepared${copied?" and copied":""}. The PDF could not be generated (${pdfError}). Use Save PDF, attach it to WhatsApp and press Ctrl+V to paste the message.`);return;}
       const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
       const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
       // UK numbers use +44; international numbers must include their country code.
       const digits=raw.replace(/[^\d+]/g,"");
       let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
       if(!/^\d{8,15}$/.test(number))number="";
-      const whatsappUrl=`https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+      const whatsappUrl=`https://wa.me/${number}`;
       // Native sharing can pass the PDF and message, but cannot reliably preselect a WhatsApp recipient.
       if(navigator.share && navigator.canShare?.({files:[file]})){
         const choice=window.confirm(number
@@ -73,7 +76,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       const copied=await navigator.clipboard.writeText(message).then(()=>true).catch(()=>false);
       if(whatsappTab)whatsappTab.location.href=whatsappUrl;
       else window.location.assign(whatsappUrl);
-      alert(copied?"Quotation PDF downloaded and message copied. Attach the PDF in WhatsApp, then press Ctrl+V to paste your message.":"Quotation PDF downloaded. Attach it in WhatsApp and paste the prepared message.");
+      alert(copied?"Quotation PDF downloaded. Message copied. Attach the PDF in WhatsApp and press Ctrl+V to paste your message.":"Quotation PDF downloaded. Attach it in WhatsApp and paste the message.");
     }catch(error){whatsappTab?.close();alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
     finally{setWhatsAppBusy(false);}
   }
