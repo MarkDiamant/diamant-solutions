@@ -38,7 +38,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const name = [c.first_name, c.last_name].filter(Boolean).join(" ");
   const site = [j.site_address_line_1 || c.address_line_1, j.site_address_line_2 || c.address_line_2, j.site_city || c.city, j.site_postcode || c.postcode].filter(Boolean).join(", ");
   // Job photos/files stay internal to the job record. Quotes and invoices never depend on them.
-  const sender=String(data?.currentUser?.name||data?.user?.name||"The Team").trim();
+  const sender=String(data?.currentUser?.name||data?.user?.name||data?.admin?.name||data?.admin?.display_name||"The Team").trim().split(/\s+/)[0];
   const business=String(crmConfig.businessName||"").replace(/\s+(?:Ltd\.?|Limited)\s*$/i,"").trim();
   const message = `Hi ${String(c.first_name||name||"there").trim().split(/\s+/)[0]},\n\nThank you for your enquiry. Please find attached our quotation ${j.reference} for ${String(j.job_type || "the work").toLowerCase()} at ${site}.\n\nQuotation: ${money(quote.amount)}\n\nIf you have any questions, please feel free to get in touch. Thank you again, and we look forward to hearing from you.\n\nKind regards,\n${sender}\n${business}`;
   const template=crmConfig.quoteTemplate;
@@ -50,6 +50,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
 
   async function shareWhatsApp() {
     if(whatsAppBusy)return;
+    const whatsappTab=window.open("about:blank","_blank");
     setWhatsAppBusy(true);
     try {
       const blob=await createQuotePdfBlob();
@@ -70,10 +71,10 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       // Browser WhatsApp links support recipient and text, not file attachments.
       const url=URL.createObjectURL(blob),link=document.createElement("a");link.href=url;link.download=file.name;document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
       const copied=await navigator.clipboard.writeText(message).then(()=>true).catch(()=>false);
-      const opened=window.open(whatsappUrl,"_blank","noopener,noreferrer");
-      if(!opened)window.location.assign(whatsappUrl);
+      if(whatsappTab)whatsappTab.location.href=whatsappUrl;
+      else window.location.assign(whatsappUrl);
       alert(copied?"Quotation PDF downloaded and message copied. Attach the PDF in WhatsApp, then press Ctrl+V to paste your message.":"Quotation PDF downloaded. Attach it in WhatsApp and paste the prepared message.");
-    }catch(error){alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
+    }catch(error){whatsappTab?.close();alert(error instanceof Error?error.message:"Could not prepare WhatsApp share");}
     finally{setWhatsAppBusy(false);}
   }
 
