@@ -55,6 +55,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
     className="min-h-52 cursor-text whitespace-pre-wrap rounded-lg p-2 leading-6 text-[#141414] outline-none focus:ring-2 focus:ring-black/10"
     onFocus={()=>{focused.current=true;}}
     onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="b"){e.preventDefault();document.execCommand("bold");}}}
+    onInput={save}
     onBlur={()=>{focused.current=false;save();}}
   />
  </div>;
