@@ -8,7 +8,7 @@ create or replace function public.bms_post_xero_contractor_payment(
  p_amount numeric,
  p_paid_at timestamptz,
  p_counterparty text default null
-) returns jsonb language plpgsql security invoker set search_path=public as $
+) returns jsonb language plpgsql security invoker set search_path=public as $bms$
 declare
  v_assignment record;
  v_payment_id text;
@@ -46,6 +46,6 @@ begin
  update public.business_software_job_people
  set paid_amount=v_current+p_amount where id=p_assignment_id and tenant_id=p_tenant_id;
  return jsonb_build_object('ok',true,'already_posted',false,'payment_id',v_payment_id);
-end $$;
+end $bms$;
 revoke all on function public.bms_post_xero_contractor_payment(uuid,uuid,uuid,text,numeric,timestamptz,text) from public,anon,authenticated;
 grant execute on function public.bms_post_xero_contractor_payment(uuid,uuid,uuid,text,numeric,timestamptz,text) to service_role;
