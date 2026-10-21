@@ -39,8 +39,8 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const site = [j.site_address_line_1 || c.address_line_1, j.site_address_line_2 || c.address_line_2, j.site_city || c.city, j.site_postcode || c.postcode].filter(Boolean).join(", ");
   // Job photos/files stay internal to the job record. Quotes and invoices never depend on them.
   const sender=String(data?.currentUser?.name||data?.user?.name||crmConfig?.businessDetails?.contactName||crmConfig?.businessDetails?.contactPerson||"The Team").trim();
-  const business=String(crmConfig.businessName||"").replace(/\\s+(?:Ltd\\.?|Limited)\\s*$/i,"").trim();
-  const message = `Hi ${String(c.first_name||name||"there").trim().split(/\\s+/)[0]},\n\nThank you for your enquiry. Please find attached our quotation ${j.reference} for ${String(j.job_type || "the work").toLowerCase()} at ${site}.\n\nQuotation: ${money(quote.amount)}\n\nIf you have any questions, please feel free to get in touch. Thank you again, and we look forward to hearing from you.\n\nKind regards,\n${sender}\n${business}`;
+  const business=String(crmConfig.businessName||"").replace(/\s+(?:Ltd\.?|Limited)\s*$/i,"").trim();
+  const message = `Hi ${String(c.first_name||name||"there").trim().split(/\s+/)[0]},\n\nThank you for your enquiry. Please find attached our quotation ${j.reference} for ${String(j.job_type || "the work").toLowerCase()} at ${site}.\n\nQuotation: ${money(quote.amount)}\n\nIf you have any questions, please feel free to get in touch. Thank you again, and we look forward to hearing from you.\n\nKind regards,\n${sender}\n${business}`;
   const template=crmConfig.quoteTemplate;
   const isClassic=template==="classic";
   const isMj=template==="mj-signature";
@@ -53,7 +53,9 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
     setWhatsAppBusy(true);
     try {
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf`,{cache:"no-store"});
-      let blob:Blob;\n      if(response.ok)blob=await response.blob();else blob=await createQuotePdfBlob();\n      const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
+      let blob:Blob;
+      if(response.ok)blob=await response.blob();else blob=await createQuotePdfBlob();
+      const file=new File([blob],`${j.reference}-Quote.pdf`,{type:"application/pdf"});
       const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
       // UK numbers use +44; international numbers must include their country code.
       const digits=raw.replace(/[^\d+]/g,"");
