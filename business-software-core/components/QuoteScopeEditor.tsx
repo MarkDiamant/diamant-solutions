@@ -46,7 +46,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  }
  function save(){
    const host=ref.current;if(!host)return;
-   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/\n{3,}/g,"\n\n").trim()).replace(/\\?\*/g,"");
+   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/^\n+|\n+$/g,"")).replace(/\\?\*/g,"");
    if(text!==value){lastValue.current=text;onChange(text);}
  }
  return <div className="rounded-xl border border-black/15 bg-white p-3">
