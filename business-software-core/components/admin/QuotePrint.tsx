@@ -93,19 +93,30 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
     } finally {setWhatsAppBusy(false);}
   }
 
+  async function emailPdfPayload(){
+    const blob=await createQuotePdfBlob();
+    if(!blob||!blob.size)throw new Error("Quotation PDF could not be generated. Email was not sent.");
+    const bytes=new Uint8Array(await blob.arrayBuffer());
+    let binary="";for(let i=0;i<bytes.length;i+=8192)binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
+    return {pdfBase64:btoa(binary),pdfName:reference+"-Quote-V"+quote.version+".pdf"};
+  }
+
   async function sendQuote() {
     if (!c.email) { setSentMessage("Add the customer’s email address to the job before sending."); return; }
     if (!window.confirm(`Send quotation ${j.reference} V${quote.version} to ${c.email}?`)) return;
     setSending(true); setSentMessage("");
+    try {
+    const pdf=await emailPdfPayload();
     const response = await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/send-quote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ quoteId: quote.id }),
+      body: JSON.stringify({ quoteId: quote.id,...pdf }),
     });
     const body = await response.json().catch(() => ({}));
     setSending(false);
     if (!response.ok) { setSentMessage(body.error || "Unable to send quotation by email."); return; }
     setSentMessage(`Quotation emailed to ${body.sentTo||c.email}, with its PDF attached.`);
+    }catch(error){setSending(false);setSentMessage(error instanceof Error?error.message:"Could not prepare quotation PDF.");}
   }
 
   async function savePdf(){setPdfBusy(true);try{await downloadQuotePdf(reference);}catch(error){try{const res=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf?fresh=${Date.now()}`,{cache:"no-store"});if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||"PDF download failed");const blob=await res.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`${reference}-Quote-V${quote.version}.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(fallback){alert("Could not save PDF: "+(fallback instanceof Error?fallback.message:String(fallback)));}}finally{setPdfBusy(false);}}
@@ -116,7 +127,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       {sentMessage && <div role="status" aria-live="polite" className="fixed left-1/2 top-4 z-[100] w-[min(92vw,440px)] -translate-x-1/2 rounded-xl border border-green-200 bg-white px-4 py-3 text-left text-sm font-medium text-green-800 shadow-2xl"><div className="flex items-start gap-3"><span className="flex-1">{sentMessage}</span><button type="button" onClick={()=>setSentMessage("")} aria-label="Dismiss notification" className="rounded p-1 text-black/60 hover:bg-black/5">✕</button></div></div>}
       <button onClick={()=>void savePdf()} disabled={pdfBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
       <button onClick={() => void sendQuote()} disabled={sending} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
-      <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});setSentMessage("Quotation draft created in Gmail with its PDF. Open Gmail Drafts to review and send it.");window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener,noreferrer");}catch(error){setSentMessage(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{drafting?"Creating Gmail draft...":"Create Gmail draft"}</button>
+      <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const pdf=await emailPdfPayload();const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id,...pdf})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});setSentMessage("Quotation draft created in Gmail with its PDF. Open Gmail Drafts to review and send it.");window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener,noreferrer");}catch(error){setSentMessage(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{drafting?"Creating Gmail draft...":"Create Gmail draft"}</button>
       <button onClick={() => void shareWhatsApp()} disabled={whatsAppBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{whatsAppBusy?"Preparing WhatsApp...":"Share via WhatsApp"}</button>
       <a href={`/admin/jobs/${reference}`} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white">Back to job</a><a href="/admin" className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white">Back to admin</a>
     </div>
