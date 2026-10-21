@@ -1,0 +1,53 @@
+import {NextResponse} from "next/server";
+import crypto from "crypto";
+import {centralRest} from "@/lib/business-software/db";
+
+export const maxDuration=60;
+const enc=encodeURIComponent;
+function decrypt(value:string|null){if(!value||!process.env.DS_INTEGRATION_ENCRYPTION_KEY)return null;try{const [iv,tag,data]=value.split(".").map(x=>Buffer.from(x,"base64url"));const key=crypto.createHash("sha256").update(process.env.DS_INTEGRATION_ENCRYPTION_KEY).digest();const d=crypto.createDecipheriv("aes-256-gcm",key,iv);d.setAuthTag(tag);return Buffer.concat([d.update(data),d.final()]).toString("utf8");}catch{return null;}}
+function encrypt(value:string){const iv=crypto.randomBytes(12),key=crypto.createHash("sha256").update(process.env.DS_INTEGRATION_ENCRYPTION_KEY!).digest(),e=crypto.createCipheriv("aes-256-gcm",key,iv),data=Buffer.concat([e.update(value,"utf8"),e.final()]);return [iv,e.getAuthTag(),data].map(x=>x.toString("base64url")).join(".");}
+async function rows(path:string){const r=await centralRest(path,{cache:"no-store"});if(!r.ok)throw new Error("Database read failed: "+r.status);const b=await r.json();if(!Array.isArray(b))throw new Error("Invalid database response");return b;}
+async function access(tenantId:string){
+ const row=(await rows("business_software_integrations?tenant_id=eq."+enc(tenantId)+"&provider=eq.xero&status=eq.connected&select=external_tenant_id,access_token_ciphertext,refresh_token_ciphertext,token_expires_at&limit=1"))[0];
+ if(!row?.external_tenant_id)throw new Error("No connected Xero organisation");
+ let token=decrypt(row.access_token_ciphertext);
+ if(!token||!row.token_expires_at||new Date(row.token_expires_at).getTime()<Date.now()+90000){
+  const refresh=decrypt(row.refresh_token_ciphertext);
+  if(!refresh||!process.env.XERO_CLIENT_ID||!process.env.XERO_CLIENT_SECRET)throw new Error("Xero reauthorisation required");
+  const auth=Buffer.from(process.env.XERO_CLIENT_ID+":"+process.env.XERO_CLIENT_SECRET).toString("base64");
+  const r=await fetch("https://identity.xero.com/connect/token",{method:"POST",headers:{Authorization:"Basic "+auth,"Content-Type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"refresh_token",refresh_token:refresh}),cache:"no-store"});
+  const b=await r.json().catch(()=>({}));
+  if(!r.ok||!b.access_token)throw new Error("Xero token refresh failed");
+  token=String(b.access_token);
+  const saved=await centralRest("business_software_integrations?tenant_id=eq."+enc(tenantId)+"&provider=eq.xero&status=eq.connected",{method:"PATCH",body:JSON.stringify({access_token_ciphertext:encrypt(token),refresh_token_ciphertext:encrypt(String(b.refresh_token||refresh)),token_expires_at:new Date(Date.now()+Number(b.expires_in||1800)*1000).toISOString(),updated_at:new Date().toISOString()})});
+  if(!saved.ok)throw new Error("Could not persist rotated Xero token");
+ }
+ return {token,organisation:String(row.external_tenant_id)};
+}
+export async function GET(request:Request){
+ if(!process.env.CRON_SECRET||request.headers.get("authorization")!=="Bearer "+process.env.CRON_SECRET)return NextResponse.json({error:"Unauthorised"},{status:401});
+ try{
+  const invoices=await rows("business_software_invoices?provider=eq.xero&external_invoice_id=not.is.null&select=id,tenant_id,external_invoice_id,total,amount_paid,amount_due,status&order=synced_at.asc.nullsfirst&limit=100");
+  const groups=new Map<string,typeof invoices>();for(const invoice of invoices){const key=String(invoice.tenant_id);if(!groups.has(key))groups.set(key,[]);groups.get(key)!.push(invoice);}
+  let checked=0,updated=0,failed=0;const errors:string[]=[];
+  for(const [tenantId,items] of groups){
+   try{
+    const credentials=await access(tenantId);
+    for(const invoice of items){
+     try{
+      const r=await fetch("https://api.xero.com/api.xro/2.0/Invoices/"+enc(String(invoice.external_invoice_id)),{headers:{Authorization:"Bearer "+credentials.token,"xero-tenant-id":credentials.organisation,Accept:"application/json"},cache:"no-store"});
+      if(!r.ok)throw new Error("Xero invoice lookup "+r.status);
+      const x=(await r.json()).Invoices?.[0];
+      if(!x||String(x.InvoiceID).toLowerCase()!==String(invoice.external_invoice_id).toLowerCase())throw new Error("Xero invoice ID mismatch");
+      const next={status:String(x.Status||invoice.status),invoice_number:x.InvoiceNumber||null,total:Number(x.Total??0),amount_due:Number(x.AmountDue??0),amount_paid:Number(x.AmountPaid??0),currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()};
+      if(![next.total,next.amount_due,next.amount_paid].every(Number.isFinite)||next.total<0||next.amount_due<0||next.amount_paid<0)throw new Error("Invalid Xero invoice amounts");
+      const saved=await centralRest("business_software_invoices?id=eq."+enc(String(invoice.id))+"&tenant_id=eq."+enc(tenantId)+"&provider=eq.xero&external_invoice_id=eq."+enc(String(invoice.external_invoice_id)),{method:"PATCH",body:JSON.stringify(next)});
+      if(!saved.ok)throw new Error("Database invoice update "+saved.status);
+      checked++;if(Number(invoice.amount_paid)!==next.amount_paid||Number(invoice.amount_due)!==next.amount_due||invoice.status!==next.status)updated++;
+     }catch(e){failed++;errors.push(String(invoice.id)+": "+(e instanceof Error?e.message:"Unknown error"));}
+    }
+   }catch(e){failed+=items.length;errors.push("Tenant "+tenantId+": "+(e instanceof Error?e.message:"Unknown error"));}
+  }
+  return NextResponse.json({checked,updated,failed,errors:errors.slice(0,10)},{status:failed?207:200,headers:{"Cache-Control":"no-store"}});
+ }catch(e){return NextResponse.json({error:e instanceof Error?e.message:"Xero reconciliation failed"},{status:500});}
+}
