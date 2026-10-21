@@ -20,7 +20,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
    className="min-h-52 whitespace-pre-wrap rounded-lg p-2 text-sm leading-6 outline-none focus:ring-2 focus:ring-black/10"
    onInput={()=>{changed.current=true}}
    onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="b"){e.preventDefault();document.execCommand("bold");changed.current=true;}}}
-   onBlur={e=>{if(!changed.current)return;changed.current=false;const text=Array.from(e.currentTarget.childNodes).map(serialize).join("").replace(/\n{3,}/g,"\n\n").trim();onChange(text);}}
+   onBlur={e=>{if(!changed.current)return;changed.current=false;const text=Array.from(e.currentTarget.childNodes).map(serialize).join("").replace(/^\*\*(\d+[.)])\*\*\s*/gm,"").replace(/\n{3,}/g,"\n\n").trim();onChange(text);}}
   >{bmsQuoteScope(value)}</div>
  </div>;
 }
