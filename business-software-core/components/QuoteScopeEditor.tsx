@@ -10,7 +10,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  function render(source:string){
    const host=ref.current;if(!host)return;
    host.replaceChildren();
-   const lines=normaliseQuoteScope(source).split("\n");
+   const lines=normaliseQuoteScope(source).replace(/\\?\*/g,"").split("\n");
    lines.forEach((line,i)=>{
      if(i)host.appendChild(document.createElement("br"));
      // Mirror the customer quote: numbered item and title bold, final dash and price bold.
@@ -46,7 +46,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  }
  function save(){
    const host=ref.current;if(!host)return;
-   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/\n{3,}/g,"\n\n").trim());
+   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/\n{3,}/g,"\n\n").trim()).replace(/\\?\*/g,"");
    if(text!==value){lastValue.current=text;onChange(text);}
  }
  return <div className="rounded-xl border border-black/15 bg-white p-3">
