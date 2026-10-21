@@ -15,7 +15,10 @@ function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
   add(1,bytes("<< /Type /Catalog /Pages 2 0 R >>"));
   add(2,bytes(`<< /Type /Pages /Kids [${pageNums.map(n=>`${n} 0 R`).join(" ")}] /Count ${images.length} >>`));
   images.forEach((img,i)=>{
-    const page=pageNums[i],image=imageNums[i],content=contentNums[i];\n    const scale=Math.min(595/img.width,842/img.height),drawW=img.width*scale,drawH=img.height*scale;\n    const offsetX=(595-drawW)/2,offsetY=(842-drawH)/2;\n    const stream=bytes(`q\\n${drawW.toFixed(3)} 0 0 ${drawH.toFixed(3)} ${offsetX.toFixed(3)} ${offsetY.toFixed(3)} cm\\n/Im0 Do\\nQ\\n`.replaceAll("\\\\n","\\n"));
+    const page=pageNums[i],image=imageNums[i],content=contentNums[i];
+    const scale=Math.min(595/img.width,842/img.height),drawW=img.width*scale,drawH=img.height*scale;
+    const offsetX=(595-drawW)/2,offsetY=(842-drawH)/2;
+    const stream=bytes(`q\n${drawW.toFixed(3)} 0 0 ${drawH.toFixed(3)} ${offsetX.toFixed(3)} ${offsetY.toFixed(3)} cm\n/Im0 Do\nQ\n`);
     add(page,bytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${image} 0 R >> >> /Contents ${content} 0 R >>`));
     add(image,join([bytes(`<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.data.length} >>\nstream\n`),img.data,bytes("\nendstream")]));
     add(content,join([bytes(`<< /Length ${stream.length} >>\nstream\n`),stream,bytes("endstream")]));
