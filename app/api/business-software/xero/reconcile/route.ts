@@ -61,6 +61,7 @@ export async function GET(request:Request){
   const connectedTenants=await rows("business_software_integrations?provider=eq.xero&status=eq.connected&select=tenant_id&limit=1000");
   const tenantIds=[...new Set([...groups.keys(),...connectedTenants.map((r:any)=>String(r.tenant_id)).filter(Boolean)])];
   for(const tenantId of tenantIds){
+   if(rateLimitedTenants.has(tenantId))continue;
    if(xeroRateLimited){errors.push("Xero API rate limit reached; remaining tenants deferred to the next scheduled run");break;}
    try{
     const credentials=await access(tenantId);
