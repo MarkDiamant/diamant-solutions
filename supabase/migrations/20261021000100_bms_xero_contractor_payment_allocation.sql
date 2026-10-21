@@ -11,7 +11,7 @@ create or replace function public.bms_post_xero_contractor_payment(
 ) returns jsonb language plpgsql security definer set search_path=public as $$
 declare
  v_assignment record;
- v_payment_id uuid;
+ v_payment_id text;
  v_marker text;
  v_current numeric;
 begin
