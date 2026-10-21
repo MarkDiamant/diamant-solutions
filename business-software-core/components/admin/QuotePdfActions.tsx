@@ -61,7 +61,7 @@ async function renderQuotePage(page:HTMLElement){
   }
   const previous={width:page.style.width,minWidth:page.style.minWidth,maxWidth:page.style.maxWidth,zoom:page.style.zoom};
   page.style.width="900px";page.style.minWidth="900px";page.style.maxWidth="900px";page.style.zoom="1";
-  try{return await window.html2canvas(page,{
+  try{const result=await window.html2canvas(page,{
     scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,
     windowWidth:1200,
     onclone:(doc:Document)=>{
@@ -71,7 +71,27 @@ async function renderQuotePage(page:HTMLElement){
       const viewport=doc.querySelector<HTMLMetaElement>('meta[name="viewport"]');
       if(viewport)viewport.setAttribute("content","width=1200, initial-scale=1");
     }
-  });}finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
+  });
+    // The Android renderer may omit the logo from its snapshot. Composite it
+    // after capture without changing the PDF download path or page layout.
+    // If drawing is unsupported, preserve the working PDF download.
+    try{
+      if(logo&&embeddedLogo){
+        const image=new Image();
+        image.src=embeddedLogo;
+        if(!image.complete)await new Promise<void>(resolve=>{image.onload=()=>resolve();image.onerror=()=>resolve();});
+        if(image.naturalWidth>0){
+          const box=page.getBoundingClientRect(),rect=logo.getBoundingClientRect();
+          const x=(rect.left-box.left)*result.width/box.width;
+          const y=(rect.top-box.top)*result.height/box.height;
+          const w=rect.width*result.width/box.width;
+          const h=rect.height*result.height/box.height;
+          result.getContext("2d")?.drawImage(image,x,y,w,h);
+        }
+      }
+    }catch{/* Never break a successful PDF download because of its logo. */}
+    return result;
+  }finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
 
 export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
