@@ -3,7 +3,7 @@ import {bmsMoney,bmsLocalInput,bmsQuoteScope} from "../../lib/presentation";
 import QuoteScopeEditor from "../QuoteScopeEditor";
 import JobSplitPanel from "./JobSplitPanel";
 
-import {quoteAmountFromText,normaliseQuoteScope} from "../../lib/quote-format";
+import {quoteAmountFromText,normaliseQuoteScope,seedLegacyQuoteNumbers} from "../../lib/quote-format";
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import { ALL_STATUSES } from "@/lib/crm/constants";
@@ -90,8 +90,8 @@ function Activity({data,onAction}:{data:Bundle;onAction:(p:any)=>Promise<any>}){
 function Quote({data,reference,onAction,config}:{data:Bundle;reference:string;onAction:(p:any)=>Promise<any>;config:CrmConfig}){
   const latest=data.quotes?.[0]||null;
   const suggested=useMemo(()=>{const j=data.job;const types=(j.job_types||[j.job_type]).join(" and ").toLowerCase();return [`Supply and install ${types} to the agreed site.`,j.dimensions?`Approximate dimensions: ${j.dimensions}.`:"",j.material?`Manufactured in ${j.material}.`:"",(j.finishes||[]).length?`Finish: ${(j.finishes||[]).join(" and ")}${j.colour?`, ${j.colour}`:""}.`:"",j.customer_requirements||""].filter(Boolean).join("\n\n");},[data]);
-  const[scope,setScope]=useState(latest?.scope_text||suggested),[exclusions,setExclusions]=useState(latest?.exclusions||""),[aiBusy,setAiBusy]=useState(false),[aiError,setAiError]=useState(""),[quoteBusy,setQuoteBusy]=useState(false);
-  useEffect(()=>{setScope(latest?.scope_text||suggested);setExclusions(latest?.exclusions||"");},[latest?.id,latest?.scope_text,latest?.exclusions,suggested]);
+  const[scope,setScope]=useState(seedLegacyQuoteNumbers(latest?.scope_text||suggested)),[exclusions,setExclusions]=useState(latest?.exclusions||""),[aiBusy,setAiBusy]=useState(false),[aiError,setAiError]=useState(""),[quoteBusy,setQuoteBusy]=useState(false);
+  useEffect(()=>{setScope(seedLegacyQuoteNumbers(latest?.scope_text||suggested));setExclusions(latest?.exclusions||"");},[latest?.id,latest?.scope_text,latest?.exclusions,suggested]);
   async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();if(quoteBusy)return;const fd=new FormData(e.currentTarget);const preview=window.open("about:blank","_blank");setQuoteBusy(true);try{const body=await onAction({type:"quote",quote_id:latest?.id||undefined,vat_rate:num(fd,"vat_rate")||0,amount:/£[\d,]+(?:\.\d{1,2})?/.test(scope)?quoteAmountFromText(scope):num(fd,"amount"),deposit_amount:num(fd,"deposit_amount"),lead_time:text(fd,"lead_time"),valid_until:text(fd,"valid_until"),scope_text:normaliseQuoteScope(scope),exclusions:exclusions.trim()||null});const quoteId=body.item?.id;const pdfRes=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quoteId)}/pdf`,{method:"POST"});const pdf=await pdfRes.json().catch(()=>({}));if(!pdfRes.ok)throw new Error(pdf.error||"Quote saved, but the PDF could not be generated");const freshPdfUrl=`/admin/jobs/${encodeURIComponent(reference)}/quote/${encodeURIComponent(quoteId)}?fresh=${Date.now()}`;if(preview)preview.location.href=freshPdfUrl;else window.open(freshPdfUrl,"_blank","noopener,noreferrer");}catch(err){preview?.close();alert(err instanceof Error?err.message:"Could not save quote");}finally{setQuoteBusy(false);}}
   async function tidy(){
     setAiBusy(true);setAiError("");
