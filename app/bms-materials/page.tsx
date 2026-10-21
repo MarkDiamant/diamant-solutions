@@ -25,6 +25,6 @@ export default function MaterialsPage(){
  {([["sku","SKU"],["name","Product name"],["spec","Specification / size"],["supplier","Supplier"],["url","Supplier HTTPS link"],["qty","Quantity (pieces)"],["net","Unit cost ex VAT"],["vat","VAT %"]] as const).map(([key,label])=><label key={key} style={{fontSize:13}}>{label}<input type={["qty","net","vat"].includes(key)?"number":"text"} min={key==="qty"?0.001:0} step="any" value={r[key]} onChange={e=>edit(r.id,key,e.target.value)} style={{display:"block",width:"100%",boxSizing:"border-box",padding:9}}/></label>)}</div>
  <p style={{textAlign:"right"}}>Net {money(r.qty*r.net)} · VAT {money(r.qty*r.net*r.vat/100)} · <strong>Gross {money(r.qty*r.net*(1+r.vat/100))}</strong></p></section>)}
  <div style={{textAlign:"right",fontSize:18}}><div>Ex VAT: {money(totals.net)}</div><div>VAT: {money(totals.vat)}</div><strong>Including VAT: {money(totals.net+totals.vat)}</strong></div>
- {orderId&&<CopyMaterials orderId={orderId} onCopied={()=>load(orderId)}/>} {orderId&&<MaterialReceiving orderId={orderId}/>}
+ {orderId&&orderStatus==="draft"&&<CopyMaterials orderId={orderId} onCopied={()=>load(orderId)}/>} {orderId&&<MaterialReceiving orderId={orderId}/>}
  </main>;
 }
