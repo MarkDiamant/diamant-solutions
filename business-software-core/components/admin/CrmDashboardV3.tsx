@@ -88,7 +88,7 @@ export default function CrmDashboardV3() {
     return {
       wonValue: wonJobs.reduce((s,j)=>s+value(j),0),
       received: realJobs.reduce((s,j)=>s+Number(j.amountPaid||0),0),
-      outstanding: realJobs.filter(j=>j.status!=="completed").reduce((s,j)=>s+Number(j.balanceOutstanding||0),0),
+      outstanding: realJobs.reduce((s,j)=>s+Number(j.balanceOutstanding||0),0),
       pipeline: pipelineJobs.reduce((s,j)=>s+value(j),0),
       profitToDate: wonJobs.reduce((s,j)=>s+finalProfit(j),0),
       uncostedWonValue:wonJobs.filter(j=>j.finalCost==null).reduce((s,j)=>s+value(j),0),
@@ -109,7 +109,7 @@ export default function CrmDashboardV3() {
       summaryFilter==="Won job value"&&wonStatuses.has(j.status)||
       summaryFilter==="Payments received"&&Number(j.amountPaid||0)>0||
       summaryFilter==="Profit to date"&&wonStatuses.has(j.status)&&j.quotedAmount!=null&&j.finalCost!=null||
-      summaryFilter==="Outstanding"&&j.status!=="completed"&&Number(j.balanceOutstanding||0)>0||
+      summaryFilter==="Outstanding"&&Number(j.balanceOutstanding||0)>0||
       summaryFilter==="Open pipeline"&&pendingStatuses.has(j.status)||
       summaryFilter==="Pipeline profit"&&pendingStatuses.has(j.status)&&j.preliminaryEstimate!=null&&j.estimatedCost!=null
     ))).filter(j=>status==="all"||j.status===status).filter(j=>manager==="all"||(!j.isPlaceholder&&j.manager===manager)).filter(j=>type==="all"||(j.jobTypes||[j.jobType]).includes(type)).filter(j=>`${j.reference} ${j.customerName} ${j.address} ${j.postcode||""} ${j.phone||""} ${j.email||""}`.toLowerCase().includes(query.toLowerCase().trim()));
