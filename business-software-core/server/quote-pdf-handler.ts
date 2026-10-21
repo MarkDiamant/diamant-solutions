@@ -82,8 +82,8 @@ async function POST(request: NextRequest, { params }: { params: Promise<{ refere
       paymentTerms: config.businessDetails.paymentTerms,
     });
 
-    const fileName = `${job.reference}-Quote.pdf`;
-    const storagePath = `${job.id}/quotes/${fileName}`;
+    const fileName = `${job.reference}-Quote-V${Number(quote.version||1)}.pdf`;
+    const storagePath = `${job.id}/quotes/${encodeURIComponent(quote.id)}/${fileName}`;
     const encodedPath = storagePath.split("/").map(encodeURIComponent).join("/");
     const pdfBody = new Blob([new Uint8Array(pdf)], { type: "application/pdf" });
     const upload = await supabaseRequest(`/storage/v1/object/bms-job-files/${encodedPath}`, {
