@@ -4,7 +4,7 @@ type Line={id:number;sku:string;name:string;spec:string;supplier:string;url:stri
 const blank=(id:number):Line=>({id,sku:"",name:"",spec:"",supplier:"",url:"",qty:1,net:0,vat:20});
 export default function MaterialsPage(){
  const [rows,setRows]=useState<Line[]>([blank(1)]),[query,setQuery]=useState(""),[show,setShow]=useState(false);
- const [products,setProducts]=useState<any[]>([]);
+ const [products,setProducts]=useState<any[]>([]); const [reference,setReference]=useState(""); const [notice,setNotice]=useState("");
  const totals=useMemo(()=>rows.reduce((a,r)=>{const n=r.qty*r.net;return {net:a.net+n,vat:a.vat+n*r.vat/100}}, {net:0,vat:0}),[rows]);
  const edit=(id:number,key:keyof Line,value:string)=>setRows(v=>v.map(r=>r.id===id?{...r,[key]:["qty","net","vat"].includes(key)?Number(value):value}:r));
  const load=async()=>{try{const r=await fetch("/api/bms-live/price-book",{cache:"no-store"});if(r.ok){const x=await r.json();setProducts(Array.isArray(x.items)?x.items:[]);}}catch{}};
