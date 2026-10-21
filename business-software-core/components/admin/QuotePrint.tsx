@@ -99,7 +99,28 @@ ${crmConfig.businessName}`;
     setSentMessage(`Sent to ${body.sentTo}`);
   }
 
-  async function savePdf(){setPdfBusy(true);try{await downloadQuotePdf(reference);}catch(error){try{const res=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf?fresh=${Date.now()}`,{cache:"no-store"});if(!res.ok)throw new Error((await res.json().catch(()=>({}))).error||"PDF download failed");const blob=await res.blob();const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`${reference}-Quote-V${quote.version}.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(fallback){alert("Could not save PDF: "+(fallback instanceof Error?fallback.message:String(fallback)));}}finally{setPdfBusy(false);}}
+  async function savePdf(){
+    if(pdfBusy)return;
+    setPdfBusy(true);
+    try{
+      // Android WebViews can throw "Not implemented" in html2canvas.
+      // Use the authenticated server-side A4 PDF instead of mobile canvas APIs.
+      const url=`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quote.id)}/pdf?fresh=${Date.now()}`;
+      const response=await fetch(url,{cache:"no-store",credentials:"same-origin"});
+      if(!response.ok){
+        const error=await response.json().catch(()=>({}));
+        throw new Error(error.error||`PDF generation failed (${response.status})`);
+      }
+      const blob=await response.blob();
+      if(!blob.size||!blob.type.includes("pdf"))throw new Error("Server did not return a valid PDF");
+      const objectUrl=URL.createObjectURL(blob);
+      const link=document.createElement("a");
+      link.href=objectUrl;link.download=`${reference}-Quote-V${quote.version}.pdf`;
+      document.body.appendChild(link);link.click();link.remove();
+      setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+    }catch(error){alert("Could not save PDF: "+(error instanceof Error?error.message:String(error)));}
+    finally{setPdfBusy(false);}
+  }
 
   return <><main className="min-h-screen overflow-x-auto bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":crmConfig.accentColour} as React.CSSProperties}>
     <style>{`@media screen and (max-width: 899px) { .quote-page { zoom: calc(100vw / 900px); } } @media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
@@ -132,7 +153,7 @@ ${crmConfig.businessName}`;
     </article>
 
     <article className={`quote-page ${pageClass} mx-auto mt-0 flex min-h-[1120px] w-[900px] min-w-[900px] max-w-none flex-col bg-white px-10 pt-4 pb-9 shadow-xl print:mt-0 sm:px-14`}>
-      <header className={`grid h-[100px] grid-cols-2 items-center gap-5 ${isClassic?"border-b border-black pb-4":isMj?"border-b-4 border-[var(--brand)] pb-0":"border-b-2 border-[var(--brand)] pb-4"}`}><div className="flex h-[72px] min-w-0 items-center justify-start"><img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="block max-h-[72px] max-w-full w-auto object-contain object-left"/></div><div className="flex h-[72px] min-w-0 flex-col items-end justify-center text-right"><p className="font-black">{isMj ? j.reference : `${j.reference} / V${quote.version}`}</p><p className="text-xs text-black/45">Quotation details</p></div></header>{isMj&&<section className="mt-5 grid gap-6 grid-cols-2"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Client Information</p><p className="mt-1 text-base font-black">{name}</p>{site&&<p className="mt-1 text-xs leading-5 text-black/65">{site}</p>}{(c.phone||c.email)&&<p className="mt-1 text-xs text-black/55">{c.phone}{c.phone&&c.email&&" · "}{c.email}</p>}</div><div className="text-right"><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Project</p><p className="mt-1 text-base font-black">{Array.isArray(j.job_types)&&j.job_types.length?j.job_types.join(", "):j.job_type}</p><p className="mt-1 text-xs text-black/55">Issued {new Date(quote.created_at).toLocaleDateString("en-GB")}{quote.valid_until?` · Valid until ${new Date(`${quote.valid_until}T12:00:00`).toLocaleDateString("en-GB")}`:""}</p></div></section>}
+      <header className={`grid h-[64px] grid-cols-2 items-center gap-5 ${isClassic?"border-b border-black pb-4":isMj?"border-b-4 border-[var(--brand)] pb-0":"border-b-2 border-[var(--brand)] pb-4"}`}><div className="flex h-[56px] min-w-0 items-center justify-start"><img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="block max-h-[52px] max-w-full w-auto object-contain object-left"/></div><div className="flex h-[56px] min-w-0 flex-col items-end justify-center text-right"><p className="font-black">{isMj ? j.reference : `${j.reference} / V${quote.version}`}</p><p className="text-xs text-black/45">Quotation details</p></div></header>{isMj&&<section className="mt-5 grid gap-6 grid-cols-2"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Client Information</p><p className="mt-1 text-base font-black">{name}</p>{site&&<p className="mt-1 text-xs leading-5 text-black/65">{site}</p>}{(c.phone||c.email)&&<p className="mt-1 text-xs text-black/55">{c.phone}{c.phone&&c.email&&" · "}{c.email}</p>}</div><div className="text-right"><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">Project</p><p className="mt-1 text-base font-black">{Array.isArray(j.job_types)&&j.job_types.length?j.job_types.join(", "):j.job_type}</p><p className="mt-1 text-xs text-black/55">Issued {new Date(quote.created_at).toLocaleDateString("en-GB")}{quote.valid_until?` · Valid until ${new Date(`${quote.valid_until}T12:00:00`).toLocaleDateString("en-GB")}`:""}</p></div></section>}
       {isMj && <div aria-hidden="true" style={{height:20,flexShrink:0}} />}{isMj && <section className={`mt-0 mb-0 ${panelClass}`}><div className="flex items-end justify-between gap-4"><div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-black/45">Quotation total</p><p className="mt-1 text-3xl font-black">{money(quote.amount)}</p><p className="mt-1 text-[10px] text-black/45">{crmConfig.businessDetails.vatRegistered&&Number(quote.vat_rate||0)>0?`VAT ${Number(quote.vat_rate)}%`:"VAT not charged"}</p></div><div className="text-right text-sm leading-5 text-black/60">{Number(quote.deposit_amount)>0&&Number(quote.amount)>0&&<p><b>Deposit:</b> {money(quote.deposit_amount)}</p>}{quote.lead_time && <p><b>Estimated lead time:</b> {quote.lead_time}</p>}</div></div></section>}
       {isMj && <div aria-hidden="true" style={{height:20,flexShrink:0}} />}{isMj && <section className="mt-0"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of Works</h2><div className="mt-3 whitespace-normal text-[14px] leading-6 text-black/75">{renderQuoteScope(quote.scope_text)}</div></section>}
       {quote.exclusions && <section className="mt-6"><h2 className="text-base font-black">{isMj ? "Project Specific Exclusions" : "Project notes"}</h2><div className="mt-2 whitespace-pre-wrap text-sm leading-5 text-black/70">{quote.exclusions}</div></section>}
