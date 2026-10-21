@@ -12,6 +12,11 @@ export function validateTidiedQuote(before:string,after:string){const lines=(v:s
 export function normaliseQuoteScope(input:string){
   return String(input||"").split("\n").map(line=>{
     let out=line.trim();
+    // Repair legacy escaped markdown and duplicated item numbering.
+    out=out.replace(/\\\\\*/g,"*");
+    out=out.replace(/^(\\d+[.)])\\s+\\*\\*\\s*\\1\\s+/,"**$1 ");
+    out=out.replace(/^(\\d+[.)])\\s+\\*\\*\\s*(\\d+[.)])\\s+/,"**$1 ");
+    out=out.replace(/\\.\\s+([–-]\\s*£[\\d,]+(?:\\.\\d{1,2})?)\\s*$/," $1");
     // Remove a duplicated number from earlier rich-text serialization.
     out=out.replace(/^(\d+[.)])\s+\1\s+/,"$1 ");
     // Legacy item arithmetic: show just the amount for a single unit.
