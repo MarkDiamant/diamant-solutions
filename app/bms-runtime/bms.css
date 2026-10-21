@@ -41,3 +41,6 @@
  .bms-shell header nav a[href]:hover{transform:translateY(-2px) scale(1.045);background-color:rgba(230,106,36,.12)!important;box-shadow:0 4px 12px rgba(0,0,0,.12);filter:brightness(1.03)}
 }
 .bms-shell header nav a[href]:focus-visible{outline:2px solid #e66a24;outline-offset:2px}
+
+/* Keep selected navigation labels legible when hovered. */
+@media (hover:hover) and (pointer:fine){.bms-shell header nav a[href]:hover,.bms-shell header nav a[href]:hover *{color:#111!important}}
