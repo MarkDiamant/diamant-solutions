@@ -96,7 +96,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
 
   return <><main className="min-h-screen overflow-x-auto bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":crmConfig.accentColour} as React.CSSProperties}>
     <style>{`@media screen and (max-width: 899px) { .quote-page { zoom: calc(100vw / 900px); } } @media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
-    <div className="mx-auto mb-3 flex w-full max-w-[900px] flex-wrap items-center justify-center gap-1.5 px-2 text-center print:hidden">
+    <div className="quote-action-bar mx-auto mb-3 flex w-full max-w-[900px] flex-wrap items-center justify-center gap-1.5 px-2 text-center print:hidden">
       {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700">{sentMessage}</span>}
       <button onClick={()=>void savePdf()} disabled={pdfBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
       <button onClick={() => void sendQuote()} disabled={sending} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
