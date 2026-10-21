@@ -17,6 +17,10 @@
     {
       "path": "/api/business-software/xero/reconcile",
       "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/onboarding/publish-assets",
+      "schedule": "*/5 * * * *"
     }
   ]
 }
