@@ -28,7 +28,29 @@ async function ensureRenderer(){
   await new Promise<void>((resolve,reject)=>{const s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/html2canvas-pro@2.4.3/dist/html2canvas-pro.min.js";s.onload=()=>resolve();s.onerror=()=>reject(new Error("Could not load PDF renderer"));document.head.appendChild(s);});
 }
 
-export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await window.html2canvas(page,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false});images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+
+// Render every quote against a fixed desktop-sized page, even when saved on a phone.
+// html2canvas otherwise captures mobile breakpoints and shrinks the quote into the PDF.
+async function renderQuotePage(page:HTMLElement){
+  if(!window.html2canvas)throw new Error("PDF renderer is unavailable");
+  await document.fonts.ready;
+  await Promise.all(Array.from(page.querySelectorAll("img")).map(async img=>{
+    if(!img.complete)await new Promise<void>(resolve=>{img.addEventListener("load",()=>resolve(),{once:true});img.addEventListener("error",()=>resolve(),{once:true});});
+    if(img.complete&&img.naturalWidth>0&&img.decode)await img.decode().catch(()=>{});
+  }));
+  return window.html2canvas(page,{
+    scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,
+    windowWidth:1200,
+    onclone:(doc:Document)=>{
+      const cloned=doc.querySelector<HTMLElement>(".quote-page:not(.hidden)");
+      if(cloned){cloned.style.width="900px";cloned.style.minWidth="900px";cloned.style.maxWidth="900px";cloned.style.marginLeft="0";cloned.style.marginRight="0";}
+      const viewport=doc.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+      if(viewport)viewport.setAttribute("content","width=1200, initial-scale=1");
+    }
+  });
+}
+
+export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 
 export default function QuotePdfActions({ reference, quoteId }: { reference: string; quoteId: string }) {
   const [busy,setBusy]=useState(false);
@@ -39,7 +61,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none");
       if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");
       const images=[] as {data:Uint8Array;width:number;height:number}[];
-      for(const page of pages){const canvas=await window.html2canvas(page,{scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false});images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}
+      for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}
       const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});
 
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quoteId)}/pdf`,{method:"POST",headers:{"Content-Type":"application/pdf"},body:blob});
