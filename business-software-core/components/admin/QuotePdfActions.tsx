@@ -63,7 +63,7 @@ async function renderQuotePage(page:HTMLElement){
     }
   }
   const originalLogoSrc=logo?.getAttribute("src")||null;
-  if(logo&&embeddedLogo){logo.src=embeddedLogo;await logo.decode();}
+  if(logo&&embeddedLogo){logo.src=embeddedLogo;}
   const previous={width:page.style.width,minWidth:page.style.minWidth,maxWidth:page.style.maxWidth,zoom:page.style.zoom};
   page.style.width="900px";page.style.minWidth="900px";page.style.maxWidth="900px";page.style.zoom="1";
   try{return await window.html2canvas(page,{
