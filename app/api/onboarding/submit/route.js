@@ -13,9 +13,10 @@ export async function POST(request){
   const body=await request.json();
   const {tenantId,service,answers,logoPath,selection}=body;
   if(!/^[0-9a-f-]{36}$/i.test(tenantId||'')||!['website','business_software'].includes(service)||!answers||typeof answers!=='object'||Array.isArray(answers))return NextResponse.json({error:'Invalid submission'},{status:400});
-  const member=await fetch(SB+'/rest/v1/tenant_members?user_id=eq.'+encodeURIComponent(user.id)+'&tenant_id=eq.'+encodeURIComponent(tenantId)+'&select=tenant_id,tenants!inner(service_type)&tenants.service_type=eq.'+service,{headers,cache:'no-store'});
-  const members=member.ok?await member.json():[];
-  if(!members.length)return NextResponse.json({error:'This setup is not linked to your account'},{status:403});
+  const member=await fetch(SB+'/rest/v1/tenant_members?user_id=eq.'+encodeURIComponent(user.id)+'&tenant_id=eq.'+encodeURIComponent(tenantId)+'&select=tenant_id',{headers,cache:'no-store'});
+  if(!member.ok){console.error('Membership lookup failed',member.status,await member.text());return NextResponse.json({error:'Could not verify your account. Please try again.'},{status:502})}
+  const members=await member.json();
+  if(!members.length)return NextResponse.json({error:'Your account does not have access to this setup. Please contact support.'},{status:403});
   const current=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&select=status,service_type&limit=1',{headers,cache:'no-store'});
   if(!current.ok)return NextResponse.json({error:'Could not load setup'},{status:502});
   const existing=(await current.json())[0];
