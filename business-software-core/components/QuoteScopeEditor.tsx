@@ -21,7 +21,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
          if(!piece)continue;
          const marked=piece.startsWith("**")&&piece.endsWith("**")&&piece.length>4;
          const content=marked?piece.slice(2,-2):piece;
-         if(bold||marked){const strong=document.createElement("strong");strong.textContent=content;strong.style.fontWeight="700";host.appendChild(strong);}
+         if(bold||marked){const strong=document.createElement("strong");strong.textContent=content;strong.style.fontWeight="700";if(bold&&!marked)strong.dataset.autoBold="true";host.appendChild(strong);}
          else host.appendChild(document.createTextNode(content));
        }
      };
@@ -40,6 +40,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
    const el=node as HTMLElement;
    if(el.tagName==="BR")return "\n";
    const body=Array.from(el.childNodes).map(serialize).join("");
+   if(el.dataset.autoBold==="true")return body;
    if(el.tagName==="STRONG"||el.tagName==="B")return "**"+body.replace(/^\*\*|\*\*$/g,"")+"**";
    return body+(["DIV","P"].includes(el.tagName)?"\n":"");
  }
