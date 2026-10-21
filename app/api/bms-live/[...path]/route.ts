@@ -100,7 +100,7 @@ async function syncXeroJobInvoices(tenantId:string,reference:string){
   if(!invoice.external_invoice_id)continue;
   const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(invoice.external_invoice_id));
   const x=remote.Invoices?.[0];if(!x)throw new Error("Invoice not found in Xero.");
-  const total=Number(x.Total),amountDue=Number(x.AmountDue),amountPaid=Number(x.AmountPaid);if(![total,amountDue,amountPaid].every(Number.isFinite)||Math.min(total,amountDue,amountPaid)<0||Math.abs(total-amountDue-amountPaid)>0.02||(x.Status==="PAID"&&amountDue>0.01))throw new Error("Xero invoice amounts or payment status do not reconcile; BMS record was not changed.");
+  if(x.Type!=="ACCREC")throw new Error("Xero invoice is not a customer sales invoice.");const total=Number(x.Total),amountDue=Number(x.AmountDue),amountPaid=Number(x.AmountPaid),amountCredited=Number(x.AmountCredited??0);if(![total,amountDue,amountPaid,amountCredited].every(Number.isFinite)||Math.min(total,amountDue,amountPaid,amountCredited)<0||Math.abs(total-amountDue-amountPaid-amountCredited)>0.02||(x.Status==="PAID"&&amountDue>0.01))throw new Error("Xero invoice amounts or payment status do not reconcile; BMS record was not changed.");
   const saved=await centralRest("business_software_invoices?id=eq."+invoice.id+"&tenant_id=eq."+encodeURIComponent(tenantId),{method:"PATCH",body:JSON.stringify({status:x.Status,invoice_number:x.InvoiceNumber||null,total:Number(x.Total||0),amount_due:Number(x.AmountDue||0),amount_paid:Number(x.AmountPaid||0),currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()})});
   if(!saved.ok)throw new Error("Unable to save invoice status from Xero.");
  }
