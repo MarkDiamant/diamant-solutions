@@ -61,12 +61,17 @@ export async function GET(request:Request){
     const credentials=await access(tenantId);
     const [jobs,people]=await Promise.all([rows("business_software_jobs?tenant_id=eq."+enc(tenantId)+"&select=id,reference&limit=1000"),rows("business_software_job_people?tenant_id=eq."+enc(tenantId)+"&select=id,job_id,person_id,agreed_cost,paid_amount&limit=1000")]);
     const byReference=new Map(jobs.map((j:any)=>[String(j.reference||"").trim().toUpperCase(),j]));
-    const response=await fetch("https://api.xero.com/api.xro/2.0/Invoices?where="+enc('Type=="ACCPAY"')+"&page=1",{headers:{Authorization:"Bearer "+credentials.token,"xero-tenant-id":credentials.organisation,Accept:"application/json"},cache:"no-store"});
-    if(!response.ok)throw new Error("Xero purchase bill lookup "+response.status);
-    for(const bill of (await response.json()).Invoices||[]){
+    for(let page=1;page<=5;page++){
+     const response=await fetch("https://api.xero.com/api.xro/2.0/Invoices?where="+enc('Type=="ACCPAY"')+"&page="+page,{headers:{Authorization:"Bearer "+credentials.token,"xero-tenant-id":credentials.organisation,Accept:"application/json"},cache:"no-store"});
+     if(!response.ok)throw new Error("Xero purchase bill lookup "+response.status);
+     const bills=(await response.json()).Invoices||[];
+     if(!Array.isArray(bills))throw new Error("Invalid Xero purchase bill response");
+     for(const bill of bills){
      const reference=String(bill.Reference||"").trim().toUpperCase();const job:any=byReference.get(reference);
      if(!job||!bill.InvoiceID||Number(bill.AmountPaid||0)<=0)continue;
      contractorBillCandidates.push({tenant_id:tenantId,job_reference:job.reference,job_id:job.id,xero_bill_id:bill.InvoiceID,xero_bill_number:bill.InvoiceNumber||null,supplier:bill.Contact?.Name||null,amount_paid:Number(bill.AmountPaid),amount_due:Number(bill.AmountDue||0),assignment_count:people.filter((p:any)=>p.job_id===job.id).length,action:"review_match_before_posting"});
+     }
+     if(bills.length<100)break;
     }
    }catch(e){errors.push("Contractor matching for tenant "+tenantId+": "+(e instanceof Error?e.message:"Unknown error"));}
   }
