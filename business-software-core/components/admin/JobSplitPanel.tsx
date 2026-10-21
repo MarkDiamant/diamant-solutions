@@ -37,6 +37,7 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
   const [names,setNames]=useState<string[]>([]),[amounts,setAmounts]=useState<string[]>([]);
   const [proceed,setProceed]=useState(0);
   const total=Number(quote?.amount||0);
+  useEffect(()=>{if(new URLSearchParams(window.location.search).get("split")==="1"){setOpen(true);window.setTimeout(()=>document.getElementById("split-order-panel")?.scrollIntoView({behavior:"smooth",block:"start"}),120);}},[]);
   useEffect(()=>{if(!open)return;const parsed=parseItems(String(quote?.scope_text||""),total);setItems(parsed);setNames(parsed.length?parsed.map((x,i)=>"Order "+(i+1)):["Order 1","Order 2"]);setAmounts(parsed.length?parsed.map(x=>String(x.amount??"")):["",""]);},[open,quote,total]);
   const count=names.length;
   const groupItems=(i:number)=>items.filter(x=>x.group===i);
@@ -45,7 +46,7 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
   const valid=parts.length>=2&&parts.every(p=>p.scope.length>=2&&p.description&&p.amount>0)&&Math.abs(parts.reduce((a,p)=>a+p.amount,0)-total)<0.011&&(!items.length||items.every(x=>x.group>=0&&x.group<count));
   async function start(){setBusy(true);setError("");try{const r=await fetch("/api/admin/jobs/"+encodeURIComponent(reference)+"/split",{cache:"no-store"});const b=await r.json();if(!r.ok||!b.allowed)throw new Error(b.reason||b.error||"This job cannot be split");setOpen(true);}catch(e){setError(e instanceof Error?e.message:"Unable to check split eligibility");}finally{setBusy(false);}}
   async function submit(){setBusy(true);setError("");try{const r=await fetch("/api/admin/jobs/"+encodeURIComponent(reference)+"/split",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id,parts})});const b=await r.json();if(!r.ok)throw new Error(b.error||"Split failed");const next=(b.children||[]).find((x:any)=>x.disposition==="proceed")?.reference;window.location.assign(next?"/admin/jobs/"+encodeURIComponent(next):"/admin");}catch(e){setError(e instanceof Error?e.message:"Split failed");setReview(false);}finally{setBusy(false);}}
-  return <section className="mt-4">
+  return <section id="split-order-panel" className="mt-4 scroll-mt-24">
     {!open&&<button type="button" disabled={busy||!quote} onClick={()=>void start()} className="rounded-xl border border-[#e66a24] bg-white px-4 py-2.5 text-sm font-black text-[#e66a24] disabled:opacity-50">{busy?"Checking...":"Split job / order"}</button>}
     {error&&<p role="alert" className="mt-2 rounded-lg bg-red-50 p-3 text-sm font-bold text-red-800">{error}</p>}
     {open&&<div className="mt-3 rounded-2xl border border-orange-200 bg-white p-5">
