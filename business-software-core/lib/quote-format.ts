@@ -14,6 +14,7 @@ export function normaliseQuoteScope(input:string){
     let out=line.trim();
     // Repair escaped markdown and repeated numbers from old quote saves.
     out=out.replace(/\\\*/g,"*");
+    out=out.replace(/^\*\*((?:\d+[.)]\s+)?)\*\*([^*\n]+)\*\*:\*\*/,"**$1$2:**");
     out=out.replace(/^(\d+[.)])\s+\*\*\s*\1\s+/,"**$1 ");
     out=out.replace(/^(\d+[.)])\s+\*\*\s*(\d+[.)])\s+/,"**$1 ");
     out=out.replace(/\.\s+([–-]\s*£[\d,]+(?:\.\d{1,2})?)\s*$/," $1");
