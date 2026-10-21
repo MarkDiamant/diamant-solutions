@@ -2,6 +2,7 @@
 import {useMemo,useState} from "react";
 import MaterialReceiving from "./MaterialReceiving";
 import CopyMaterials from "./CopyMaterials";
+import MaterialsHistory from "./MaterialsHistory";
 type Line={dbId?:string;productId?:string;id:number;sku:string;name:string;spec:string;supplier:string;url:string;qty:number;net:number;vat:number};
 const blank=(id:number):Line=>({id,sku:"",name:"",spec:"",supplier:"",url:"",qty:1,net:0,vat:20});
 export default function MaterialsPage(){
@@ -26,5 +27,6 @@ export default function MaterialsPage(){
  <p style={{textAlign:"right"}}>Net {money(r.qty*r.net)} · VAT {money(r.qty*r.net*r.vat/100)} · <strong>Gross {money(r.qty*r.net*(1+r.vat/100))}</strong></p></section>)}
  <div style={{textAlign:"right",fontSize:18}}><div>Ex VAT: {money(totals.net)}</div><div>VAT: {money(totals.vat)}</div><strong>Including VAT: {money(totals.net+totals.vat)}</strong></div>
  {orderId&&orderStatus==="draft"&&<CopyMaterials orderId={orderId} onCopied={()=>load(orderId)}/>} {orderId&&<MaterialReceiving orderId={orderId}/>}
+ <MaterialsHistory/>
  </main>;
 }
