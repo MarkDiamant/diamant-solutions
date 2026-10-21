@@ -68,12 +68,12 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       if(canNativeShare&&navigator.canShare({files:[file]})){
         try {
           await navigator.share({files:[file],title:"Quotation "+reference,text:message});
-          setSentMessage("Quotation shared with its PDF and message.");
+          setSentMessage("PDF sent to your selected sharing app. If the quotation message was not included, paste the copied message into WhatsApp before sending.");
           return;
         } catch(error) {
           try {
             await navigator.share({files:[file],title:"Quotation "+reference});
-            setSentMessage(copied?"PDF shared. Quotation message copied, ready to paste.":"PDF shared.");
+            setSentMessage(copied?"PDF shared. Paste the copied quotation message into WhatsApp before sending.":"PDF shared. Add the quotation message in WhatsApp before sending.");
             return;
           } catch { console.warn("Native PDF share unavailable",error); }
         }
@@ -113,7 +113,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   return <><main className="min-h-screen overflow-x-auto bg-[#ecece8] py-6 text-[#171717] print:bg-white print:py-0" style={{"--brand":crmConfig.accentColour} as React.CSSProperties}>
     <style>{`@media screen and (max-width: 899px) { .quote-page { zoom: calc(100vw / 900px); } } @media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
     <div className="quote-action-bar mx-auto mb-3 flex w-full max-w-[900px] flex-wrap items-center justify-center gap-1.5 px-2 text-center print:hidden">
-      {sentMessage && <span className="self-center rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700">{sentMessage}</span>}
+      {sentMessage && <div role="status" aria-live="polite" className="fixed left-1/2 top-4 z-[100] w-[min(92vw,440px)] -translate-x-1/2 rounded-xl border border-green-200 bg-white px-4 py-3 text-left text-sm font-medium text-green-800 shadow-2xl"><div className="flex items-start gap-3"><span className="flex-1">{sentMessage}</span><button type="button" onClick={()=>setSentMessage("")} aria-label="Dismiss notification" className="rounded p-1 text-black/60 hover:bg-black/5">✕</button></div></div>}
       <button onClick={()=>void savePdf()} disabled={pdfBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
       <button onClick={() => void sendQuote()} disabled={sending} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
       <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice({email:body.from||connectedGmail||"connected Gmail"});window.open("https://mail.google.com/mail/u/0/#drafts","_blank","noopener,noreferrer");}catch(error){alert(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{drafting?"Creating Gmail draft...":"Open email draft"}</button>
