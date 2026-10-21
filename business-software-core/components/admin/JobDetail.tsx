@@ -103,7 +103,7 @@ function Quote({data,reference,onAction,config}:{data:Bundle;reference:string;on
       const result=normaliseQuoteScope(String(body.text||"").trim());
       const originalPrices=original.split("\\n").map(x=>x.match(/£[\\d,]+(?:\\.\\d{1,2})?/g)?.at(-1)||"").filter(Boolean);
       const newPrices=result.split("\\n").map(x=>x.match(/£[\\d,]+(?:\\.\\d{1,2})?/g)?.at(-1)||"").filter(Boolean);
-      if(!result||originalPrices.length!==newPrices.length||originalPrices.some((x,i)=>Number(x.slice(1).replace(/,/g,""))!==Number(newPrices[i].slice(1).replace(/,/g,""))))throw new Error("AI did not preserve all quotation items and prices. No changes were applied.");
+      if(!result||result.split("\n").filter(x=>x.trim()).length<original.split("\n").filter(x=>x.trim()).length||originalPrices.length!==newPrices.length||originalPrices.some((x,i)=>Number(x.slice(1).replace(/,/g,""))!==Number(newPrices[i].slice(1).replace(/,/g,""))))throw new Error("AI did not preserve all quotation items and prices. No changes were applied.");
       setScope(result);
     }catch(e){setAiError(e instanceof Error?e.message:"Could not tidy quotation");}
     finally{setAiBusy(false);}
