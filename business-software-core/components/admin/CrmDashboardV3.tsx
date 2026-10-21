@@ -97,7 +97,20 @@ export default function CrmDashboardV3() {
   const filtered=useMemo(()=>{
     const pendingStatuses=new Set(["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","interested_not_ready","customer_unsure"]);
     const activeStatuses=new Set(["confirmed","deposit_requested","deposit_paid","materials_ordered","fabrication","installation_scheduled","in_progress","awaiting_final_payment"]);
-    const rows=jobs.filter(j=>!summaryFilter||(!j.isPlaceholder&&(summaryFilter==="Total enquiries"||summaryFilter==="Still pending"&&pendingStatuses.has(j.status)||summaryFilter==="Active jobs"&&activeStatuses.has(j.status)||summaryFilter==="Completed"&&j.status==="completed"||summaryFilter==="Didn\'t go ahead"&&["declined","cancelled"].includes(j.status)||summaryFilter==="Won job value"&&activeStatuses.has(j.status)||summaryFilter==="Payments received"&&Number(j.amountPaid||0)>0||summaryFilter==="Profit to date"&&activeStatuses.has(j.status)||summaryFilter==="Outstanding"&&Number(j.balanceOutstanding||0)>0||["Open pipeline","Pipeline profit"].includes(summaryFilter)&&pendingStatuses.has(j.status)))).filter(j=>status==="all"||j.status===status).filter(j=>manager==="all"||(!j.isPlaceholder&&j.manager===manager)).filter(j=>type==="all"||(j.jobTypes||[j.jobType]).includes(type)).filter(j=>`${j.reference} ${j.customerName} ${j.address} ${j.postcode||""} ${j.phone||""} ${j.email||""}`.toLowerCase().includes(query.toLowerCase().trim()));
+    const wonStatuses=new Set([...activeStatuses,"completed"]);
+    const rows=jobs.filter(j=>!summaryFilter||(!j.isPlaceholder&&(
+      summaryFilter==="Total enquiries"||
+      summaryFilter==="Still pending"&&pendingStatuses.has(j.status)||
+      summaryFilter==="Active jobs"&&activeStatuses.has(j.status)||
+      summaryFilter==="Completed"&&j.status==="completed"||
+      summaryFilter==="Didn't go ahead"&&["declined","cancelled"].includes(j.status)||
+      summaryFilter==="Won job value"&&wonStatuses.has(j.status)||
+      summaryFilter==="Payments received"&&Number(j.amountPaid||0)>0||
+      summaryFilter==="Profit to date"&&wonStatuses.has(j.status)&&j.quotedAmount!=null&&j.finalCost!=null||
+      summaryFilter==="Outstanding"&&Number(j.balanceOutstanding||0)>0||
+      summaryFilter==="Open pipeline"&&pendingStatuses.has(j.status)||
+      summaryFilter==="Pipeline profit"&&pendingStatuses.has(j.status)&&j.preliminaryEstimate!=null&&j.estimatedCost!=null
+    ))).filter(j=>status==="all"||j.status===status).filter(j=>manager==="all"||(!j.isPlaceholder&&j.manager===manager)).filter(j=>type==="all"||(j.jobTypes||[j.jobType]).includes(type)).filter(j=>`${j.reference} ${j.customerName} ${j.address} ${j.postcode||""} ${j.phone||""} ${j.email||""}`.toLowerCase().includes(query.toLowerCase().trim()));
     return rows.sort((a,b)=>{
       if(sortMode==="number_asc") return a.sequenceNumber-b.sequenceNumber;
       if(sortMode==="number_desc") return b.sequenceNumber-a.sequenceNumber;
@@ -190,7 +203,7 @@ export default function CrmDashboardV3() {
   async function logout(){await fetch("/api/admin/auth/logout",{method:"POST"});router.replace("/admin/login");router.refresh();}
 
   const cards=[["Total enquiries",counts.total,"All real enquiries","bg-white border-black/8"],["Still pending",counts.pending,"Not decided yet","bg-amber-50/70 border-amber-200"],["Active jobs",counts.active,"Won / in progress","bg-blue-50/70 border-blue-200"],["Completed",counts.completed,"Finished","bg-green-50/70 border-green-200"],["Didn't go ahead",counts.lost,"Declined / cancelled","bg-red-50/70 border-red-200"]] as const;
-  return <main className="bms-dashboard min-h-screen overflow-x-hidden bg-[#f4f4f1] text-[#141414]"><style>{`@media(hover:hover) and (pointer:fine){.bms-dashboard button:not(:disabled),.bms-dashboard a{transition:transform 160ms ease,box-shadow 160ms ease,filter 160ms ease;transform-origin:center}.bms-dashboard button:not(:disabled):hover,.bms-dashboard a:hover{transform:translateY(-1px) scale(1.005);box-shadow:0 3px 9px rgba(0,0,0,.10);filter:brightness(1.025)}.bms-dashboard button:not(:disabled):active,.bms-dashboard a:active{transform:scale(.97)}}@media(prefers-reduced-motion:reduce){.bms-dashboard button,.bms-dashboard a{transition:none!important;transform:none!important}}`}</style>
+  return <main className="bms-dashboard min-h-screen overflow-x-hidden bg-[#f4f4f1] text-[#141414]"><style>{`@media(hover:hover) and (pointer:fine){.bms-dashboard button:not(:disabled),.bms-dashboard a{transition:transform 160ms ease,box-shadow 160ms ease,filter 160ms ease;transform-origin:center}.bms-dashboard button:not(:disabled):hover,.bms-dashboard a:hover{transform:translateX(2px);box-shadow:0 3px 9px rgba(0,0,0,.10);filter:brightness(1.025)}.bms-dashboard button:not(:disabled):active,.bms-dashboard a:active{transform:scale(.97)}}@media(prefers-reduced-motion:reduce){.bms-dashboard button,.bms-dashboard a{transition:none!important;transform:none!important}}`}</style>
     <div className="mx-auto max-w-[1780px] px-3 pb-5 pt-5 sm:px-4 lg:px-7">
       <section className="grid grid-cols-6 gap-2 sm:gap-3 lg:grid-cols-5">{cards.map(([label,value,note,tone])=><button type="button" key={label} aria-pressed={summaryFilter===label} onClick={()=>{setSummaryFilter(current=>current===label?null:label);setStatus("all");setPage(1);}} className={"rounded-xl border p-2.5 text-center sm:rounded-2xl sm:p-4 lg:col-span-1 lg:text-left "+(["Active jobs","Completed","Didn't go ahead"].includes(label)?"col-span-2 ":"col-span-3 ")+tone+(summaryFilter===label?" ring-2 ring-[#e66a24] shadow-md":" hover:ring-2 hover:ring-black/15")}><p className="text-[9px] font-black uppercase tracking-[0.05em] text-black/40 sm:text-[11px] sm:tracking-[0.08em]">{label}</p><p className="mt-1 text-xl font-black sm:mt-1.5 sm:text-3xl">{value}</p><p className="mt-0.5 text-[10px] text-black/40 sm:mt-1 sm:text-xs">{note}</p></button>)}</section>
       <div className="mt-5 grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_310px]"><section className="min-w-0">
