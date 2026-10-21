@@ -50,7 +50,9 @@ export default function JobDetail({reference}:{reference:string}){
   if(error||!data)return <main className="min-h-screen bg-[#f5f5f2] p-10"><div className="mx-auto max-w-xl rounded-2xl bg-white p-6"><h1 className="text-xl font-black">{reference}</h1><p className="mt-3 text-red-700">{error||"Job not found"}</p><a href="/admin" className="mt-5 inline-block font-bold text-[#e66a24]">Back to CRM</a></div></main>;
 
   const j=data.job,c=data.customer||{};
-  const received=(data.payments||[]).filter((p:any)=>p.direction==="customer_in"&&(p.paid_at||p.payment_type==="historical_xero_paid")).reduce((s:number,p:any)=>s+Number(p.amount||0),0);
+  const manuallyReceived=(data.payments||[]).filter((p:any)=>p.direction==="customer_in"&&(p.paid_at||p.payment_type==="historical_xero_paid")).reduce((s:number,p:any)=>s+Number(p.amount||0),0);
+  const xeroReceived=(data.xeroInvoices||[]).filter((x:any)=>String(x.provider||"xero").toLowerCase()==="xero"&&!["VOIDED","DELETED"].includes(String(x.status||"").toUpperCase())).reduce((total:number,x:any)=>total+Math.max(0,Number(x.amount_paid||0)),0);
+  const received=Math.max(manuallyReceived,xeroReceived);
   const agreed=Number(j.quoted_amount??0);
   const hasLiveInvoice=(data.xeroInvoices||[]).some((x:any)=>!["DRAFT","VOIDED","DELETED"].includes(String(x.status||"").toUpperCase()));
   const stopped=["declined","cancelled"].includes(j.status);
