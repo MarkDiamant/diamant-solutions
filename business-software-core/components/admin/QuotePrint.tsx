@@ -111,7 +111,7 @@ ${crmConfig.businessName}`;
       <a href={`/admin/jobs/${reference}`} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold">Back to job</a><a href="/admin" className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold">Back to admin</a>
     </div>
 
-    <article className={`quote-page ${pageClass} mx-auto flex min-h-[1120px] max-w-[900px] flex-col bg-white px-10 py-9 shadow-xl sm:px-14 hidden`}>
+    <article className={`quote-page ${pageClass} relative z-0 mx-auto flex min-h-[1120px] max-w-[900px] flex-col bg-white px-10 py-9 shadow-xl sm:px-14 hidden`}>
       <header className={`flex items-start justify-between gap-8 ${headerClass}`}>
         <div><img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="h-20 w-auto object-contain" /></div>
         <div className="text-right"><h1 className="max-w-[430px] text-2xl font-black uppercase tracking-tight">{isMj ? "Project Proposal" : "Quotation"}</h1><p className="mt-1 text-lg font-black text-[var(--brand)]">{isMj ? j.reference : `${j.reference} / V${quote.version}`}</p><p className="mt-1 text-xs text-black/55">Issued {new Date(quote.created_at).toLocaleDateString("en-GB")}{quote.valid_until ? ` · Valid until ${new Date(`${quote.valid_until}T12:00:00`).toLocaleDateString("en-GB")}` : ""}</p></div>
