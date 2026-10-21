@@ -109,7 +109,8 @@ function Quote({data,reference,onAction,config}:{data:Bundle;reference:string;on
       const result=normaliseQuoteScope(String(body.text||"").trim());
       const originalPrices=original.split("\n").map(x=>x.match(/£[\d,]+(?:\.\d{1,2})?/g)?.at(-1)||"").filter(Boolean);
       const newPrices=result.split("\n").map(x=>x.match(/£[\d,]+(?:\.\d{1,2})?/g)?.at(-1)||"").filter(Boolean);
-      if(!result||result.split("\n").filter(x=>x.trim()).length<original.split("\n").filter(x=>x.trim()).length||originalPrices.length!==newPrices.length||originalPrices.some((x,i)=>Number(x.slice(1).replace(/,/g,""))!==Number(newPrices[i].slice(1).replace(/,/g,""))))throw new Error("AI did not preserve all quotation items and prices. No changes were applied.");
+      const itemNumbers=(value:string)=>[...value.matchAll(/^\s*(\d{1,3})[.)]\s+/gm)].map(m=>m[1]);const beforeItems=itemNumbers(original),afterItems=itemNumbers(result);
+      if(!result||result.split("\n").filter(x=>x.trim()).length<original.split("\n").filter(x=>x.trim()).length||beforeItems.length!==afterItems.length||beforeItems.some((n,i)=>n!==afterItems[i])||originalPrices.length!==newPrices.length||originalPrices.some((x,i)=>Number(x.slice(1).replace(/,/g,""))!==Number(newPrices[i].slice(1).replace(/,/g,""))))throw new Error("AI did not preserve all quotation items and prices. No changes were applied.");
       if(!controller.signal.aborted)setScope(result);
     }catch(e){if(!controller.signal.aborted)setAiError(e instanceof Error?e.message:"Could not tidy quotation");}
     finally{if(tidyRequest.current===controller){tidyRequest.current=null;setAiBusy(false);}}
