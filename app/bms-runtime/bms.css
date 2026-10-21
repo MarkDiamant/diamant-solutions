@@ -34,3 +34,10 @@
 /* Interactive controls should always advertise clickability. */
 .bms-shell :is(a[href],button:not(:disabled),summary,[role="button"],label[for],select:not(:disabled),input[type="checkbox"]:not(:disabled),input[type="radio"]:not(:disabled)){cursor:pointer}
 .bms-shell :is(button:disabled,select:disabled,input:disabled){cursor:not-allowed}
+
+/* Consistent visible feedback for the primary BMS navigation. */
+@media (hover:hover) and (pointer:fine){
+ .bms-shell header nav a[href]{transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease,filter .16s ease;transform-origin:center}
+ .bms-shell header nav a[href]:hover{transform:translateY(-2px) scale(1.045);background-color:rgba(230,106,36,.12)!important;box-shadow:0 4px 12px rgba(0,0,0,.12);filter:brightness(1.03)}
+}
+.bms-shell header nav a[href]:focus-visible{outline:2px solid #e66a24;outline-offset:2px}
