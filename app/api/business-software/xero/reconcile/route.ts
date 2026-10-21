@@ -31,7 +31,7 @@ export async function GET(request:Request){
  try{
   const invoices=await rows("business_software_invoices?provider=eq.xero&external_invoice_id=not.is.null&select=id,tenant_id,external_invoice_id,total,amount_paid,amount_due,status&order=synced_at.asc.nullsfirst&limit=20");
   const groups=new Map<string,typeof invoices>();for(const invoice of invoices){const key=String(invoice.tenant_id);if(!groups.has(key))groups.set(key,[]);groups.get(key)!.push(invoice);}
-  let checked=0,updated=0,failed=0,xeroRateLimited=false;const errors:string[]=[];
+  let checked=0,updated=0,failed=0,xeroRateLimited=false;const errors:string[]=[];const rateLimitedTenants=new Set<string>();
   for(const [tenantId,items] of groups){
    try{
     const credentials=await access(tenantId);
