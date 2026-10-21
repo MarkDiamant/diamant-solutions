@@ -68,3 +68,7 @@
 .bms-shell .bms-money-tiles>button:nth-child(6){background:#e6f7f4;border-color:#bce6dc}
 .bms-shell .bms-money-tiles>button:nth-child(7){background:#fff0f0;border-color:#f1c1c1}
 .bms-shell .bms-money-tiles>button:nth-child(7)>p:nth-child(2){color:#b42318!important}
+
+/* Non-proceeding outcomes are separate, both using red-family warning colours. */
+.bms-shell .bms-money-tiles>button:nth-child(8){background:#fff3f1;border-color:#f4c9c3}
+.bms-shell .bms-money-tiles>button:nth-child(8)>p:nth-child(2){color:#b42318!important}
