@@ -60,7 +60,7 @@ export async function GET(request:Request){
    try{
     const credentials=await access(tenantId);
     const [jobs,people]=await Promise.all([rows("business_software_jobs?tenant_id=eq."+enc(tenantId)+"&select=id,reference&limit=1000"),rows("business_software_job_people?tenant_id=eq."+enc(tenantId)+"&select=id,job_id,person_id,agreed_cost,paid_amount&limit=1000")]);
-    const byReference=new Map(jobs.map((j:any)=>[String(j.reference||"").trim().toUpperCase(),j]));
+    const byReference=new Map<string,any>();const duplicateReferences=new Set<string>();for(const job of jobs){const ref=String(job.reference||"").trim().toUpperCase();if(!ref)continue;if(byReference.has(ref))duplicateReferences.add(ref);else byReference.set(ref,job);}
     for(let page=1;page<=5;page++){
      const response=await fetch("https://api.xero.com/api.xro/2.0/Invoices?where="+enc('Type=="ACCPAY"')+"&page="+page,{headers:{Authorization:"Bearer "+credentials.token,"xero-tenant-id":credentials.organisation,Accept:"application/json"},cache:"no-store"});
      if(!response.ok)throw new Error("Xero purchase bill lookup "+response.status);
@@ -68,7 +68,7 @@ export async function GET(request:Request){
      if(!Array.isArray(bills))throw new Error("Invalid Xero purchase bill response");
      for(const bill of bills){
      const reference=String(bill.Reference||"").trim().toUpperCase();const job:any=byReference.get(reference);
-     if(!job||!bill.InvoiceID||Number(bill.AmountPaid||0)<=0||!Number.isFinite(Number(bill.AmountPaid)))continue;
+     if(!job||duplicateReferences.has(reference)||!bill.InvoiceID||Number(bill.AmountPaid||0)<=0||!Number.isFinite(Number(bill.AmountPaid)))continue;
      if(["VOIDED","DELETED"].includes(String(bill.Status||"").toUpperCase()))continue;
      const billPayments=Array.isArray(bill.Payments)?bill.Payments:[];const paymentIds=billPayments.map((payment:any)=>String(payment.PaymentID||"")).filter(Boolean);const assignments=people.filter((person:any)=>person.job_id===job.id);contractorBillCandidates.push({tenant_id:tenantId,job_reference:job.reference,job_id:job.id,xero_bill_id:bill.InvoiceID,xero_bill_number:bill.InvoiceNumber||null,supplier:bill.Contact?.Name||null,supplier_xero_contact_id:bill.Contact?.ContactID||null,amount_paid:Number(bill.AmountPaid),amount_due:Number(bill.AmountDue||0),xero_payment_ids:paymentIds,assignment_count:assignments.length,action:assignments.length===1&&paymentIds.length===billPayments.length&&paymentIds.length>0?"verify_supplier_matches_assignment_before_posting":"review_match_before_posting"});
      }
