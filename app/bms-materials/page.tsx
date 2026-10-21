@@ -8,6 +8,7 @@ export default function MaterialsPage(){
  const totals=useMemo(()=>rows.reduce((a,r)=>{const n=r.qty*r.net;return {net:a.net+n,vat:a.vat+n*r.vat/100}}, {net:0,vat:0}),[rows]);
  const edit=(id:number,key:keyof Line,value:string)=>setRows(v=>v.map(r=>r.id===id?{...r,[key]:["qty","net","vat"].includes(key)?Number(value):value}:r));
  const load=async()=>{try{const r=await fetch("/api/bms-live/price-book",{cache:"no-store"});if(r.ok){const x=await r.json();setProducts(Array.isArray(x.items)?x.items:[]);}}catch{}};
+ const save=async()=>{try{const send=async(x:any)=>{const r=await fetch("/api/bms-materials",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(x)});const v=await r.json();if(!r.ok)throw Error(v.error||"Save failed");return v;};const o=await send({action:"new",reference});for(const line of rows.filter(r=>r.name.trim()))await send({action:"line",order_id:o.record.id,name:line.name,sku:line.sku,specification:line.spec,supplier:line.supplier,link:line.url,quantity:line.qty,cost_net:line.net,vat_rate:line.vat});setNotice("Draft order saved");}catch(e){setNotice(e instanceof Error?e.message:"Save failed");}};
  const money=(n:number)=>"£"+n.toFixed(2);
  return <main style={{maxWidth:1120,margin:"auto",padding:16,fontFamily:"inherit"}}>
  <h1>Materials & Purchasing</h1><p style={{color:"#666"}}>Draft order editor preview. No purchases or stock movements are saved yet.</p>
