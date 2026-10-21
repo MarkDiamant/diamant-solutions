@@ -8,7 +8,22 @@ declare global {
 
 function bytes(text:string){return new TextEncoder().encode(text);}
 function join(parts:Uint8Array[]){const n=parts.reduce((s,p)=>s+p.length,0),out=new Uint8Array(n);let o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;}
-async function jpegBytes(canvas:HTMLCanvasElement){const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not render quote")),"image/jpeg",0.96));return new Uint8Array(await blob.arrayBuffer());}
+async function jpegBytes(canvas:HTMLCanvasElement){
+  // Some Android WebViews expose canvas.toBlob but throw "Not implemented".
+  // Prefer the widely supported data URL API and use toBlob only as a fallback.
+  try{
+    const url=canvas.toDataURL("image/jpeg",0.96);
+    const base64=url.split(",")[1];
+    if(!base64)throw new Error("Empty canvas");
+    const binary=atob(base64);
+    const data=new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++)data[i]=binary.charCodeAt(i);
+    return data;
+  }catch{
+    const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not render quote")),"image/jpeg",0.96));
+    return new Uint8Array(await blob.arrayBuffer());
+  }
+}
 function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
   const parts:Uint8Array[]=[bytes("%PDF-1.4\n%M&J Quote\n")], offsets:number[]=[0]; let length=parts[0].length;
   const add=(num:number,body:Uint8Array)=>{offsets[num]=length;const h=bytes(`${num} 0 obj\n`),t=bytes("\nendobj\n");parts.push(h,body,t);length+=h.length+body.length+t.length;};
