@@ -44,3 +44,6 @@
 
 /* Keep selected navigation labels legible when hovered. */
 @media (hover:hover) and (pointer:fine){.bms-shell header nav a[href]:hover,.bms-shell header nav a[href]:hover *{color:#111!important}}
+
+/* Quote action links must match the adjacent buttons, including hover and visited states. */
+.bms-shell .quote-action-bar :is(a,a:link,a:visited,a:hover,a:focus-visible,button){color:#fff!important;font-family:Arial,Helvetica,sans-serif!important;font-size:14px!important;font-weight:500!important;line-height:1!important;text-decoration:none!important}
