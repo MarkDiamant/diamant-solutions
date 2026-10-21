@@ -28,7 +28,7 @@ export async function GET(request:Request){
  if(!process.env.CRON_SECRET||request.headers.get("authorization")!=="Bearer "+process.env.CRON_SECRET)return NextResponse.json({error:"Unauthorised"},{status:401});
  try{
   const invoices=await rows("business_software_invoices?provider=eq.xero&external_invoice_id=not.is.null&select=id,tenant_id,external_invoice_id,total,amount_paid,amount_due,status&order=synced_at.asc.nullsfirst&limit=100");
-  const groups=new Map<string,typeof invoices>();const seenInvoiceIds=new Set<string>();for(const invoice of invoices){const key=String(invoice.tenant_id);const invoiceKey=key+":"+String(invoice.external_invoice_id||"").toLowerCase();if(seenInvoiceIds.has(invoiceKey))continue;seenInvoiceIds.add(invoiceKey);if(!groups.has(key))groups.set(key,[]);groups.get(key)!.push(invoice);}
+  const groups=new Map<string,typeof invoices>();for(const invoice of invoices){const key=String(invoice.tenant_id);if(!groups.has(key))groups.set(key,[]);groups.get(key)!.push(invoice);}
   let checked=0,updated=0,failed=0;const errors:string[]=[];
   for(const [tenantId,items] of groups){
    try{
