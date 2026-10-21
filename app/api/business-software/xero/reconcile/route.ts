@@ -77,6 +77,6 @@ export async function GET(request:Request){
     }
    }catch(e){errors.push("Contractor matching for tenant "+tenantId+": "+(e instanceof Error?e.message:"Unknown error"));}
   }
-  return NextResponse.json({checked,updated,failed,contractor_bill_candidates:contractorBillCandidates.slice(0,100),errors:errors.slice(0,10)},{status:failed?207:200,headers:{"Cache-Control":"no-store"}});
+  return NextResponse.json({checked,updated,failed,contractor_bill_candidates:contractorBillCandidates.slice(0,100),errors:errors.slice(0,10)},{status:failed||errors.length?207:200,headers:{"Cache-Control":"no-store"}});
  }catch(e){return NextResponse.json({error:e instanceof Error?e.message:"Xero reconciliation failed"},{status:500});}
 }
