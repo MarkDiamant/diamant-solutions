@@ -41,6 +41,8 @@ export async function GET(request:Request){
       if(!x||String(x.InvoiceID).toLowerCase()!==String(invoice.external_invoice_id).toLowerCase())throw new Error("Xero invoice ID mismatch");
       const next={status:String(x.Status||invoice.status),invoice_number:x.InvoiceNumber||null,total:Number(x.Total??0),amount_due:Number(x.AmountDue??0),amount_paid:Number(x.AmountPaid??0),currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()};
       if(![next.total,next.amount_due,next.amount_paid].every(Number.isFinite)||next.total<0||next.amount_due<0||next.amount_paid<0)throw new Error("Invalid Xero invoice amounts");
+      if(Math.abs(next.total-next.amount_due-next.amount_paid)>0.02)throw new Error("Xero invoice balance does not reconcile to total; local record left unchanged");
+      if(next.status==="PAID"&&next.amount_due>0.01)throw new Error("Xero reports PAID but an amount is still due; local record left unchanged");
       const saved=await centralRest("business_software_invoices?id=eq."+enc(String(invoice.id))+"&tenant_id=eq."+enc(tenantId)+"&provider=eq.xero&external_invoice_id=eq."+enc(String(invoice.external_invoice_id)),{method:"PATCH",body:JSON.stringify(next)});
       if(!saved.ok)throw new Error("Database invoice update "+saved.status);
       checked++;if(Number(invoice.amount_paid)!==next.amount_paid||Number(invoice.amount_due)!==next.amount_due||invoice.status!==next.status)updated++;
