@@ -68,8 +68,9 @@ export async function GET(request:Request){
      if(!Array.isArray(bills))throw new Error("Invalid Xero purchase bill response");
      for(const bill of bills){
      const reference=String(bill.Reference||"").trim().toUpperCase();const job:any=byReference.get(reference);
-     if(!job||!bill.InvoiceID||Number(bill.AmountPaid||0)<=0)continue;
-     contractorBillCandidates.push({tenant_id:tenantId,job_reference:job.reference,job_id:job.id,xero_bill_id:bill.InvoiceID,xero_bill_number:bill.InvoiceNumber||null,supplier:bill.Contact?.Name||null,amount_paid:Number(bill.AmountPaid),amount_due:Number(bill.AmountDue||0),assignment_count:people.filter((p:any)=>p.job_id===job.id).length,action:"review_match_before_posting"});
+     if(!job||!bill.InvoiceID||Number(bill.AmountPaid||0)<=0||!Number.isFinite(Number(bill.AmountPaid)))continue;
+     if(["VOIDED","DELETED"].includes(String(bill.Status||"").toUpperCase()))continue;
+     contractorBillCandidates.push({tenant_id:tenantId,job_reference:job.reference,job_id:job.id,xero_bill_id:bill.InvoiceID,xero_bill_number:bill.InvoiceNumber||null,supplier:bill.Contact?.Name||null,amount_paid:Number(bill.AmountPaid),amount_due:Number(bill.AmountDue||0),assignment_count:people.filter((p:any)=>p.job_id===job.id).length,action:people.filter((p:any)=>p.job_id===job.id).length===1?"verify_contractor_identity_and_payment_id_before_posting":"review_match_before_posting"});
      }
      if(bills.length<100)break;
     }
