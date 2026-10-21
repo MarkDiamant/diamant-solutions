@@ -1,11 +1,11 @@
 import {NextRequest,NextResponse} from "next/server";
 export const dynamic="force-dynamic";
-// Only public Cloudinary-hosted image assets can be proxied. Never fetch arbitrary URLs.
+// Proxy only approved public logo image hosts and the exact M&J logo path. Never fetch arbitrary URLs.
 export async function GET(request:NextRequest){
   const value=request.nextUrl.searchParams.get("url")||"";
   let url:URL;
   try{url=new URL(value);}catch{return NextResponse.json({error:"Invalid logo URL"},{status:400});}
-  if(url.protocol!=="https:"||url.hostname!=="res.cloudinary.com"||url.port||!url.pathname.startsWith("/"))
+  if(url.protocol!=="https:"||url.port||!((url.hostname==="res.cloudinary.com"&&url.pathname.startsWith("/"))||(url.hostname==="mjmetal.co.uk"&&url.pathname==="/images/logo.png"&&!url.search)))
     return NextResponse.json({error:"Logo host not permitted"},{status:403});
   try{
     const response=await fetch(url.toString(),{redirect:"error",cache:"force-cache",signal:AbortSignal.timeout(10000)});
