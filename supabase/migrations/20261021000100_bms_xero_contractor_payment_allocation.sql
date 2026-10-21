@@ -8,16 +8,13 @@ create or replace function public.bms_post_xero_contractor_payment(
  p_amount numeric,
  p_paid_at timestamptz,
  p_counterparty text default null
-) returns jsonb language plpgsql security definer set search_path=public as $$
+) returns jsonb language plpgsql security invoker set search_path=public as $
 declare
  v_assignment record;
  v_payment_id text;
  v_marker text;
  v_current numeric;
 begin
- if auth.role() <> 'service_role' then
-  raise exception 'Service role required';
- end if;
  if p_xero_payment_id is null or p_xero_payment_id !~* '^[a-f0-9-]{36}$' then
   raise exception 'Invalid Xero payment identifier';
  end if;
