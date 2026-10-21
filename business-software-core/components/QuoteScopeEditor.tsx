@@ -1,5 +1,6 @@
 "use client";
 import {useEffect,useRef} from "react";
+import {normaliseQuoteScope} from "../lib/quote-format";
 
 /** Rich text editor preserving source numbering and bold formatting without browser list auto-numbering. */
 export default function QuoteScopeEditor({value,onChange}:{value:string;onChange:(value:string)=>void}){
@@ -9,7 +10,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  function render(source:string){
    const host=ref.current;if(!host)return;
    host.replaceChildren();
-   const lines=source.split("\n");
+   const lines=normaliseQuoteScope(source).split("\n");
    lines.forEach((line,i)=>{
      if(i)host.appendChild(document.createElement("br"));
      const parts=line.split(/(\*\*[^*]+\*\*)/g);
@@ -32,7 +33,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  }
  function save(){
    const host=ref.current;if(!host)return;
-   const text=Array.from(host.childNodes).map(serialize).join("").replace(/\n{3,}/g,"\n\n").trim();
+   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/\n{3,}/g,"\n\n").trim());
    if(text!==value){lastValue.current=text;onChange(text);}
  }
  return <div className="rounded-xl border border-black/15 bg-white p-3">
