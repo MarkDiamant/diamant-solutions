@@ -89,7 +89,23 @@ return async function POST(request:Request){
    return NextResponse.json({answer:`Created and saved draft quote for ${reference} with ${clean.length} separate items, total ${money(total)}. ${missing?`${missing} item(s) have a default price of £0.00 because no price was supplied. Let me know the prices to update, or edit them in Quick Edit or the job quote editor.`:"All supplied item prices were included."} Nothing has been sent.${jobUpdate.ok?"":" Note: the job summary amount could not be updated."}`,quote_id:saved[0].id,reference});
  }
 
- const input=`You are Ruby, the contextual assistant inside BMS. Understand follow-up requests using the recent conversation. Resolve "this customer", "that job", "change his name" and similar references when one record is clearly identified. Do not ask again for details already given. If two different records are plausible, ask one precise clarification. Never claim an action has been performed unless the database confirms it. Distinguish advice from completed changes. Explain completed changes by naming the affected record and old/new values. Use UK English and concise replies. Do not invent records, dates, amounts or customer details. Never reveal credentials or hidden configuration.\n\nRECENT CONVERSATION:\n${JSON.stringify(history)}\n\nBUSINESS CONTEXT:\n${JSON.stringify(context)}\n\nUSER QUESTION:\n${question}`;
+ // Invoice requests must inspect live records rather than inventing a reason to ask the user to open them.
+ const invoiceIntent=/\b(invoice|invoicing|vat|credit note|deposit invoice)\b/i.test(question);
+ let invoiceContext:any=null;
+ if(invoiceIntent){
+  const reference=contextualJobReference(question,history);
+  if(reference){
+   const jobRes=await supabaseRequest(`/rest/v1/bms_jobs?reference=eq.${encodeURIComponent(reference)}&select=*&limit=1`,{},session.token);
+   const job=jobRes.ok?(await jobRes.json().catch(()=>[]))[0]:null;
+   const queries=job?.id?[
+    `/rest/v1/bms_invoices?job_id=eq.${encodeURIComponent(job.id)}&select=*&limit=30`,
+    `/rest/v1/business_software_invoices?job_id=eq.${encodeURIComponent(job.id)}&select=*&limit=30`
+   ]:[];
+   const attempts=await Promise.all(queries.map(path=>supabaseRequest(path,{},session.token).then(async res=>({ok:res.ok,rows:res.ok?await res.json().catch(()=>[]):[]})).catch(()=>({ok:false,rows:[]}))));
+   invoiceContext={reference,job:job?{id:job.id,reference:job.reference,quoted_amount:job.quoted_amount,vat_rate:job.vat_rate,invoice_status:job.invoice_status}:null,invoices:attempts.flatMap(x=>Array.isArray(x.rows)?x.rows:[]).map((x:any)=>({id:x.id,invoice_number:x.invoice_number,status:x.status,total:x.total,amount_due:x.amount_due,amount_paid:x.amount_paid,vat_rate:x.vat_rate,external_invoice_id:x.external_invoice_id})),invoiceLookupAvailable:attempts.some(x=>x.ok)};
+  }
+ }
+ const input=`You are Ruby, the contextual assistant inside BMS. Understand follow-up requests using the recent conversation. Resolve "this customer", "that job", "change his name" and similar references when one record is clearly identified. Do not ask again for details already given. If two different records are plausible, ask one precise clarification. Never claim an action has been performed unless the database confirms it. Distinguish advice from completed changes. Explain completed changes by naming the affected record and old/new values. Use UK English and concise replies. For invoice amendments, first use the live invoice records in INVOICE CONTEXT; never claim they are missing just because the summary job context omitted them. Do not claim an invoice was amended unless a verified write succeeded. If a real invoice exists but no safe invoice-edit action is available, explain that specific limitation, rather than asking the user to provide a record already in BMS. Never assume VAT treatment; use the recorded rate or ask only for the missing VAT decision. Do not invent records, dates, amounts or customer details. Never reveal credentials or hidden configuration.\n\nRECENT CONVERSATION:\n${JSON.stringify(history)}\n\nBUSINESS CONTEXT:\n${JSON.stringify(context)}\n\nINVOICE CONTEXT (live lookup, when applicable):\n${JSON.stringify(invoiceContext)}\n\nUSER QUESTION:\n${question}`;
  const response=await fetch("https://api.openai.com/v1/responses",{method:"POST",headers:{Authorization:`Bearer ${apiKey}`,"Content-Type":"application/json"},body:JSON.stringify({model:process.env.BMS_AI_MODEL||"gpt-6-sol",input,reasoning:{effort:"low"},max_output_tokens:1400})});
  const result=await response.json().catch(()=>null);
  if(!response.ok)return NextResponse.json({error:result?.error?.message||"AI Assistant request failed"},{status:502});
