@@ -8,7 +8,7 @@ declare global {
 
 function bytes(text:string){return new TextEncoder().encode(text);}
 function join(parts:Uint8Array[]){const n=parts.reduce((s,p)=>s+p.length,0),out=new Uint8Array(n);let o=0;for(const p of parts){out.set(p,o);o+=p.length;}return out;}
-async function jpegBytes(canvas:HTMLCanvasElement){const blob=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error("Could not render quote")),"image/jpeg",0.96));return new Uint8Array(await blob.arrayBuffer());}
+async function jpegBytes(canvas:HTMLCanvasElement){let blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(resolve,"image/jpeg",0.92));if(!blob){try{const data=canvas.toDataURL("image/jpeg",0.88);const response=await fetch(data);blob=await response.blob();}catch{throw new Error("Unable to convert the quotation into a PDF image");}}return new Uint8Array(await blob.arrayBuffer());}
 function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
   const parts:Uint8Array[]=[bytes("%PDF-1.4\n%M&J Quote\n")], offsets:number[]=[0]; let length=parts[0].length;
   const add=(num:number,body:Uint8Array)=>{offsets[num]=length;const h=bytes(`${num} 0 obj\n`),t=bytes("\nendobj\n");parts.push(h,body,t);length+=h.length+body.length+t.length;};
