@@ -10,7 +10,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  function render(source:string){
    const host=ref.current;if(!host)return;
    host.replaceChildren();
-   const lines=normaliseQuoteScope(source).replace(/\\?\*/g,"").split("\n");
+   const lines=normaliseQuoteScope(source).split("\n");
    lines.forEach((line,i)=>{
      if(i)host.appendChild(document.createElement("br"));
      // Mirror the customer quote: numbered item and title bold, final dash and price bold.
@@ -41,12 +41,12 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
    if(el.tagName==="BR")return "\n";
    const body=Array.from(el.childNodes).map(serialize).join("");
    if(el.dataset.autoBold==="true")return body;
-   if(el.tagName==="STRONG"||el.tagName==="B")return "**"+body.replace(/^\*\*|\*\*$/g,"")+"**";
+   if(el.tagName==="STRONG"||el.tagName==="B"||el.style.fontWeight==="bold"||Number(el.style.fontWeight)>=600)return "**"+body.replace(/^\*\*|\*\*$/g,"")+"**";
    return body+(["DIV","P"].includes(el.tagName)?"\n":"");
  }
  function save(){
    const host=ref.current;if(!host)return;
-   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/^\n+|\n+$/g,"")).replace(/\\?\*/g,"");
+   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/^\n+|\n+$/g,""));
    if(text!==value){lastValue.current=text;onChange(text);}
  }
  return <div className="rounded-xl border border-black/15 bg-white p-3">
@@ -55,7 +55,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
     style={{fontFamily:"inherit",fontSize:"14px",caretColor:"#141414"}}
     className="min-h-52 cursor-text whitespace-pre-wrap rounded-lg p-2 leading-6 text-[#141414] outline-none focus:ring-2 focus:ring-black/10"
     onFocus={()=>{focused.current=true;}}
-    onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="b"){e.preventDefault();document.execCommand("bold");}}}
+    onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="b"){e.preventDefault();document.execCommand("bold");save();}}}
     onInput={save}
     onBlur={()=>{focused.current=false;save();}}
   />
