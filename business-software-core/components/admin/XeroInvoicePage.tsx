@@ -3,7 +3,7 @@ import { friendlyError } from "../../lib/friendly-error";
 
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DEFAULT_CRM_CONFIG } from "@/lib/crm/config";
 
 function money(value: number | string | null | undefined) {
@@ -24,6 +24,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
+  const autoSyncBusy=useRef(false);
   const [sharePrompt,setSharePrompt]=useState<{file:File;text:string;number:string;invoiceNumber:string}|null>(null);
 
   const load = useCallback(async () => {
@@ -42,6 +43,8 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   }, [reference]);
 
   useEffect(() => { void load(); fetch("/api/admin/integrations/xero/status",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();setXeroConnected(!!b.connected);}else setXeroConnected(null);}).catch(()=>setXeroConnected(null)); fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.settings)setCrmConfig(b.settings);}}).catch(()=>{}); }, [load]);
+
+  useEffect(()=>{if(xeroConnected!==true)return;let cancelled=false;async function reconcile(){if(autoSyncBusy.current||document.visibilityState==="hidden")return;autoSyncBusy.current=true;try{const res=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/xero`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"sync"}),cache:"no-store"});if(res.ok&&!cancelled){const fresh=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/xero`,{cache:"no-store"});if(fresh.ok&&!cancelled){const body=await fresh.json();if(Array.isArray(body.invoices))setInvoices(body.invoices);}}}catch{}finally{autoSyncBusy.current=false;}}void reconcile();const interval=window.setInterval(()=>void reconcile(),60000);const visible=()=>{if(document.visibilityState==="visible")void reconcile();};document.addEventListener("visibilitychange",visible);return()=>{cancelled=true;window.clearInterval(interval);document.removeEventListener("visibilitychange",visible);};},[reference,xeroConnected]);
 
   async function action(actionName: "create" | "create_bms" | "sync") {
     setBusy(true); setError(""); setMessage(actionName === "create_bms" ? "Creating BMS invoice..." : actionName === "create" ? "Creating Xero draft..." : "Syncing from Xero...");
