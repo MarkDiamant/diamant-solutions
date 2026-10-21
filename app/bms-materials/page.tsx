@@ -1,0 +1,24 @@
+"use client";
+import {useMemo,useState} from "react";
+type Line={id:number;sku:string;name:string;spec:string;supplier:string;url:string;qty:number;net:number;vat:number};
+const blank=(id:number):Line=>({id,sku:"",name:"",spec:"",supplier:"",url:"",qty:1,net:0,vat:20});
+export default function MaterialsPage(){
+ const [rows,setRows]=useState<Line[]>([blank(1)]),[query,setQuery]=useState(""),[show,setShow]=useState(false);
+ const [products,setProducts]=useState<any[]>([]);
+ const totals=useMemo(()=>rows.reduce((a,r)=>{const n=r.qty*r.net;return {net:a.net+n,vat:a.vat+n*r.vat/100}}, {net:0,vat:0}),[rows]);
+ const edit=(id:number,key:keyof Line,value:string)=>setRows(v=>v.map(r=>r.id===id?{...r,[key]:["qty","net","vat"].includes(key)?Number(value):value}:r));
+ const load=async()=>{try{const r=await fetch("/api/bms-live/price-book",{cache:"no-store"});if(r.ok){const x=await r.json();setProducts(Array.isArray(x.items)?x.items:[]);}}catch{}};
+ const money=(n:number)=>"£"+n.toFixed(2);
+ return <main style={{maxWidth:1120,margin:"auto",padding:16,fontFamily:"inherit"}}>
+ <h1>Materials & Purchasing</h1><p style={{color:"#666"}}>Draft order editor preview. No purchases or stock movements are saved yet.</p>
+ <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:16}}><button onClick={load}>Load Price Book</button><button onClick={()=>setRows(v=>[...v,blank(Date.now())])}>+ Add product row</button></div>
+ <div style={{position:"relative",marginBottom:16}}><label>Find product in Price Book <input value={query} onFocus={()=>setShow(true)} onChange={e=>{setQuery(e.target.value);setShow(true)}} placeholder="Search name, size or SKU" style={{display:"block",width:"100%",padding:12}}/></label>
+ {show&&query&&<div style={{border:"1px solid #ccc",background:"white",color:"#111",position:"relative",zIndex:2,maxHeight:180,overflow:"auto"}}>{products.filter(p=>(p.name+" "+p.sku+" "+p.description).toLowerCase().includes(query.toLowerCase())).slice(0,15).map(p=><button key={p.id} style={{display:"block",width:"100%",padding:12,textAlign:"left"}} onClick={()=>{setRows(v=>[...v,{...blank(Date.now()),sku:p.sku||"",name:p.name||"",spec:p.description||"",net:Number(p.cost_net||0),vat:Number(p.cost_vat_rate??20)}]);setQuery("");setShow(false)}}>{p.name} {p.sku&&"("+p.sku+")"}</button>)}</div>}</div>
+ {rows.map(r=><section key={r.id} style={{border:"1px solid #ccc",borderRadius:12,padding:12,marginBottom:12}}>
+ <div style={{display:"flex",justifyContent:"space-between",gap:8}}><strong>{r.name||"New product"}</strong><button onClick={()=>setRows(v=>v.filter(x=>x.id!==r.id))}>Remove</button></div>
+ <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(155px,1fr))",gap:10,marginTop:10}}>
+ {([["sku","SKU"],["name","Product name"],["spec","Specification / size"],["supplier","Supplier"],["url","Supplier HTTPS link"],["qty","Quantity (pieces)"],["net","Unit cost ex VAT"],["vat","VAT %"]] as const).map(([key,label])=><label key={key} style={{fontSize:13}}>{label}<input type={["qty","net","vat"].includes(key)?"number":"text"} min={key==="qty"?0.001:0} step="any" value={r[key]} onChange={e=>edit(r.id,key,e.target.value)} style={{display:"block",width:"100%",boxSizing:"border-box",padding:9}}/></label>)}</div>
+ <p style={{textAlign:"right"}}>Net {money(r.qty*r.net)} · VAT {money(r.qty*r.net*r.vat/100)} · <strong>Gross {money(r.qty*r.net*(1+r.vat/100))}</strong></p></section>)}
+ <div style={{textAlign:"right",fontSize:18}}><div>Ex VAT: {money(totals.net)}</div><div>VAT: {money(totals.vat)}</div><strong>Including VAT: {money(totals.net+totals.vat)}</strong></div>
+ </main>;
+}
