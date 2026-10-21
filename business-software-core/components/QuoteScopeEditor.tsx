@@ -16,17 +16,18 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
      // Mirror the customer quote: numbered item and title bold, final dash and price bold.
      // Explicit **bold** markup takes precedence and remains editable.
      const append=(text:string,bold=false)=>{
-       for(const part of text.split(/(\\*\\*[^*]+\\*\\*)/g)){
-         if(!part)continue;
-         const marked=part.startsWith("**")&&part.endsWith("**")&&part.length>4;
-         const value=marked?part.slice(2,-2):part;
-         if(marked||bold){const strong=document.createElement("strong");strong.textContent=value;host.appendChild(strong);}
-         else host.appendChild(document.createTextNode(value));
+       const pieces=text.split(/(\*\*[^*]+\*\*)/g);
+       for(const piece of pieces){
+         if(!piece)continue;
+         const marked=piece.startsWith("**")&&piece.endsWith("**")&&piece.length>4;
+         const content=marked?piece.slice(2,-2):piece;
+         if(bold||marked){const strong=document.createElement("strong");strong.textContent=content;host.appendChild(strong);}
+         else host.appendChild(document.createTextNode(content));
        }
      };
-     const price=line.match(/(\\s*[–-]\\s*£[\\d,]+(?:\\.\\d{1,2})?)\\s*$/);
+     const price=line.match(/(\s*[–-]\s*£[\d,]+(?:\.\d{1,2})?)\s*$/);
      const body=price?line.slice(0,-price[0].length):line;
-     const title=body.match(/^(\\s*(?:\\d+[.)]\\s*)?[^:\\n]+:)/);
+     const title=body.match(/^(\s*(?:\d+[.)]\s*)?[^:\n]+:)/);
      if(title){append(title[0],true);append(body.slice(title[0].length));}
      else append(body);
      if(price)append(price[1],true);
