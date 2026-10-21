@@ -1,0 +1,1 @@
+alter table public.bms_material_lines add constraint bms_material_allocation_valid check (received_qty>=0 and used_qty>=0 and stock_qty>=0 and waste_qty>=0 and returned_qty>=0 and received_qty<=quantity and used_qty+stock_qty+waste_qty+returned_qty<=received_qty);
