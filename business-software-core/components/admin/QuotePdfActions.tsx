@@ -59,10 +59,9 @@ async function renderQuotePage(page:HTMLElement){
       replacedLogo=true;
     }
   }
-  if(logo?.naturalWidth&&!embeddedLogo)throw new Error("The logo could not be embedded in the PDF. Please try again.");
   const previous={width:page.style.width,minWidth:page.style.minWidth,maxWidth:page.style.maxWidth,zoom:page.style.zoom};
   page.style.width="900px";page.style.minWidth="900px";page.style.maxWidth="900px";page.style.zoom="1";
-  try{const captured=await window.html2canvas(page,{
+  try{return await window.html2canvas(page,{
     scale:2,useCORS:true,backgroundColor:"#ffffff",logging:false,foreignObjectRendering:false,
     windowWidth:1200,
     onclone:(doc:Document)=>{
@@ -72,23 +71,7 @@ async function renderQuotePage(page:HTMLElement){
       const viewport=doc.querySelector<HTMLMetaElement>('meta[name="viewport"]');
       if(viewport)viewport.setAttribute("content","width=1200, initial-scale=1");
     }
-  });
-  // Paint the logo onto the finished canvas explicitly. Mobile html2canvas
-  // sometimes omits image elements even when their source was preloaded.
-  if(embeddedLogo&&logo){
-    const image=new Image();
-    image.src=embeddedLogo;
-    await new Promise<void>(resolve=>{if(image.complete){resolve();return;}image.onload=()=>resolve();image.onerror=()=>resolve();});
-    if(image.naturalWidth>0){
-      const pageRect=page.getBoundingClientRect();
-      const logoRect=logo.getBoundingClientRect();
-      const scaleX=captured.width/pageRect.width,scaleY=captured.height/pageRect.height;
-      const ctx=captured.getContext("2d");
-      if(ctx)ctx.drawImage(image,(logoRect.left-pageRect.left)*scaleX,(logoRect.top-pageRect.top)*scaleY,logoRect.width*scaleX,logoRect.height*scaleY);
-    }
-  }
-  return captured;
-  }finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
+  });}finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
 
 export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
