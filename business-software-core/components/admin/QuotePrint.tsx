@@ -45,8 +45,8 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const isClassic=template==="classic";
   const isMj=template==="mj-signature";
   const pageClass=isClassic?"font-serif":isMj?"":"";
-  const headerClass=isClassic?"border-b border-black pb-5":isMj?"border-b-4 border-[var(--brand)] pb-5":"border-b-2 border-[var(--brand)] pb-5";
-  const panelClass=isClassic?"border-y border-black/20 py-5":isMj?"rounded-xl bg-[#f5f5f2] p-5":"border border-[var(--brand)]/30 p-5";
+  const headerClass=isClassic?"border-b border-black pb-5":isMj?"border-b-4 border-[var(--brand)] pb-5":"border-b-[3px] border-[var(--brand)] pb-5";
+  const panelClass=isClassic?"border-y border-black/20 py-5":isMj?"rounded-xl bg-[#f5f5f2] p-5":"rounded-xl border border-[var(--brand)]/30 bg-[var(--brand)]/[0.035] p-5";
 
   async function shareWhatsApp() {
     if(whatsAppBusy)return;
@@ -124,7 +124,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
         <div><p className="text-[10px] font-black uppercase tracking-[0.12em] text-[var(--brand)]">{isMj ? "Project Overview & Lead Times" : "Project"}</p><p className="mt-1 text-lg font-black">{j.job_type}</p>{j.dimensions && <p className="mt-1 text-sm text-black/65">Approx. dimensions: {j.dimensions}</p>}{j.material && <p className="text-sm text-black/65">Material: {j.material}</p>}{(j.finishes || []).length > 0 && <p className="text-sm text-black/65">Finish: {(j.finishes || []).join(" + ")}{j.colour ? `, ${j.colour}` : ""}</p>}</div>
       </section>
 
-      {!isMj && <section className="mt-6"><h2 className="border-b border-black/15 pb-1.5 text-base font-black">Scope of works</h2><div className="mt-4 whitespace-normal text-[14px] leading-6 text-black/75">{renderQuoteScope(quote.scope_text)}</div></section>}
+      {!isMj && <section className="mt-6"><h2 className="border-b border-[var(--brand)]/25 pb-2 text-base font-black text-[var(--brand)]">Scope of works</h2><div className="mt-4 whitespace-normal text-[14px] leading-6 text-black/75">{renderQuoteScope(quote.scope_text)}</div></section>}
 
       
 
