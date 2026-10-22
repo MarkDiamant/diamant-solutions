@@ -62,7 +62,7 @@ async function POST(request: NextRequest, { params }: { params: Promise<{ refere
       customerEmail: customer?.email,
       customerPhone: customer?.phone,
       site,
-      jobType: job.job_type,
+      jobType: job.job_title || job.job_type,
       dimensions: job.dimensions,
       material: job.material,
       finish,
