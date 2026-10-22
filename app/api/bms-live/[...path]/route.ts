@@ -44,13 +44,13 @@ async function createBmsInvoice(tenantId:string,reference:string,actor:string){
  return {invoice:(await saved.json().catch(()=>[]))[0]};
 }
 async function createXeroDraftInvoice(tenantId:string,reference:string,actor:string){
- const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id,reference,customer_id,customer_requirements,job_title,job_type,agreed_amount,quoted_amount&limit=1");
+ const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id,reference,customer_id,customer_requirements,job_title,job_type,site_address_line_1,agreed_amount,quoted_amount&limit=1");
  const job=(await jr.json().catch(()=>[]))[0];
  if(!job)throw new Error("Job not found.");
  const existing=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&provider=eq.xero&select=external_invoice_id,invoice_number,status&limit=1");
  const prev=(await existing.json().catch(()=>[]))[0];
  if(prev?.external_invoice_id)return {already_exists:true,invoice:prev};
- const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=id,first_name,last_name,email,xero_contact_id&limit=1");
+ const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=id,first_name,last_name,email,address_line_1,xero_contact_id&limit=1");
  const customer=(await cr.json().catch(()=>[]))[0];
  if(!customer)throw new Error("Customer not found.");
  const qr=await centralRest("business_software_quotes?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&select=scope_text,amount,vat_rate,status,created_at&order=created_at.desc&limit=1");
@@ -83,7 +83,7 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
   if(!account)throw new Error("No active sales revenue account is available in Xero.");
   const description=String(job.job_title||job.job_type||"Services").replace(/\s+/g," ").trim().slice(0,160);
   const today=new Date().toISOString().slice(0,10);
-  const created=await xeroRequest(tenantId,"Invoices","POST",{Invoices:[{Type:"ACCREC",Contact:{ContactID:contactId},Date:today,DueDate:today,Status:"DRAFT",InvoiceNumber:job.reference,Reference:job.reference,LineAmountTypes:"Exclusive",LineItems:[{Description:description,Quantity:1,UnitAmount:amount,AccountCode:account.Code,...(Number(quote?.vat_rate??0)===0?{TaxType:"NONE"}:{})}]}]});
+  const created=await xeroRequest(tenantId,"Invoices","POST",{Invoices:[{Type:"ACCREC",Contact:{ContactID:contactId},Date:today,DueDate:today,Status:"DRAFT",InvoiceNumber:"INV-"+job.reference,Reference:String(job.site_address_line_1||customer.address_line_1||job.reference).trim(),LineAmountTypes:"Exclusive",LineItems:[{Description:description,Quantity:1,UnitAmount:amount,AccountCode:account.Code,...(Number(quote?.vat_rate??0)===0?{TaxType:"NONE"}:{})}]}]});
   invoice=created.Invoices?.[0];
   if(!invoice?.InvoiceID)throw new Error("Xero did not return an invoice ID. Check Xero before retrying.");
  }
