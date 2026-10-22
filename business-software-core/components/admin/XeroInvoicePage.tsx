@@ -25,7 +25,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
-  const autoSyncBusy=useRef(false);
+  const autoSyncBusy=useRef(false); const previewLoaded=useRef("");
   const [sharePrompt,setSharePrompt]=useState<{file:File;text:string;number:string;invoiceNumber:string}|null>(null);
 
   const load = useCallback(async () => {
@@ -108,6 +108,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
     }catch(e){setError(friendlyError(e)||"Could not view invoice");setMessage("");}finally{setPdfPreviewLoading(false);}
   }
 
+  useEffect(()=>{const inv=invoices[0];if(!inv||inv.provider==="bms"||previewLoaded.current===String(inv.id))return;previewLoaded.current=String(inv.id);void viewXeroPdf();},[invoices]);
   async function openXeroPdf(){
     const invoice=invoices[0];if(!invoice||pdfDownloading)return;
     setPdfDownloading(true);setError("");setMessage("Downloading Xero invoice PDF...");
