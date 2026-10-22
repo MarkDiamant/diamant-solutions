@@ -44,7 +44,7 @@ async function createBmsInvoice(tenantId:string,reference:string,actor:string){
  return {invoice:(await saved.json().catch(()=>[]))[0]};
 }
 async function createXeroDraftInvoice(tenantId:string,reference:string,actor:string){
- const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id,reference,customer_id,customer_requirements,job_type,agreed_amount,quoted_amount&limit=1");
+ const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id,reference,customer_id,customer_requirements,job_title,job_type,agreed_amount,quoted_amount&limit=1");
  const job=(await jr.json().catch(()=>[]))[0];
  if(!job)throw new Error("Job not found.");
  const existing=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&provider=eq.xero&select=external_invoice_id,invoice_number,status&limit=1");
@@ -81,7 +81,7 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
   const active=(accounts.Accounts||[]).filter((a:any)=>a.Status==="ACTIVE"&&a.Code);
   const account=active.find((a:any)=>a.Code==="200")||active[0];
   if(!account)throw new Error("No active sales revenue account is available in Xero.");
-  const description=String(job.job_type||"Metalwork services").replace(/\s+/g," ").trim().slice(0,160);
+  const description=String(job.job_title||job.job_type||"Services").replace(/\s+/g," ").trim().slice(0,160);
   const today=new Date().toISOString().slice(0,10);
   const created=await xeroRequest(tenantId,"Invoices","POST",{Invoices:[{Type:"ACCREC",Contact:{ContactID:contactId},Date:today,DueDate:today,Status:"DRAFT",InvoiceNumber:job.reference,Reference:job.reference,LineAmountTypes:"Exclusive",LineItems:[{Description:description,Quantity:1,UnitAmount:amount,AccountCode:account.Code,...(Number(quote?.vat_rate??0)===0?{TaxType:"NONE"}:{})}]}]});
   invoice=created.Invoices?.[0];
@@ -166,11 +166,28 @@ async function approveXeroInvoiceOnly(tenantId:string,reference:string,invoiceId
  await syncXeroJobInvoices(tenantId,reference);
  return {approved:true};
 }
+async function syncDraftXeroInvoiceTitle(tenantId:string,reference:string,externalInvoiceId:string){
+ const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=job_title,job_type&limit=1");
+ if(!jr.ok)throw new Error("Unable to read the latest job title.");
+ const job=(await jr.json())[0];if(!job)throw new Error("Job not found.");
+ const title=String(job.job_title||job.job_type||"").replace(/\s+/g," ").trim().slice(0,160);
+ if(!title)return;
+ const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId));
+ const invoice=remote.Invoices?.[0];
+ if(!invoice||invoice.Type!=="ACCREC")throw new Error("Xero sales invoice not found.");
+ if(invoice.Status!=="DRAFT")return;
+ const items=invoice.LineItems||[];
+ if(items.length!==1||!items[0]?.LineItemID)throw new Error("This draft invoice has multiple or unidentified lines. Update its description directly in Xero.");
+ if(String(items[0].Description||"").trim()===title)return;
+ const changed=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId),"POST",{Invoices:[{InvoiceID:externalInvoiceId,LineItems:[{LineItemID:items[0].LineItemID,Description:title,Quantity:items[0].Quantity,UnitAmount:items[0].UnitAmount,AccountCode:items[0].AccountCode,TaxType:items[0].TaxType}]}]});
+ const updated=changed.Invoices?.[0];if(!updated||String(updated.LineItems?.[0]?.Description||"").trim()!==title)throw new Error("Xero did not confirm the updated invoice description.");
+}
 async function xeroInvoicePdf(tenantId:string,reference:string,invoiceId:string){
  const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id&limit=1");
  const job=(await jr.json().catch(()=>[]))[0];if(!job)throw new Error("Job not found.");
  const ir=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&id=eq."+encodeURIComponent(invoiceId)+"&provider=eq.xero&select=external_invoice_id,status,invoice_number&limit=1");
  const invoice=(await ir.json().catch(()=>[]))[0];if(!invoice?.external_invoice_id)throw new Error("Xero invoice not found for this job.");
+ await syncDraftXeroInvoiceTitle(tenantId,reference,invoice.external_invoice_id);
  const pdf=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(invoice.external_invoice_id),"GET",undefined,"pdf");
  return {pdf:pdf as Buffer,invoice};
 }
