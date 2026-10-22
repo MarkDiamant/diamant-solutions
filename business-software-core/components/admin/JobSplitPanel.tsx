@@ -10,11 +10,17 @@ function parseItems(scope:string,total:number):Item[]{
  const price=/£\s*([\d,]+(?:\.\d{1,2})?)/g;
  const groups:string[][]=[];
  const explicit=lines.filter(line=>numbered.test(line)).length>=2;
- for(const line of lines){
-  const numberedMatch=line.match(numbered);
-  const hasPrice=/£\s*[\d,]+(?:\.\d{1,2})?/.test(line);
-  const starts=explicit?Boolean(numberedMatch):hasPrice;
-  if(starts)groups.push([line]);else if(groups.length)groups[groups.length-1].push(line);
+ if(explicit){
+  for(const line of lines){if(numbered.test(line))groups.push([line]);else if(groups.length)groups[groups.length-1].push(line);}
+ }else{
+  // A priced line closes its quote item. Unpriced text preceding the next price
+  // belongs to that NEXT item, not the previous priced item.
+  let pending:string[]=[];
+  for(const line of lines){
+   pending.push(line);
+   if(/£\\s*[\\d,]+(?:\\.\\d{1,2})?/.test(line)){groups.push(pending);pending=[];}
+  }
+  if(pending.length&&groups.length)groups[groups.length-1].push(...pending);
  }
  if(groups.length<2)return [];
  const parsed=groups.map((group,id)=>{
@@ -57,6 +63,6 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
       {!valid&&<p className="mt-1 text-xs text-amber-800">Check every item price and assign each item to an order. Each order needs a positive total, and all totals must equal the original quote.</p>}
       <div className="mt-3 flex gap-2"><button type="button" disabled={!valid||busy} onClick={()=>setReview(true)} className="rounded-xl bg-[#e66a24] px-4 py-2 text-sm font-black text-white disabled:opacity-40">Review split</button><button type="button" onClick={()=>{setOpen(false);setError("");}} className="rounded-xl border px-4 py-2 text-sm">Cancel</button></div>
     </div>}
-    {review&&<div className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto bg-black/60 p-3"><div role="dialog" aria-modal="true" className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5"><h2 className="text-xl font-black">Confirm order split</h2><p className="mt-2 text-sm">The original job and quote will be archived. Separate jobs and editable draft quotes will be created. One order will be marked for work now; all other orders will also be created separately, awaiting work. No customer messages will be sent.</p>{parts.map((p,i)=><div key={i} className="mt-3 rounded-lg bg-[#f5f5f2] p-3"><strong>{p.scope} · {gbp(p.amount)}</strong><p className="text-xs">{p.disposition==="proceed"?"Active order: work starts now":"Separate order created: awaiting work"}</p><p className="mt-2 whitespace-pre-wrap text-xs">{p.description}</p></div>)}<div className="mt-4 flex gap-2"><button type="button" disabled={busy} onClick={()=>void submit()} className="rounded-lg bg-[#e66a24] px-4 py-2 font-black text-white">{busy?"Splitting...":"Confirm split"}</button><button type="button" disabled={busy} onClick={()=>setReview(false)} className="rounded-lg border px-4 py-2">Back</button></div></div></div>}
+    {review&&<div className="fixed inset-0 z-[2147483647] overflow-y-auto overscroll-contain bg-black/60 p-3 pt-6 pb-10"><div role="dialog" aria-modal="true" className="mx-auto w-full max-w-lg rounded-2xl bg-white p-5"><h2 className="text-xl font-black">Confirm order split</h2><p className="mt-2 text-sm">The original job and quote will be archived. Separate jobs and editable draft quotes will be created. One order will be marked for work now; all other orders will also be created separately, awaiting work. No customer messages will be sent.</p>{parts.map((p,i)=><div key={i} className="mt-3 rounded-lg bg-[#f5f5f2] p-3"><strong>{p.scope} · {gbp(p.amount)}</strong><p className="text-xs">{p.disposition==="proceed"?"Active order: work starts now":"Separate order created: awaiting work"}</p><p className="mt-2 whitespace-pre-wrap text-xs">{p.description}</p></div>)}<div className="mt-4 flex gap-2"><button type="button" disabled={busy} onClick={()=>void submit()} className="rounded-lg bg-[#e66a24] px-4 py-2 font-black text-white">{busy?"Splitting...":"Confirm split"}</button><button type="button" disabled={busy} onClick={()=>setReview(false)} className="rounded-lg border px-4 py-2">Back</button></div></div></div>}
   </section>;
 }
