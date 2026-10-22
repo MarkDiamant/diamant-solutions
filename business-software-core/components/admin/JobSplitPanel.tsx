@@ -4,12 +4,12 @@ import {useEffect,useMemo,useState} from "react";
 type Item={id:number;label:string;amount:number|null;group:number};
 const gbp=(n:number)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(n);
 function parseItems(scope:string,total:number):Item[]{
-  const lines=scope.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  const numbered=/^(?:item\s*)?(\d{1,2})\s*[.)\-:]\s+(.+)/i;
+  const lines=scope.replace(/<br\s*\/?\s*>/gi,"\n").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  const numbered=/^(?:[-*•]\s*)?(?:\*\*)?(?:item\s*|section\s*)?(\d{1,2})\s*[.)\-:]\s*(?:\*\*)?\s*(.+)/i;
   const items:{label:string;amount:number|null}[]=[];
   for(const line of lines){
     const match=line.match(numbered);
-    if(match){items.push({label:match[2],amount:null});continue;}
+    if(match){items.push({label:match[2].replace(/\*\*/g,""),amount:null});continue;}
     if(items.length)items[items.length-1].label+="\n"+line;
   }
   if(items.length<2){
@@ -38,8 +38,10 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
   const [proceed,setProceed]=useState(0);
   const total=Number(quote?.amount||0);
   useEffect(()=>{if(new URLSearchParams(window.location.search).get("split")==="1"){setOpen(true);window.setTimeout(()=>document.getElementById("split-order-panel")?.scrollIntoView({behavior:"smooth",block:"start"}),120);}},[]);
-  useEffect(()=>{if(!open)return;const parsed=parseItems(String(quote?.scope_text||""),total);setItems(parsed);setNames(parsed.length?parsed.map((x,i)=>"Order "+(i+1)):["Order 1","Order 2"]);setAmounts(parsed.length?parsed.map(x=>String(x.amount??"")):["",""]);},[open,quote,total]);
+  useEffect(()=>{if(!open)return;const parsed=parseItems(String(quote?.scope_text||quote?.scope||quote?.description||""),total);setItems(parsed);setNames(parsed.length?parsed.map((x,i)=>"Order "+(i+1)+" · "+x.label.split("\n")[0].replace(/£[\d,.]+.*/,"").trim().slice(0,55)):["Order 1","Order 2"]);setAmounts(parsed.length?parsed.map(x=>String(x.amount??"")):["",""]);},[open,quote,total]);
   const count=names.length;
+  const changeCount=(next:number)=>{const n=Math.max(2,Math.min(30,next));setNames(v=>Array.from({length:n},(_,i)=>v[i]||"Order "+(i+1)));setAmounts(v=>Array.from({length:n},(_,i)=>v[i]||""));setItems(v=>v.map(x=>({...x,group:Math.min(x.group,n-1)})));setProceed(v=>Math.min(v,n-1));};
+  useEffect(()=>{if(!open||!items.length)return;setAmounts(names.map((_,i)=>String(Math.round(items.filter(x=>x.group===i).reduce((a,x)=>a+Number(x.amount||0),0)*100)/100)));},[items,names.length,open]);
   const groupItems=(i:number)=>items.filter(x=>x.group===i);
   const calculated=(i:number)=>groupItems(i).reduce((sum,x)=>sum+Number(x.amount||0),0);
   const parts=names.map((name,i)=>({scope:name.trim(),description:groupItems(i).map(x=>x.label).join("\n\n")||name.trim(),amount:Number(amounts[i]),disposition:i===proceed?"proceed":"on_hold"}));
@@ -51,11 +53,12 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
     {error&&<p role="alert" className="mt-2 rounded-lg bg-red-50 p-3 text-sm font-bold text-red-800">{error}</p>}
     {open&&<div className="mt-3 rounded-2xl border border-orange-200 bg-white p-5">
       <h2 className="text-lg font-black">Split quoted order</h2>
-      <p className="mt-1 text-sm text-black/60">Numbered quote items are separated automatically. Choose which items belong to each order, edit the prices, and review before confirming. The original quote is retained.</p>
+      <p className="mt-1 text-sm text-black/60">Quote items are detected and grouped automatically. Choose how many orders you want, then select which one proceeds. Review the totals before confirming. The original quote is retained.</p>
+      {items.length>0&&<label className="mt-4 block max-w-xs text-sm font-bold">Split into how many orders?<select value={count} onChange={e=>changeCount(Number(e.target.value))} className="mt-2 w-full rounded-lg border border-slate-300 bg-white p-3">{Array.from({length:Math.max(2,items.length)},(_,i)=>i+2).filter(n=>n<=Math.max(2,items.length)).map(n=><option key={n} value={n}>{n} orders</option>)}</select></label>}
       {!items.length&&<p className="mt-3 text-sm text-amber-800">No numbered quote items detected. Enter the separate orders manually below.</p>}
       {items.length>0&&<div className="mt-4 space-y-2">{items.map(x=><div key={x.id} className="grid gap-2 rounded-lg border p-3 sm:grid-cols-[1fr_130px_150px]"><p className="whitespace-pre-wrap text-sm">{x.id+1}. {x.label}</p><label className="text-xs font-bold">Item price £<input type="number" min="0" step="0.01" className="mt-1 w-full rounded border p-2" value={x.amount??""} onChange={e=>setItems(v=>v.map(y=>y.id===x.id?{...y,amount:e.target.value===""?null:Number(e.target.value)}:y))}/></label><label className="text-xs font-bold">Assign to order<select className="mt-1 w-full rounded border p-2" value={x.group} onChange={e=>setItems(v=>v.map(y=>y.id===x.id?{...y,group:Number(e.target.value)}:y))}>{names.map((name,i)=><option key={i} value={i}>{name||"Order "+(i+1)}</option>)}</select></label></div>)}</div>}
       <div className="mt-4 space-y-3">{names.map((name,i)=><div key={i} className="grid gap-2 rounded-lg bg-[#f5f5f2] p-3 sm:grid-cols-[1fr_130px_100px]"><label className="text-xs font-bold">Order name<input className="mt-1 w-full rounded border bg-white p-2" value={name} onChange={e=>setNames(v=>v.map((x,j)=>i===j?e.target.value:x))}/></label><label className="text-xs font-bold">Order total £<input type="number" min="0.01" step="0.01" className="mt-1 w-full rounded border bg-white p-2" value={amounts[i]} onChange={e=>setAmounts(v=>v.map((x,j)=>i===j?e.target.value:x))}/>{items.length>0&&<button type="button" className="mt-1 text-xs underline" onClick={()=>setAmounts(v=>v.map((x,j)=>i===j?String(Math.round(calculated(i)*100)/100):x))}>Use item sum {gbp(calculated(i))}</button>}</label><label className="flex items-center gap-2 text-xs font-bold"><input type="radio" checked={proceed===i} onChange={()=>setProceed(i)}/> Proceed</label></div>)}</div>
-      <div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>{setNames(v=>[...v,"Order "+(v.length+1)]);setAmounts(v=>[...v,""]);}} className="rounded-lg border px-3 py-2 text-sm font-bold">+ Add order</button>{count>2&&<button type="button" onClick={()=>{setItems(v=>v.map(x=>x.group===count-1?{...x,group:count-2}:x));setNames(v=>v.slice(0,-1));setAmounts(v=>v.slice(0,-1));setProceed(v=>Math.min(v,count-2));}} className="rounded-lg border px-3 py-2 text-sm">Remove last order</button>}</div>
+      <div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>changeCount(count+1)} className="rounded-lg border px-3 py-2 text-sm font-bold">+ Add order</button>{count>2&&<button type="button" onClick={()=>changeCount(count-1)} className="rounded-lg border px-3 py-2 text-sm">Remove last order</button>}</div>
       <p className="mt-4 text-sm font-bold">Original quote: {gbp(total)}. Split total: {gbp(parts.reduce((a,p)=>a+p.amount,0))}</p>
       {!valid&&<p className="mt-1 text-xs text-amber-800">Enter at least two orders with positive prices. Their total must equal the original quote.</p>}
       <div className="mt-3 flex gap-2"><button type="button" disabled={!valid||busy} onClick={()=>setReview(true)} className="rounded-xl bg-[#e66a24] px-4 py-2 text-sm font-black text-white disabled:opacity-40">Review split</button><button type="button" onClick={()=>{setOpen(false);setError("");}} className="rounded-xl border px-4 py-2 text-sm">Cancel</button></div>
