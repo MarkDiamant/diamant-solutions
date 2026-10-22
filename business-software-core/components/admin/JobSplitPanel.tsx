@@ -4,21 +4,21 @@ import {useEffect,useMemo,useState} from "react";
 type Item={id:number;label:string;amount:number|null;group:number};
 const gbp=(n:number)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(n);
 function parseItems(scope:string,total:number):Item[]{
- const text=scope.replace(/<br\\s*\\/?\\s*>/gi,"\\n").replace(/\\r\\n/g,"\\n");
- const lines=text.split("\\n");
- const numbered=/^\\s*(?:[-*•]\\s*)?(?:\\*\\*)?(?:item\\s*|section\\s*)?(\\d{1,2})\\s*[.)\\-:]\\s*(.+)/i;
+ const text=scope.replace(/<br\s*\/?\s*>/gi,"\n").replace(/\r\n/g,"\n");
+ const lines=text.split("\n");
+ const numbered=/^\s*(?:[-*•]\s*)?(?:\*\*)?(?:item\s*|section\s*)?(\d{1,2})\s*[.)\-:]\s*(.+)/i;
  const hasNumbers=lines.filter(line=>numbered.test(line)).length>=2;
- const price=/£\\s*([\\d,]+(?:\\.\\d{1,2})?)/g;
+ const price=/£\s*([\d,]+(?:\.\d{1,2})?)/g;
  const groups:string[][]=[];
  for(const line of lines){
-   const hasPrice=/£\\s*[\\d,]+(?:\\.\\d{1,2})?/.test(line);
+   const hasPrice=/£\s*[\d,]+(?:\.\d{1,2})?/.test(line);
    const starts=hasNumbers?numbered.test(line):hasPrice;
    if(starts)groups.push([line]);
    else if(groups.length)groups[groups.length-1].push(line);
  }
  if(groups.length<2)return [];
  const parsed=groups.map((group,id)=>{
-   const label=group.join("\\n").trim();
+   const label=group.join("\n").trim();
    const prices=[...label.matchAll(price)].map(m=>Number(m[1].replace(/,/g,"")));
    return {id,label,amount:prices.length?prices[prices.length-1]:null,group:id};
  });
