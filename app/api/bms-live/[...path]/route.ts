@@ -173,7 +173,11 @@ async function syncDraftXeroInvoiceTitle(tenantId:string,reference:string,extern
  const job=(await jr.json())[0];if(!job)throw new Error("Job not found.");
  const title=String(job.job_title||job.job_type||"").replace(/\s+/g," ").trim().slice(0,160);
  if(!title)return;
- const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=address_line_1&limit=1");\n const customer=(await cr.json().catch(()=>[]))[0]||{};\n const desiredNumber="INV-"+reference;\n const desiredReference=String(job.site_address_line_1||customer.address_line_1||reference).trim();\n const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId));
+ const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=address_line_1&limit=1");
+ const customer=(await cr.json().catch(()=>[]))[0]||{};
+ const desiredNumber="INV-"+reference;
+ const desiredReference=String(job.site_address_line_1||customer.address_line_1||reference).trim();
+ const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId));
  const invoice=remote.Invoices?.[0];
  if(!invoice||invoice.Type!=="ACCREC")throw new Error("Xero sales invoice not found.");
  if(invoice.Status!=="DRAFT"||invoice.SentToContact)return;
