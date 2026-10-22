@@ -167,20 +167,20 @@ async function approveXeroInvoiceOnly(tenantId:string,reference:string,invoiceId
  return {approved:true};
 }
 async function syncDraftXeroInvoiceTitle(tenantId:string,reference:string,externalInvoiceId:string){
- const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=job_title,job_type&limit=1");
+ const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=job_title,job_type,site_address_line_1,customer_id&limit=1");
  if(!jr.ok)throw new Error("Unable to read the latest job title.");
  const job=(await jr.json())[0];if(!job)throw new Error("Job not found.");
  const title=String(job.job_title||job.job_type||"").replace(/\s+/g," ").trim().slice(0,160);
  if(!title)return;
- const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId));
+ const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=address_line_1&limit=1");\n const customer=(await cr.json().catch(()=>[]))[0]||{};\n const desiredNumber="INV-"+reference;\n const desiredReference=String(job.site_address_line_1||customer.address_line_1||reference).trim();\n const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId));
  const invoice=remote.Invoices?.[0];
  if(!invoice||invoice.Type!=="ACCREC")throw new Error("Xero sales invoice not found.");
  if(invoice.Status!=="DRAFT"||invoice.SentToContact)return;
  const items=invoice.LineItems||[];
  if(items.length!==1||!items[0]?.LineItemID)throw new Error("This draft invoice has multiple or unidentified lines. Update its description directly in Xero.");
- if(String(items[0].Description||"").trim()===title)return;
- const changed=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId),"POST",{Invoices:[{InvoiceID:externalInvoiceId,LineItems:[{LineItemID:items[0].LineItemID,Description:title,Quantity:items[0].Quantity,UnitAmount:items[0].UnitAmount,AccountCode:items[0].AccountCode,TaxType:items[0].TaxType}]}]});
- const updated=changed.Invoices?.[0];if(!updated||String(updated.LineItems?.[0]?.Description||"").trim()!==title)throw new Error("Xero did not confirm the updated invoice description.");
+ const needsTitle=String(items[0].Description||"").trim()!==title;\n const needsNumber=invoice.InvoiceNumber!==desiredNumber;\n const needsReference=invoice.Reference!==desiredReference;\n if(!needsTitle&&!needsNumber&&!needsReference)return;
+ const changed=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId),"POST",{Invoices:[{InvoiceID:externalInvoiceId,...(needsNumber?{InvoiceNumber:desiredNumber}:{}),...(needsReference?{Reference:desiredReference}:{}),LineItems:[{LineItemID:items[0].LineItemID,Description:title,Quantity:items[0].Quantity,UnitAmount:items[0].UnitAmount,AccountCode:items[0].AccountCode,TaxType:items[0].TaxType}]}]});
+ const updated=changed.Invoices?.[0];if(!updated||String(updated.LineItems?.[0]?.Description||"").trim()!==title||updated.InvoiceNumber!==desiredNumber||updated.Reference!==desiredReference)throw new Error("Xero did not confirm the updated invoice description.");
 }
 async function xeroInvoicePdf(tenantId:string,reference:string,invoiceId:string){
  const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id&limit=1");
