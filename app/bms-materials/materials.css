@@ -41,3 +41,15 @@
 @media(max-width:800px){.bms-materials-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:580px){.bms-materials{padding:14px 12px 28px}.bms-materials-header{margin-bottom:16px}.bms-materials-pill{display:none}.bms-materials-panel{padding:15px;border-radius:15px}.bms-materials-toolbar{grid-template-columns:1fr;gap:12px}.bms-materials-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.bms-materials-order{padding:14px}.bms-materials-actions>button{flex:1 1 135px}.bms-materials-order-head{align-items:flex-start}.bms-materials-order-buttons button{padding:8px 10px}.bms-materials-summary{padding:16px}}
 @media(max-width:360px){.bms-materials-fields{grid-template-columns:1fr}}
+
+.bms-materials-receipt-row{border:1px solid #e1e7ee;border-radius:13px;padding:16px;margin:14px 0;background:#fafcfe}
+.bms-materials-receipt-row>strong{display:block;font-size:15px;margin-bottom:6px}
+.bms-materials-receipt-row>p{font-size:13px;color:#607186;line-height:1.6}
+.bms-materials-receipt-fields{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:14px 0 2px}
+.bms-materials-receipt-fields label{flex:1 1 125px}
+.bms-materials-receipt-fields button{flex:0 1 auto}
+.bms-materials-history-row{border-bottom:1px solid #e3e9f0;padding:14px 0;line-height:1.6;font-size:13px;color:#596d82}
+.bms-materials-history-row strong{display:block;color:#223c56;font-size:15px}
+.bms-materials .bms-materials-panel>h2{font-size:18px;font-weight:800}
+.bms-materials .bms-materials-panel>p{line-height:1.55}
+@media(max-width:580px){.bms-materials-receipt-fields button{width:100%}.bms-materials-receipt-row{padding:13px}}
