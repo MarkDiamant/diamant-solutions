@@ -19,7 +19,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const [crmConfig,setCrmConfig]=useState(DEFAULT_CRM_CONFIG);
   const [connectedGmail,setConnectedGmail]=useState<string|null>(null);
   const [drafting,setDrafting]=useState(false);
-  const [whatsAppBusy,setWhatsAppBusy]=useState(false);
+  const [whatsAppBusy,setWhatsAppBusy]=useState(false);const [awaitingShareConfirmation,setAwaitingShareConfirmation]=useState(false);
   const [draftNotice,setDraftNotice]=useState<{email:string}|null>(null);
   useEffect(()=>{fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.settings)setCrmConfig(b.settings);}}).catch(()=>{});fetch("/api/integrations/google/status",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();if(b.connected&&b.email)setConnectedGmail(String(b.email));}}).catch(()=>{});},[]);
   useEffect(() => {
@@ -49,6 +49,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
   const headerClass=isClassic?"border-b border-black pb-5":isMj?"border-b-4 border-[var(--brand)] pb-5":"border-b-[3px] border-[var(--brand)] pb-5";
   const panelClass=isClassic?"border-y border-black/20 py-5":isMj?"rounded-xl bg-[#f5f5f2] p-5":"rounded-xl border border-[var(--brand)]/30 bg-[var(--brand)]/[0.035] p-5";
 
+  async function markQuoteShared(){const r=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/share-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id})});const body=await r.json().catch(()=>({}));if(!r.ok)throw new Error(body.error||"Unable to update quote status");setAwaitingShareConfirmation(false);setSentMessage("Quote marked as sent. Next action: Follow up quote.");}
   async function shareWhatsApp() {
     if(whatsAppBusy)return;
     const raw=String(c.mobile||c.mobile_phone||c.phone||"").trim();
@@ -69,12 +70,12 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       if(canNativeShare&&navigator.canShare({files:[file]})){
         try {
           await navigator.share({files:[file],title:"Quotation "+reference,text:message});
-          setSentMessage("PDF sent to your selected sharing app. If the quotation message was not included, paste the copied message into WhatsApp before sending.");
+          await markQuoteShared();setSentMessage("Quote shared. Next action: Follow up quote.");
           return;
         } catch(error) {
           try {
             await navigator.share({files:[file],title:"Quotation "+reference});
-            setSentMessage(copied?"PDF shared. Paste the copied quotation message into WhatsApp before sending.":"PDF shared. Add the quotation message in WhatsApp before sending.");
+            setAwaitingShareConfirmation(true);setSentMessage(copied?"PDF shared. Paste the copied quotation message into WhatsApp before sending. Then confirm below.":"PDF shared. Add the quotation message in WhatsApp before sending. Then confirm below.");
             return;
           } catch { console.warn("Native PDF share unavailable",error); }
         }
@@ -86,7 +87,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
       window.setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
       if(whatsappTab)whatsappTab.location.href=whatsappUrl;
       else window.open(whatsappUrl,"_blank");
-      setSentMessage(copied?"PDF downloaded and WhatsApp opened. Attach the PDF and paste the copied message.":"PDF downloaded and WhatsApp opened. Attach the PDF and paste the quotation message.");
+      setAwaitingShareConfirmation(true);setSentMessage(copied?"WhatsApp opened. Attach the PDF, paste the message and confirm below once sent.":"WhatsApp opened. Attach the PDF and confirm below once sent.");
     } catch(error) {
       console.error("Quote PDF sharing failed",error);
       if(whatsappTab)whatsappTab.location.href=whatsappUrl;
@@ -126,7 +127,7 @@ export default function QuotePrint({ reference, quoteId }: { reference: string; 
     <style>{`@media screen and (max-width: 899px) { .quote-page { zoom: calc(100vw / 900px); } } @media print { @page { size: A4; margin: 0; } .quote-page { width: 210mm; min-height: 297mm; box-shadow: none !important; break-after: page; page-break-after: always; } .quote-page:last-child { break-after: auto; page-break-after: auto; } }`}</style>
     <div className="quote-action-bar mx-auto mb-3 flex w-full max-w-[900px] flex-wrap items-center justify-center gap-1.5 px-2 text-center print:hidden">
       {sendConfirmation && <div role="presentation" className="fixed inset-0 z-[110] flex items-center justify-center bg-black/55 p-4"><div role="dialog" aria-modal="true" aria-labelledby="quote-send-title" className="w-full max-w-md overflow-hidden rounded-2xl bg-white text-left shadow-2xl"><div className="h-2" style={{backgroundColor:crmConfig.accentColour||"#e66a24"}}/><div className="p-6"><div className="mb-4 flex items-center gap-3">{crmConfig.logoUrl?<img src={crmConfig.logoUrl} alt={business} className="max-h-14 max-w-36 object-contain"/>:<span className="text-lg font-bold" style={{color:crmConfig.accentColour}}>{business}</span>}</div><h2 id="quote-send-title" className="text-xl font-bold text-[#171717]">Send quotation by email?</h2><p className="mt-3 text-sm leading-6 text-[#333]">Send quotation <strong>{j.reference} V{quote.version}</strong> to <strong className="break-all">{c.email}</strong> with the PDF attached?</p><div className="mt-6 flex justify-end gap-3"><button type="button" onClick={()=>setSendConfirmation(false)} className="rounded-lg border-2 border-gray-700 bg-gray-200 px-5 py-2.5 font-bold text-gray-950 hover:bg-gray-300">Cancel</button><button type="button" onClick={()=>{setSendConfirmation(false);void sendQuote();}} className="rounded-lg px-5 py-2.5 font-bold text-white" style={{backgroundColor:crmConfig.accentColour||"#e66a24"}}>Send quotation</button></div></div></div></div>}
-      {sentMessage && <div role="status" aria-live="polite" className="fixed left-1/2 top-1/2 z-[100] w-[min(92vw,440px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-green-200 bg-white px-4 py-4 text-left text-sm font-medium text-green-800 shadow-2xl"><div className="flex items-start gap-3"><span className="flex-1">{sentMessage}</span><button type="button" onClick={()=>setSentMessage("")} aria-label="Close notification" className="shrink-0 rounded-lg border border-green-800 bg-green-800 px-4 py-2 text-sm font-bold text-white hover:bg-green-900">OK</button></div></div>}
+      {sentMessage && <div role="status" aria-live="polite" className="fixed left-1/2 top-1/2 z-[100] w-[min(92vw,440px)] -translate-x-1/2 -translate-y-1/2 rounded-xl border border-green-200 bg-white px-4 py-4 text-left text-sm font-medium text-green-800 shadow-2xl"><div className="flex items-start gap-3"><span className="flex-1">{sentMessage}</span>{awaitingShareConfirmation&&<button type="button" onClick={()=>void markQuoteShared().catch(e=>setSentMessage(String(e)))} className="rounded-lg bg-green-800 px-3 py-2 font-bold text-white">I sent it</button>}<button type="button" onClick={()=>{setSentMessage("");setAwaitingShareConfirmation(false)}} aria-label="Close notification" className="shrink-0 rounded-lg border border-green-800 bg-green-800 px-4 py-2 text-sm font-bold text-white hover:bg-green-900">OK</button></div></div>}
       <button onClick={()=>void savePdf()} disabled={pdfBusy} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-60">{pdfBusy ? "Saving PDF..." : "Save PDF"}</button>
       <button onClick={() => {if(!c.email){setSentMessage("Add the customer’s email address to the job before sending.");return;}setSendConfirmation(true);}} disabled={sending} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{sending ? "Sending..." : "Send quote by email"}</button>
       <button type="button" disabled={drafting} onClick={async()=>{setDrafting(true);try{const pdf=await emailPdfPayload();const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/draft-quote`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id,...pdf})});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.error||"Could not create Gmail draft");setDraftNotice(null);setSentMessage("Email draft saved to "+(body.from||connectedGmail||"your connected Gmail account")+" with the quotation PDF attached. You can review and send it from Gmail when ready.");}catch(error){setSentMessage(error instanceof Error?error.message:"Could not create Gmail draft");}finally{setDrafting(false);}}} className="inline-flex h-9 items-center justify-center rounded-lg bg-[var(--brand)] px-3 text-sm font-medium leading-none text-white disabled:opacity-50">{drafting?"Creating Gmail draft...":"Create Gmail draft"}</button>
