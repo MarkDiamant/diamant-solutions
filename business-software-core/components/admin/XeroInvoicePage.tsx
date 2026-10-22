@@ -177,11 +177,11 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         let number=digits.startsWith("+")?digits.slice(1):digits.startsWith("00")?digits.slice(2):digits.startsWith("0")?"44"+digits.slice(1):digits;
         if(!/^\\d{8,15}$/.test(number))number="";
         const firstName=String(jobData?.customer?.first_name||"").trim().split(/\s+/)[0]||"there";
-        const text=`Hi ${firstName},\n\nPlease find attached invoice ${invoice.invoice_number||reference} for ${String(jobData?.job?.job_title||jobData?.job?.job_type||"the agreed work").toLowerCase()}.\n\nThank you for your business, we really appreciate it. If you have any questions, please get in touch.\n\nKind regards,\n${crmConfig.businessName}`;
+        const text=`Hi ${firstName},\n\nPlease find attached invoice ${invoice.invoice_number||reference} for ${String(jobData?.job?.job_title||jobData?.job?.job_type||"the agreed work").toLowerCase()}.\n\nTo get started on your project, we kindly ask for a 50% deposit. Once received, we can begin work, with the remaining 50% payable on completion.\n\nThank you for your business, we really appreciate it. If you have any questions, please get in touch.\n\nKind regards,\n${crmConfig.businessName}`;
         setSharePrompt({file,text,number,invoiceNumber:String(invoice.invoice_number||reference)});
         setMessage("");
       }else{
-        setEmailPrompt({action,to:String(jobData?.customer?.email||""),subject:`${crmConfig.businessName} invoice ${invoice.invoice_number||reference}`,body:`Hi ${String(jobData?.customer?.first_name||"").trim().split(/\s+/)[0]||"there"},\n\nPlease find attached your invoice ${invoice.invoice_number||reference}.\n\nThank you very much for your business, we really appreciate it. If you have any questions at all, please feel free to get in touch.\n\nKind regards,\n${crmConfig.businessName}`});return;
+        setEmailPrompt({action,to:String(jobData?.customer?.email||""),subject:`${crmConfig.businessName} invoice ${invoice.invoice_number||reference}`,body:`Hi ${String(jobData?.customer?.first_name||"").trim().split(/\s+/)[0]||"there"},\n\nPlease find attached your invoice ${invoice.invoice_number||reference}.\n\nTo get started on your project, we kindly ask for a 50% deposit. Once received, we can begin work, with the remaining 50% payable on completion.\n\nThank you very much for your business, we really appreciate it. If you have any questions at all, please feel free to get in touch.\n\nKind regards,\n${crmConfig.businessName}`});return;
       }
     }catch(e){setError(friendlyError(e)||"Could not share invoice");}
     finally{setSharing("");}
