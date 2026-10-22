@@ -122,3 +122,73 @@
  .bms-materials-receipt-fields button{width:100%}
  .bms-materials-summary{gap:12px}
 }
+
+
+/* BMS Purchasing & Stock design system: clean surfaces, accessible actions and mobile-first layouts */
+.bms-materials{--bm-ink:#1b3147;--bm-blue:#245b82;--bm-border:#e1e7ed;--bm-muted:#617185;max-width:1280px;background:transparent;padding:clamp(14px,2.5vw,32px);line-height:1.45}
+.bms-materials-header{background:linear-gradient(115deg,#163c60,#285b80);border:1px solid #214f73;border-radius:18px;padding:clamp(20px,3vw,30px);box-shadow:none;margin-bottom:20px}
+.bms-materials-header h1{font-size:clamp(25px,3vw,33px);letter-spacing:-.025em}
+.bms-materials-header .bms-materials-subtitle{font-size:14px;line-height:1.6;max-width:650px}
+.bms-materials-panel,.bms-materials-workspace,.bms-materials-order{border:1px solid var(--bm-border);border-radius:16px;box-shadow:0 2px 8px rgba(24,47,69,.035)}
+.bms-materials-panel{padding:0;overflow:visible}
+.bms-materials-ruby-summary{display:flex;align-items:center;gap:14px;padding:18px 20px;cursor:pointer;list-style:none;user-select:none}
+.bms-materials-ruby-summary::-webkit-details-marker{display:none}
+.bms-materials-ruby-summary>span:nth-child(2){display:flex;flex:1;flex-direction:column;min-width:0;gap:3px}
+.bms-materials-ruby-summary strong{font-size:16px;color:#1b3852;font-weight:850}
+.bms-materials-ruby-summary small{font-size:12px;color:#65788b;font-weight:500;line-height:1.5}
+.bms-materials-ruby-icon{width:40px;height:40px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:#edf3fb;color:#2b5d87;font-size:22px}
+.bms-materials-ruby-toggle{font-size:12px;font-weight:800;color:#315e80;border:1px solid #d4e1ec;padding:7px 10px;border-radius:9px}
+.bms-materials-ruby[open] .bms-materials-ruby-toggle{background:#edf3fa}
+.bms-materials-ruby-body{padding:0 20px 20px;border-top:1px solid #edf0f3}
+.bms-materials-ruby-body label{margin-top:18px}
+.bms-materials-ruby-body textarea{margin-top:8px}
+.bms-materials-workspace{padding:clamp(16px,2.4vw,26px);margin:18px 0;background:#fff}
+.bms-materials-workspace-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px}
+.bms-materials-eyebrow{display:block;font-size:10px;font-weight:850;letter-spacing:.13em;color:#65809a;margin-bottom:4px}
+.bms-materials-section-heading{font-size:21px;line-height:1.25;margin:0}
+.bms-materials-state{font-size:11px;font-weight:850;color:#226044;background:#e8f5ed;border:1px solid #cce9d8;border-radius:99px;padding:7px 11px;white-space:nowrap}
+.bms-materials-section-description{margin:0 0 18px;max-width:700px}
+.bms-materials-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:stretch;background:#f7f9fc;border:1px solid #e5ebf1;border-radius:12px;padding:14px;margin:0 0 18px}
+.bms-materials-actions>input{grid-column:1/-1;min-width:0;margin:0}
+.bms-materials-actions>button{width:100%;white-space:normal;line-height:1.3;min-height:44px}
+.bms-materials-toolbar{gap:12px;margin-bottom:18px}
+.bms-materials-toolbar>label,.bms-materials-search{min-width:0}
+.bms-materials-order{background:#fff;border-color:#dce5ed;padding:clamp(14px,2vw,20px)}
+.bms-materials-order-head{margin-bottom:16px;padding-bottom:12px}
+.bms-materials-order-head strong{font-size:16px;line-height:1.35}
+.bms-materials-fields{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.bms-materials-fields input{margin-top:6px}
+.bms-materials label{line-height:1.4}
+.bms-materials button,.bms-materials input,.bms-materials select,.bms-materials textarea{font-family:inherit}
+.bms-materials button:focus-visible,.bms-materials a:focus-visible,.bms-materials summary:focus-visible{outline:3px solid #73a6cf;outline-offset:2px}
+.bms-materials-line-total{background:#f4f8fc;text-align:right}
+.bms-materials-summary{display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:14px;text-align:left;align-items:center;background:#edf4fa;border-radius:13px;padding:18px}
+.bms-materials-summary div{font-size:13px;margin:0}
+.bms-materials-summary strong{font-size:20px;text-align:right;line-height:1.3}
+.bms-materials-receipt-row{background:#fbfcfe}
+.bms-materials-history-row{border-color:#e8edf2}
+@media(max-width:900px){.bms-materials-actions{grid-template-columns:repeat(2,minmax(0,1fr))}.bms-materials-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+ .bms-materials{padding:12px 10px 28px}
+ .bms-materials-header{padding:20px 16px;border-radius:15px}
+ .bms-materials-header h1{font-size:25px}
+ .bms-materials-panel{border-radius:14px}
+ .bms-materials-ruby-summary{padding:15px 13px;gap:10px}
+ .bms-materials-ruby-icon{width:36px;height:36px}
+ .bms-materials-ruby-summary strong{font-size:14px}
+ .bms-materials-ruby-summary small{font-size:11px}
+ .bms-materials-ruby-toggle{font-size:11px;padding:6px 8px}
+ .bms-materials-ruby-body{padding:0 14px 16px}
+ .bms-materials-workspace{padding:16px 13px;border-radius:14px}
+ .bms-materials-section-heading{font-size:19px}
+ .bms-materials-state{font-size:10px;padding:6px 8px}
+ .bms-materials-actions{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;padding:11px}
+ .bms-materials-actions>input{grid-column:1/-1}
+ .bms-materials-actions>button{font-size:12px;min-height:46px;padding:10px 8px}
+ .bms-materials-toolbar{grid-template-columns:minmax(0,1fr)}
+ .bms-materials-fields{grid-template-columns:minmax(0,1fr);gap:12px}
+ .bms-materials-order{padding:14px 12px}
+ .bms-materials-summary{grid-template-columns:1fr 1fr;gap:9px;padding:14px}
+ .bms-materials-summary strong{grid-column:1/-1;text-align:left;padding-top:10px;border-top:1px solid #d2e0ed}
+ .bms-materials-order-buttons{width:100%}
+}
