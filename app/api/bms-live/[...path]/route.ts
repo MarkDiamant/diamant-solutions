@@ -183,7 +183,10 @@ async function syncDraftXeroInvoiceTitle(tenantId:string,reference:string,extern
  if(invoice.Status!=="DRAFT"||invoice.SentToContact)return;
  const items=invoice.LineItems||[];
  if(items.length!==1||!items[0]?.LineItemID)throw new Error("This draft invoice has multiple or unidentified lines. Update its description directly in Xero.");
- const needsTitle=String(items[0].Description||"").trim()!==title;\n const needsNumber=invoice.InvoiceNumber!==desiredNumber;\n const needsReference=invoice.Reference!==desiredReference;\n if(!needsTitle&&!needsNumber&&!needsReference)return;
+ const needsTitle=String(items[0].Description||"").trim()!==title;
+ const needsNumber=invoice.InvoiceNumber!==desiredNumber;
+ const needsReference=invoice.Reference!==desiredReference;
+ if(!needsTitle&&!needsNumber&&!needsReference)return;
  const changed=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId),"POST",{Invoices:[{InvoiceID:externalInvoiceId,...(needsNumber?{InvoiceNumber:desiredNumber}:{}),...(needsReference?{Reference:desiredReference}:{}),LineItems:[{LineItemID:items[0].LineItemID,Description:title,Quantity:items[0].Quantity,UnitAmount:items[0].UnitAmount,AccountCode:items[0].AccountCode,TaxType:items[0].TaxType}]}]});
  const updated=changed.Invoices?.[0];if(!updated||String(updated.LineItems?.[0]?.Description||"").trim()!==title||updated.InvoiceNumber!==desiredNumber||updated.Reference!==desiredReference)throw new Error("Xero did not confirm the updated invoice description.");
 }
