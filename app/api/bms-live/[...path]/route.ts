@@ -95,7 +95,22 @@ async function syncXeroJobInvoices(tenantId:string,reference:string){
  const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id&limit=1");
  const job=(await jr.json().catch(()=>[]))[0];if(!job)throw new Error("Job not found.");
  const ir=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&provider=eq.xero&select=id,external_invoice_id");
- const invoices=await ir.json().catch(()=>[]);
+ let invoices=await ir.json().catch(()=>[]);
+ // Import only an unambiguous, existing Xero sales invoice matching this job reference.
+ // Never create a second invoice or infer a payment from the job's completed status.
+ if(!invoices.length){
+  const escaped=reference.replace(/"/g,'\\\"');
+  const found=await xeroRequest(tenantId,"Invoices?where="+encodeURIComponent('Reference=="'+escaped+'"'));
+  const candidates=(found.Invoices||[]).filter((x:any)=>x.Type==="ACCREC"&&String(x.Reference||"").trim()===reference&&x.InvoiceID&&!["VOIDED","DELETED"].includes(String(x.Status||"")));
+  if(candidates.length>1)throw new Error("Multiple Xero invoices match this job. Choose the correct invoice before importing.");
+  if(candidates.length===1){
+   const x=candidates[0],total=Number(x.Total),due=Number(x.AmountDue),paid=Number(x.AmountPaid),credited=Number(x.AmountCredited||0);
+   if(![total,due,paid,credited].every(Number.isFinite)||Math.min(total,due,paid,credited)<0||Math.abs(total-due-paid-credited)>0.02)throw new Error("Xero invoice totals do not reconcile; nothing was imported.");
+   const inserted=await centralRest("business_software_invoices?on_conflict=tenant_id,provider,external_invoice_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=representation"},body:JSON.stringify({tenant_id:tenantId,job_id:job.id,provider:"xero",external_invoice_id:x.InvoiceID,invoice_number:x.InvoiceNumber||null,status:x.Status,total,amount_due:due,amount_paid:paid,currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()})});
+   if(!inserted.ok)throw new Error("Found the Xero invoice but could not link it to this job.");
+   invoices=(await inserted.json().catch(()=>[]));
+  }
+ }
  for(const invoice of invoices){
   if(!invoice.external_invoice_id)continue;
   const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(invoice.external_invoice_id));
