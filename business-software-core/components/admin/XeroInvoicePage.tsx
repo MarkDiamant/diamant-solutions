@@ -20,6 +20,9 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const [pdfPreviewLoading,setPdfPreviewLoading]=useState(false);
   const [pdfPreview,setPdfPreview]=useState("");
   const [pdfPreviewFile,setPdfPreviewFile]=useState<Blob|null>(null);
+  const [pdfPages,setPdfPages]=useState<string[]>([]);
+  const [pdfRenderError,setPdfRenderError]=useState("");
+  const [pdfRendering,setPdfRendering]=useState(false);
   const [xeroConnected,setXeroConnected]=useState<boolean|null>(null);
   const [confirmAction,setConfirmAction]=useState<"approve"|"approve_send"|"approve_bms"|null>(null);
   const [message, setMessage] = useState("");
@@ -96,6 +99,42 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
       await load();setMessage("BMS invoice approved. No email has been sent.");
     }catch(e){setError(friendlyError(e)||"Could not approve invoice");}finally{setBusy(false);}
   }
+
+  useEffect(()=>{
+    if(!pdfPreviewFile){setPdfPages([]);return;}
+    let cancelled=false;
+    async function render(){
+      setPdfRendering(true);setPdfRenderError("");
+      try{
+        const lib=await new Promise<any>((resolve,reject)=>{
+          const existing=(window as any).pdfjsLib;
+          if(existing){resolve(existing);return;}
+          const script=document.createElement("script");
+          script.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+          script.onload=()=>resolve((window as any).pdfjsLib);
+          script.onerror=()=>reject(new Error("PDF renderer could not load"));
+          document.head.appendChild(script);
+        });
+        lib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+        const pdf=await lib.getDocument({data:new Uint8Array(await pdfPreviewFile.arrayBuffer())}).promise;
+        const images:string[]=[];
+        for(let n=1;n<=Math.min(pdf.numPages,12);n++){
+          if(cancelled)return;
+          const page=await pdf.getPage(n);
+          const viewport=page.getViewport({scale:1.5});
+          const canvas=document.createElement("canvas");
+          canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+          const ctx=canvas.getContext("2d");if(!ctx)throw new Error("Canvas unavailable");
+          await page.render({canvasContext:ctx,viewport}).promise;
+          images.push(canvas.toDataURL("image/png"));
+        }
+        if(!cancelled)setPdfPages(images);
+      }catch(e){if(!cancelled)setPdfRenderError(e instanceof Error?e.message:"Preview unavailable");}
+      finally{if(!cancelled)setPdfRendering(false);}
+    }
+    void render();
+    return()=>{cancelled=true;};
+  },[pdfPreviewFile]);
 
   async function viewXeroPdf(){
     const invoice=invoices[0];if(!invoice||pdfPreviewLoading)return;
@@ -179,12 +218,13 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
       </div>
 
       {confirmAction&&invoices[0]&&<section role="dialog" aria-modal="true" aria-label="Confirm invoice approval" className="invoice-controls mt-5 rounded-2xl border-2 border-[var(--invoice-accent)] bg-white p-5 shadow-lg"><div className="flex items-center gap-3">{crmConfig.logoUrl&&<img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="h-10 max-w-28 object-contain"/>}<div><p className="font-black text-[var(--invoice-accent)]">{crmConfig.businessName}</p><h2 className="text-lg font-black">Confirm invoice approval</h2></div></div><p className="mt-3 text-sm">Invoice <strong>{invoices[0].invoice_number||reference}</strong> for <strong>{name}</strong>, amount <strong>{money(invoices[0].total)}</strong>.</p><p className="mt-2 text-sm">{confirmAction==="approve_send"?"This will approve the invoice in Xero and email it immediately to "+String(customer.email||"the customer")+".":confirmAction==="approve"?"This will approve the invoice in Xero without sending an email. You can then choose Gmail or WhatsApp.":"This will approve the BMS invoice without sending an email."}</p><div className="mt-4 flex gap-2"><button disabled={busy} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 font-bold text-white" onClick={()=>{const choice=confirmAction;setConfirmAction(null);if(choice==="approve_send")void approveAndSend();else if(choice==="approve_bms")void approveBms();else void approveOnly();}}>Confirm</button><button className="rounded-xl border border-black/15 px-4 py-2.5 font-bold" onClick={()=>setConfirmAction(null)}>Cancel</button></div></section>}
-      {pdfPreview&&<section role="dialog" aria-modal="true" aria-label="Invoice PDF preview" className="invoice-controls mt-8 rounded-2xl border border-[var(--invoice-accent)] bg-white p-4 sm:p-6"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="font-black">Invoice PDF preview</h2><button className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2 text-sm font-bold text-white" onClick={()=>{URL.revokeObjectURL(pdfPreview);setPdfPreview("");}}>Close preview</button></div><div className="mb-5 flex flex-wrap gap-3"><a href={pdfPreview} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-black/15 px-4 py-2 text-sm font-bold">Open PDF in browser</a><button type="button" onClick={()=>{if(!pdfPreviewFile)return;const link=document.createElement("a");link.href=pdfPreview;link.download=`${invoices[0]?.invoice_number||reference}-Invoice.pdf`;document.body.appendChild(link);link.click();link.remove();}} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2 text-sm font-bold text-white">Download PDF</button></div><div className="rounded-xl border border-black/10 bg-white p-2"><iframe title="Invoice PDF preview" src={`${pdfPreview}#toolbar=0&navpanes=0`} className="h-[65vh] min-h-[480px] w-full border-0" /><p className="mt-2 text-xs text-black/55">If your phone does not support an embedded PDF preview, use Open PDF in browser or Download PDF above.</p></div></section>}
+      {pdfPreview&&<section role="dialog" aria-modal="true" aria-label="Invoice PDF preview" className="invoice-controls mt-8 rounded-2xl border border-[var(--invoice-accent)] bg-white p-4 sm:p-6"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><h2 className="font-black">Invoice PDF preview</h2><button className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2 text-sm font-bold text-white" onClick={()=>{URL.revokeObjectURL(pdfPreview);setPdfPreview("");}}>Close preview</button></div><div className="mb-5 flex flex-wrap gap-3"><a href={pdfPreview} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-black/15 px-4 py-2 text-sm font-bold">Open PDF in browser</a><button type="button" onClick={()=>{if(!pdfPreviewFile)return;const link=document.createElement("a");link.href=pdfPreview;link.download=`${invoices[0]?.invoice_number||reference}-Invoice.pdf`;document.body.appendChild(link);link.click();link.remove();}} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2 text-sm font-bold text-white">Download PDF</button></div><div className="rounded-xl border border-black/10 bg-white p-2">{pdfRendering&&<p className="py-12 text-center text-sm text-black/60">Rendering invoice pages...</p>}{pdfPages.length>0?<div className="space-y-4">{pdfPages.map((page,index)=><img key={index} src={page} alt={`Invoice PDF page ${index+1}`} className="mx-auto h-auto w-full max-w-[800px] rounded-md border border-black/10 shadow-sm"/>)}</div>:!pdfRendering&&<div className="py-10 text-center text-sm text-black/60">Preview unavailable on this device. Use Download PDF above.{pdfRenderError&&<p className="mt-2 text-xs">{pdfRenderError}</p>}</div>}</div></section>}
       {sharePrompt&&<section role="dialog" aria-modal="true" aria-label="Share invoice via WhatsApp" className="invoice-controls mt-5 rounded-2xl border-2 border-[var(--invoice-accent)] bg-white p-5 shadow-lg"><div className="flex items-center gap-3">{crmConfig.logoUrl&&<img src={crmConfig.logoUrl} alt={crmConfig.businessName} className="h-10 max-w-28 object-contain"/>}<div><p className="font-black text-[var(--invoice-accent)]">{crmConfig.businessName}</p><h2 className="text-lg font-black">Share invoice via WhatsApp</h2></div></div><p className="mt-3 text-sm">Review the message before sharing. This does not mark the invoice as sent in Xero.</p><pre className="mt-3 whitespace-pre-wrap rounded-xl bg-[#f7f7f4] p-4 text-sm">{sharePrompt.text}</pre><div className="mt-4 flex flex-wrap gap-2"><button className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 font-bold text-white" onClick={()=>void finishWhatsAppShare(true)}>Share PDF and message</button><button className="rounded-xl border border-black/15 px-4 py-2.5 font-bold" onClick={()=>void finishWhatsAppShare(false)}>Download PDF and open WhatsApp</button><button className="rounded-xl border border-black/15 px-4 py-2.5" onClick={()=>setSharePrompt(null)}>Cancel</button></div></section>}
       {error && <p className="mt-5 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
       {message && <p className="mt-5 rounded-xl bg-blue-50 px-4 py-3 text-sm font-semibold text-blue-800">{message}</p>}
 
-      <section className="invoice-controls mt-8 rounded-2xl border border-black/10 bg-white p-5 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+      <div className="h-6" aria-hidden="true" />
+      <section className="invoice-controls mt-12 rounded-2xl border border-black/10 bg-white p-5 sm:p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
         <div className="grid gap-4 sm:grid-cols-3"><div><p className="text-xs font-bold uppercase text-black/45">Customer</p><p className="mt-1 font-black">{name}</p></div><div><p className="text-xs font-bold uppercase text-black/45">Invoice amount</p><p className="mt-1 text-xl font-black">{money(amount)}</p><p className="mt-1 text-xs text-black/45">{crmConfig.businessDetails.vatRegistered?"VAT charged according to business settings":"VAT not charged"}</p></div><div><p className="text-xs font-bold uppercase text-black/45">BMS reference</p><p className="mt-1 font-black text-[var(--invoice-accent)]">{reference}</p></div></div>
         {invoices.length>0&&invoices[0].provider!=="bms"&&<div className="mt-5"><button type="button" disabled={busy||String(invoices[0].status).toUpperCase()!=="DRAFT"} onClick={()=>setConfirmAction("approve")} className="mb-3 mr-2 min-h-12 rounded-xl bg-[var(--invoice-accent)] px-5 py-3 text-sm font-black text-white disabled:opacity-40">Approve in Xero but don’t send</button><button disabled={busy||!!sharing||String(invoices[0].status).toUpperCase()==="PAID"} onClick={()=>setConfirmAction("approve_send")} className="mb-3 min-h-12 rounded-xl bg-[var(--invoice-accent)] px-5 py-3 text-sm font-black text-white disabled:opacity-50">Approve and send via Xero</button><p className="mt-2 text-xs text-black/55">Choose whether to approve without emailing, or approve and send through Xero. You will review your choice before anything changes.</p></div>}{invoices.length>0&&invoices[0].provider!=="bms"&&<div className="mt-6 rounded-xl border border-black/10 bg-[#f7f7f4] p-4"><p className="mb-3 text-sm font-black">Email or WhatsApp your invoice</p><p className="mb-3 text-xs text-black/60">Available once the invoice is approved in Xero. Choose Gmail or WhatsApp if you do not want Xero to email it.</p><div className="flex flex-wrap gap-2"><button disabled={!!sharing||String(invoices[0].status).toUpperCase()==="DRAFT"} onClick={()=>void shareInvoice(invoices[0],"draft")} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold disabled:opacity-50">Create Gmail draft</button><button disabled={!!sharing||String(invoices[0].status).toUpperCase()==="DRAFT"} onClick={()=>void shareInvoice(invoices[0],"send")} className="rounded-xl bg-[var(--invoice-accent)] px-4 py-2.5 text-sm font-bold text-white disabled:opacity-40">Send via Gmail</button><button disabled={!!sharing||String(invoices[0].status).toUpperCase()==="DRAFT"} onClick={()=>void shareInvoice(invoices[0],"whatsapp")} className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold disabled:opacity-50">Share via WhatsApp</button></div><p className="mt-2 text-xs text-black/55">We attach the official Xero PDF. Gmail drafts are not sent automatically. WhatsApp lets you review the message and attach the PDF yourself.</p></div>}
         <div className="mt-6 flex flex-wrap gap-3">
