@@ -192,3 +192,11 @@
  .bms-materials-summary strong{grid-column:1/-1;text-align:left;padding-top:10px;border-top:1px solid #d2e0ed}
  .bms-materials-order-buttons{width:100%}
 }
+
+/* Tenant-branded purchasing surfaces */
+.bms-materials-header{background:var(--bm-accent,#245b82)!important;border-color:var(--bm-accent,#245b82)!important;color:#fff!important;position:relative;z-index:0}
+.bms-materials-header h1,.bms-materials-header p{color:#fff!important;opacity:1!important}
+.bms-materials .bms-primary,.bms-materials .bms-materials-history-toggle{background:var(--bm-accent,#245b82)!important;border-color:var(--bm-accent,#245b82)!important;color:#fff!important}
+.bms-materials .bms-primary:hover:not(:disabled){filter:brightness(.9)}
+.bms-materials-ruby-icon{object-fit:cover;border-radius:50%;width:42px;height:42px}
+.bms-materials .bms-confirm:not(:disabled){background:var(--bm-accent,#245b82);border-color:var(--bm-accent,#245b82);color:#fff}
