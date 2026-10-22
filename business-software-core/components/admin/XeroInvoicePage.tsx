@@ -180,7 +180,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         setSharePrompt({file,text,number,invoiceNumber:String(invoice.invoice_number||reference)});
         setMessage("");
       }else{
-        setEmailPrompt({action,to:String(jobData?.customer?.email||""),subject:`${crmConfig.businessName} invoice ${invoice.invoice_number||reference}`,body:`Hi ${String(jobData?.customer?.first_name||"").trim().split(/\\s+/)[0]||"there"},\n\nPlease find attached your invoice ${invoice.invoice_number||reference}.\n\nThank you very much for your business, we really appreciate it. If you have any questions at all, please feel free to get in touch.\n\nKind regards,\n${crmConfig.businessName}`});return;
+        setEmailPrompt({action,to:String(jobData?.customer?.email||""),subject:`${crmConfig.businessName} invoice ${invoice.invoice_number||reference}`,body:`Hi ${String(jobData?.customer?.first_name||"").trim().split(/\s+/)[0]||"there"},\n\nPlease find attached your invoice ${invoice.invoice_number||reference}.\n\nThank you very much for your business, we really appreciate it. If you have any questions at all, please feel free to get in touch.\n\nKind regards,\n${crmConfig.businessName}`});return;
       }
     }catch(e){setError(friendlyError(e)||"Could not share invoice");}
     finally{setSharing("");}
@@ -193,7 +193,6 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         const response=await fetch(base,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({invoiceId:invoices[0]?.id,action:prompt.action,subject:prompt.subject,body:prompt.body})});
         const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(friendlyError(result.error)||"Invoice email failed");
         setMessage(prompt.action==="draft"?"Email draft created with the invoice PDF attached. Review it in your connected email account.":`Invoice emailed with PDF attached to ${result.to}.`);
-      }
     }catch(e){setError(friendlyError(e)||"Could not share invoice");}
     finally{setSharing("");}
   }
