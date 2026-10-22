@@ -4,31 +4,26 @@ import {useEffect,useMemo,useState} from "react";
 type Item={id:number;label:string;amount:number|null;group:number};
 const gbp=(n:number)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(n);
 function parseItems(scope:string,total:number):Item[]{
-  const lines=scope.replace(/<br\s*\/?\s*>/gi,"\n").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-  const numbered=/^(?:[-*•]\s*)?(?:\*\*)?(?:item\s*|section\s*)?(\d{1,2})\s*[.)\-:]\s*(?:\*\*)?\s*(.+)/i;
-  const items:{label:string;amount:number|null}[]=[];
-  for(const line of lines){
-    const match=line.match(numbered);
-    if(match){items.push({label:match[2].replace(/\*\*/g,""),amount:null});continue;}
-    if(items.length)items[items.length-1].label+="\n"+line;
-  }
-  if(items.length<2){
-    const sections=scope.split(/(?<=\.)\s+(?=\d{1,2}[.)]\s)/).map(x=>x.trim()).filter(Boolean);
-    if(sections.length>=2)return sections.map((label,id)=>({id,label,amount:null,group:id}));
-    return [];
-  }
-  const result=items.map((x,id)=>{
-    const prices=[...x.label.matchAll(/£\s*([\d,]+(?:\.\d{1,2})?)/g)].map(m=>Number(m[1].replace(/,/g,"")));
-    const amount=prices.length?prices[prices.length-1]:null;
-    return {id,label:x.label,amount,group:id};
-  });
-  const priced=result.reduce((sum,x)=>sum+(x.amount||0),0);
-  if(result.some(x=>x.amount===null)&&priced<total){
-    const missing=result.filter(x=>x.amount===null);
-    const each=Math.round((total-priced)/missing.length*100)/100;
-    missing.forEach((x,i)=>x.amount=i===missing.length-1?Math.round((total-priced-each*(missing.length-1))*100)/100:each);
-  }
-  return result;
+ const text=scope.replace(/<br\\s*\\/?\\s*>/gi,"\\n").replace(/\\r\\n/g,"\\n");
+ const lines=text.split("\\n");
+ const numbered=/^\\s*(?:[-*•]\\s*)?(?:\\*\\*)?(?:item\\s*|section\\s*)?(\\d{1,2})\\s*[.)\\-:]\\s*(.+)/i;
+ const hasNumbers=lines.filter(line=>numbered.test(line)).length>=2;
+ const price=/£\\s*([\\d,]+(?:\\.\\d{1,2})?)/g;
+ const groups:string[][]=[];
+ for(const line of lines){
+   const hasPrice=/£\\s*[\\d,]+(?:\\.\\d{1,2})?/.test(line);
+   const starts=hasNumbers?numbered.test(line):hasPrice;
+   if(starts)groups.push([line]);
+   else if(groups.length)groups[groups.length-1].push(line);
+ }
+ if(groups.length<2)return [];
+ const parsed=groups.map((group,id)=>{
+   const label=group.join("\\n").trim();
+   const prices=[...label.matchAll(price)].map(m=>Number(m[1].replace(/,/g,"")));
+   return {id,label,amount:prices.length?prices[prices.length-1]:null,group:id};
+ });
+ // Never invent item prices. Unpriced items must be reviewed and priced explicitly.
+ return parsed;
 }
 export default function JobSplitPanel({reference,quotes}:{reference:string;quotes:any[]}){
   const quote=useMemo(()=>[...quotes].sort((a,b)=>new Date(b.created_at||0).getTime()-new Date(a.created_at||0).getTime())[0],[quotes]);
@@ -45,7 +40,7 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
   const groupItems=(i:number)=>items.filter(x=>x.group===i);
   const calculated=(i:number)=>groupItems(i).reduce((sum,x)=>sum+Number(x.amount||0),0);
   const parts=names.map((name,i)=>({scope:name.trim(),description:groupItems(i).map(x=>x.label).join("\n\n")||name.trim(),amount:Number(amounts[i]),disposition:i===proceed?"proceed":"on_hold"}));
-  const valid=parts.length>=2&&parts.every(p=>p.scope.length>=2&&p.description&&p.amount>0)&&Math.abs(parts.reduce((a,p)=>a+p.amount,0)-total)<0.011&&(!items.length||items.every(x=>x.group>=0&&x.group<count));
+  const valid=(!items.length||items.every(x=>x.amount!==null&&Number(x.amount)>=0))&&parts.length>=2&&parts.every(p=>p.scope.length>=2&&p.description&&p.amount>0)&&Math.abs(parts.reduce((a,p)=>a+p.amount,0)-total)<0.011&&(!items.length||items.every(x=>x.group>=0&&x.group<count));
   async function start(){setBusy(true);setError("");try{const r=await fetch("/api/admin/jobs/"+encodeURIComponent(reference)+"/split",{cache:"no-store"});const b=await r.json();if(!r.ok||!b.allowed)throw new Error(b.reason||b.error||"This job cannot be split");setOpen(true);}catch(e){setError(e instanceof Error?e.message:"Unable to check split eligibility");}finally{setBusy(false);}}
   async function submit(){setBusy(true);setError("");try{const r=await fetch("/api/admin/jobs/"+encodeURIComponent(reference)+"/split",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({quoteId:quote.id,parts})});const b=await r.json();if(!r.ok)throw new Error(b.error||"Split failed");const next=(b.children||[]).find((x:any)=>x.disposition==="proceed")?.reference;window.location.assign(next?"/admin/jobs/"+encodeURIComponent(next):"/admin");}catch(e){setError(e instanceof Error?e.message:"Split failed");setReview(false);}finally{setBusy(false);}}
   return <section id="split-order-panel" className="mt-4 scroll-mt-24">
@@ -60,7 +55,7 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
       <div className="mt-4 space-y-3">{names.map((name,i)=><div key={i} className="grid gap-2 rounded-lg bg-[#f5f5f2] p-3 sm:grid-cols-[1fr_130px_100px]"><label className="text-xs font-bold">Order name<input className="mt-1 w-full rounded border bg-white p-2" value={name} onChange={e=>setNames(v=>v.map((x,j)=>i===j?e.target.value:x))}/></label><label className="text-xs font-bold">Order total £<input type="number" min="0.01" step="0.01" className="mt-1 w-full rounded border bg-white p-2" value={amounts[i]} onChange={e=>setAmounts(v=>v.map((x,j)=>i===j?e.target.value:x))}/>{items.length>0&&<button type="button" className="mt-1 text-xs underline" onClick={()=>setAmounts(v=>v.map((x,j)=>i===j?String(Math.round(calculated(i)*100)/100):x))}>Use item sum {gbp(calculated(i))}</button>}</label><label className="flex items-center gap-2 text-xs font-bold"><input type="radio" checked={proceed===i} onChange={()=>setProceed(i)}/> Proceed</label></div>)}</div>
       <div className="mt-3 flex flex-wrap gap-2"><button type="button" onClick={()=>changeCount(count+1)} className="rounded-lg border px-3 py-2 text-sm font-bold">+ Add order</button>{count>2&&<button type="button" onClick={()=>changeCount(count-1)} className="rounded-lg border px-3 py-2 text-sm">Remove last order</button>}</div>
       <p className="mt-4 text-sm font-bold">Original quote: {gbp(total)}. Split total: {gbp(parts.reduce((a,p)=>a+p.amount,0))}</p>
-      {!valid&&<p className="mt-1 text-xs text-amber-800">Enter at least two orders with positive prices. Their total must equal the original quote.</p>}
+      {!valid&&<p className="mt-1 text-xs text-amber-800">Check every item price and assign each item to an order. Each order needs a positive total, and all totals must equal the original quote.</p>}
       <div className="mt-3 flex gap-2"><button type="button" disabled={!valid||busy} onClick={()=>setReview(true)} className="rounded-xl bg-[#e66a24] px-4 py-2 text-sm font-black text-white disabled:opacity-40">Review split</button><button type="button" onClick={()=>{setOpen(false);setError("");}} className="rounded-xl border px-4 py-2 text-sm">Cancel</button></div>
     </div>}
     {review&&<div className="fixed inset-0 z-[110] flex items-center justify-center overflow-y-auto bg-black/60 p-3"><div role="dialog" aria-modal="true" className="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5"><h2 className="text-xl font-black">Confirm order split</h2><p className="mt-2 text-sm">The original job and quote will be archived. Separate jobs and editable draft quotes will be created. No customer messages will be sent.</p>{parts.map((p,i)=><div key={i} className="mt-3 rounded-lg bg-[#f5f5f2] p-3"><strong>{p.scope} · {gbp(p.amount)}</strong><p className="text-xs">{p.disposition==="proceed"?"Proceeding":"On hold"}</p><p className="mt-2 whitespace-pre-wrap text-xs">{p.description}</p></div>)}<div className="mt-4 flex gap-2"><button type="button" disabled={busy} onClick={()=>void submit()} className="rounded-lg bg-[#e66a24] px-4 py-2 font-black text-white">{busy?"Splitting...":"Confirm split"}</button><button type="button" disabled={busy} onClick={()=>setReview(false)} className="rounded-lg border px-4 py-2">Back</button></div></div></div>}
