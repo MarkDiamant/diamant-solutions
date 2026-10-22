@@ -275,7 +275,7 @@ if(parts[0]==="jobs"&&parts[2]==="invoice-share"){if(!canBms(member,"view_paymen
  if(!["draft","send"].includes(data.action)||!data.invoiceId)return NextResponse.json({error:"Choose an invoice and email action"},{status:400});
  const raw=await jobDetail(tenantId,parts[1],member._token),customer=raw?.customer||{};
  const recipient=String(data.to||customer.email||"").trim();
- if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(recipient))return NextResponse.json({error:"Enter a valid recipient email address"},{status:400});
+ if(!recipient.includes("@")||!recipient.split("@")[1]?.includes(".")||recipient.includes(" "))return NextResponse.json({error:"Enter a valid recipient email address"},{status:400});
  const result=await xeroInvoicePdf(tenantId,parts[1],String(data.invoiceId));
  if(data.action==="send"){
   const status=String(result.invoice.status||"").toUpperCase();
