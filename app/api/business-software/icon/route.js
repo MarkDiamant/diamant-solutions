@@ -1,13 +1,14 @@
 import {NextResponse} from "next/server";
-import {tenantRecord,publicTenantSettings} from "../../../../lib/business-software/db";
+import {tenantRecord,centralRest} from "../../../../lib/business-software/db";
 function host(v=""){return String(v).trim().toLowerCase().replace(/^https?:\/\//,"").split("/")[0].split(":")[0]}
 function esc(v=""){return String(v).replaceAll("&","&amp;").replaceAll('"',"&quot;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
 export async function GET(request){
  const h=host(request.headers.get("x-bms-tenant-host")||request.headers.get("x-forwarded-host")||request.headers.get("host")||"");
  const t=await tenantRecord(null,h);
  if(!t)return new NextResponse(null,{status:404});
- const settings=t.slug?await publicTenantSettings(t.slug):null;
- const src=settings?.logo_url||null;
+ const settingsResponse=await centralRest("business_software_tenant_settings?tenant_id=eq."+encodeURIComponent(t.id)+"&select=logo_url,app_config&limit=1").catch(()=>null);
+ const settings=settingsResponse?.ok?(await settingsResponse.json().catch(()=>[]))[0]:null;
+ const src=String(settings?.logo_url||settings?.app_config?.logoUrl||"").trim()||(["mjmetal","mj-metal"].includes(String(t.slug||""))?"https://raw.githubusercontent.com/MarkDiamant/mjmetal/main/public/images/logo.png":null);
  let imageData="";
  if(src){
   if(src.startsWith("data:image/"))imageData=src;
