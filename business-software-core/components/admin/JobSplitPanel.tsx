@@ -5,24 +5,34 @@ type Item={id:number;label:string;amount:number|null;group:number};
 const gbp=(n:number)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(n);
 function parseItems(scope:string,total:number):Item[]{
  const text=scope.replace(/<br\s*\/?\s*>/gi,"\n").replace(/\r\n/g,"\n");
- const lines=text.split("\n");
- const numbered=/^\s*(?:[-*•]\s*)?(?:\*\*)?(?:item\s*|section\s*)?(\d{1,2})\s*[.)\-:]\s*(.+)/i;
- const hasNumbers=lines.filter(line=>numbered.test(line)).length>=2;
+ const lines=text.split("\n").map(x=>x.trim()).filter(Boolean);
+ const numbered=/^(?:[-*•]\s*)?(?:\*\*)?(?:item\s*|section\s*)?(\d{1,2})\s*[.)\-:]\s*(.+)/i;
  const price=/£\s*([\d,]+(?:\.\d{1,2})?)/g;
  const groups:string[][]=[];
+ const explicit=lines.filter(line=>numbered.test(line)).length>=2;
  for(const line of lines){
-   const hasPrice=/£\s*[\d,]+(?:\.\d{1,2})?/.test(line);
-   const starts=hasNumbers?numbered.test(line):hasPrice;
-   if(starts)groups.push([line]);
-   else if(groups.length)groups[groups.length-1].push(line);
+  const numberedMatch=line.match(numbered);
+  const hasPrice=/£\s*[\d,]+(?:\.\d{1,2})?/.test(line);
+  const starts=explicit?Boolean(numberedMatch):hasPrice;
+  if(starts)groups.push([line]);else if(groups.length)groups[groups.length-1].push(line);
  }
  if(groups.length<2)return [];
  const parsed=groups.map((group,id)=>{
-   const label=group.join("\n").trim();
-   const prices=[...label.matchAll(price)].map(m=>Number(m[1].replace(/,/g,"")));
-   return {id,label,amount:prices.length?prices[prices.length-1]:null,group:id};
+  const label=group.join("\n").trim();
+  const prices=[...label.matchAll(price)].map(m=>Number(m[1].replace(/,/g,"")));
+  return {id,label,amount:prices.length?prices[prices.length-1]:null,group:id};
  });
- // Never invent item prices. Unpriced items must be reviewed and priced explicitly.
+ // Related finishes, coating, installation and hardware belong with the preceding work item.
+ // Users can always reassign each line, change order names and review amounts.
+ const related=/\b(powder\s*coat(?:ing|ed)?|paint(?:ing|ed)?|finish(?:ing)?|galvanis(?:ing|ed|ation)|hardware|fittings|installation|labour)\b/i;
+ const subject=/\b(gates?|grates?|railings?|fences?|doors?|stairs?|balustrades?)\b/i;
+ for(let i=1;i<parsed.length;i++){
+  const first=parsed[i].label.split("\n")[0];
+  const prev=parsed[i-1].label.split("\n")[0];
+  const subjectNow=first.match(subject)?.[0]?.toLowerCase();
+  const subjectPrev=prev.match(subject)?.[0]?.toLowerCase();
+  if(related.test(first)&&subjectNow&&subjectNow===subjectPrev)parsed[i].group=parsed[i-1].group;
+ }
  return parsed;
 }
 export default function JobSplitPanel({reference,quotes}:{reference:string;quotes:any[]}){
