@@ -60,7 +60,8 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
  // Reconcile against Xero first to avoid duplicates after a failed local save.
  const escaped=String(job.reference).replace(/"/g,'\\"');
  const matched=await xeroRequest(tenantId,"Invoices?where="+encodeURIComponent('Reference=="'+escaped+'"'));
- let invoice=(matched.Invoices||[]).find((v:any)=>v.Type==="ACCREC"&&v.Reference===job.reference);\n if(!invoice){const byNumber=await xeroRequest(tenantId,"Invoices?where="+encodeURIComponent(\'InvoiceNumber=="INV-\'+escaped+\'"\'));invoice=(byNumber.Invoices||[]).find((v:any)=>v.Type==="ACCREC"&&v.InvoiceNumber==="INV-"+job.reference);}
+ let invoice=(matched.Invoices||[]).find((v:any)=>v.Type==="ACCREC"&&v.Reference===job.reference);
+ if(!invoice){const byNumber=await xeroRequest(tenantId,"Invoices?where="+encodeURIComponent(`InvoiceNumber=="INV-${escaped}"`));invoice=(byNumber.Invoices||[]).find((v:any)=>v.Type==="ACCREC"&&v.InvoiceNumber==="INV-"+job.reference);}
  if(!invoice){
   let contactId=customer.xero_contact_id;
   if(!contactId&&customer.email){
