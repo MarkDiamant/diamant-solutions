@@ -175,7 +175,7 @@ async function syncDraftXeroInvoiceTitle(tenantId:string,reference:string,extern
  const remote=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(externalInvoiceId));
  const invoice=remote.Invoices?.[0];
  if(!invoice||invoice.Type!=="ACCREC")throw new Error("Xero sales invoice not found.");
- if(invoice.Status!=="DRAFT")return;
+ if(invoice.Status!=="DRAFT"||invoice.SentToContact)return;
  const items=invoice.LineItems||[];
  if(items.length!==1||!items[0]?.LineItemID)throw new Error("This draft invoice has multiple or unidentified lines. Update its description directly in Xero.");
  if(String(items[0].Description||"").trim()===title)return;
