@@ -200,3 +200,7 @@
 .bms-materials .bms-primary:hover:not(:disabled){filter:brightness(.9)}
 .bms-materials-ruby-icon{object-fit:cover;border-radius:50%;width:42px;height:42px}
 .bms-materials .bms-confirm:not(:disabled){background:var(--bm-accent,#245b82);border-color:var(--bm-accent,#245b82);color:#fff}
+
+/* Purchasing content must remain beneath the global BMS header/navigation. */
+.bms-materials{position:relative;z-index:0;isolation:isolate}
+.bms-materials-header{margin-top:18px!important;z-index:0!important}
