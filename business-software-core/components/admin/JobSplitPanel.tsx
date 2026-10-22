@@ -18,7 +18,7 @@ function parseItems(scope:string,total:number):Item[]{
   let pending:string[]=[];
   for(const line of lines){
    pending.push(line);
-   if(/£\\s*[\\d,]+(?:\\.\\d{1,2})?/.test(line)){groups.push(pending);pending=[];}
+   if(/£\s*[\d,]+(?:\.\d{1,2})?/.test(line)){groups.push(pending);pending=[];}
   }
   if(pending.length&&groups.length)groups[groups.length-1].push(...pending);
  }
