@@ -204,3 +204,12 @@
 /* Purchasing content must remain beneath the global BMS header/navigation. */
 .bms-materials{position:relative;z-index:0;isolation:isolate}
 .bms-materials-header{margin-top:18px!important;z-index:0!important}
+
+/* Keep purchasing heading and the product-row action inset within their containers. */
+.bms-materials .bms-materials-header{padding:24px 28px!important;min-height:96px;display:flex;align-items:center}
+.bms-materials .bms-materials-header>div{min-width:0;padding:2px 0}
+.bms-materials .bms-materials-header h1{font-size:clamp(23px,2.5vw,30px)!important;line-height:1.3!important;margin:0 0 5px!important;overflow-wrap:anywhere}
+.bms-materials .bms-materials-header .bms-materials-subtitle{margin:0!important;line-height:1.55!important}
+.bms-materials .bms-materials-actions{padding:16px!important;gap:10px!important}
+.bms-materials .bms-materials-actions>button{margin:0!important;flex-shrink:0}
+@media(max-width:580px){.bms-materials .bms-materials-header{padding:20px 18px!important}.bms-materials .bms-materials-header h1{font-size:24px!important}.bms-materials .bms-materials-actions{padding:14px!important}}
