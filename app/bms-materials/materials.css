@@ -213,3 +213,8 @@
 .bms-materials .bms-materials-actions{padding:16px!important;gap:10px!important}
 .bms-materials .bms-materials-actions>button{margin:0!important;flex-shrink:0}
 @media(max-width:580px){.bms-materials .bms-materials-header{padding:20px 18px!important}.bms-materials .bms-materials-header h1{font-size:24px!important}.bms-materials .bms-materials-actions{padding:14px!important}}
+
+/* Inset the product history control consistently on all viewport sizes. */
+.bms-materials .bms-materials-panel:has(>button.bms-primary){padding:20px 22px!important}
+.bms-materials .bms-materials-panel:has(>button.bms-primary)>button.bms-primary{margin:0!important}
+@media(max-width:580px){.bms-materials .bms-materials-panel:has(>button.bms-primary){padding:16px!important}}
