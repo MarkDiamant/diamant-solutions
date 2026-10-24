@@ -16,7 +16,7 @@ const requiredKeys=['businessName','contactName','email','businessType','domainO
 const longKeys=['businessType','services','mainGoal','audience','pages','content','contactDetails','socialLinks','colours','examples','photos','domainAccess','features','anythingElse'];
 const canonical=value=>JSON.stringify(value,(_key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
 export default function WebsiteSetupPage(){
- const [data,setData]=useState({}),[step,setStep]=useState(0),[saved,setSaved]=useState(false),[session,setSession]=useState(null),[tenantId,setTenantId]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[logoPath,setLogoPath]=useState(''),[accountLoaded,setAccountLoaded]=useState(false),[emailSent,setEmailSent]=useState(false);
+ const [submitError,setSubmitError]=useState(''),[data,setData]=useState({}),[step,setStep]=useState(0),[saved,setSaved]=useState(false),[session,setSession]=useState(null),[tenantId,setTenantId]=useState(''),[message,setMessage]=useState(''),[busy,setBusy]=useState(false),[logoPath,setLogoPath]=useState(''),[accountLoaded,setAccountLoaded]=useState(false),[emailSent,setEmailSent]=useState(false);
  const saveQueue=useRef(Promise.resolve()),revision=useRef(0),submittedRef=useRef(false),latest=useRef({}),loadedRef=useRef(false);
  const draftKey='ds-website-setup-draft-v1';
  useEffect(()=>{try{const raw=localStorage.getItem(draftKey)||sessionStorage.getItem(draftKey);if(raw){const draft=JSON.parse(raw);if(draft&&typeof draft==='object'){setData(x=>({...draft,...x}));localStorage.setItem(draftKey,JSON.stringify(draft));}}}catch{}},[]);
