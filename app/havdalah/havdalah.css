@@ -33,3 +33,5 @@
 
 .havSchedule .havPhone .havPhoneIcon{display:inline-flex!important;align-items:center;justify-content:center;color:#fff!important;line-height:1!important}
 .havSchedule .havPhone .havPhoneIcon svg{display:block;fill:#fff}
+
+.havNextWeek{text-align:center;margin:14px 0 18px}.havNextWeek a{display:inline-block;background:#172b4d;color:#fff!important;padding:12px 20px;border-radius:10px;font-weight:700;text-decoration:none}.havNextWeek a:hover{background:#29476e}
