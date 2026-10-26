@@ -199,3 +199,20 @@ test("QuickBooks company check is read-only, tenant scoped and requires accounti
  assert.match(block,/String\(company\.Id\)!==realm/);
  assert.doesNotMatch(block,/method:"POST"|method:"PATCH"|method:"DELETE"/);
 });
+
+test("purchase and sales orders use atomic tenant-scoped idempotency wrappers",()=>{
+ const sql=fs.readFileSync("supabase/migrations/20261026001400_bms_order_creation_idempotent.sql","utf8");
+ const operations=fs.readFileSync("business-software-core/components/admin/OperationsPanel.tsx","utf8");
+ for(const kind of ["purchase","sales"]){
+ assert.ok(sql.includes("bms_create_"+kind+"_order_once"));
+ assert.ok(sql.includes("order_kind='"+kind+"'"));
+ assert.ok(sql.includes(":"+kind+":"));
+ }
+ assert.match(sql,/PRIMARY KEY\(tenant_id,order_kind,request_key\)/);
+ assert.match(sql,/ENABLE ROW LEVEL SECURITY/);
+ assert.match(sql,/pg_advisory_xact_lock/);
+ assert.match(api,/rpc\/bms_create_purchase_order_once/);
+ assert.match(api,/rpc\/bms_create_sales_order_once/);
+ assert.match(operations,/operationKey\("purchase-order",payload\)/);
+ assert.match(operations,/operationKey\("sales-orders",payload\)/);
+});
