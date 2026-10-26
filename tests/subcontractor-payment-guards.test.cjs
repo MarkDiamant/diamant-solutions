@@ -228,3 +228,21 @@ test("Ruby document review never treats attachment instructions as authorisation
  assert.match(api,/all writes require a separate authorised action and explicit confirmation/);
  assert.match(api,/DOCUMENT REVIEW ONLY/);
 });
+
+test("flooring demo uses isolated real BMS tables and connected stock workflow",()=>{
+ const seed=fs.readFileSync("supabase/demo/flooring_showcase_seed.sql","utf8");
+ const integration=fs.readFileSync("tests/flooring-showcase-connected.sql","utf8");
+ const operations=fs.readFileSync("business-software-core/components/admin/OperationsPanel.tsx","utf8");
+ assert.match(seed,/flooring-showcase-demo/);
+ assert.match(seed,/bms_create_purchase_order_once/);
+ assert.match(seed,/bms_create_sales_order_once/);
+ assert.match(seed,/bms_receive_purchase_line/);
+ assert.match(seed,/bms_reserve_sales_order_line/);
+ assert.match(seed,/business_software_customer_prices/);
+ assert.match(integration,/BEGIN;/);
+ assert.match(integration,/ROLLBACK;/);
+ assert.match(integration,/bms_pick_sales_order_line/);
+ assert.match(integration,/bms_apply_stock_movement/);
+ assert.match(operations,/floorPacks=validFloorCalculation\?Math\.ceil/);
+ assert.match(api,/units_per_pack,specifications/);
+});
