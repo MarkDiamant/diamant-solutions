@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useMemo,useState} from "react";
 import Link from "next/link";
+import {useSearchParams} from "next/navigation";
 
 type Product={id:string;name:string;sku?:string;unit?:string;category?:string;active:boolean;fixed_sell_net?:number;cost_net?:number};
 type Customer={id:string;first_name?:string;last_name?:string};
@@ -15,7 +16,7 @@ const inputClass="w-full rounded-lg border border-slate-300 bg-white p-2 text-sm
 const labelClass="block text-xs font-semibold text-slate-700 mb-1";
 async function api(path:string,options?:RequestInit){const response=await fetch("/api/admin/operations/"+path,{cache:"no-store",...options});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Unable to complete request");return data;}
 function post(path:string,data:unknown){return api(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});}
-export default function OperationsPanel(){
+export default function OperationsPanel(){const selectedCustomer=useSearchParams().get("customer");
  const [catalog,setCatalog]=useState<Catalog>(initial),[stock,setStock]=useState<Stock[]>([]),[orders,setOrders]=useState<SalesOrder[]>([]),[salesLines,setSalesLines]=useState<SalesLine[]>([]);
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[notice,setNotice]=useState("");
  const [customer,setCustomer]=useState(""),[product,setProduct]=useState(""),[qty,setQty]=useState("1"),[reference,setReference]=useState("");
@@ -27,6 +28,7 @@ export default function OperationsPanel(){
  useEffect(()=>{void refresh().catch(e=>{setNotice(e.message);setLoading(false);});const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh().catch(()=>{});},30000);return()=>window.clearInterval(timer);},[refresh]);
  const productById=useMemo(()=>new Map(catalog.products.map(p=>[p.id,p])),[catalog.products]);
  const customerById=useMemo(()=>new Map(catalog.customers.map(c=>[c.id,[c.first_name,c.last_name].filter(Boolean).join(" ")])),[catalog.customers]);
+ useEffect(()=>{if(selectedCustomer&&catalog.customers.some(c=>c.id===selectedCustomer)){setCustomer(selectedCustomer);setPriceCustomer(selectedCustomer);}},[selectedCustomer,catalog.customers]);
  const chosenLine=catalog.purchase_lines.find(l=>l.id===receiptLine);
  async function submit(task:()=>Promise<unknown>,success:string){if(busy)return;setBusy(true);setNotice("");try{await task();await refresh();setNotice(success);}catch(e){setNotice(e instanceof Error?e.message:"Unable to save");}finally{setBusy(false);}}
  return <main className="mx-auto max-w-7xl space-y-5 px-4 py-6 text-slate-900">
