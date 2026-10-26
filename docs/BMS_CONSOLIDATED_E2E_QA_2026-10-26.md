@@ -61,3 +61,8 @@ Updated: 26 October 2026. Scope: shared BMS core, all tenants. Do not alter MJ01
 - Added atomic delivery completion RPC that requires picked stock, creates delivered line quantities, advances sales order fulfilment, records delivery status/time and rejects changed replay keys. Executed rollback-only SQL successfully as `service_role`. Test via authenticated UI before treating as fully certified.
 - Tested existing rollback-only two-tenant isolation SQL successfully.
 - Financial records on MJ010 and other existing live tenants were not changed.
+
+## Ruby and logistics follow-up gates
+- New `POST /api/admin/ai/document-action` accepts only explicitly confirmed, attachment-owned, permission-checked draft purchase orders, draft sales orders or goods receipts, using stable request keys and existing tenant-checked RPCs. It does **not** send supplier orders, post invoices, reconcile payments or connect automatically to the Ruby chat UI yet.
+- A delivery can now be marked delivered through the Operations UI after an explicit confirmation. The database only fulfils quantities already picked and rejects mismatched retries; integration SQL passed under `service_role`.
+- Tomorrow: upload a fictional supplier quotation and customer order, review extracted fields, confirm draft creation through a controlled authenticated request, verify Ruby UI presentation, and check invoice/receipt/delivery-note review-only behaviour.
