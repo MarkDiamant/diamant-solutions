@@ -246,3 +246,16 @@ test("flooring demo uses isolated real BMS tables and connected stock workflow",
  assert.match(operations,/floorPacks=validFloorCalculation\?Math\.ceil/);
  assert.match(api,/units_per_pack,specifications/);
 });
+
+test("delivery and fitting plans are tenant scoped and retry protected",()=>{
+ const sql=fs.readFileSync("supabase/migrations/20261026001600_bms_logistics_request_keys.sql","utf8");
+ const operations=fs.readFileSync("business-software-core/components/admin/OperationsPanel.tsx","utf8");
+ assert.match(sql,/bms_delivery_request_key_unique/);
+ assert.match(sql,/bms_fitting_request_key_unique/);
+ for(const kind of ["delivery","fitting"]){
+  assert.ok(operations.includes('operationKey("'+kind+'",payload)'));
+  assert.ok(api.includes('if(p==="operations/'+kind+'")'));
+ }
+ assert.match(api,/Logistics request key reused with changed details/);
+ assert.match(api,/Date\.parse\(String\(existing\.scheduled_at/);
+});
