@@ -1,0 +1,35 @@
+-- Safe integration test against fictional flooring tenant only. All writes rolled back.
+BEGIN;
+DO $$
+DECLARE t uuid;l uuid;p uuid;pol uuid;sol uuid;po uuid;so uuid;before_onhand numeric;after_onhand numeric;res numeric;replay uuid;
+BEGIN
+ SELECT id INTO t FROM business_software_tenants WHERE slug='flooring-showcase-demo';
+ IF t IS NULL THEN RAISE EXCEPTION 'Seed flooring showcase before running test';END IF;
+ SELECT id INTO l FROM business_software_stock_locations WHERE tenant_id=t AND name='Main flooring warehouse';
+ SELECT id INTO p FROM business_software_price_book_items WHERE tenant_id=t AND sku='FL-LAM-OAK8';
+ SELECT id INTO pol FROM business_software_purchase_order_lines WHERE tenant_id=t AND product_id=p LIMIT 1;
+ SELECT id INTO sol FROM business_software_sales_order_lines WHERE tenant_id=t AND product_id=p LIMIT 1;
+ SELECT material_order_id INTO po FROM business_software_purchase_order_lines WHERE id=pol;
+ SELECT sales_order_id INTO so FROM business_software_sales_order_lines WHERE id=sol;
+ IF (SELECT agreed_unit_net FROM business_software_sales_order_lines WHERE id=sol)<>37 THEN RAISE EXCEPTION 'Customer price not resolved';END IF;
+ IF (SELECT received_quantity FROM business_software_purchase_order_lines WHERE id=pol)<>8 THEN RAISE EXCEPTION 'Unexpected demo opening receipt';END IF;
+ IF (SELECT reserved_quantity FROM business_software_sales_order_lines WHERE id=sol)<>12 THEN RAISE EXCEPTION 'Unexpected opening reservation';END IF;
+ SELECT on_hand INTO before_onhand FROM business_software_stock_balances WHERE tenant_id=t AND product_id=p AND location_id=l;
+ IF before_onhand<>38 THEN RAISE EXCEPTION 'Expected 38 packs, got %',before_onhand;END IF;
+ PERFORM bms_receive_purchase_line(t,pol,l,12,'flooring-demo-integration-gr');
+ PERFORM bms_receive_purchase_line(t,pol,l,12,'flooring-demo-integration-gr');
+ IF (SELECT received_quantity FROM business_software_purchase_order_lines WHERE id=pol)<>20 THEN RAISE EXCEPTION 'Goods receipt did not complete';END IF;
+ PERFORM bms_reserve_sales_order_line(t,sol,l,12,'flooring-demo-integration-res');
+ PERFORM bms_reserve_sales_order_line(t,sol,l,12,'flooring-demo-integration-res');
+ IF (SELECT reserved_quantity FROM business_software_sales_order_lines WHERE id=sol)<>24 THEN RAISE EXCEPTION 'Reservation incorrect';END IF;
+ PERFORM bms_pick_sales_order_line(t,sol,l,24,'flooring-demo-integration-pick');
+ PERFORM bms_pick_sales_order_line(t,sol,l,24,'flooring-demo-integration-pick');
+ SELECT on_hand,reserved INTO after_onhand,res FROM business_software_stock_balances WHERE tenant_id=t AND product_id=p AND location_id=l;
+ IF after_onhand<>26 OR res<>0 THEN RAISE EXCEPTION 'Pick balance incorrect: % on hand, % reserved',after_onhand,res;END IF;
+ PERFORM bms_apply_stock_movement(t,p,l,2,'Unused packs returned in good condition','fitting_return',so::text,'flooring-demo-integration-return');
+ SELECT on_hand INTO after_onhand FROM business_software_stock_balances WHERE tenant_id=t AND product_id=p AND location_id=l;
+ IF after_onhand<>28 THEN RAISE EXCEPTION 'Return balance incorrect: %',after_onhand;END IF;
+ SELECT bms_create_sales_order_once(t,(SELECT customer_id FROM business_software_sales_orders WHERE id=so), (SELECT job_id FROM business_software_sales_orders WHERE id=so),jsonb_build_array(jsonb_build_object('product_id',p,'quantity',24)),'SO-2001','flooring-demo-so-2001') INTO replay;
+ IF replay<>so THEN RAISE EXCEPTION 'Sales order replay created a duplicate';END IF;
+END $$;
+ROLLBACK;
