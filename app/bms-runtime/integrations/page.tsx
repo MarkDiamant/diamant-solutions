@@ -8,7 +8,7 @@ export default function IntegrationsPage() {
   const [connected, setConnected] = useState(false);
   const [bankAuthorised,setBankAuthorised]=useState(false);
   const [unmatched,setUnmatched]=useState<any[]>([]),[jobOptions,setJobOptions]=useState<any[]>([]),[canReconcile,setCanReconcile]=useState(false),[selectedJobs,setSelectedJobs]=useState<Record<string,string>>({}),[matching,setMatching]=useState(false);
-  const [tenantName, setTenantName] = useState<string | null>(null); const [syncing,setSyncing]=useState(false),[syncResult,setSyncResult]=useState("");
+  const [lastSync,setLastSync]=useState<{status:string;finished_at:string;checked:number;imported:number;needs_review:number;error_message?:string}|null>(null);const [tenantName, setTenantName] = useState<string | null>(null); const [syncing,setSyncing]=useState(false),[syncResult,setSyncResult]=useState("");
   const [error, setError] = useState("");
   const [crmConfig,setCrmConfig]=useState<CrmConfig>(DEFAULT_CRM_CONFIG);
   const [organisations,setOrganisations]=useState<Array<{tenantId:string;tenantName?:string}>>([]);
@@ -23,7 +23,7 @@ export default function IntegrationsPage() {
     const body = await response.json().catch(() => ({}));
     if (!response.ok) setError(friendlyError(body.error) || "Unable to check Xero");
     else { setConnected(Boolean(body.connected)); setBankAuthorised(Boolean(body.bankTransactionsAuthorised)); setTenantName(body.tenantName || null); setError(""); }
-    setLoading(false);
+    setLoading(false);void loadSyncHistory();
   }
 
   useEffect(()=>{fetch("/api/admin/integrations/quickbooks/status",{cache:"no-store"}).then(async r=>{if(r.ok){const b=await r.json();setQuickbooks({connected:!!b.connected,configured:!!b.configured,company:b.company||null});}}).catch(()=>{});},[]);
@@ -32,7 +32,8 @@ export default function IntegrationsPage() {
 
   async function chooseOrganisation(tenantId:string){setError("");const r=await fetch("/api/admin/integrations/xero/organisations",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({tenantId})});const b=await r.json().catch(()=>({}));if(!r.ok){setError(b.error||"Unable to connect Xero");return;}setChoosing(false);setOrganisations([]);window.history.replaceState({},"","/admin/integrations");await load();}
 
-  async function syncNow(){setSyncing(true);setSyncResult("");setError("");try{const r=await fetch("/api/admin/integrations/xero/sync",{cache:"no-store"});const b=await r.json().catch(()=>({}));if(!r.ok)throw new Error(b.error||"Unable to sync Xero");setSyncResult("Checked "+(b.scanned??0)+" bank transactions; "+(b.imported??0)+" new receipts imported, "+(b.already_imported??0)+" already recorded, "+(b.needs_review??0)+" requiring review. "+(b.invoices_refreshed??0)+" invoices refreshed.");const [receipts,jobs]=await Promise.all([fetch("/api/admin/integrations/xero/unmatched",{cache:"no-store"}),fetch("/api/admin/jobs",{cache:"no-store"})]);if(receipts.ok)setUnmatched((await receipts.json()).receipts||[]);if(jobs.ok)setJobOptions(((await jobs.json()).jobs||[]).filter((x:any)=>!x.isPlaceholder));}catch(e){setError(e instanceof Error?e.message:"Xero sync failed");}finally{setSyncing(false);}}
+  async function loadSyncHistory(){try{const r=await fetch("/api/admin/integrations/xero/sync-history",{cache:"no-store"});if(r.ok){const b=await r.json();setLastSync(b.runs?.[0]||null);}}catch{}}
+  async function syncNow(){setSyncing(true);setSyncResult("");setError("");try{const r=await fetch("/api/admin/integrations/xero/sync",{cache:"no-store"});const b=await r.json().catch(()=>({}));if(!r.ok)throw new Error(b.error||"Unable to sync Xero");setSyncResult("Checked "+(b.scanned??0)+" bank transactions; "+(b.imported??0)+" new receipts imported, "+(b.already_imported??0)+" already recorded, "+(b.needs_review??0)+" requiring review. "+(b.invoices_refreshed??0)+" invoices refreshed.");const [receipts,jobs]=await Promise.all([fetch("/api/admin/integrations/xero/unmatched",{cache:"no-store"}),fetch("/api/admin/jobs",{cache:"no-store"})]);if(receipts.ok)setUnmatched((await receipts.json()).receipts||[]);if(jobs.ok)setJobOptions(((await jobs.json()).jobs||[]).filter((x:any)=>!x.isPlaceholder));await loadSyncHistory();}catch(e){setError(e instanceof Error?e.message:"Xero sync failed");}finally{setSyncing(false);}}
   async function disconnect() {
     if (!window.confirm(`Disconnect Xero from ${crmConfig.businessName}?`)) return;
     const response = await fetch("/api/admin/integrations/xero/status", { method: "DELETE" });
@@ -60,6 +61,7 @@ export default function IntegrationsPage() {
           <div className="mt-5 flex gap-3">
             {!connected ? <a href="/api/admin/integrations/xero/connect" className="rounded-xl bg-[#e66a24] px-5 py-3 text-sm font-black text-white">Connect Xero</a> : <><button disabled={syncing} onClick={()=>void syncNow()} className="rounded-xl bg-[#e66a24] px-5 py-3 text-sm font-black text-white disabled:opacity-50">{syncing?"Syncing Xero…":"Sync Xero Now"}</button><button onClick={() => void disconnect()} className="rounded-xl border border-black/15 px-5 py-3 text-sm font-black">Disconnect Xero</button></> }
           </div>
+          {lastSync&&<p className="mt-4 text-sm text-slate-600">Last Xero sync: {new Date(lastSync.finished_at).toLocaleString("en-GB")} · {lastSync.status} · {lastSync.checked} checked · {lastSync.imported} imported{lastSync.needs_review?" · "+lastSync.needs_review+" to review":""}{lastSync.error_message?" · "+lastSync.error_message:""}</p>}
           {syncResult&&<p role="status" className="mt-4 rounded-xl bg-slate-50 p-3 text-sm">{syncResult}</p>}
         </section>
 
