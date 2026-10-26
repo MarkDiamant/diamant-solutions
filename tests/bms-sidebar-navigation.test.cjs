@@ -5,8 +5,8 @@ const nav=fs.readFileSync("business-software-core/components/admin/AdminBrandBar
 const css=fs.readFileSync("app/bms-runtime/bms.css","utf8");
 const api=fs.readFileSync("app/api/bms-live/[...path]/route.ts","utf8");
 test("shared sidebar replaces horizontal menu and preserves tenant branding",()=>{
- assert.match(nav,/bms-sidebar/);assert.match(nav,/config\.logoUrl/);
- assert.match(nav,/config\.accentColour/);assert.doesNotMatch(nav,/overflow-x-auto/);
+ assert.match(nav,/bms-sidebar/);assert.match(nav,/config\?\.logoUrl/);
+ assert.match(nav,/config\?\.accentColour/);assert.doesNotMatch(nav,/overflow-x-auto/);
 });
 test("navigation groups cover actual core routes without duplicate menu hrefs",()=>{
  for(const group of ["Overview","Sales & Customers","Products & Operations","Finance","Workforce","Documents","Administration"])assert.ok(nav.includes('name:"'+group+'"'));
