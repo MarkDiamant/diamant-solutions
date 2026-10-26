@@ -321,3 +321,11 @@ test("labour billing CSV export neutralises spreadsheet formulas",()=>{
  assert.match(ui,/\[=\+@\]/);
  assert.match(ui,/Payable cost GBP/);
 });
+
+test("Ruby and workforce service grants do not grant direct client access",()=>{
+ for(const file of ["20261026002100_bms_ruby_document_grants.sql","20261026002200_bms_workforce_service_grants.sql","20261026002300_bms_material_allocation_audit_grants.sql"]){
+ const sql=fs.readFileSync("supabase/migrations/"+file,"utf8");
+ assert.match(sql,/TO service_role/);
+ assert.doesNotMatch(sql,/TO anon|TO authenticated/);
+ }
+});
