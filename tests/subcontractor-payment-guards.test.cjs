@@ -173,3 +173,17 @@ test("stock operations reject malformed retry keys and excessive quantities",()=
  assert.match(block,/\^\[a-zA-Z0-9:_-\]\{8,150\}\$/);
  }
 });
+
+test("Xero reconciliation normalises job reference punctuation and deduplicates candidates",()=>{
+ assert.match(api,/const ref=String\(job\.reference\|\|""\)\.trim\(\)\.toUpperCase\(\)\.replace\(\/\[- \]\/g,""\)/);
+ assert.match(api,/const matches=\[\.\.\.new Map\(refs\.flatMap/);
+ assert.match(api,/linkedExternalIds\.has\(String\(tx\.BankTransactionID\)\)/);
+ assert.match(api,/String\(p\.paid_at\|\|""\)\.slice\(0,10\)!==date\.slice\(0,10\)/);
+});
+test("Ruby undo requires matching action/table, actor and live edit permission",()=>{
+ assert.match(api,/undoPermissions:Record/);
+ assert.match(api,/u\.table!==rule\.table/);
+ assert.match(api,/String\(u\.id\)!==String\(a\.entity_id\)/);
+ assert.match(api,/canBms\(member,rule\.permission\)/);
+ for(const kind of ["update_task","update_customer"])assert.match(api,new RegExp('if\\(plan\\.kind==="'+kind+'"\\)\\{if\\(!canBms\\(member,"edit_jobs"\\)\\)'));
+});
