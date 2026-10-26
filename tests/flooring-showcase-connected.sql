@@ -27,6 +27,13 @@ BEGIN
  PERFORM bms_pick_sales_order_line(t,sol,l,24,'flooring-demo-integration-pick');
  SELECT on_hand,reserved INTO after_onhand,res FROM business_software_stock_balances WHERE tenant_id=t AND product_id=p AND location_id=l;
  IF after_onhand<>26 OR res<>0 THEN RAISE EXCEPTION 'Pick balance incorrect: % on hand, % reserved',after_onhand,res;END IF;
+ PERFORM bms_confirm_delivery(t,(SELECT id FROM business_software_deliveries WHERE tenant_id=t AND sales_order_id=so LIMIT 1),'flooring-demo-complete-2001','24 packs delivered');
+ PERFORM bms_confirm_delivery(t,(SELECT id FROM business_software_deliveries WHERE tenant_id=t AND sales_order_id=so LIMIT 1),'flooring-demo-complete-2001','24 packs delivered');
+ IF (SELECT fulfilled_quantity FROM business_software_sales_order_lines WHERE id=sol)<>24 THEN RAISE EXCEPTION 'Delivered quantity did not match picked stock';END IF;
+ rejected:=false;
+ BEGIN PERFORM bms_confirm_delivery(t,(SELECT id FROM business_software_deliveries WHERE tenant_id=t AND sales_order_id=so LIMIT 1),'flooring-demo-different-completion','wrong retry');
+ EXCEPTION WHEN others THEN rejected:=true;END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Delivery accepted a changed completion key';END IF;
  PERFORM bms_apply_stock_movement(t,p,l,2,'Unused packs returned in good condition','fitting_return',so::text,'flooring-demo-integration-return');
  SELECT on_hand INTO after_onhand FROM business_software_stock_balances WHERE tenant_id=t AND product_id=p AND location_id=l;
  IF after_onhand<>28 THEN RAISE EXCEPTION 'Return balance incorrect: %',after_onhand;END IF;
