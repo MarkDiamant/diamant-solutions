@@ -68,7 +68,8 @@ const sampleConfigs:any={
  insurance:{businessName:"Harbour Insurance Services",logoUrl:"/harbour-demo-logo.svg",accentColour:"#377d68",workforceTitle:"Advisers / account managers",workforceRoles:["Insurance adviser","Account manager","Claims handler","Administrator"],finishOptions:["Standard cover","Enhanced cover","Bespoke policy"],workTypes:["New Policy","Renewal","Claim Support","Commercial Cover","Home Cover","Motor Cover","Review","Other"]},
  studio:{businessName:"Studio North Creative",logoUrl:"/studio-north-demo-logo.svg",accentColour:"#7656a6",workforceTitle:"Creative team / freelancers",workforceRoles:["Designer","Creative director","Copywriter","Photographer","Freelancer"],finishOptions:["Digital delivery","Print-ready","Premium package"],workTypes:["Branding","Website","Campaign","Content","Photography","Design Retainer","Consultation","Other"]},
  consultancy:{businessName:"Carter & Cole Consulting",logoUrl:"/carter-cole-demo-logo.svg",accentColour:"#536f91",workforceTitle:"Consultants / project team",workforceRoles:["Consultant","Analyst","Project manager","Associate"],finishOptions:["Report","Workshop","Implementation"],workTypes:["Strategy","Operations","Finance","Implementation","Review","Workshop","Retainer","Other"]},
- distribution:{businessName:"Atlas Distribution",logoUrl:"/atlas-demo-logo.svg",accentColour:"#6c7f45",workforceTitle:"Operations / drivers",workforceRoles:["Driver","Dispatcher","Warehouse operative","Operations manager"],finishOptions:["Standard delivery","Express delivery","Scheduled collection"],workTypes:["Delivery","Collection","Warehouse","Fleet","Account Setup","Stock Transfer","Urgent Job","Other"]}
+ distribution:{businessName:"Atlas Distribution",logoUrl:"/atlas-demo-logo.svg",accentColour:"#6c7f45",workforceTitle:"Operations / drivers",workforceRoles:["Driver","Dispatcher","Warehouse operative","Operations manager"],finishOptions:["Standard delivery","Express delivery","Scheduled collection"],workTypes:["Delivery","Collection","Warehouse","Fleet","Account Setup","Stock Transfer","Urgent Job","Other"]},
+ flooring:{businessName:"Oak & Stone Flooring",logoUrl:"",accentColour:"#9a6744",workforceTitle:"Fitters / drivers",workforceRoles:["Flooring fitter","Surveyor","Warehouse operative","Driver","Sales representative"],finishOptions:["Supply only","Supply and fit","Collection"],workTypes:["Laminate","LVT","Carpet","Vinyl","Tiles","Measurements","Floor Preparation","Supply Only","Supply and Fit"]}
 };
 const demoPeople:any={
  northstar:[["ns1","Marcus Field","Northstar Property & Projects","employee"],["ns2","Dean Walsh","DW Plumbing & Heating","subcontractor"],["ns3","Imran Shah","IS Electrical Services","subcontractor"],["ns4","Kelly Moore","Northstar Property & Projects","employee"],["ns5","Peter Grant","Grant Decorating","subcontractor"]],
@@ -76,7 +77,8 @@ const demoPeople:any={
  insurance:[["in1","Rachel Morris","Harbour Insurance Services","employee"],["in2","James Porter","Harbour Insurance Services","employee"],["in3","Aisha Khan","Harbour Insurance Services","employee"],["in4","Daniel Brooks","Harbour Insurance Services","employee"],["in5","Laura Bennett","Harbour Insurance Services","employee"]],
  studio:[["st1","Maya Collins","Studio North Creative","employee"],["st2","Theo Parker","Studio North Creative","employee"],["st3","Lucy Reed","LR Copywriting","subcontractor"],["st4","Nathan Cole","Cole Photography","subcontractor"],["st5","Emma Hughes","Studio North Creative","employee"]],
  consultancy:[["co1","Jonathan Carter","Carter & Cole Consulting","employee"],["co2","Rebecca Cole","Carter & Cole Consulting","employee"],["co3","Adam Fisher","AF Advisory","subcontractor"],["co4","Priya Shah","Carter & Cole Consulting","employee"],["co5","Oliver Grant","OG Analysis","subcontractor"]],
- distribution:[["di1","Gary Mitchell","Atlas Distribution","employee"],["di2","Callum Wright","Atlas Distribution","employee"],["di3","Nadia Lewis","Atlas Distribution","employee"],["di4","Ryan Walker","RW Transport","subcontractor"],["di5","Sophie Adams","Atlas Distribution","employee"]]
+ distribution:[["di1","Gary Mitchell","Atlas Distribution","employee"],["di2","Callum Wright","Atlas Distribution","employee"],["di3","Nadia Lewis","Atlas Distribution","employee"],["di4","Ryan Walker","RW Transport","subcontractor"],["di5","Sophie Adams","Atlas Distribution","employee"]],
+ flooring:[["fl1","David Foster","Oak & Stone Flooring","employee"],["fl2","Michael Price","Oak & Stone Flooring","employee"],["fl3","Ryan Baker","Oak & Stone Flooring","employee"],["fl4","James Carter","Oak & Stone Flooring","employee"],["fl5","Olivia Green","Oak & Stone Flooring","employee"]]
 };
 function peopleForSample(req:NextRequest){const k=sampleKey(req);return (demoPeople[k]||demoPeople.northstar).map((p:any[],i:number)=>({id:p[0],name:p[1],company:p[2],relationship_type:p[3],phone:"020 7946 "+String(3100+i).padStart(4,"0"),email:String(p[1]).toLowerCase().replaceAll(" ",".")+"@example-demo.co.uk",capabilities:[(sampleConfigs[k]?.workforceRoles||["Team member"])[i%(sampleConfigs[k]?.workforceRoles?.length||1)]]}))}
 const demoPriceBooks:any={
@@ -85,7 +87,8 @@ const demoPriceBooks:any={
  insurance:{items:[["Policy administration","Services","policy",35],["Commercial renewal review","Services","policy",75],["Claims support","Services","hour",45]],labour:[["Insurance adviser","hour",32],["Account manager","hour",28]]},
  studio:{items:[["A4 brochure print","Print","each",1.8],["Stock image licence","Creative costs","each",12],["Domain registration","Digital","year",10]],labour:[["Designer","hour",38],["Copywriter","hour",42],["Creative director","hour",65]]},
  consultancy:{items:[["Workshop materials","Delivery costs","session",45],["Research data allowance","Research","project",120]],labour:[["Consultant","day",480],["Analyst","day",260],["Project manager","day",420]]},
- distribution:{items:[["Pallet","Packaging","each",9.5],["Stretch wrap","Packaging","roll",6.2],["Fuel allowance","Transport","mile",0.24],["Warehouse handling","Warehouse","pallet",4.5]],labour:[["Driver","day",175],["Warehouse operative","hour",14.5]]}
+ distribution:{items:[["Pallet","Packaging","each",9.5],["Stretch wrap","Packaging","roll",6.2],["Fuel allowance","Transport","mile",0.24],["Warehouse handling","Warehouse","pallet",4.5]],labour:[["Driver","day",175],["Warehouse operative","hour",14.5]]},
+ flooring:{items:[["Oak laminate 8mm","Laminate","pack",24],["Oak LVT click","LVT","pack",32],["Porcelain grey tile 600mm","Tiles","box",18],["Foam underlay","Underlay","roll",12],["Matching scotia","Accessories","length",3.5]],labour:[["Flooring fitter","day",230],["Floor surveyor","visit",75]]}
 };
 function demoPriceBook(req:NextRequest){const k=sampleKey(req),d=demoPriceBooks[k]||demoPriceBooks.northstar;return {items:d.items.map((x:any[],i:number)=>({id:`demo-${k}-item-${i}`,name:x[0],category:x[1],unit:x[2],cost_net:x[3],cost_vat_rate:20,pricing_method:"margin",margin_percent:30,active:true})),labour:d.labour.map((x:any[],i:number)=>({id:`demo-${k}-labour-${i}`,name:x[0],unit:x[1],cost_rate:x[2],cost_vat_rate:0,pricing_method:"margin",margin_percent:30,active:true})),pricing:{defaultPricingMethod:"margin",defaultMarginPercent:30,defaultMarkupPercent:30,costBasis:"net",defaultCostVatRate:20}};}
 function sampleKey(req:NextRequest){const direct=req.nextUrl.searchParams.get("sample")||req.headers.get("x-bms-demo-sample");if(direct)return direct;try{const ref=req.headers.get("referer");return ref?new URL(ref).searchParams.get("sample")||"northstar":"northstar"}catch{return "northstar"}} function sampleFrom(req:NextRequest){return sampleConfigs[sampleKey(req)]||sampleConfigs.northstar}
@@ -99,7 +102,8 @@ function jobsForSample(req:NextRequest){
   insurance:{count:684,wonTarget:690000,completed:471,active:73,declined:56},
   studio:{count:67,wonTarget:88000,completed:34,active:13,declined:8},
   consultancy:{count:156,wonTarget:385000,completed:91,active:27,declined:12},
-  distribution:{count:392,wonTarget:805000,completed:257,active:58,declined:31}
+  distribution:{count:392,wonTarget:805000,completed:257,active:58,declined:31},
+  flooring:{count:76,wonTarget:245000,completed:40,active:18,declined:6}
  };
  const profile=profiles[key]||profiles.northstar;
  const assignmentTargets:any={
@@ -108,7 +112,8 @@ function jobsForSample(req:NextRequest){
   insurance:[412,173,61,24,14],
   studio:[39,11,27,8,4],
   consultancy:[93,18,57,31,12],
-  distribution:[246,79,41,19,7]
+  distribution:[246,79,41,19,7],
+  flooring:[40,14,10,8,4]
  };
  const targets:number[]=assignmentTargets[key]||assignmentTargets.northstar;
  const assignmentOwner=(i:number)=>{const total=targets.reduce((a,b)=>a+b,0),slot=(i*97+31)%total;let n=0;for(let x=0;x<targets.length;x++){n+=targets[x];if(slot<n)return x}return targets.length-1};
