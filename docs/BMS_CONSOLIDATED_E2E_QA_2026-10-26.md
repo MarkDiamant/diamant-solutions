@@ -71,3 +71,8 @@ Updated: 26 October 2026. Scope: shared BMS core, all tenants. Do not alter MJ01
 - Xero bank receipt sync last checked 23:15 UTC on 26 October and reported success with zero transactions examined in that run. Earlier successful runs identified two Loan receipts needing review. **A successful zero-item sync does not prove customer payments reconcile.**
 - Worker labour billing CSV now neutralises formula-like cell prefixes. Confirm Excel and Google Sheets open it safely and that legitimate numeric costs and negative adjustments remain interpretable.
 - No authenticated live payment writes or historical financial corrections were performed.
+
+## Service-role permission audit
+- Audited all BMS tables for missing server-side read/insert privileges. Fixed missing Ruby attachment/usage, labour rate, worker location update and material allocation audit permissions. Unused legacy estimate/campaign/job-split tables were left restricted.
+- Verified direct authenticated access to Ruby attachments remains denied. Confirm real Ruby file upload, OCR/AI review and document-action confirmation tomorrow.
+- All changes apply to the shared BMS core. Only isolated fictional flooring tenant rows were seeded, and no existing tenant financial entries were edited.
