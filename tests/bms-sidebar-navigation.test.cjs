@@ -55,3 +55,25 @@ test("Worker Portal offers retry on failed authenticated load",()=>{
  assert.match(worker,/Retry loading/);
  assert.match(worker,/setError\(""\)/);
 });
+
+test("Ruby uses the original portrait and remains visible in compact mobile header",()=>{
+ assert.match(nav,/ruby-ai-business-assistant\.webp/);
+ assert.match(css,/\.bms-ruby-avatar/);
+ assert.match(css,/\.bms-header-new-job\{display:none!important/);
+ assert.match(css,/\.bms-ruby-link\{min-height:40px!important;width:42px!important/);
+});
+test("dashboard New Job menu preserves both quick and full job workflows",()=>{
+ const dashboard=fs.readFileSync("business-software-core/components/admin/CrmDashboardV3.tsx","utf8");
+ const menu=fs.readFileSync("business-software-core/components/admin/NewJobMenu.tsx","utf8");
+ const form=fs.readFileSync("business-software-core/components/admin/NewJobFormV2.tsx","utf8");
+ assert.match(dashboard,/NewJobMenu accent=\{crmConfig\.accentColour\}/);
+ assert.doesNotMatch(dashboard,/\+ Quick add job/);
+ assert.match(menu,/Quick Add Job/);assert.match(menu,/Full Job/);
+ assert.match(menu,/jobs\/new\?quick=1/);
+ assert.match(form,/startsWith\("\/bms-runtime"\)/);
+});
+test("logout matches light navigation and exposes a visible keyboard focus state",()=>{
+ assert.match(nav,/Sign out/);
+ assert.match(css,/\.bms-logout\{min-height:42px!important/);
+ assert.match(css,/\.bms-logout:focus-visible/);
+});
