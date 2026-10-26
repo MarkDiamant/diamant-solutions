@@ -29,6 +29,7 @@ export async function GET(request:Request){
   const tenants=await rows("business_software_integrations?provider=eq.xero&status=eq.connected&select=tenant_id,scopes&limit=100");
   for(const row of tenants){const tenantId=String(row.tenant_id);if(!Array.isArray(row.scopes)||!row.scopes.includes("accounting.banktransactions.read"))continue;
    try{
+    const previous={checked,imported,linked,review,failed};
     const creds=await credentials(tenantId);
     const [jobs,payments,links,invoices]=await Promise.all([
      rows("business_software_jobs?tenant_id=eq."+enc(tenantId)+"&select=id,reference&limit=5000"),
@@ -61,7 +62,8 @@ export async function GET(request:Request){
      }
      if(txs.length<100)break;
     }
-   }catch(e){failed++;errors.push("Tenant "+tenantId+": "+(e instanceof Error?e.message:"Unknown error"));}
+    const saved=await centralRest("business_software_accounting_sync_runs",{method:"POST",body:JSON.stringify({tenant_id:tenantId,provider:"xero",sync_type:"bank_receipts",status:failed>previous.failed?"partial":"success",checked:checked-previous.checked,imported:imported-previous.imported,matched_existing:linked-previous.linked,needs_review:review-previous.review,failed:failed-previous.failed})});if(!saved.ok)console.error("Unable to save Xero bank sync history",tenantId);
+   }catch(e){failed++;errors.push("Tenant "+tenantId+": "+(e instanceof Error?e.message:"Unknown error"));const saved=await centralRest("business_software_accounting_sync_runs",{method:"POST",body:JSON.stringify({tenant_id:tenantId,provider:"xero",sync_type:"bank_receipts",status:"failed",failed:1,error_message:(e instanceof Error?e.message:"Unknown error").slice(0,1000)})});if(!saved.ok)console.error("Unable to save Xero bank sync failure",tenantId);}
   }
   console.info("BMS Xero bank receipt sync",{checked,imported,linked,review,failed,errors:errors.slice(0,5)});
   return NextResponse.json({checked,imported,linked,review,failed,errors:errors.slice(0,5)},{status:failed?207:200});
