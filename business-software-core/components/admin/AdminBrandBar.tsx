@@ -82,10 +82,10 @@ export default function AdminBrandBar(){
     <span className="bms-brand-details"><strong style={{color:brand}}>{config?.businessName||"Business Management"}</strong><small>{config?.systemName||"Business Management Software"}</small><DiamantCredit compact/></span>
    </Link>
    <div className="bms-header-actions">
-    <Link href={go("/ai")} onClick={navigate} className="bms-ruby-link" style={{borderColor:brand,color:brand}}><span aria-hidden="true">✦</span> <span>Ask Ruby</span></Link>
-    <div className="bms-new-job">
+    <Link href={go("/ai")} onClick={navigate} className="bms-ruby-link" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
+    <div className="bms-new-job bms-header-new-job">
      <button type="button" onClick={()=>setJobOpen(v=>!v)} aria-expanded={jobOpen} aria-haspopup="true" className="bms-new-job-button" style={{backgroundColor:brand}}>+ New Job</button>
-     {jobOpen&&<div className="bms-job-popover"><Link href={go("/#quick-add")} onClick={navigate}>Quick add job</Link><Link href={go("/jobs/new")} onClick={navigate}>Full new job</Link></div>}
+     {jobOpen&&<div className="bms-job-popover"><Link href={go("/jobs/new?quick=1")} onClick={navigate}>Quick add job</Link><Link href={go("/jobs/new")} onClick={navigate}>Full new job</Link></div>}
     </div>
    </div>
   </div>
@@ -96,7 +96,7 @@ export default function AdminBrandBar(){
   <nav aria-label="Main navigation" className="bms-sidebar-scroll">
    {available.map(group=>{const expanded=mobileOpen?openSections[group.name]!==false:openSections[group.name]??true;const selected=group.entries.some(e=>active(e.href));return <section key={group.name} className="bms-nav-section"><button type="button" className={"bms-nav-heading "+(selected?"bms-nav-heading-active":"")} onClick={()=>toggleSection(group.name)} aria-expanded={expanded} title={compact?group.name:undefined}><span className="bms-side-icon" aria-hidden="true"><NavIcon name={group.icon}/></span><span className="bms-side-label">{group.name}</span><span className="bms-section-chevron bms-side-label" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button>{(expanded||compact)&&<div className="bms-nav-links">{group.entries.map(link)}</div>}</section>})}
   </nav>
-  <div className="bms-sidebar-bottom"><button type="button" className="bms-side-link bms-logout" onClick={()=>void logout()} title="Log out"><span className="bms-side-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span className="bms-side-label">Log out</span></button></div>
+  <div className="bms-sidebar-bottom"><button type="button" className="bms-side-link bms-logout" onClick={()=>void logout()} title="Log out"><span className="bms-side-icon" aria-hidden="true"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></span><span className="bms-side-label">Sign out</span></button></div>
  </aside>
  </>;
 }
