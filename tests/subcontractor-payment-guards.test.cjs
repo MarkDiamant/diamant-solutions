@@ -64,3 +64,12 @@ test('paid balance cannot be changed through legacy assignment updates',()=>{
  assert.match(sql,/p_data \? 'paid_amount'/);
  assert.match(sql,/Payment balances may only change through idempotent payment recording/);
 });
+
+test('Xero loan descriptions are always queued for manual review',()=>{
+ assert.match(api,/const classificationText=\[tx\.Reference/);
+ assert.match(api,/capital introduced/);
+ assert.match(api,/await queueReview\(tx\);continue/);
+});
+test('Xero manual payment linking requires a matching payment date',()=>{
+ assert.match(api,/candidates\.some\(\(p:any\)=>String\(p\.paid_at\|\|""\)\.slice\(0,10\)!==date\.slice\(0,10\)\)/);
+});
