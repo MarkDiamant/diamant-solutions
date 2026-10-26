@@ -298,3 +298,19 @@ test("delivery completion is atomic, idempotent, permission checked and picked-s
  assert.match(ui,/operationKey\("complete-delivery",payload\)/);
  assert.match(ui,/Confirm all picked goods for this delivery were delivered/);
 });
+
+test("Ruby confirmed document actions require attachment ownership, explicit consent and tenant-scoped RPCs",()=>{
+ const start=api.indexOf('if(p==="ai/document-action")');
+ const end=api.indexOf('if(p==="operations/complete-delivery")',start);
+ assert.ok(start>0&&end>start);
+ const block=api.slice(start,end);
+ assert.match(block,/d\.confirm!==true/);
+ assert.match(block,/business_software_ai_attachments\?tenant_id=eq/);
+ assert.match(block,/user_id=eq/);
+ assert.match(block,/bms_create_purchase_order_once/);
+ assert.match(block,/bms_create_sales_order_once/);
+ assert.match(block,/bms_receive_purchase_line/);
+ assert.match(block,/canBms\(member,permission\)/);
+ assert.match(block,/Invoice and payment documents remain review-only/);
+ assert.match(block,/external_supplier_sent:false,accounting_changed:false/);
+});
