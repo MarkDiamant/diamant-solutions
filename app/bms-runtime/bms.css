@@ -239,3 +239,13 @@
  .bms-shell .bms-brand-logo{max-width:72px!important}
  .bms-shell .bms-brand-details strong{font-size:11px!important}
 }
+
+
+/* New Job remains available inside the mobile drawer without occupying header space. */
+.bms-shell #bms-sidebar .bms-mobile-new-job{display:none}
+@media(max-width:850px){
+ .bms-shell #bms-sidebar .bms-mobile-new-job{display:block!important;padding:0 13px 13px!important;flex:0 0 auto!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job .bms-dashboard-new-job{display:block!important;width:100%!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job .bms-new-job-button{width:100%!important;min-height:42px!important;font-size:13px!important;text-align:center!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job .bms-job-popover{left:0!important;right:auto!important;width:100%!important}
+}
