@@ -131,3 +131,9 @@ test("direct job action RPC enforces tenant permissions for quote, cost, purchas
  assert.match(migration,/tenant_id=p_tenant and u\.auth_user_id=uid and u\.status='active'/);
  assert.match(migration,/Subcontractor payments require assignment-linked idempotency/);
 });
+
+test("subcontractor references cannot cross tenant boundaries in direct RPC",()=>{
+ const migration=fs.readFileSync("supabase/migrations/20261026001100_bms_subcontractor_tenant_reference_guard.sql","utf8");
+ assert.match(migration,/business_software_people where tenant_id=p_tenant and id=pid/);
+ assert.match(migration,/Subcontractor not found in tenant/);
+});
