@@ -1,6 +1,6 @@
 "use client";
 import {usePathname,useSearchParams} from "next/navigation";
-const demos=[["northstar","Property & Projects","#17385f"],["electrical","Electrician","#d27832"],["insurance","Insurance","#377d68"],["studio","Creative Agency","#7656a6"],["consultancy","Consultancy","#536f91"],["distribution","Distribution","#6c7f45"]];
+const demos=[["northstar","Property & Projects","#17385f"],["electrical","Electrician","#d27832"],["insurance","Insurance","#377d68"],["studio","Creative Agency","#7656a6"],["consultancy","Consultancy","#536f91"],["distribution","Distribution","#6c7f45"],["flooring","Flooring & Tiles","#9a6744"]];
 export default function DemoSelector(){
  const params=useSearchParams(),pathname=usePathname(),parts=pathname.split("/").filter(Boolean),keys=demos.map(([k])=>k),selected=keys.includes(parts[0])?parts[0]:(params.get("sample")||"northstar");
  const accent=demos.find(([k])=>k===selected)?.[2]||"#17385f";
