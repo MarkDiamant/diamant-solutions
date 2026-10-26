@@ -56,11 +56,14 @@ test("Worker Portal offers retry on failed authenticated load",()=>{
  assert.match(worker,/setError\(""\)/);
 });
 
-test("Ruby uses the original portrait and remains visible in compact mobile header",()=>{
+test("Ruby original portrait moves into scrolling mobile drawer while mobile header stays clean",()=>{
  assert.match(nav,/ruby-ai-business-assistant\.webp/);
- assert.match(css,/\.bms-ruby-avatar/);
- assert.match(css,/\.bms-header-new-job\{display:none!important/);
- assert.match(css,/\.bms-ruby-link\{min-height:40px!important;width:42px!important/);
+ assert.match(nav,/bms-mobile-quick-actions/);
+ assert.match(nav,/bms-mobile-ruby-link/);
+ assert.match(css,/\.bms-header-ruby\{display:none!important/);
+ assert.match(css,/\.bms-mobile-quick-actions\{display:flex!important/);
+ assert.match(css,/\.bms-compact-toggle\{display:none!important/);
+ assert.match(css,/\.bms-brand-details \.builtByCompact\{display:inline-flex!important/);
 });
 test("dashboard New Job menu preserves both quick and full job workflows",()=>{
  const dashboard=fs.readFileSync("business-software-core/components/admin/CrmDashboardV3.tsx","utf8");
@@ -83,4 +86,16 @@ test("New Job remains available from mobile drawer on permitted pages only",()=>
  assert.match(nav,/permissions\.includes\("edit_jobs"\)/);
  assert.match(css,/\.bms-mobile-new-job\{display:block!important/);
  assert.match(nav,/\{expanded&&<div className="bms-nav-links"/);
+});
+
+test("mobile quick actions scroll with navigation, desktop collapse remains available",()=>{
+ const scroll=nav.indexOf('<nav aria-label="Main navigation" className="bms-sidebar-scroll">');
+ const actions=nav.indexOf('className="bms-mobile-quick-actions"');
+ const groups=nav.indexOf('{available.map(group=>');
+ assert.ok(scroll>=0&&actions>scroll&&groups>actions);
+ assert.match(nav,/onClick=\{toggleCompact\}/);
+ assert.match(css,/position:static!important;padding:0 3px 14px!important/);
+ const menu=fs.readFileSync("business-software-core/components/admin/NewJobMenu.tsx","utf8");
+ assert.match(menu,/className="bms-new-job-chevron"/);
+ assert.doesNotMatch(menu,/>⌄<\/span>/);
 });
