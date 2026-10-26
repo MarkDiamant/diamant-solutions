@@ -29,3 +29,12 @@ test('Ruby and generic job actions reject non-idempotent subcontractor payments'
  assert.match(api,/plan\.kind==="record_payment"&&\(String\(payload\.direction/);
  assert.match(api,/data\?\.type==="payment"&&\(String\(data\.direction/);
 });
+
+test('payment form uses POST, not the assignment PATCH route',()=>{
+ assert.match(ui,/const payment=await fetch\(url,\{method:"POST"/);
+});
+test('generic database RPC rejects subcontractor payment variants',()=>{
+ const generic=fs.readFileSync('supabase/migrations/20261026000200_bms_guard_generic_subcontractor_payment_rpc.sql','utf8');
+ assert.match(generic,/Subcontractor payments require assignment-linked idempotency/);
+ assert.match(generic,/p_data->>'payment_type'/);
+});
