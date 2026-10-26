@@ -11,8 +11,8 @@ type PurchaseLine={id:string;material_order_id:string;product_id?:string;descrip
 type Stock={product_id:string;location_id:string;on_hand:number;reserved:number;available:number};
 type SalesOrder={id:string;reference?:string;customer_id:string;job_id?:string;status:string;created_at:string};
 type SalesLine={id:string;sales_order_id:string;product_id?:string;description:string;quantity:number;reserved_quantity:number;picked_quantity:number;fulfilled_quantity:number};
-type Catalog={products:Product[];customers:Customer[];locations:Location[];purchase_lines:PurchaseLine[];suppliers:{id:string;name:string}[];permissions:{manage_stock:boolean;manage_pricing:boolean;create_sales:boolean;plan_logistics:boolean}};
-const initial:Catalog={products:[],customers:[],locations:[],purchase_lines:[],suppliers:[],permissions:{manage_stock:false,manage_pricing:false,create_sales:false,plan_logistics:false}};
+type Catalog={products:Product[];customers:Customer[];locations:Location[];purchase_lines:PurchaseLine[];suppliers:{id:string;name:string}[];permissions:{manage_stock:boolean;manage_purchasing:boolean;manage_pricing:boolean;create_sales:boolean;plan_logistics:boolean}};
+const initial:Catalog={products:[],customers:[],locations:[],purchase_lines:[],suppliers:[],permissions:{manage_stock:false,manage_purchasing:false,manage_pricing:false,create_sales:false,plan_logistics:false}};
 const inputClass="w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900";
 const labelClass="block text-xs font-semibold text-slate-700 mb-1";
 async function api(path:string,options?:RequestInit){const response=await fetch("/api/admin/operations/"+path,{cache:"no-store",...options});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Unable to complete request");return data;}
@@ -56,7 +56,7 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
      <button disabled={busy||!priceCustomer||!priceProduct||price===""} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Save price override</button>
     </form>
    </section>}
-   {catalog.permissions.manage_stock&&<section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Draft purchase order</h2><p className="mb-4 text-sm text-slate-500">Creates an internal supplier order only. Nothing is sent to the supplier.</p>
+   {catalog.permissions.manage_purchasing&&<section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Draft purchase order</h2><p className="mb-4 text-sm text-slate-500">Creates an internal supplier order only. Nothing is sent to the supplier.</p>
     <form className="space-y-3" onSubmit={e=>{e.preventDefault();void submit(()=>post("purchase-order",{supplier_id:poSupplier,notes:poNotes,lines:[{product_id:poProduct,quantity:Number(poQty),unit_cost_net:Number(poCost)}]}),"Draft purchase order created.");}}>
      <div className="flex gap-2"><input aria-label="New supplier" className={inputClass} placeholder="New supplier name" value={supplierName} onChange={e=>setSupplierName(e.target.value)}/><button type="button" disabled={busy||supplierName.trim().length<2} onClick={()=>void submit(()=>post("supplier",{name:supplierName}),"Supplier added.")} className="whitespace-nowrap rounded-lg border px-3 text-sm font-bold">Add supplier</button></div>
      <label className={labelClass}>Supplier<select required className={inputClass} value={poSupplier} onChange={e=>setPoSupplier(e.target.value)}><option value="">Choose supplier</option>{catalog.suppliers.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
