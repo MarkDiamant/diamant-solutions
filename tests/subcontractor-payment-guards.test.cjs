@@ -45,3 +45,10 @@ test('POST records payments while PATCH updates assignment metadata',()=>{
  assert.match(post,/if\(parts\[0\]==="jobs"&&parts\[2\]==="subcontractors"&&parts\[3\]\)[\s\S]*?rpc\/bms_record_subcontractor_payment/);
  assert.match(patch,/if\(parts\[0\]==="jobs"&&parts\[2\]==="subcontractors"&&parts\[3\]\)[\s\S]*?rpc\/bms_update_assignment/);
 });
+
+test('payment endpoint enforces workforce permission and job ownership',()=>{
+ const post=api.slice(api.indexOf('export async function POST('),api.indexOf('export async function PATCH('));
+ assert.match(post,/canBms\(member,"manage_workforce"\)/);
+ assert.match(post,/Assignment does not belong to this job/);
+ assert.match(post,/business_software_job_people\?tenant_id=eq\./);
+});
