@@ -1,0 +1,22 @@
+"use client";
+import {useCallback,useEffect,useState} from "react";
+type Worker={id:string;display_name:string;role:string};
+type Job={id:string;reference:string;job_title?:string};
+type Assignment={id:string;worker_id:string;job_id:string;work_type:string;starts_at:string;ends_at:string;status:string};
+const input="w-full rounded-lg border p-2 text-sm";
+async function api(path:string,body?:unknown){const r=await fetch("/api/admin/"+path,{method:body?"POST":"GET",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined,cache:"no-store"});const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||"Request failed");return j;}
+export default function WorkforcePlanning(){
+ const [workers,setWorkers]=useState<Worker[]>([]),[jobs,setJobs]=useState<Job[]>([]),[assignments,setAssignments]=useState<Assignment[]>([]),[worker,setWorker]=useState(""),[job,setJob]=useState(""),[kind,setKind]=useState("fabrication"),[start,setStart]=useState(""),[end,setEnd]=useState(""),[instructions,setInstructions]=useState(""),[error,setError]=useState(""),[busy,setBusy]=useState(false);
+ const refresh=useCallback(async()=>{const [w,j]=await Promise.all([api("worker/manage"),api("operations/planning-options")]);setWorkers(w.workers||[]);setAssignments(w.assignments||[]);setJobs(j.jobs||[]);},[]);
+ useEffect(()=>{void refresh().catch(e=>setError(String(e)));},[refresh]);
+ const name=(id:string)=>workers.find(w=>w.id===id)?.display_name||"Worker",jobName=(id:string)=>jobs.find(j=>j.id===id)?.reference||"Job";
+ return <main className="mx-auto max-w-5xl space-y-5 px-4 py-6"><header><h1 className="text-3xl font-black">Workforce planning</h1><p className="mt-1 text-sm text-slate-600">Schedule existing BMS jobs and see upcoming worker commitments.</p></header>{error&&<p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+ <section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Assign a worker</h2><form className="mt-4 grid gap-3 sm:grid-cols-2" onSubmit={async e=>{e.preventDefault();setBusy(true);setError("");try{await api("worker/assign",{worker_id:worker,job_id:job,work_type:kind,starts_at:new Date(start).toISOString(),ends_at:new Date(end).toISOString(),instructions});await refresh();}catch(x){setError(x instanceof Error?x.message:"Unable to assign");}finally{setBusy(false);}}}>
+ <label className="text-sm font-semibold">Worker<select required className={input} value={worker} onChange={e=>setWorker(e.target.value)}><option value="">Select worker</option>{workers.map(w=><option key={w.id} value={w.id}>{w.display_name}</option>)}</select></label>
+ <label className="text-sm font-semibold">Job<select required className={input} value={job} onChange={e=>setJob(e.target.value)}><option value="">Select job</option>{jobs.map(j=><option key={j.id} value={j.id}>{j.reference} {j.job_title||""}</option>)}</select></label>
+ <label className="text-sm font-semibold">Work type<select className={input} value={kind} onChange={e=>setKind(e.target.value)}>{["fabrication","installation","delivery","fitting","survey","travel","other"].map(k=><option key={k}>{k}</option>)}</select></label>
+ <label className="text-sm font-semibold">Instructions<input className={input} value={instructions} onChange={e=>setInstructions(e.target.value)}/></label>
+ <label className="text-sm font-semibold">Starts<input required type="datetime-local" className={input} value={start} onChange={e=>setStart(e.target.value)}/></label><label className="text-sm font-semibold">Ends<input required type="datetime-local" className={input} value={end} onChange={e=>setEnd(e.target.value)}/></label>
+ <button disabled={busy||!worker||!job||!start||!end} className="rounded-lg bg-slate-900 px-4 py-3 font-bold text-white disabled:opacity-40">Schedule assignment</button></form></section>
+ <section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Upcoming assignments</h2><div className="mt-3 space-y-2">{assignments.filter(a=>a.status!=="cancelled").map(a=><div key={a.id} className="rounded-lg border p-3 text-sm"><p className="font-semibold">{name(a.worker_id)} · {jobName(a.job_id)} · {a.work_type}</p><p>{new Date(a.starts_at).toLocaleString("en-GB")} to {new Date(a.ends_at).toLocaleString("en-GB")}</p></div>)}{!assignments.length&&<p className="text-sm text-slate-500">No assignments scheduled.</p>}</div></section></main>;
+}
