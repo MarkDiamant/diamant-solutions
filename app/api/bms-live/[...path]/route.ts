@@ -143,6 +143,7 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
  const invoiced=new Set(invoices.map((x:any)=>String(x.job_id)));
  const manualPayments=payments.filter((x:any)=>x.payment_type!=="xero_bank_receipt");
  const known=new Set(payments.filter((x:any)=>x.payment_type==="xero_bank_receipt").map((x:any)=>String(x.notes||"")));
+ const queueReview=async(tx:any)=>{const date=String(tx.DateString||"");if(!/^\d{4}-\d{2}-\d{2}/.test(date))return;const rr=await centralRest("business_software_accounting_unmatched_receipts?on_conflict=tenant_id,provider,external_transaction_id",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tenantId,provider:"xero",external_transaction_id:String(tx.BankTransactionID),amount:Number(tx.Total),paid_at:date.slice(0,10),reference:String(tx.Reference||"").slice(0,500),contact_name:String(tx.Contact?.Name||"").slice(0,200)})});if(!rr.ok)stats.failed++;};
  for(let page=1;page<=(strict?50:3);page++){
   let response:any;try{response=await xeroRequest(tenantId,"BankTransactions?where="+encodeURIComponent('Type=="RECEIVE" AND IsReconciled==true')+"&page="+page);}catch(e){console.error("Xero bank receipt sync unavailable",e instanceof Error?e.message:"unknown");if(strict)throw e;return stats;}
   const rows=response.BankTransactions||[];stats.pages++;stats.scanned+=rows.length;if(!rows.length)break;
@@ -152,13 +153,13 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
    const source=[tx.Reference,tx.LineItems?.map((x:any)=>x.Description).join(" ")].filter(Boolean).join(" ").toUpperCase();
    const refs=[...new Set((source.match(/\b[A-Z]{1,8}[- ]?\d{2,8}\b/g)||[]).map((x:string)=>x.replace(/[- ]/g,"")))];
    const matches=refs.flatMap((ref:string)=>byRef.get(ref)||[]);
-   if(matches.length!==1){stats.needs_review++;continue;}stats.matched++;
+   if(matches.length!==1){stats.needs_review++;await queueReview(tx);continue;}stats.matched++;
    const job=matches[0],id=String(job.id),note="Xero bank receipt "+tx.BankTransactionID;
-   if(invoiced.has(id)){stats.needs_review++;continue;}if(known.has(note)||linkedExternalIds.has(String(tx.BankTransactionID))){stats.already_imported++;continue;}
+   if(invoiced.has(id)){stats.needs_review++;await queueReview(tx);continue;}if(known.has(note)||linkedExternalIds.has(String(tx.BankTransactionID))){stats.already_imported++;continue;}
    // A manually recorded payment of the same amount may already represent this receipt.
    // Do not import it again without a verified external transaction identifier.
    const candidates=manualPayments.filter((p:any)=>String(p.job_id)===id&&Math.abs(Number(p.amount)-amount)<0.01&&!linkedPaymentIds.has(String(p.id)));
-   if(candidates.length>1){stats.needs_review++;continue;}
+   if(candidates.length>1){stats.needs_review++;await queueReview(tx);continue;}
    const date=String(tx.DateString||"");if(!/^\d{4}-\d{2}-\d{2}/.test(date)){stats.needs_review++;continue;}
    const existingId=candidates.length===1?String(candidates[0].id):null;
    const result=await centralRest("rpc/bms_record_verified_bank_receipt",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_job:id,p_external:String(tx.BankTransactionID),p_amount:amount,p_paid_at:date.slice(0,10),p_existing_payment:existingId})});
