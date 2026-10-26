@@ -139,7 +139,7 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
  const jobs=await jr.json(),invoices=await ir.json(),payments=await pr.json(),links=await lr.json();
  const linkedPaymentIds=new Set(links.map((x:any)=>String(x.payment_id)));
  const linkedExternalIds=new Set(links.map((x:any)=>String(x.external_transaction_id)));
- const byRef=new Map<string,any[]>();for(const job of jobs){const ref=String(job.reference||"").trim().toUpperCase();if(!ref)continue;const a=byRef.get(ref)||[];a.push(job);byRef.set(ref,a);}
+ const byRef=new Map<string,any[]>();for(const job of jobs){const ref=String(job.reference||"").trim().toUpperCase().replace(/[- ]/g,"");if(!ref)continue;const a=byRef.get(ref)||[];a.push(job);byRef.set(ref,a);}
  const invoiced=new Set(invoices.map((x:any)=>String(x.job_id)));
  const manualPayments=payments.filter((x:any)=>x.payment_type!=="xero_bank_receipt");
  const known=new Set(payments.filter((x:any)=>x.payment_type==="xero_bank_receipt").map((x:any)=>String(x.notes||"")));
@@ -152,7 +152,7 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
    const amount=Number(tx.Total);if(!Number.isFinite(amount)||amount<=0)continue;const classificationText=[tx.Reference,tx.Contact?.Name,...(tx.LineItems||[]).map((line:any)=>line.Description||"")].filter(Boolean).join(" ");if(/\bloan\b|\bcapital introduced\b|\bintercompany\b/i.test(classificationText)){stats.needs_review++;await queueReview(tx);continue;}
    const source=[tx.Reference,tx.LineItems?.map((x:any)=>x.Description).join(" ")].filter(Boolean).join(" ").toUpperCase();
    const refs=[...new Set((source.match(/\b[A-Z]{1,8}[- ]?\d{2,8}\b/g)||[]).map((x:string)=>x.replace(/[- ]/g,"")))];
-   const matches=refs.flatMap((ref:string)=>byRef.get(ref)||[]);
+   const matches=[...new Map(refs.flatMap((ref:string)=>byRef.get(ref)||[]).map((job:any)=>[String(job.id),job])).values()];
    if(matches.length!==1){stats.needs_review++;await queueReview(tx);continue;}stats.matched++;
    const job=matches[0],id=String(job.id),note="Xero bank receipt "+tx.BankTransactionID;
    if(invoiced.has(id)){stats.needs_review++;await queueReview(tx);continue;}if(known.has(note)||linkedExternalIds.has(String(tx.BankTransactionID))){stats.already_imported++;continue;}
