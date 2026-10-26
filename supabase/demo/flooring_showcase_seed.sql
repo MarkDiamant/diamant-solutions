@@ -42,6 +42,15 @@ BEGIN
  SELECT id INTO sol FROM business_software_sales_order_lines WHERE tenant_id=t AND sales_order_id=so AND product_id=p;
  IF NOT EXISTS(SELECT 1 FROM bms_material_receipt_events WHERE tenant_id=t AND line_id=pol) THEN PERFORM bms_receive_purchase_line(t,pol,l,8,'flooring-demo-gr-1001-part1'); END IF;
  IF NOT EXISTS(SELECT 1 FROM business_software_stock_reservation_events WHERE tenant_id=t AND sales_order_line_id=sol) THEN PERFORM bms_reserve_sales_order_line(t,sol,l,12,'flooring-demo-res-2001'); END IF;
+ IF NOT EXISTS(SELECT 1 FROM business_software_deliveries WHERE tenant_id=t AND request_key='flooring-demo-delivery-2001') THEN
+ INSERT INTO business_software_deliveries(tenant_id,sales_order_id,job_id,status,delivery_address,site_contact,request_key)
+ VALUES(t,so,j,'planned','Fictional customer site, North London','Sarah Collins','flooring-demo-delivery-2001');END IF;
+ IF NOT EXISTS(SELECT 1 FROM business_software_fitting_assignments WHERE tenant_id=t AND request_key='flooring-demo-fitting-001') THEN
+ INSERT INTO business_software_fitting_assignments(tenant_id,job_id,status,site_address,instructions,request_key)
+ VALUES(t,j,'scheduled','Fictional customer site, North London','Fit laminate after materials delivered','flooring-demo-fitting-001');END IF;
+ IF NOT EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j AND invoice_number='FLI-DEMO-001') THEN
+ INSERT INTO business_software_invoices(tenant_id,job_id,provider,invoice_number,status,total,amount_due,amount_paid,currency_code,created_by)
+ VALUES(t,j,'internal','FLI-DEMO-001','draft',1065.60,1065.60,0,'GBP','Flooring demo seed');END IF;
  IF (SELECT agreed_unit_net FROM business_software_sales_order_lines WHERE id=sol)<>37 THEN RAISE EXCEPTION 'Customer-specific pricing not applied';END IF;
  IF CEIL(48*1.10/2.2)<>24 THEN RAISE EXCEPTION 'Flooring pack calculation failed';END IF;
 END $$;
