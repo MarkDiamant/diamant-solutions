@@ -259,3 +259,20 @@ test("delivery and fitting plans are tenant scoped and retry protected",()=>{
  assert.match(api,/Logistics request key reused with changed details/);
  assert.match(api,/Date\.parse\(String\(existing\.scheduled_at/);
 });
+
+test("flooring showcase reads only isolated fictional tenant and labels simulated actions",()=>{
+ const route=fs.readFileSync("app/api/bms-demo/flooring-data/route.ts","utf8");
+ const demo=fs.readFileSync("business-software-core/components/admin/DemoOperationsPanel.tsx","utf8");
+ assert.match(route,/slug=eq\.flooring-showcase-demo/);
+ assert.match(route,/tenant_id=eq\."\+id/);
+ assert.match(route,/read_only:true,connected:true/);
+ assert.doesNotMatch(route,/method:"POST"|method:"PATCH"|method:"DELETE"/);
+ assert.match(demo,/Connected BMS flooring records/);
+ assert.match(demo,/workflow buttons below remain a separate simulation/);
+});
+test("flooring server checks area and waste before accepting quantity",()=>{
+ const sql=fs.readFileSync("supabase/migrations/20261026001700_bms_flooring_order_pack_validation.sql","utf8");
+ assert.match(sql,/ceil\(v_area\*\(1\+v_waste\/100\)\/v_coverage\)/);
+ assert.match(sql,/Sales quantity does not match flooring pack calculation/);
+ assert.match(api,/area_m2:x\.area_m2/);
+});
