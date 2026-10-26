@@ -66,3 +66,8 @@ Updated: 26 October 2026. Scope: shared BMS core, all tenants. Do not alter MJ01
 - New `POST /api/admin/ai/document-action` accepts only explicitly confirmed, attachment-owned, permission-checked draft purchase orders, draft sales orders or goods receipts, using stable request keys and existing tenant-checked RPCs. It does **not** send supplier orders, post invoices, reconcile payments or connect automatically to the Ruby chat UI yet.
 - A delivery can now be marked delivered through the Operations UI after an explicit confirmation. The database only fulfils quantities already picked and rejects mismatched retries; integration SQL passed under `service_role`.
 - Tomorrow: upload a fictional supplier quotation and customer order, review extracted fields, confirm draft creation through a controlled authenticated request, verify Ruby UI presentation, and check invoice/receipt/delivery-note review-only behaviour.
+
+## Final read-only accounting and worker checks
+- Xero bank receipt sync last checked 23:15 UTC on 26 October and reported success with zero transactions examined in that run. Earlier successful runs identified two Loan receipts needing review. **A successful zero-item sync does not prove customer payments reconcile.**
+- Worker labour billing CSV now neutralises formula-like cell prefixes. Confirm Excel and Google Sheets open it safely and that legitimate numeric costs and negative adjustments remain interpretable.
+- No authenticated live payment writes or historical financial corrections were performed.
