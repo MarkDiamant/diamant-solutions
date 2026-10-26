@@ -157,18 +157,14 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
    // Do not import it again without a verified external transaction identifier.
    const candidates=manualPayments.filter((p:any)=>String(p.job_id)===id&&Math.abs(Number(p.amount)-amount)<0.01&&!linkedPaymentIds.has(String(p.id)));
    if(candidates.length>1){stats.needs_review++;continue;}
-   if(candidates.length===1){
-    const existing=candidates[0];
-    const linked=await centralRest("business_software_payment_external_links",{method:"POST",body:JSON.stringify({tenant_id:tenantId,payment_id:existing.id,provider:"xero",external_transaction_id:String(tx.BankTransactionID)})});
-    if(!linked.ok){stats.failed++;continue;}
-    linkedPaymentIds.add(String(existing.id));linkedExternalIds.add(String(tx.BankTransactionID));
-    const date=String(tx.DateString||"");
-    if(!existing.paid_at&&/^\d{4}-\d{2}-\d{2}/.test(date)){const patch=await centralRest("business_software_payments?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(String(existing.id)),{method:"PATCH",body:JSON.stringify({paid_at:date.slice(0,10)})});if(!patch.ok)stats.failed++;}
-    stats.already_imported++;continue;
-   }
-   const date=String(tx.DateString||"");const paidAt=/^\d{4}-\d{2}-\d{2}/.test(date)?date.slice(0,10):new Date().toISOString().slice(0,10);
-   const result=await centralRest("business_software_payments",{method:"POST",body:JSON.stringify({tenant_id:tenantId,job_id:id,direction:"customer_in",payment_type:"xero_bank_receipt",amount,payment_method:"bank_transfer",paid_at:paidAt,notes:note})});
-   if(result.ok){known.add(note);stats.imported++;}else{stats.failed++;console.error("Unable to record matched Xero receipt",tx.BankTransactionID);}
+   const date=String(tx.DateString||"");if(!/^\d{4}-\d{2}-\d{2}/.test(date)){stats.needs_review++;continue;}
+   const existingId=candidates.length===1?String(candidates[0].id):null;
+   const result=await centralRest("rpc/bms_record_verified_bank_receipt",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_job:id,p_external:String(tx.BankTransactionID),p_amount:amount,p_paid_at:date.slice(0,10),p_existing_payment:existingId})});
+   if(!result.ok){stats.failed++;console.error("Unable to reconcile Xero receipt",tx.BankTransactionID);continue;}
+   const outcome=await result.json().catch(()=>"");
+   if(outcome==="imported"){stats.imported++;known.add(note);}
+   else if(outcome==="linked_existing"||outcome==="already_recorded"){stats.already_imported++;if(existingId)linkedPaymentIds.add(existingId);}
+   linkedExternalIds.add(String(tx.BankTransactionID));
   }
   if(rows.length<100)break;
  }
