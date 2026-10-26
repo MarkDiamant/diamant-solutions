@@ -15,7 +15,7 @@ export default function SubcontractorFinancePage() {
   useEffect(()=>{void load();},[reference]);
   const names=useMemo(()=>new Map((data?.subcontractors||[]).map((s:any)=>[s.id,s])),[data]);
   async function save(e:React.FormEvent<HTMLFormElement>,a:any){
-    e.preventDefault();if(busy)return;setBusy(a.id);setError("");
+    e.preventDefault();if(busy)return;const form=e.currentTarget;setBusy(a.id);setError("");
     try{
       const fd=new FormData(e.currentTarget);
       const add=Number(fd.get("add_payment")||0);
@@ -31,7 +31,7 @@ export default function SubcontractorFinancePage() {
         const payment=await fetch(url,{method:"PATCH",headers,body:JSON.stringify({add_payment:add,request_key:key,counterparty:(names.get(a.subcontractor_id) as any)?.name||null})});
         const result=await payment.json().catch(()=>({}));
         if(!payment.ok)throw new Error(result.error||"Payment could not be recorded. Retry with the same request.");
-        delete paymentKeys.current[a.id];const amountInput=e.currentTarget.querySelector<HTMLInputElement>('[name="add_payment"]');if(amountInput)amountInput.value="";
+        delete paymentKeys.current[a.id];const amountInput=form.querySelector<HTMLInputElement>('[name="add_payment"]');if(amountInput)amountInput.value="";
       }
       await load();
     }catch(err){setError(err instanceof Error?err.message:"Unable to save");}
