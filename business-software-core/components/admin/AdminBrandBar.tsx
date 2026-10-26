@@ -84,10 +84,10 @@ export default function AdminBrandBar(){
    </Link>
    <div className="bms-header-actions">
     <Link href={go("/ai")} onClick={navigate} className="bms-ruby-link" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
-    <div className="bms-new-job bms-header-new-job">
+    {(permissions===null?Boolean(demo):permissions.includes("edit_jobs"))&&<div className="bms-new-job bms-header-new-job">
      <button type="button" onClick={()=>setJobOpen(v=>!v)} aria-expanded={jobOpen} aria-haspopup="true" className="bms-new-job-button" style={{backgroundColor:brand}}>+ New Job</button>
      {jobOpen&&<div className="bms-job-popover"><Link href={go("/jobs/new?quick=1")} onClick={navigate}>Quick add job</Link><Link href={go("/jobs/new")} onClick={navigate}>Full new job</Link></div>}
-    </div>
+    </div>}
    </div>
   </div>
  </header>
