@@ -284,3 +284,17 @@ test("service-only operational grants unblock connected workflows without public
  assert.match(grants,/TO service_role/);
  assert.doesNotMatch(grants,/TO authenticated|TO anon/);
 });
+
+test("delivery completion is atomic, idempotent, permission checked and picked-stock bounded",()=>{
+ const sql=fs.readFileSync("supabase/migrations/20261026002000_bms_delivery_completion.sql","utf8");
+ const ui=fs.readFileSync("business-software-core/components/admin/OperationsPanel.tsx","utf8");
+ assert.match(sql,/FOR UPDATE/);
+ assert.match(sql,/v_qty:=ln\.picked_quantity-ln\.fulfilled_quantity/);
+ assert.match(sql,/Pick goods before confirming delivery/);
+ assert.match(sql,/d\.completion_key=p_key/);
+ assert.match(sql,/business_software_delivery_lines/);
+ assert.match(api,/if\(p==="operations\/complete-delivery"\)/);
+ assert.match(api,/Delivery completion permission required/);
+ assert.match(ui,/operationKey\("complete-delivery",payload\)/);
+ assert.match(ui,/Confirm all picked goods for this delivery were delivered/);
+});
