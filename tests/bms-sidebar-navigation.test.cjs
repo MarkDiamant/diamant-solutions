@@ -39,3 +39,12 @@ test("opening mobile hamburger expands every section even if previously collapse
  assert.match(nav,/Object\.fromEntries\(groups\.map\(g=>\[g\.name,true\]\)\)/);
  assert.match(nav,/mobileOpen\?openSections\[group\.name\]!==false/);
 });
+
+test("premium sidebar uses consistent vector icons and restrained neutral surfaces",()=>{
+ assert.match(nav,/function NavIcon/);
+ assert.match(nav,/strokeWidth="1\.75"/);
+ assert.match(css,/Premium shared BMS navigation visual system/);
+ assert.match(css,/background:#f8f9fb!important/);
+ assert.match(css,/bms-side-active\{background:#fff1e7!important/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
