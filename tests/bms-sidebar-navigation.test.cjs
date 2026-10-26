@@ -28,3 +28,14 @@ test("Ruby, job creation, permissions and session scoping remain available",()=>
  assert.match(nav,/permissions\.includes\(e\.permission\)/);
  assert.match(api,/role:member\.role,permissions/);
 });
+
+test("sidebar groups and links enforce vertical stacking despite inherited CSS",()=>{
+ assert.match(css,/#bms-sidebar \.bms-nav-section\{display:block!important/);
+ assert.match(css,/#bms-sidebar \.bms-nav-links\{display:flex!important;flex-direction:column!important/);
+ assert.match(css,/#bms-sidebar \.bms-side-link\{display:flex!important;flex-direction:row!important/);
+ assert.match(css,/#bms-sidebar \.bms-sidebar-scroll\{display:block!important/);
+});
+test("opening mobile hamburger expands every section even if previously collapsed",()=>{
+ assert.match(nav,/Object\.fromEntries\(groups\.map\(g=>\[g\.name,true\]\)\)/);
+ assert.match(nav,/mobileOpen\?openSections\[group\.name\]!==false/);
+});
