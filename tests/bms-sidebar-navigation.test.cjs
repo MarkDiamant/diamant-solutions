@@ -48,3 +48,10 @@ test("premium sidebar uses consistent vector icons and restrained neutral surfac
  assert.match(css,/bms-side-active\{background:#fff1e7!important/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+
+test("Worker Portal offers retry on failed authenticated load",()=>{
+ const worker=fs.readFileSync("business-software-core/components/admin/WorkerPortal.tsx","utf8");
+ assert.match(worker,/Your work records could not be loaded/);
+ assert.match(worker,/Retry loading/);
+ assert.match(worker,/setError\(""\)/);
+});
