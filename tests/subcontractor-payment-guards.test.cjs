@@ -314,3 +314,10 @@ test("Ruby confirmed document actions require attachment ownership, explicit con
  assert.match(block,/Invoice and payment documents remain review-only/);
  assert.match(block,/external_supplier_sent:false,accounting_changed:false/);
 });
+
+test("labour billing CSV export neutralises spreadsheet formulas",()=>{
+ const ui=fs.readFileSync("business-software-core/components/admin/LabourCosting.tsx","utf8");
+ assert.match(ui,/const quote=\(x:unknown\)=>\{const v=String/);
+ assert.match(ui,/\[=\+@\]/);
+ assert.match(ui,/Payable cost GBP/);
+});
