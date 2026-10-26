@@ -101,3 +101,11 @@ test('worker billing is read-only and permission protected',()=>{
  assert.match(api,/Labour billing permission required/);
  assert.match(api,/No payroll, subcontractor payment or customer invoice is created/);
 });
+
+test('public website catalogue is tenant filtered and CORS is origin restricted',()=>{
+ const catalogue=fs.readFileSync('app/api/business-software/catalogue/route.ts','utf8');
+ assert.match(catalogue,/show_on_website=eq\.true/);
+ assert.match(catalogue,/tenant_id=eq\./);
+ assert.match(catalogue,/allowed\.hostname\.toLowerCase\(\)===actual\.hostname\.toLowerCase\(\)/);
+ assert.match(catalogue,/Access-Control-Allow-Origin/);
+});
