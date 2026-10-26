@@ -149,7 +149,7 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
   const rows=response.BankTransactions||[];stats.pages++;stats.scanned+=rows.length;if(!rows.length)break;
   for(const tx of rows){
    if(!tx.BankTransactionID||tx.Type!=="RECEIVE"||tx.IsReconciled!==true||tx.Status!=="AUTHORISED"||String(tx.CurrencyCode||"GBP")!=="GBP")continue;
-   const amount=Number(tx.Total);if(!Number.isFinite(amount)||amount<=0)continue;const transactionReference=String(tx.Reference||"").trim();if(/^(loan|director.?s loan|loan repayment|capital introduced|intercompany loan)$/i.test(transactionReference)){stats.needs_review++;await queueReview(tx);continue;}
+   const amount=Number(tx.Total);if(!Number.isFinite(amount)||amount<=0)continue;const classificationText=[tx.Reference,...(tx.LineItems||[]).map((line:any)=>line.Description||"")].filter(Boolean).join(" ");if(/\bloan\b|\bcapital introduced\b|\bintercompany\b/i.test(classificationText)){stats.needs_review++;await queueReview(tx);continue;}
    const source=[tx.Reference,tx.LineItems?.map((x:any)=>x.Description).join(" ")].filter(Boolean).join(" ").toUpperCase();
    const refs=[...new Set((source.match(/\b[A-Z]{1,8}[- ]?\d{2,8}\b/g)||[]).map((x:string)=>x.replace(/[- ]/g,"")))];
    const matches=refs.flatMap((ref:string)=>byRef.get(ref)||[]);
