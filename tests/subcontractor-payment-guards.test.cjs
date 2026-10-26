@@ -153,3 +153,23 @@ test("Worker Portal validates timesheet date order and client-side overlap",()=>
  assert.match(worker,/This time overlaps an existing job timesheet/);
  assert.match(worker,/from\.getTime\(\)<b&&to\.getTime\(\)>a/);
 });
+
+test("warehouse idempotency keys reject changed payloads and persist across retries",()=>{
+ const migration=fs.readFileSync("supabase/migrations/20261026001300_bms_sales_operation_idempotency_guard.sql","utf8");
+ const operations=fs.readFileSync("business-software-core/components/admin/OperationsPanel.tsx","utf8");
+ for(const table of ["business_software_stock_reservation_events","business_software_stock_picking_events"])assert.ok(migration.includes(table));
+ assert.match(migration,/Idempotency key reused with different sales operation/);
+ for(const action of ["reserve-sales","pick-sales","receive-purchase","adjust-stock"])assert.ok(operations.includes('operationKey("'+action+'"'));
+ assert.match(operations,/retryKeys=useRef/);
+ assert.match(operations,/delete retryKeys\.current\[retryFingerprint\]/);
+ assert.doesNotMatch(operations,/key:crypto\.randomUUID\(\)/);
+});
+test("stock operations reject malformed retry keys and excessive quantities",()=>{
+ for(const action of ["reserve-sales","pick-sales","receive-purchase"]){
+ const start=api.indexOf('if(p==="operations/'+action+'")');
+ assert.ok(start>0,action);
+ const block=api.slice(start,start+750);
+ assert.match(block,/Number\(d\.quantity\)>1000000/);
+ assert.match(block,/\^\[a-zA-Z0-9:_-\]\{8,150\}\$/);
+ }
+});
