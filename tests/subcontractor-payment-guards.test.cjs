@@ -52,3 +52,9 @@ test('payment endpoint enforces workforce permission and job ownership',()=>{
  assert.match(post,/Assignment does not belong to this job/);
  assert.match(post,/business_software_job_people\?tenant_id=eq\./);
 });
+
+test('reused payment key must preserve original amount',()=>{
+ const rpc=fs.readFileSync('supabase/migrations/20261026000300_bms_validate_payment_retry_amount.sql','utf8');
+ assert.match(rpc,/Idempotency key reused with different payment details/);
+ assert.match(rpc,/amount=p_amount/);
+});
