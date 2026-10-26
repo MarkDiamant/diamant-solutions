@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths:
       - 'app/api/bms-live/**'
+      - 'business-software-core/components/admin/AdminBrandBar.tsx'
+      - 'app/bms-runtime/bms.css'
+      - 'tests/bms-sidebar-navigation.test.cjs'
       - 'app/api/business-software/catalogue/**'
       - 'app/api/business-software/oauth/quickbooks/**'
       - 'business-software-core/components/admin/QuotePrint.tsx'
@@ -24,4 +27,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/subcontractor-payment-guards.test.cjs
+      - run: node --test tests/subcontractor-payment-guards.test.cjs tests/bms-sidebar-navigation.test.cjs
