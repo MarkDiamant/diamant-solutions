@@ -24,3 +24,8 @@ test('database migration rejects legacy payment inserts',()=>{
  assert.match(sql,/RAISE EXCEPTION 'Use dedicated idempotent subcontractor payment endpoint'/);
  assert.doesNotMatch(sql,/INSERT INTO business_software_payments/i);
 });
+
+test('Ruby and generic job actions reject non-idempotent subcontractor payments',()=>{
+ assert.match(api,/plan\.kind==="record_payment"&&String\(payload\.direction/);
+ assert.match(api,/data\?\.type==="payment"&&String\(data\.direction/);
+});
