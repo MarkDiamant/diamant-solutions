@@ -249,3 +249,35 @@
  .bms-shell #bms-sidebar .bms-mobile-new-job .bms-new-job-button{width:100%!important;min-height:42px!important;font-size:13px!important;text-align:center!important}
  .bms-shell #bms-sidebar .bms-mobile-new-job .bms-job-popover{left:0!important;right:auto!important;width:100%!important}
 }
+
+/* Mobile: one clean branded header, natural scrolling drawer actions. */
+.bms-shell .bms-new-job-chevron{display:inline-block;vertical-align:middle;flex-shrink:0;margin-left:5px;transition:transform .15s ease}
+.bms-shell .bms-new-job-button{display:inline-flex;align-items:center;justify-content:center;gap:3px}
+.bms-shell .bms-new-job-button[aria-expanded="true"] .bms-new-job-chevron{transform:rotate(180deg)}
+.bms-shell #bms-sidebar .bms-mobile-quick-actions{display:none}
+@media(max-width:850px){
+ .bms-shell #bms-sidebar .bms-compact-toggle{display:none!important}
+ .bms-shell #bms-sidebar .bms-sidebar-top{justify-content:flex-start!important;min-height:44px!important;height:44px!important}
+ .bms-shell .bms-header-ruby{display:none!important}
+ .bms-shell .bms-brand-details .builtBy,.bms-shell .bms-brand-details .builtByCompact{display:inline-flex!important;transform:none!important;align-items:flex-start!important}
+ .bms-shell .bms-brand-details .builtByLine{justify-content:flex-start!important}
+ .bms-shell .bms-brand-details .builtByTag{display:none!important}
+ .bms-shell .bms-brand-details strong{line-height:1.25!important}
+ .bms-shell .bms-brand-link{overflow:visible!important}
+ .bms-shell .bms-brand-details{overflow:hidden!important}
+ .bms-shell .bms-header-actions{display:none!important}
+ .bms-shell #bms-sidebar .bms-sidebar-scroll{padding-top:0!important;overscroll-behavior:contain}
+ .bms-shell #bms-sidebar .bms-mobile-quick-actions{display:flex!important;align-items:stretch!important;gap:8px!important;position:static!important;padding:0 3px 14px!important;width:100%!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job{display:block!important;flex:1 1 50%!important;min-width:0!important;padding:0!important;position:relative!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job .bms-dashboard-new-job{display:block!important;width:100%!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job .bms-new-job-button{width:100%!important;min-height:36px!important;height:36px!important;padding:6px 9px!important;font-size:11px!important;box-shadow:none!important;white-space:nowrap!important}
+ .bms-shell #bms-sidebar .bms-mobile-new-job .bms-job-popover{position:absolute!important;left:0!important;right:auto!important;top:calc(100% + 4px)!important;z-index:100!important;width:max(165px,100%)!important}
+ .bms-shell #bms-sidebar .bms-mobile-ruby-link{display:flex!important;align-items:center!important;justify-content:center!important;gap:6px!important;flex:1 1 50%!important;min-width:0!important;height:36px!important;padding:4px 7px!important;border:1px solid #dce2eb!important;border-radius:9px!important;background:#fff!important;color:#344054!important;font-size:11px!important;font-weight:750!important;text-decoration:none!important;white-space:nowrap!important}
+ .bms-shell #bms-sidebar .bms-mobile-ruby-link .bms-ruby-avatar{width:26px!important;height:26px!important;flex:0 0 26px!important;border-radius:7px!important}
+ .bms-shell #bms-sidebar .bms-mobile-ruby-link:hover{background:#fff3e9!important}
+}
+@media(max-width:390px){
+ .bms-shell .bms-brand-logo{max-width:62px!important}
+ .bms-shell .bms-brand-details strong{font-size:11px!important}
+ .bms-shell .bms-brand-details .builtByLogo img{max-width:48px!important}
+}
