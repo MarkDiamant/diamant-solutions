@@ -130,12 +130,12 @@ async function refreshXeroBankReceipts(tenantId:string){
  const [jr,ir,pr]=await Promise.all([
   centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&select=id,reference",{cache:"no-store"}),
   centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&select=job_id",{cache:"no-store"}),
-  centralRest("business_software_payments?tenant_id=eq."+encodeURIComponent(tenantId)+"&direction=eq.customer_in&select=job_id,payment_type,notes",{cache:"no-store"})]);
+  centralRest("business_software_payments?tenant_id=eq."+encodeURIComponent(tenantId)+"&direction=eq.customer_in&select=job_id,payment_type,notes,amount,paid_at",{cache:"no-store"})]);
  if(!jr.ok||!ir.ok||!pr.ok)return;
  const jobs=await jr.json(),invoices=await ir.json(),payments=await pr.json();
  const byRef=new Map<string,any[]>();for(const job of jobs){const ref=String(job.reference||"").trim().toUpperCase();if(!ref)continue;const a=byRef.get(ref)||[];a.push(job);byRef.set(ref,a);}
  const invoiced=new Set(invoices.map((x:any)=>String(x.job_id)));
- const manuallyPaid=new Set(payments.filter((x:any)=>x.payment_type!=="xero_bank_receipt").map((x:any)=>String(x.job_id)));
+ const manualPayments=payments.filter((x:any)=>x.payment_type!=="xero_bank_receipt");
  const known=new Set(payments.filter((x:any)=>x.payment_type==="xero_bank_receipt").map((x:any)=>String(x.notes||"")));
  for(let page=1;page<=3;page++){
   let response:any;try{response=await xeroRequest(tenantId,"BankTransactions?where="+encodeURIComponent('Type=="RECEIVE" AND IsReconciled==true')+"&page="+page);}catch(e){console.error("Xero bank receipt sync unavailable",e instanceof Error?e.message:"unknown");return;}
@@ -148,7 +148,10 @@ async function refreshXeroBankReceipts(tenantId:string){
    const matches=refs.flatMap((ref:string)=>byRef.get(ref)||[]);
    if(matches.length!==1)continue;
    const job=matches[0],id=String(job.id),note="Xero bank receipt "+tx.BankTransactionID;
-   if(invoiced.has(id)||manuallyPaid.has(id)||known.has(note))continue;
+   if(invoiced.has(id)||known.has(note))continue;
+   // A manually recorded payment of the same amount may already represent this receipt.
+   // Do not import it again without a verified external transaction identifier.
+   if(manualPayments.some((p:any)=>String(p.job_id)===id&&Math.abs(Number(p.amount)-amount)<0.01))continue;
    const date=String(tx.DateString||"");const paidAt=/^\d{4}-\d{2}-\d{2}/.test(date)?date.slice(0,10):new Date().toISOString().slice(0,10);
    const result=await centralRest("business_software_payments",{method:"POST",body:JSON.stringify({tenant_id:tenantId,job_id:id,direction:"customer_in",payment_type:"xero_bank_receipt",amount,payment_method:"bank_transfer",paid_at:paidAt,notes:note})});
    if(result.ok)known.add(note);else console.error("Unable to record matched Xero receipt",tx.BankTransactionID);
