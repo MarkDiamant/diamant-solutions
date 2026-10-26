@@ -23,7 +23,7 @@ export async function GET(){
  invoices:"business_software_invoices?tenant_id=eq."+id+"&provider=eq.internal&select=invoice_number,status,total,amount_due,amount_paid&limit=100"
  };
  const results=await Promise.all(Object.values(endpoints).map(path=>centralRest(path)));
- if(results.some(r=>!r.ok))return NextResponse.json({error:"Showcase data unavailable"},{status:503});
+ if(results.some(r=>!r.ok))return NextResponse.json({error:"Showcase data unavailable",failed_sources:Object.keys(endpoints).filter((_,i)=>!results[i].ok)},{status:503});
  const data=await Promise.all(results.map(r=>r.json()));
  return NextResponse.json({business:tenant.business_name,fictional:true,read_only:true,connected:true,...Object.fromEntries(Object.keys(endpoints).map((key,i)=>[key,data[i]]))},{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
  }catch{return NextResponse.json({error:"Showcase temporarily unavailable"},{status:503});}
