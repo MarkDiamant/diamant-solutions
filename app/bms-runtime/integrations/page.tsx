@@ -6,6 +6,7 @@ import { DEFAULT_CRM_CONFIG, type CrmConfig } from "@/lib/crm/config";
 export default function IntegrationsPage() {
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
+  const [bankAuthorised,setBankAuthorised]=useState(false);
   const [tenantName, setTenantName] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [crmConfig,setCrmConfig]=useState<CrmConfig>(DEFAULT_CRM_CONFIG);
@@ -19,7 +20,7 @@ export default function IntegrationsPage() {
     if (response.status === 401) { window.location.href = "/admin/login"; return; }
     const body = await response.json().catch(() => ({}));
     if (!response.ok) setError(friendlyError(body.error) || "Unable to check Xero");
-    else { setConnected(Boolean(body.connected)); setTenantName(body.tenantName || null); setError(""); }
+    else { setConnected(Boolean(body.connected)); setBankAuthorised(Boolean(body.bankTransactionsAuthorised)); setTenantName(body.tenantName || null); setError(""); }
     setLoading(false);
   }
 
@@ -48,7 +49,7 @@ export default function IntegrationsPage() {
             {loading ? <span className="text-sm font-bold text-black/45">Checking...</span> : connected ? <span className="rounded-full bg-green-50 px-3 py-1.5 text-sm font-black text-green-700">Connected</span> : <span className="rounded-full bg-orange-50 px-3 py-1.5 text-sm font-black text-orange-700">Not connected</span>}
           </div>
 
-          {connected && <div className="mt-5 rounded-xl bg-[#f5f5f2] p-4"><p className="text-xs font-bold uppercase tracking-[0.08em] text-black/45">Xero organisation</p><p className="mt-1 font-black">{tenantName || "Connected organisation"}</p></div>}
+          {connected&&!bankAuthorised&&<div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900"><p className="font-bold">Xero needs additional authorisation to read bank receipts.</p><p className="mt-1">Invoice access is connected, but bank transactions cannot synchronise until the additional Xero permission is approved.</p><a href="/api/admin/integrations/xero/connect" className="mt-3 inline-block rounded-lg bg-[#e66a24] px-4 py-2 font-bold text-white">Reconnect Xero and approve bank access</a></div>}{connected && <div className="mt-5 rounded-xl bg-[#f5f5f2] p-4"><p className="text-xs font-bold uppercase tracking-[0.08em] text-black/45">Xero organisation</p><p className="mt-1 font-black">{tenantName || "Connected organisation"}</p></div>}
           {choosing&&<div className="mt-5 rounded-xl border border-black/10 p-4"><p className="font-black">Choose your Xero organisation</p><p className="mt-1 text-sm text-black/50">Select the organisation your business software should use.</p><div className="mt-3 flex flex-wrap gap-2">{organisations.map(o=><button type="button" key={o.tenantId} onClick={()=>void chooseOrganisation(o.tenantId)} className="rounded-xl border border-black/15 bg-white px-4 py-2 text-sm font-bold">{o.tenantName||"Xero organisation"}</button>)}</div></div>}{error && <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">{error}</p>}
 
           <div className="mt-5 flex gap-3">
