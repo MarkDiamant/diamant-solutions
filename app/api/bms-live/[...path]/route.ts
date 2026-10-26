@@ -158,9 +158,9 @@ async function refreshXeroBankReceipts(tenantId:string,strict=false){
    if(invoiced.has(id)){stats.needs_review++;await queueReview(tx);continue;}if(known.has(note)||linkedExternalIds.has(String(tx.BankTransactionID))){stats.already_imported++;continue;}
    // A manually recorded payment of the same amount may already represent this receipt.
    // Do not import it again without a verified external transaction identifier.
-   const candidates=manualPayments.filter((p:any)=>String(p.job_id)===id&&Math.abs(Number(p.amount)-amount)<0.01&&!linkedPaymentIds.has(String(p.id)));
-   if(candidates.length>1){stats.needs_review++;await queueReview(tx);continue;}
    const date=String(tx.DateString||"");if(!/^\d{4}-\d{2}-\d{2}/.test(date)){stats.needs_review++;continue;}
+   const candidates=manualPayments.filter((p:any)=>String(p.job_id)===id&&Math.abs(Number(p.amount)-amount)<0.01&&!linkedPaymentIds.has(String(p.id)));
+   if(candidates.length>1||candidates.some((p:any)=>String(p.paid_at||"").slice(0,10)!==date.slice(0,10))){stats.needs_review++;await queueReview(tx);continue;}
    const existingId=candidates.length===1?String(candidates[0].id):null;
    const result=await centralRest("rpc/bms_record_verified_bank_receipt",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_job:id,p_external:String(tx.BankTransactionID),p_amount:amount,p_paid_at:date.slice(0,10),p_existing_payment:existingId})});
    if(!result.ok){stats.failed++;console.error("Unable to reconcile Xero receipt",tx.BankTransactionID);continue;}
