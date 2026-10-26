@@ -146,3 +146,10 @@ test("Worker Portal rejects overlapping time intervals atomically in database",(
  assert.match(migration,/status IS DISTINCT FROM 'superseded'/);
  assert.match(api,/business_software_worker_time_entries\?"\+base\+"&status=neq.superseded/);
 });
+
+test("Worker Portal validates timesheet date order and client-side overlap",()=>{
+ const worker=fs.readFileSync("business-software-core/components/admin/WorkerPortal.tsx","utf8");
+ assert.match(worker,/Enter a valid end time after the start time/);
+ assert.match(worker,/This time overlaps an existing job timesheet/);
+ assert.match(worker,/from\.getTime\(\)<b&&to\.getTime\(\)>a/);
+});
