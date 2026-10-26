@@ -12,6 +12,8 @@ on:
       - 'business-software-core/components/admin/QuotePrint.tsx'
       - 'business-software-core/components/admin/LabourCosting.tsx'
       - 'business-software-core/components/admin/WorkerPortal.tsx'
+      - 'business-software-core/components/admin/OperationsPanel.tsx'
+      - 'tests/bms-multi-tenant-isolation.sql'
       - 'app/bms-runtime/jobs/**/subcontractors/**'
       - 'supabase/migrations/**'
       - 'tests/subcontractor-payment-guards.test.cjs'
