@@ -115,3 +115,11 @@ test('worker billing intervals cannot be duplicated by retries',()=>{
  assert.match(sql,/CREATE UNIQUE INDEX IF NOT EXISTS bms_worker_time_no_duplicate_active_interval/);
  assert.match(sql,/tenant_id,worker_id,job_id,work_type,started_at,ended_at/);
 });
+
+test('privileged database payment and assignment actions check tenant permissions',()=>{
+ const assignment=fs.readFileSync('supabase/migrations/20261026000800_bms_assignment_workforce_permissions.sql','utf8');
+ const payments=fs.readFileSync('supabase/migrations/20261026000900_bms_generic_payment_permissions.sql','utf8');
+ assert.match(assignment,/permissions \? 'manage_workforce'/);
+ assert.match(payments,/Payment management permission required/);
+ assert.match(payments,/permissions \? 'view_payments_invoices'/);
+});
