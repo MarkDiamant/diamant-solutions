@@ -137,3 +137,12 @@ test("subcontractor references cannot cross tenant boundaries in direct RPC",()=
  assert.match(migration,/business_software_people where tenant_id=p_tenant and id=pid/);
  assert.match(migration,/Subcontractor not found in tenant/);
 });
+
+test("Worker Portal rejects overlapping time intervals atomically in database",()=>{
+ const migration=fs.readFileSync("supabase/migrations/20261026001200_bms_worker_time_overlap_exclusion.sql","utf8");
+ assert.match(migration,/EXCLUDE USING gist/);
+ assert.match(migration,/tenant_id WITH =, worker_id WITH =/);
+ assert.match(migration,/tstzrange\(started_at, ended_at, '\[\)'\) WITH &&/);
+ assert.match(migration,/status IS DISTINCT FROM 'superseded'/);
+ assert.match(api,/business_software_worker_time_entries\?"\+base\+"&status=neq.superseded/);
+});
