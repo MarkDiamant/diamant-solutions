@@ -88,3 +88,16 @@ test('QuickBooks OAuth redirects are limited to trusted deployment hosts',()=>{
  assert.match(oauth,/markdiamants-projects\.vercel\.app/);
  assert.doesNotMatch(oauth,/u\.hostname\.endsWith\("\.vercel\.app"\)/);
 });
+
+test('quotation lead time is included in quote rendering and versioning',()=>{
+ const quote=fs.readFileSync('business-software-core/components/admin/QuotePrint.tsx','utf8');
+ assert.match(quote,/quote\.lead_time/);
+ assert.match(quote,/Lead time:/);
+ assert.match(api,/quote_default_lead_time/);
+ assert.match(api,/Lead time must be between 1 and 120 characters/);
+});
+test('worker billing is read-only and permission protected',()=>{
+ assert.match(api,/worker\/billing-preview/);
+ assert.match(api,/Labour billing permission required/);
+ assert.match(api,/No payroll, subcontractor payment or customer invoice is created/);
+});
