@@ -4,7 +4,7 @@ import Link from "next/link";
 import {useSearchParams} from "next/navigation";
 import ProductCsvImport from "./ProductCsvImport";
 
-type Product={id:string;name:string;sku?:string;unit?:string;category?:string;active:boolean;fixed_sell_net?:number;cost_net?:number};
+type Product={id:string;name:string;sku?:string;unit?:string;category?:string;active:boolean;fixed_sell_net?:number;cost_net?:number;units_per_pack?:number;specifications?:{coverage_m2_per_pack?:number|string;waste_percent_default?:number|string}};
 type Customer={id:string;first_name?:string;last_name?:string};
 type Location={id:string;name:string};
 type PurchaseLine={id:string;material_order_id:string;product_id?:string;description:string;ordered_quantity:number;received_quantity:number;unit:string;unit_cost_net:number};
@@ -24,6 +24,7 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
  const [deliveryOrder,setDeliveryOrder]=useState(""),[deliveryDate,setDeliveryDate]=useState(""),[deliveryAddress,setDeliveryAddress]=useState(""),[deliveryDriver,setDeliveryDriver]=useState(""),[fittingJob,setFittingJob]=useState(""),[fittingDate,setFittingDate]=useState(""),[fitter,setFitter]=useState("");
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[notice,setNotice]=useState("");
  const [customer,setCustomer]=useState(""),[product,setProduct]=useState(""),[qty,setQty]=useState("1"),[reference,setReference]=useState("");
+ const [floorArea,setFloorArea]=useState("48"),[floorWaste,setFloorWaste]=useState("10");
  const [priceCustomer,setPriceCustomer]=useState(""),[priceProduct,setPriceProduct]=useState(""),[price,setPrice]=useState("");
  const [receiptLine,setReceiptLine]=useState(""),[receiptQty,setReceiptQty]=useState("1"),[receiptLocation,setReceiptLocation]=useState(""),[locationName,setLocationName]=useState("");
  const [adjustProduct,setAdjustProduct]=useState(""),[adjustLocation,setAdjustLocation]=useState(""),[adjustDelta,setAdjustDelta]=useState(""),[adjustReason,setAdjustReason]=useState("");
@@ -34,6 +35,11 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
  const productById=useMemo(()=>new Map(catalog.products.map(p=>[p.id,p])),[catalog.products]);
  const customerById=useMemo(()=>new Map(catalog.customers.map(c=>[c.id,[c.first_name,c.last_name].filter(Boolean).join(" ")])),[catalog.customers]);
  useEffect(()=>{if(selectedCustomer&&catalog.customers.some(c=>c.id===selectedCustomer)){setCustomer(selectedCustomer);setPriceCustomer(selectedCustomer);}},[selectedCustomer,catalog.customers]);
+ const chosenFloorProduct=productById.get(product);
+ const coverage=Number(chosenFloorProduct?.specifications?.coverage_m2_per_pack??chosenFloorProduct?.units_per_pack??0);
+ const area=Number(floorArea),waste=Number(floorWaste);
+ const validFloorCalculation=Number.isFinite(coverage)&&coverage>0&&Number.isFinite(area)&&area>0&&area<=100000&&Number.isFinite(waste)&&waste>=0&&waste<=100;
+ const floorPacks=validFloorCalculation?Math.ceil((area*(1+waste/100))/coverage):0;
  const chosenLine=catalog.purchase_lines.find(l=>l.id===receiptLine);
  const retryKeys=useRef<Record<string,string>>({});
  function operationKey(kind:string,payload:unknown){const fingerprint=kind+":"+JSON.stringify(payload);return retryKeys.current[fingerprint]||(retryKeys.current[fingerprint]=crypto.randomUUID());}
@@ -48,6 +54,7 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
     <form className="space-y-3" onSubmit={e=>{e.preventDefault();const payload={customer_id:customer,reference:reference||null,lines:[{product_id:product,quantity:Number(qty)}]};const fingerprint="sales-orders:"+JSON.stringify(payload);void submit(()=>post("sales-orders",{...payload,request_key:operationKey("sales-orders",payload)}),"Sales order created.",fingerprint);}}>
      <label className={labelClass}>Customer<select required className={inputClass} value={customer} onChange={e=>setCustomer(e.target.value)}><option value="">Choose customer</option>{catalog.customers.map(c=><option key={c.id} value={c.id}>{customerById.get(c.id)}</option>)}</select></label>
      <label className={labelClass}>Product<select required className={inputClass} value={product} onChange={e=>setProduct(e.target.value)}><option value="">Choose product</option>{catalog.products.filter(p=>p.active).map(p=><option key={p.id} value={p.id}>{p.name}{p.sku?" ("+p.sku+")":""}</option>)}</select></label>
+     {coverage>0&&<fieldset className="rounded-xl border border-orange-200 bg-orange-50/60 p-3"><legend className="px-1 text-xs font-bold text-slate-700">Flooring and tiles pack calculator</legend><div className="grid grid-cols-2 gap-2"><label className={labelClass}>Area (m²)<input type="number" min="0.01" max="100000" step="0.01" className={inputClass} value={floorArea} onChange={e=>setFloorArea(e.target.value)}/></label><label className={labelClass}>Wastage (%)<input type="number" min="0" max="100" step="0.5" className={inputClass} value={floorWaste} onChange={e=>setFloorWaste(e.target.value)}/></label></div><p className="mt-2 text-xs text-slate-600">Coverage: {coverage} m² per {chosenFloorProduct?.unit||"pack"} · {validFloorCalculation?floorPacks+" packs required":"Enter a valid area and wastage"}</p><button type="button" disabled={!validFloorCalculation} className="mt-2 rounded-lg border border-orange-300 bg-white px-3 py-2 text-xs font-semibold disabled:opacity-40" onClick={()=>setQty(String(floorPacks))}>Use calculated quantity</button></fieldset>}
      <div className="grid grid-cols-2 gap-3"><label className={labelClass}>Quantity<input className={inputClass} type="number" step="0.001" min="0.001" required value={qty} onChange={e=>setQty(e.target.value)}/></label><label className={labelClass}>Reference (optional)<input className={inputClass} value={reference} onChange={e=>setReference(e.target.value)}/></label></div>
      <button disabled={busy||!customer||!product} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Create draft order</button>
     </form>
