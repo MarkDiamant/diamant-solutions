@@ -82,3 +82,9 @@ test('stock and goods receipt retries reject changed payloads',()=>{
  assert.match(receipt,/Receipt key reused with different goods receipt/);
  assert.match(receipt,/quantity_delta=p_qty/);
 });
+
+test('QuickBooks OAuth redirects are limited to trusted deployment hosts',()=>{
+ const oauth=fs.readFileSync('app/api/business-software/oauth/quickbooks/callback/route.js','utf8');
+ assert.match(oauth,/markdiamants-projects\.vercel\.app/);
+ assert.doesNotMatch(oauth,/u\.hostname\.endsWith\("\.vercel\.app"\)/);
+});
