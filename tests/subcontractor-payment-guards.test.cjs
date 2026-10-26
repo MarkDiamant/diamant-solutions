@@ -26,6 +26,6 @@ test('database migration rejects legacy payment inserts',()=>{
 });
 
 test('Ruby and generic job actions reject non-idempotent subcontractor payments',()=>{
- assert.match(api,/plan\.kind==="record_payment"&&String\(payload\.direction/);
- assert.match(api,/data\?\.type==="payment"&&String\(data\.direction/);
+ assert.match(api,/plan\.kind==="record_payment"&&\(String\(payload\.direction/);
+ assert.match(api,/data\?\.type==="payment"&&\(String\(data\.direction/);
 });
