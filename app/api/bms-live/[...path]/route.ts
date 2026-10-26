@@ -137,7 +137,7 @@ async function refreshXeroBankReceipts(tenantId:string){
  const invoiced=new Set(invoices.map((x:any)=>String(x.job_id)));
  const manualPayments=payments.filter((x:any)=>x.payment_type!=="xero_bank_receipt");
  const known=new Set(payments.filter((x:any)=>x.payment_type==="xero_bank_receipt").map((x:any)=>String(x.notes||"")));
- for(let page=1;page<=3;page++){
+ for(let page=1;page<=50;page++){
   let response:any;try{response=await xeroRequest(tenantId,"BankTransactions?where="+encodeURIComponent('Type=="RECEIVE" AND IsReconciled==true')+"&page="+page);}catch(e){console.error("Xero bank receipt sync unavailable",e instanceof Error?e.message:"unknown");return;}
   const rows=response.BankTransactions||[];if(!rows.length)break;
   for(const tx of rows){
