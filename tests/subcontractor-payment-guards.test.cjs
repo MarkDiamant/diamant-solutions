@@ -123,3 +123,11 @@ test('privileged database payment and assignment actions check tenant permission
  assert.match(payments,/Payment management permission required/);
  assert.match(payments,/permissions \? 'view_payments_invoices'/);
 });
+
+test("direct job action RPC enforces tenant permissions for quote, cost, purchasing and subcontractor writes",()=>{
+ const migration=fs.readFileSync("supabase/migrations/20261026001000_bms_job_action_role_guards.sql","utf8");
+ for(const action of ["activity","quote","cost","material_order","subcontractor"])assert.ok(migration.includes("'"+action+"'"));
+ for(const permission of ["edit_jobs","view_costs_profit","manage_purchasing","manage_workforce"])assert.ok(migration.includes("'"+permission+"'"));
+ assert.match(migration,/tenant_id=p_tenant and u\.auth_user_id=uid and u\.status='active'/);
+ assert.match(migration,/Subcontractor payments require assignment-linked idempotency/);
+});
