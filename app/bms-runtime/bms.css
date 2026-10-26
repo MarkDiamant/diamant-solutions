@@ -76,3 +76,63 @@
 /* Keep every Money Overview KPI in the same two-column grid, including the demo. */
 .bms-shell .bms-money-tiles>button{grid-column:span 1 / span 1!important}
 @media(max-width:640px){.bms-shell header .builtByCompact .builtByLogo img{width:48px!important;max-width:48px!important;max-height:13px!important}.bms-shell header .builtByCompact .builtByPrefix{font-size:8px!important}.bms-shell header .builtByCompact .builtByLine{gap:3px}.bms-shell header a:has(.builtByCompact){min-width:0}.bms-shell header img{max-width:100px}}
+
+
+/* Shared master BMS application navigation. */
+.bms-shell{--bms-sidebar-width:258px;--bms-header-height:76px}
+.bms-shell:has(.bms-sidebar-compact){--bms-sidebar-width:76px}
+.bms-shell .bms-app-header{position:sticky!important;top:0!important;z-index:70!important;background:#fff!important;border-bottom:1px solid #e8e9ed!important;box-shadow:0 2px 10px #11182709}
+.bms-app-header-inner{height:var(--bms-header-height);display:flex;align-items:center;gap:16px;padding:8px 22px}
+.bms-brand-link{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:#172b4d}
+.bms-brand-logo{height:52px!important;width:auto!important;max-width:155px!important;object-fit:contain}
+.bms-brand-placeholder{font-weight:900;font-size:19px;color:#172b4d}
+.bms-brand-details{display:flex;flex-direction:column;gap:2px;min-width:0}
+.bms-brand-details strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bms-brand-details small{font-size:11px;color:#64748b;white-space:nowrap}
+.bms-brand-details .builtBy{transform:scale(.85);transform-origin:left center}
+.bms-header-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+.bms-ruby-link{display:inline-flex;align-items:center;gap:7px;border:1px solid;border-radius:11px;padding:10px 15px;font-weight:800;font-size:13px;text-decoration:none;white-space:nowrap;background:#fff}
+.bms-new-job{position:relative}.bms-new-job-button{border:0;border-radius:11px;padding:11px 17px;color:#fff;font-weight:800;font-size:13px;white-space:nowrap}
+.bms-job-popover{position:absolute;right:0;top:calc(100% + 9px);z-index:90;width:200px;background:#fff;border:1px solid #e2e5eb;border-radius:12px;padding:7px;box-shadow:0 14px 32px #172b4d25}
+.bms-job-popover a{display:block;padding:12px;border-radius:8px;font-size:13px;font-weight:700;color:#172b4d;text-decoration:none}.bms-job-popover a:hover{background:#fff4eb}
+.bms-menu-trigger{display:none;border:1px solid #dce0e7;border-radius:9px;background:#fff;width:41px;height:41px;font-size:20px}
+.bms-sidebar{position:fixed;top:var(--bms-header-height);left:0;bottom:0;z-index:55;width:var(--bms-sidebar-width);display:flex;flex-direction:column;background:#172b4d;color:#e5ebf5;box-shadow:4px 0 16px #172b4d13;transition:width .2s ease}
+.bms-sidebar-top{height:55px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;color:#a6b7d0;font-size:10px;font-weight:900;letter-spacing:.15em}
+.bms-compact-toggle{border:1px solid #ffffff30;background:#ffffff0d;color:#e5ebf5;border-radius:7px;width:29px;height:29px;font-size:18px}
+.bms-sidebar-scroll{overflow-y:auto;overflow-x:hidden;flex:1;padding:0 10px 14px;scrollbar-width:thin;scrollbar-color:#ffffff35 transparent}
+.bms-nav-section{margin-bottom:5px}
+.bms-nav-heading{display:flex;align-items:center;gap:11px;width:100%;border:0;background:transparent;color:#a6b7d0;border-radius:9px;padding:11px 10px;text-align:left;font-size:11px;letter-spacing:.04em;font-weight:900}
+.bms-nav-heading:hover,.bms-nav-heading-active{color:#fff;background:#ffffff0c}
+.bms-side-icon{display:inline-flex;align-items:center;justify-content:center;width:23px;min-width:23px;height:23px;font-size:17px;font-weight:700}
+.bms-section-chevron{margin-left:auto;font-size:16px}
+.bms-nav-links{display:flex;flex-direction:column;gap:3px;padding:1px 0 5px 9px}
+.bms-side-link{display:flex;align-items:center;gap:10px;min-height:39px;border:0;border-radius:9px;padding:8px 10px;color:#dce6f5;text-decoration:none;font-size:12px;font-weight:650;text-align:left;transition:background .12s ease}
+.bms-side-link:hover{background:#ffffff17;color:#fff}
+.bms-side-active{box-shadow:inset 3px 0 0 #fff6}
+.bms-sidebar-bottom{border-top:1px solid #ffffff1d;padding:10px}.bms-logout{width:100%;background:transparent;cursor:pointer}
+.bms-sidebar-compact .bms-side-label{display:none}
+.bms-sidebar-compact .bms-sidebar-top{justify-content:center;padding:0}
+.bms-sidebar-compact .bms-nav-heading,.bms-sidebar-compact .bms-side-link{justify-content:center;padding:9px 5px}
+.bms-sidebar-compact .bms-nav-links{padding:0}
+.bms-sidebar-compact .bms-nav-section{border-bottom:1px solid #ffffff14;padding-bottom:4px}
+.bms-shell:has(.bms-sidebar)>main,.bms-shell:has(.bms-sidebar)>.bms-main,.bms-shell:has(.bms-sidebar)>footer.bms-footer{margin-left:var(--bms-sidebar-width)}
+.bms-shell:has(.bms-sidebar)>main{width:calc(100% - var(--bms-sidebar-width));max-width:none}
+.bms-shell:has(.bms-sidebar)>main>div{max-width:none}
+.bms-sidebar-backdrop{display:none}
+@media(max-width:850px){
+ .bms-shell{--bms-sidebar-width:0px;--bms-header-height:66px}
+ .bms-menu-trigger{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+ .bms-app-header-inner{padding:8px 12px;gap:9px}
+ .bms-brand-logo{max-height:42px!important;max-width:100px!important}
+ .bms-brand-details small,.bms-brand-details .builtBy{display:none}
+ .bms-ruby-link{padding:9px}.bms-ruby-link span:last-child{display:none}
+ .bms-new-job-button{padding:10px 11px;font-size:12px}
+ .bms-sidebar{width:280px!important;max-width:85vw;transform:translateX(-110%);transition:transform .2s ease}
+ .bms-sidebar-mobile-open{transform:translateX(0)}
+ .bms-sidebar-compact .bms-side-label{display:inline}
+ .bms-sidebar-compact .bms-nav-heading,.bms-sidebar-compact .bms-side-link{justify-content:flex-start;padding:9px 10px}
+ .bms-sidebar-compact .bms-nav-links{padding-left:9px}
+ .bms-sidebar-backdrop{display:block;position:fixed;inset:var(--bms-header-height) 0 0;background:#10182780;z-index:50;border:0;width:100%}
+ .bms-shell:has(.bms-sidebar)>main,.bms-shell:has(.bms-sidebar)>.bms-main,.bms-shell:has(.bms-sidebar)>footer.bms-footer{margin-left:0;width:100%}
+}
+@media print{.bms-shell:has(.bms-sidebar)>main,.bms-shell:has(.bms-sidebar)>.bms-main,.bms-shell:has(.bms-sidebar)>footer.bms-footer{margin-left:0!important;width:100%!important}}
