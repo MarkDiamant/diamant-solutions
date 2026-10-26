@@ -207,3 +207,35 @@
  .bms-shell .bms-menu-trigger{border-color:#e4e7ec!important;color:#344054!important;background:#fff!important}
 }
 @media(prefers-reduced-motion:reduce){.bms-shell #bms-sidebar *{transition:none!important}}
+
+
+/* Final navigation polish: Ruby portrait, responsive header and sign-out. */
+.bms-shell #bms-sidebar .bms-sidebar-bottom{padding:13px 11px!important;background:#f8f9fb!important}
+.bms-shell #bms-sidebar .bms-logout{min-height:42px!important;border:1px solid #e4e8ee!important;border-radius:10px!important;background:#fff!important;color:#586478!important;font-weight:650!important;box-shadow:0 1px 2px #10182808!important}
+.bms-shell #bms-sidebar .bms-logout:hover{background:#fff4ed!important;color:#b84e18!important;border-color:#f4d5c3!important}
+.bms-shell #bms-sidebar .bms-logout:focus-visible,.bms-shell .bms-ruby-link:focus-visible,.bms-shell .bms-new-job-button:focus-visible{outline:3px solid #ee9e68!important;outline-offset:2px!important}
+.bms-shell .bms-ruby-link{display:inline-flex!important;align-items:center!important;gap:9px!important;min-height:42px!important;padding:6px 12px 6px 6px!important;text-decoration:none!important;font-weight:750!important}
+.bms-shell .bms-ruby-avatar{display:block!important;width:30px!important;height:30px!important;flex:0 0 30px!important;object-fit:cover!important;border-radius:8px!important}
+.bms-shell .bms-header-actions{min-width:0!important;flex:0 0 auto!important}
+.bms-shell .bms-brand-link{min-width:0!important;flex:0 1 auto!important}
+.bms-shell .bms-brand-details{min-width:0!important;max-width:300px!important}
+.bms-shell .bms-dashboard-new-job{display:inline-block!important}
+.bms-shell .bms-dashboard-new-job .bms-new-job-button{font-size:12px!important;min-height:38px!important;padding:9px 14px!important}
+@media(max-width:850px){
+ .bms-shell .bms-header-new-job{display:none!important}
+ .bms-shell .bms-app-header-inner{padding:7px 12px!important;gap:10px!important}
+ .bms-shell .bms-brand-link{flex:1 1 auto!important;overflow:hidden!important;gap:7px!important}
+ .bms-shell .bms-brand-logo{max-width:90px!important;max-height:42px!important}
+ .bms-shell .bms-brand-details{flex:1 1 auto!important;max-width:none!important;overflow:hidden!important}
+ .bms-shell .bms-brand-details strong{font-size:12px!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+ .bms-shell .bms-ruby-link{min-height:40px!important;width:42px!important;height:42px!important;padding:4px!important;justify-content:center!important;flex:0 0 42px!important;border:1px solid #e7e9ed!important}
+ .bms-shell .bms-ruby-avatar{width:32px!important;height:32px!important;flex-basis:32px!important;border-radius:8px!important}
+ .bms-shell .bms-ruby-link span{display:none!important}
+ .bms-shell .bms-header-actions{margin-left:0!important;gap:0!important}
+ .bms-shell .bms-brand-details .builtBy{display:none!important}
+}
+@media(max-width:390px){
+ .bms-shell .bms-app-header-inner{gap:7px!important;padding:7px 9px!important}
+ .bms-shell .bms-brand-logo{max-width:72px!important}
+ .bms-shell .bms-brand-details strong{font-size:11px!important}
+}
