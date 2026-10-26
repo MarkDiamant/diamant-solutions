@@ -1,5 +1,6 @@
 -- Safe integration test against fictional flooring tenant only. All writes rolled back.
 BEGIN;
+SET LOCAL ROLE service_role;
 DO $$
 DECLARE t uuid;l uuid;p uuid;pol uuid;sol uuid;po uuid;so uuid;before_onhand numeric;after_onhand numeric;res numeric;replay uuid;rejected boolean;
 BEGIN
