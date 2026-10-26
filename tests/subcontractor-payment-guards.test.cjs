@@ -73,3 +73,12 @@ test('Xero loan descriptions are always queued for manual review',()=>{
 test('Xero manual payment linking requires a matching payment date',()=>{
  assert.match(api,/candidates\.some\(\(p:any\)=>String\(p\.paid_at\|\|""\)\.slice\(0,10\)!==date\.slice\(0,10\)\)/);
 });
+
+test('stock and goods receipt retries reject changed payloads',()=>{
+ const stock=fs.readFileSync('supabase/migrations/20261026000500_bms_guard_stock_idempotency_payload.sql','utf8');
+ const receipt=fs.readFileSync('supabase/migrations/20261026000600_bms_guard_receipt_idempotency_payload.sql','utf8');
+ assert.match(stock,/Stock idempotency key reused with different movement/);
+ assert.match(stock,/quantity_delta=p_delta/);
+ assert.match(receipt,/Receipt key reused with different goods receipt/);
+ assert.match(receipt,/quantity_delta=p_qty/);
+});
