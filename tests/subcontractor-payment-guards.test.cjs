@@ -187,3 +187,15 @@ test("Ruby undo requires matching action/table, actor and live edit permission",
  assert.match(api,/canBms\(member,rule\.permission\)/);
  for(const kind of ["update_task","update_customer"])assert.match(api,new RegExp('if\\(plan\\.kind==="'+kind+'"\\)\\{if\\(!canBms\\(member,"edit_jobs"\\)\\)'));
 });
+
+test("QuickBooks company check is read-only, tenant scoped and requires accounting admin",()=>{
+ const start=api.indexOf('if(p==="integrations/quickbooks/company")');
+ const end=api.indexOf('if(p==="integrations/quickbooks/connect")',start);
+ assert.ok(start>0&&end>start);
+ const block=api.slice(start,end);
+ assert.match(block,/canBms\(member,"manage_business_settings"\)/);
+ assert.match(block,/tenant_id=eq\."\+encodeURIComponent\(tenantId\)/);
+ assert.match(block,/decryptSecret\(connection\.access_token_ciphertext\)/);
+ assert.match(block,/String\(company\.Id\)!==realm/);
+ assert.doesNotMatch(block,/method:"POST"|method:"PATCH"|method:"DELETE"/);
+});
