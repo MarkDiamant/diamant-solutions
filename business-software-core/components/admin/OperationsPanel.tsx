@@ -8,6 +8,7 @@ type Location={id:string;name:string};
 type PurchaseLine={id:string;material_order_id:string;product_id?:string;description:string;ordered_quantity:number;received_quantity:number;unit:string;unit_cost_net:number};
 type Stock={product_id:string;location_id:string;on_hand:number;reserved:number;available:number};
 type SalesOrder={id:string;reference?:string;customer_id:string;job_id?:string;status:string;created_at:string};
+type SalesLine={id:string;sales_order_id:string;product_id?:string;description:string;quantity:number;reserved_quantity:number;picked_quantity:number;fulfilled_quantity:number};
 type Catalog={products:Product[];customers:Customer[];locations:Location[];purchase_lines:PurchaseLine[];suppliers:{id:string;name:string}[];permissions:{manage_stock:boolean;manage_pricing:boolean;create_sales:boolean}};
 const initial:Catalog={products:[],customers:[],locations:[],purchase_lines:[],suppliers:[],permissions:{manage_stock:false,manage_pricing:false,create_sales:false}};
 const inputClass="w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900";
@@ -15,13 +16,14 @@ const labelClass="block text-xs font-semibold text-slate-700 mb-1";
 async function api(path:string,options?:RequestInit){const response=await fetch("/api/admin/operations/"+path,{cache:"no-store",...options});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Unable to complete request");return data;}
 function post(path:string,data:unknown){return api(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});}
 export default function OperationsPanel(){
- const [catalog,setCatalog]=useState<Catalog>(initial),[stock,setStock]=useState<Stock[]>([]),[orders,setOrders]=useState<SalesOrder[]>([]);
+ const [catalog,setCatalog]=useState<Catalog>(initial),[stock,setStock]=useState<Stock[]>([]),[orders,setOrders]=useState<SalesOrder[]>([]),[salesLines,setSalesLines]=useState<SalesLine[]>([]);
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[notice,setNotice]=useState("");
  const [customer,setCustomer]=useState(""),[product,setProduct]=useState(""),[qty,setQty]=useState("1"),[reference,setReference]=useState("");
  const [priceCustomer,setPriceCustomer]=useState(""),[priceProduct,setPriceProduct]=useState(""),[price,setPrice]=useState("");
  const [receiptLine,setReceiptLine]=useState(""),[receiptQty,setReceiptQty]=useState("1"),[receiptLocation,setReceiptLocation]=useState(""),[locationName,setLocationName]=useState("");
+ const [warehouseLine,setWarehouseLine]=useState(""),[warehouseLocation,setWarehouseLocation]=useState(""),[warehouseQty,setWarehouseQty]=useState("1");
  const [supplierName,setSupplierName]=useState(""),[poSupplier,setPoSupplier]=useState(""),[poProduct,setPoProduct]=useState(""),[poQty,setPoQty]=useState("1"),[poCost,setPoCost]=useState(""),[poNotes,setPoNotes]=useState("");
- const refresh=useCallback(async()=>{const [c,s,o]=await Promise.all([api("catalog"),api("stock"),api("sales-orders")]);setCatalog(c);setStock(s.balances||[]);setOrders(o.orders||[]);setLoading(false);},[]);
+ const refresh=useCallback(async()=>{const [c,s,o]=await Promise.all([api("catalog"),api("stock"),api("sales-orders")]);setCatalog(c);setStock(s.balances||[]);setOrders(o.orders||[]);setSalesLines(o.lines||[]);setLoading(false);},[]);
  useEffect(()=>{void refresh().catch(e=>{setNotice(e.message);setLoading(false);});const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh().catch(()=>{});},30000);return()=>window.clearInterval(timer);},[refresh]);
  const productById=useMemo(()=>new Map(catalog.products.map(p=>[p.id,p])),[catalog.products]);
  const customerById=useMemo(()=>new Map(catalog.customers.map(c=>[c.id,[c.first_name,c.last_name].filter(Boolean).join(" ")])),[catalog.customers]);
@@ -66,6 +68,14 @@ export default function OperationsPanel(){
      <button disabled={busy||!receiptLine||!receiptLocation} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Confirm goods received</button>
     </form>
     <form className="mt-5 flex gap-2" onSubmit={e=>{e.preventDefault();void submit(()=>post("location",{name:locationName}),"Location saved.");setLocationName("");}}><input aria-label="New stock location" className={inputClass} placeholder="New stock location" value={locationName} onChange={e=>setLocationName(e.target.value)}/><button disabled={busy||locationName.trim().length<2} className="whitespace-nowrap rounded-lg border px-3 text-sm font-bold">Add location</button></form>
+   </section>}
+   {catalog.permissions.manage_stock&&<section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Warehouse reservation and picking</h2><p className="mb-4 text-sm text-slate-500">Reserve stock for a sales order, then pick only stock reserved for that order and location.</p>
+    <div className="space-y-3">
+     <label className={labelClass}>Sales order line<select className={inputClass} value={warehouseLine} onChange={e=>setWarehouseLine(e.target.value)}><option value="">Choose order line</option>{salesLines.filter(l=>l.product_id).map(l=><option key={l.id} value={l.id}>{orders.find(o=>o.id===l.sales_order_id)?.reference||l.sales_order_id.slice(0,8)} · {l.description} · {l.quantity} ordered, {l.reserved_quantity} reserved, {l.picked_quantity} picked</option>)}</select></label>
+     <label className={labelClass}>Stock location<select className={inputClass} value={warehouseLocation} onChange={e=>setWarehouseLocation(e.target.value)}><option value="">Choose location</option>{catalog.locations.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}</select></label>
+     <label className={labelClass}>Quantity<input className={inputClass} type="number" min="0.001" step="0.001" value={warehouseQty} onChange={e=>setWarehouseQty(e.target.value)}/></label>
+     <div className="flex flex-wrap gap-2"><button type="button" disabled={busy||!warehouseLine||!warehouseLocation} onClick={()=>void submit(()=>post("reserve-sales",{line_id:warehouseLine,location_id:warehouseLocation,quantity:Number(warehouseQty),key:crypto.randomUUID()}),"Stock reserved.")} className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-bold disabled:opacity-40">Reserve stock</button><button type="button" disabled={busy||!warehouseLine||!warehouseLocation} onClick={()=>void submit(()=>post("pick-sales",{line_id:warehouseLine,location_id:warehouseLocation,quantity:Number(warehouseQty),key:crypto.randomUUID()}),"Stock picked and movement recorded.")} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Confirm picking</button></div>
+    </div>
    </section>}
    <section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Stock balances</h2><div className="mt-3 max-h-80 overflow-auto"><table className="w-full text-left text-sm"><thead><tr><th className="p-2">Product</th><th className="p-2 text-right">On hand</th><th className="p-2 text-right">Reserved</th><th className="p-2 text-right">Available</th></tr></thead><tbody>{stock.map(s=><tr key={s.product_id+":"+s.location_id} className="border-t"><td className="p-2">{productById.get(s.product_id)?.name||s.product_id}<span className="block text-xs text-slate-500">{catalog.locations.find(l=>l.id===s.location_id)?.name}</span></td><td className="p-2 text-right">{s.on_hand}</td><td className="p-2 text-right">{s.reserved}</td><td className="p-2 text-right">{s.available}</td></tr>)}</tbody></table>{!stock.length&&<p className="p-3 text-sm text-slate-500">No stock movements recorded yet.</p>}</div></section>
   </div>
