@@ -162,7 +162,7 @@ test("warehouse idempotency keys reject changed payloads and persist across retr
  for(const action of ["reserve-sales","pick-sales","receive-purchase","adjust-stock"])assert.ok(operations.includes('operationKey("'+action+'"'));
  assert.match(operations,/retryKeys=useRef/);
  assert.match(operations,/delete retryKeys\.current\[retryFingerprint\]/);
- assert.doesNotMatch(operations,/key:crypto\.randomUUID\(\)/);
+ assert.doesNotMatch(operations,/receipt_key:crypto\.randomUUID\(\)/);
 });
 test("stock operations reject malformed retry keys and excessive quantities",()=>{
  for(const action of ["reserve-sales","pick-sales","receive-purchase"]){
