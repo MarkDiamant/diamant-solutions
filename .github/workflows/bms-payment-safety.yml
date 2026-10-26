@@ -1,0 +1,22 @@
+name: BMS payment safety regression
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/api/bms-live/**'
+      - 'app/bms-runtime/jobs/**/subcontractors/**'
+      - 'supabase/migrations/**'
+      - 'tests/subcontractor-payment-guards.test.cjs'
+      - '.github/workflows/bms-payment-safety.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  payment-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/subcontractor-payment-guards.test.cjs
