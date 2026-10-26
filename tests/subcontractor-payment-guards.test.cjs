@@ -6,7 +6,7 @@ const ui=fs.readFileSync('app/bms-runtime/jobs/[reference]/subcontractors/page.t
 const sql=fs.readFileSync('supabase/migrations/20261026000100_bms_block_legacy_assignment_payment.sql','utf8');
 
 test('legacy assignment endpoint refuses payment creation',()=>{
- assert.match(api,/if\(data&&\("add_payment" in data\)\)return NextResponse\.json/);
+ assert.match(api,/if\(data&&\("add_payment" in data\|\|"paid_amount" in data\)\)return NextResponse\.json/);
 });
 test('dedicated payment requires a stable request key',()=>{
  assert.match(api,/const key=String\(data\.request_key\|\|""\)\.trim\(\)/);
@@ -57,4 +57,10 @@ test('reused payment key must preserve original amount',()=>{
  const rpc=fs.readFileSync('supabase/migrations/20261026000300_bms_validate_payment_retry_amount.sql','utf8');
  assert.match(rpc,/Idempotency key reused with different payment details/);
  assert.match(rpc,/amount=p_amount/);
+});
+
+test('paid balance cannot be changed through legacy assignment updates',()=>{
+ const sql=fs.readFileSync('supabase/migrations/20261026000400_bms_guard_assignment_paid_balance.sql','utf8');
+ assert.match(sql,/p_data \? 'paid_amount'/);
+ assert.match(sql,/Payment balances may only change through idempotent payment recording/);
 });
