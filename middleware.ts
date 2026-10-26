@@ -26,11 +26,11 @@ export function middleware(request:NextRequest){
    return NextResponse.next();
  }
  const demoDeployment=process.env.BMS_DEMO_ONLY==="true",isDemo=demoDeployment||host===DEMO_HOST;
- const demoKeys=new Set(["northstar","electrical","insurance","studio","consultancy","distribution"]);
+ const demoKeys=new Set(["northstar","electrical","insurance","studio","consultancy","distribution","flooring"]);
  const demoParts=path.split("/").filter(Boolean),pathSample=demoKeys.has(demoParts[0]||"")?demoParts[0]:null;
  const demoCleanPath=pathSample?"/"+demoParts.slice(1).join("/"):path;
  if(isDemo&&(path==="/favicon.ico"||path==="/api/business-software/icon")){const url=request.nextUrl.clone();url.pathname="/Icon-512.png";return NextResponse.rewrite(url);}
- const demoSample=pathSample||request.nextUrl.searchParams.get("sample")||request.headers.get("x-bms-demo-sample")||request.headers.get("referer")?.match(/\/(northstar|electrical|insurance|studio|consultancy|distribution)(?:\/|$)/)?.[1]||"northstar";
+ const demoSample=pathSample||request.nextUrl.searchParams.get("sample")||request.headers.get("x-bms-demo-sample")||request.headers.get("referer")?.match(/\/(northstar|electrical|insurance|studio|consultancy|distribution|flooring)(?:\/|$)/)?.[1]||"northstar";
  if(isDemo&&path.startsWith("/api/jobs")){const url=request.nextUrl.clone();url.pathname="/api/bms-demo/jobs"+path.slice("/api/jobs".length);const headers=new Headers(request.headers);headers.set("x-bms-demo-sample",demoSample);return NextResponse.rewrite(url,{request:{headers}});}
  if(isDemo&&path==="/api/admin/settings"){const url=request.nextUrl.clone();url.pathname="/api/bms-demo/settings";const headers=new Headers(request.headers);headers.set("x-bms-demo-sample",demoSample);return NextResponse.rewrite(url,{request:{headers}});}
  if(isDemo&&path.startsWith("/api/")&&!path.startsWith("/api/bms-demo/")&&path!=="/api/bms-demo"&&path!=="/api/business-software/tenant-logo")return NextResponse.json({error:"Production actions are unavailable in the fictional demo."},{status:403,headers:{"Cache-Control":"no-store"}});
