@@ -276,3 +276,11 @@ test("flooring server checks area and waste before accepting quantity",()=>{
  assert.match(sql,/Sales quantity does not match flooring pack calculation/);
  assert.match(api,/area_m2:x\.area_m2/);
 });
+
+test("service-only operational grants unblock connected workflows without public writes",()=>{
+ const grants=fs.readFileSync("supabase/migrations/20261026001900_bms_service_operational_writes.sql","utf8");
+ assert.match(grants,/GRANT SELECT,INSERT,UPDATE ON TABLE/);
+ for(const table of ["business_software_sales_orders","business_software_stock_balances","business_software_customer_prices","business_software_deliveries","business_software_order_request_keys","bms_material_receipt_events"])assert.ok(grants.includes(table));
+ assert.match(grants,/TO service_role/);
+ assert.doesNotMatch(grants,/TO authenticated|TO anon/);
+});
