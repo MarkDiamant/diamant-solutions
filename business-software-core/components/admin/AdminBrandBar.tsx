@@ -83,7 +83,7 @@ export default function AdminBrandBar(){
     <span className="bms-brand-details"><strong style={{color:brand}}>{config?.businessName||"Business Management"}</strong><small>{config?.systemName||"Business Management Software"}</small><DiamantCredit compact/></span>
    </Link>
    <div className="bms-header-actions">
-    <Link href={go("/ai")} onClick={navigate} className="bms-ruby-link" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
+    <Link href={go("/ai")} onClick={navigate} aria-label="Ask Ruby" className="bms-ruby-link" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
     {(permissions===null?Boolean(demo):permissions.includes("edit_jobs"))&&<div className="bms-new-job bms-header-new-job">
      <button type="button" onClick={()=>setJobOpen(v=>!v)} aria-expanded={jobOpen} aria-haspopup="true" className="bms-new-job-button" style={{backgroundColor:brand}}>+ New Job</button>
      {jobOpen&&<div className="bms-job-popover"><Link href={go("/jobs/new?quick=1")} onClick={navigate}>Quick add job</Link><Link href={go("/jobs/new")} onClick={navigate}>Full new job</Link></div>}
