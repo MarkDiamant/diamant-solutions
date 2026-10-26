@@ -3,7 +3,7 @@ import {NextResponse} from "next/server";
 import {centralRest} from "../../../../../../lib/business-software/db";
 const hash=v=>crypto.createHash("sha256").update(v).digest("hex");
 function encrypt(value){if(!value||!process.env.DS_INTEGRATION_ENCRYPTION_KEY)throw new Error("Integration encryption is not configured");const key=crypto.createHash("sha256").update(process.env.DS_INTEGRATION_ENCRYPTION_KEY).digest(),iv=crypto.randomBytes(12),cipher=crypto.createCipheriv("aes-256-gcm",key,iv),encrypted=Buffer.concat([cipher.update(value,"utf8"),cipher.final()]);return [iv,cipher.getAuthTag(),encrypted].map(x=>x.toString("base64url")).join(".");}
-function redirect(origin,result){let u;try{u=new URL(origin);if(u.protocol!=="https:"||!(u.hostname==="diamantsolutions.co.uk"||u.hostname.endsWith(".diamantsolutions.co.uk")||u.hostname.endsWith(".vercel.app")))throw Error("Invalid origin");}catch{u=new URL("https://bms.diamantsolutions.co.uk");}u.pathname="/admin/integrations";u.search="?quickbooks="+result;u.hash="";return NextResponse.redirect(u);}
+function redirect(origin,result){let u;try{u=new URL(origin);if(u.protocol!=="https:"||!(u.hostname==="diamantsolutions.co.uk"||u.hostname.endsWith(".diamantsolutions.co.uk")||u.hostname.endsWith("-markdiamants-projects.vercel.app")))throw Error("Invalid origin");}catch{u=new URL("https://bms.diamantsolutions.co.uk");}u.pathname="/admin/integrations";u.search="?quickbooks="+result;u.hash="";return NextResponse.redirect(u);}
 export async function GET(request){
  try{
   const url=new URL(request.url),code=url.searchParams.get("code"),state=url.searchParams.get("state"),realmId=url.searchParams.get("realmId");
