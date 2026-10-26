@@ -2,6 +2,7 @@
 import {useCallback,useEffect,useMemo,useState} from "react";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
+import ProductCsvImport from "./ProductCsvImport";
 
 type Product={id:string;name:string;sku?:string;unit?:string;category?:string;active:boolean;fixed_sell_net?:number;cost_net?:number};
 type Customer={id:string;first_name?:string;last_name?:string};
@@ -37,6 +38,7 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
   <header className="rounded-2xl bg-white p-5 shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-bold">Sales and stock operations</h1><p className="mt-1 text-sm text-slate-600">Shared BMS catalogue, customer pricing, sales orders and goods receipts.</p></div><Link href="/" className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold">Dashboard</Link></div></header>
   {notice&&<p role="status" className="rounded-lg bg-white p-3 text-sm">{notice}</p>}
   {loading?<p className="rounded-xl bg-white p-6">Loading operations...</p>:<>
+  {catalog.permissions.manage_stock&&<ProductCsvImport onImported={refresh}/>}
   <div className="grid gap-4 lg:grid-cols-2">
    {catalog.permissions.create_sales&&<section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Create sales order</h2><p className="mb-4 text-sm text-slate-500">Agreed unit prices are calculated and saved by the server.</p>
     <form className="space-y-3" onSubmit={e=>{e.preventDefault();void submit(()=>post("sales-orders",{customer_id:customer,reference:reference||null,lines:[{product_id:product,quantity:Number(qty)}]}),"Sales order created.");}}>
