@@ -4,6 +4,11 @@ on:
     branches: [main]
     paths:
       - 'app/api/bms-live/**'
+      - 'app/api/business-software/catalogue/**'
+      - 'app/api/business-software/oauth/quickbooks/**'
+      - 'business-software-core/components/admin/QuotePrint.tsx'
+      - 'business-software-core/components/admin/LabourCosting.tsx'
+      - 'business-software-core/components/admin/WorkerPortal.tsx'
       - 'app/bms-runtime/jobs/**/subcontractors/**'
       - 'supabase/migrations/**'
       - 'tests/subcontractor-payment-guards.test.cjs'
