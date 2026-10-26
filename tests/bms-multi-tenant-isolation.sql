@@ -3,7 +3,7 @@
 -- No real tenant ID, credentials, payment, or supplier order is used.
 BEGIN;
 DO $$
-DECLARE a uuid; b uuid; ca uuid; cb uuid; pa uuid; pb uuid; la uuid; lb uuid; so uuid; denied boolean;
+DECLARE a uuid; b uuid; ca uuid; cb uuid; pa uuid; pb uuid; la uuid; lb uuid; so uuid; so_line uuid; denied boolean;
 BEGIN
  INSERT INTO public.business_software_tenants(slug,business_name,canonical_host)
  VALUES ('isolation-a-'||substr(gen_random_uuid()::text,1,8),'BMS Isolated A','tenant-a.invalid') RETURNING id INTO a;
@@ -17,13 +17,27 @@ BEGIN
  INSERT INTO public.business_software_stock_locations(tenant_id,name) VALUES(b,'B warehouse') RETURNING id INTO lb;
  INSERT INTO public.business_software_sales_orders(tenant_id,customer_id,reference) VALUES(a,ca,'A-ORDER') RETURNING id INTO so;
  INSERT INTO public.business_software_sales_order_lines(tenant_id,sales_order_id,product_id,description,quantity,unit,agreed_unit_net)
- VALUES(a,so,pa,'A laminate',2,'pack',39);
+ VALUES(a,so,pa,'A laminate',2,'pack',39) RETURNING id INTO so_line;
  IF public.bms_apply_stock_movement(a,pa,la,10,'test receipt','test','a','unique-test-a') IS DISTINCT FROM true
  THEN RAISE EXCEPTION 'Stock receipt failed'; END IF;
  IF public.bms_apply_stock_movement(a,pa,la,10,'test receipt','test','a','unique-test-a') IS DISTINCT FROM false
  THEN RAISE EXCEPTION 'Idempotency failed'; END IF;
  IF (SELECT on_hand FROM public.business_software_stock_balances WHERE tenant_id=a AND product_id=pa AND location_id=la)<>10
  THEN RAISE EXCEPTION 'Stock count failed'; END IF;
+ -- Reserve and pick a synthetic sales line; replays must not alter stock.
+ IF public.bms_reserve_sales_order_line(a,so_line,la,2,'reserve-fixture-a') IS DISTINCT FROM true THEN RAISE EXCEPTION 'Reservation failed'; END IF;
+ IF public.bms_reserve_sales_order_line(a,so_line,la,2,'reserve-fixture-a') IS DISTINCT FROM false THEN RAISE EXCEPTION 'Reservation retry was not idempotent'; END IF;
+ denied:=false;
+ BEGIN PERFORM public.bms_reserve_sales_order_line(a,so_line,la,1,'reserve-fixture-a');
+ EXCEPTION WHEN others THEN denied:=true; END;
+ IF NOT denied THEN RAISE EXCEPTION 'Reservation key accepted changed quantity'; END IF;
+ IF public.bms_pick_sales_order_line(a,so_line,la,1,'pick-fixture-a') IS DISTINCT FROM true THEN RAISE EXCEPTION 'Picking failed'; END IF;
+ IF public.bms_pick_sales_order_line(a,so_line,la,1,'pick-fixture-a') IS DISTINCT FROM false THEN RAISE EXCEPTION 'Picking retry was not idempotent'; END IF;
+ denied:=false;
+ BEGIN PERFORM public.bms_pick_sales_order_line(a,so_line,la,2,'pick-fixture-a');
+ EXCEPTION WHEN others THEN denied:=true; END;
+ IF NOT denied THEN RAISE EXCEPTION 'Picking key accepted changed quantity'; END IF;
+ IF (SELECT on_hand FROM public.business_software_stock_balances WHERE tenant_id=a AND product_id=pa AND location_id=la)<>9 THEN RAISE EXCEPTION 'Picking changed stock incorrectly'; END IF;
  denied:=false;
  BEGIN INSERT INTO public.business_software_sales_orders(tenant_id,customer_id,reference) VALUES(a,cb,'CROSS-CUSTOMER');
  EXCEPTION WHEN check_violation OR foreign_key_violation THEN denied:=true; END;
