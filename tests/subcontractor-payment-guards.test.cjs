@@ -38,3 +38,10 @@ test('generic database RPC rejects subcontractor payment variants',()=>{
  assert.match(generic,/Subcontractor payments require assignment-linked idempotency/);
  assert.match(generic,/p_data->>'payment_type'/);
 });
+
+test('POST records payments while PATCH updates assignment metadata',()=>{
+ const post=api.slice(api.indexOf('export async function POST('),api.indexOf('export async function PATCH('));
+ const patch=api.slice(api.indexOf('export async function PATCH('),api.indexOf('export async function DELETE('));
+ assert.match(post,/if\(parts\[0\]==="jobs"&&parts\[2\]==="subcontractors"&&parts\[3\]\)[\s\S]*?rpc\/bms_record_subcontractor_payment/);
+ assert.match(patch,/if\(parts\[0\]==="jobs"&&parts\[2\]==="subcontractors"&&parts\[3\]\)[\s\S]*?rpc\/bms_update_assignment/);
+});
