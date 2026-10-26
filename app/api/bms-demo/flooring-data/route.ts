@@ -23,7 +23,7 @@ export async function GET(){
  invoices:"business_software_invoices?tenant_id=eq."+id+"&provider=eq.internal&select=invoice_number,status,total,amount_due,amount_paid&limit=100"
  };
  const results=await Promise.all(Object.values(endpoints).map(path=>centralRest(path)));
- if(results.some(r=>!r.ok))return NextResponse.json({error:"Showcase data unavailable",failed_sources:Object.keys(endpoints).filter((_,i)=>!results[i].ok)},{status:503});
+ if(results.some(r=>!r.ok)){const failed=await Promise.all(results.map(async(r,i)=>!r.ok?{source:Object.keys(endpoints)[i],status:r.status,detail:String((await r.json().catch(()=>({})))?.message||"").slice(0,160)}:null));return NextResponse.json({error:"Showcase data unavailable",failed_sources:failed.filter(Boolean)},{status:503});}
  const data=await Promise.all(results.map(r=>r.json()));
  return NextResponse.json({business:tenant.business_name,fictional:true,read_only:true,connected:true,...Object.fromEntries(Object.keys(endpoints).map((key,i)=>[key,data[i]]))},{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
  }catch{return NextResponse.json({error:"Showcase temporarily unavailable"},{status:503});}
