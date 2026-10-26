@@ -14,7 +14,7 @@ const groups:Group[]=[
  {name:"Documents",icon:"▤",entries:[{href:"/files",label:"Files",icon:"▤",module:"files",permission:"view_files"}]},
  {name:"Administration",icon:"⚙",entries:[{href:"/users",label:"Users",icon:"♙",permission:"manage_users"},{href:"/integrations",label:"Integrations",icon:"⌘",module:"integrations",permission:"manage_business_settings"},{href:"/settings",label:"Settings",icon:"⚙",permission:"manage_business_settings"},{href:"/archive",label:"Archive",icon:"▣",permission:"view_history"}]}
 ];
-const demoKeys=["northstar","electrical","insurance","studio","consultancy","distribution"];
+const demoKeys=["northstar","electrical","insurance","studio","consultancy","distribution","flooring"];
 const storeKey="bms-sidebar-collapsed";
 const sectionsKey="bms-sidebar-sections";
 const NAV_EVENT="bms-nav-start";
