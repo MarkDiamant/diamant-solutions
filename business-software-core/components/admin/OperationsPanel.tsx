@@ -20,6 +20,7 @@ export default function OperationsPanel(){
  const [customer,setCustomer]=useState(""),[product,setProduct]=useState(""),[qty,setQty]=useState("1"),[reference,setReference]=useState("");
  const [priceCustomer,setPriceCustomer]=useState(""),[priceProduct,setPriceProduct]=useState(""),[price,setPrice]=useState("");
  const [receiptLine,setReceiptLine]=useState(""),[receiptQty,setReceiptQty]=useState("1"),[receiptLocation,setReceiptLocation]=useState(""),[locationName,setLocationName]=useState("");
+ const [poSupplier,setPoSupplier]=useState(""),[poProduct,setPoProduct]=useState(""),[poQty,setPoQty]=useState("1"),[poCost,setPoCost]=useState(""),[poNotes,setPoNotes]=useState("");
  const refresh=useCallback(async()=>{const [c,s,o]=await Promise.all([api("catalog"),api("stock"),api("sales-orders")]);setCatalog(c);setStock(s.balances||[]);setOrders(o.orders||[]);setLoading(false);},[]);
  useEffect(()=>{void refresh().catch(e=>{setNotice(e.message);setLoading(false);});const timer=window.setInterval(()=>{if(document.visibilityState==="visible")void refresh().catch(()=>{});},30000);return()=>window.clearInterval(timer);},[refresh]);
  const productById=useMemo(()=>new Map(catalog.products.map(p=>[p.id,p])),[catalog.products]);
@@ -45,6 +46,15 @@ export default function OperationsPanel(){
      <label className={labelClass}>Product<select required className={inputClass} value={priceProduct} onChange={e=>setPriceProduct(e.target.value)}><option value="">Choose product</option>{catalog.products.filter(p=>p.active).map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label>
      <label className={labelClass}>Agreed selling price, net GBP<input required className={inputClass} type="number" min="0" step="0.0001" value={price} onChange={e=>setPrice(e.target.value)}/></label>
      <button disabled={busy||!priceCustomer||!priceProduct||price===""} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Save price override</button>
+    </form>
+   </section>
+   <section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Draft purchase order</h2><p className="mb-4 text-sm text-slate-500">Creates an internal supplier order only. Nothing is sent to the supplier.</p>
+    <form className="space-y-3" onSubmit={e=>{e.preventDefault();void submit(()=>post("purchase-order",{supplier_id:poSupplier,notes:poNotes,lines:[{product_id:poProduct,quantity:Number(poQty),unit_cost_net:Number(poCost)}]}),"Draft purchase order created.");}}>
+     <label className={labelClass}>Supplier<select required className={inputClass} value={poSupplier} onChange={e=>setPoSupplier(e.target.value)}><option value="">Choose supplier</option>{catalog.suppliers.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+     <label className={labelClass}>Product<select required className={inputClass} value={poProduct} onChange={e=>setPoProduct(e.target.value)}><option value="">Choose product</option>{catalog.products.filter(x=>x.active).map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+     <div className="grid grid-cols-2 gap-3"><label className={labelClass}>Quantity<input required className={inputClass} type="number" min="0.001" step="0.001" value={poQty} onChange={e=>setPoQty(e.target.value)}/></label><label className={labelClass}>Unit purchase cost, net GBP<input required className={inputClass} type="number" min="0" step="0.0001" value={poCost} onChange={e=>setPoCost(e.target.value)}/></label></div>
+     <label className={labelClass}>Notes<input className={inputClass} value={poNotes} onChange={e=>setPoNotes(e.target.value)}/></label>
+     <button disabled={busy||!poSupplier||!poProduct||poCost===""} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">Create draft purchase order</button>
     </form>
    </section>
    <section className="rounded-2xl bg-white p-5 shadow-sm"><h2 className="text-lg font-bold">Receive ordered materials</h2><p className="mb-4 text-sm text-slate-500">Confirmed receipts update stock once, with an auditable movement record.</p>
