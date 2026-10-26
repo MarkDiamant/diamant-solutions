@@ -109,3 +109,9 @@ test('public website catalogue is tenant filtered and CORS is origin restricted'
  assert.match(catalogue,/allowed\.hostname\.toLowerCase\(\)===actual\.hostname\.toLowerCase\(\)/);
  assert.match(catalogue,/Access-Control-Allow-Origin/);
 });
+
+test('worker billing intervals cannot be duplicated by retries',()=>{
+ const sql=fs.readFileSync('supabase/migrations/20261026000700_bms_worker_time_interval_unique.sql','utf8');
+ assert.match(sql,/CREATE UNIQUE INDEX IF NOT EXISTS bms_worker_time_no_duplicate_active_interval/);
+ assert.match(sql,/tenant_id,worker_id,job_id,work_type,started_at,ended_at/);
+});
