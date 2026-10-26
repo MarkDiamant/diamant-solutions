@@ -55,3 +55,9 @@ Updated: 26 October 2026. Scope: shared BMS core, all tenants. Do not alter MJ01
 - Delivery and fitting planning now use stable request keys; verify same-request retry and changed-payload rejection. Inspect whether concurrent identical requests return a friendly replay result.
 - **Demo launch gates:** provision a real dedicated hostname, assign authorised demo account access without sharing MJ Metal tenant privileges, and connect the flooring demo's interactive buttons to authenticated tenant-scoped APIs. Do not promise this is ready for the prospective customer until those gates and visual QA pass.
 - **Financial approval gate:** MJ010 historical duplicate-looking entries and £5,200 screenshot remain untouched. No approval requested tonight.
+
+## Additional verified operational fixes
+- Found service-role permissions missing on stock, order lines, customer-specific prices and delivery tables. Restored server-only SELECT/INSERT/UPDATE permissions, leaving direct anonymous and authenticated writes denied. This resolved HTTP 503 on the fictional demo's connected API, now verified HTTP 200 with 4 products, stock balances, customer-specific sales price, PO receipt, SO reservation, quote, delivery and internal draft invoice.
+- Added atomic delivery completion RPC that requires picked stock, creates delivered line quantities, advances sales order fulfilment, records delivery status/time and rejects changed replay keys. Executed rollback-only SQL successfully as `service_role`. Test via authenticated UI before treating as fully certified.
+- Tested existing rollback-only two-tenant isolation SQL successfully.
+- Financial records on MJ010 and other existing live tenants were not changed.
