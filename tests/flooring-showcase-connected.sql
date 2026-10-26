@@ -1,7 +1,7 @@
 -- Safe integration test against fictional flooring tenant only. All writes rolled back.
 BEGIN;
 DO $$
-DECLARE t uuid;l uuid;p uuid;pol uuid;sol uuid;po uuid;so uuid;before_onhand numeric;after_onhand numeric;res numeric;replay uuid;
+DECLARE t uuid;l uuid;p uuid;pol uuid;sol uuid;po uuid;so uuid;before_onhand numeric;after_onhand numeric;res numeric;replay uuid;rejected boolean;
 BEGIN
  SELECT id INTO t FROM business_software_tenants WHERE slug='flooring-showcase-demo';
  IF t IS NULL THEN RAISE EXCEPTION 'Seed flooring showcase before running test';END IF;
@@ -30,6 +30,12 @@ BEGIN
  SELECT on_hand INTO after_onhand FROM business_software_stock_balances WHERE tenant_id=t AND product_id=p AND location_id=l;
  IF after_onhand<>28 THEN RAISE EXCEPTION 'Return balance incorrect: %',after_onhand;END IF;
  SELECT bms_create_sales_order_once(t,(SELECT customer_id FROM business_software_sales_orders WHERE id=so), (SELECT job_id FROM business_software_sales_orders WHERE id=so),jsonb_build_array(jsonb_build_object('product_id',p,'quantity',24)),'SO-2001','flooring-demo-so-2001') INTO replay;
- IF replay<>so THEN RAISE EXCEPTION 'Sales order replay created a duplicate';END IF;
+ IF replay<>so THEN RAISE EXCEPTION 'Sales order replay created a duplicate';END IF; 
+ replay:=bms_create_sales_order_once(t,(SELECT customer_id FROM business_software_sales_orders WHERE id=so),(SELECT job_id FROM business_software_sales_orders WHERE id=so),jsonb_build_array(jsonb_build_object('product_id',p,'quantity',24,'area_m2',48,'wastage_percent',10)),'SO-FLOOR-AREA-TEST','flooring-demo-area-valid');
+ IF (SELECT quantity FROM business_software_sales_order_lines WHERE sales_order_id=replay)<>24 THEN RAISE EXCEPTION 'Server pack calculation incorrect';END IF;
+ rejected:=false;
+ BEGIN PERFORM bms_create_sales_order_once(t,(SELECT customer_id FROM business_software_sales_orders WHERE id=so),(SELECT job_id FROM business_software_sales_orders WHERE id=so),jsonb_build_array(jsonb_build_object('product_id',p,'quantity',23,'area_m2',48,'wastage_percent',10)),'SO-FLOOR-AREA-BAD','flooring-demo-area-invalid');
+ EXCEPTION WHEN others THEN rejected:=true;END;
+ IF NOT rejected THEN RAISE EXCEPTION 'Invalid flooring pack quantity was accepted';END IF;
 END $$;
 ROLLBACK;
