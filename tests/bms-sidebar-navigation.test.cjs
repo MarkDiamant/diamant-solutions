@@ -77,3 +77,10 @@ test("logout matches light navigation and exposes a visible keyboard focus state
  assert.match(css,/\.bms-logout\{min-height:42px!important/);
  assert.match(css,/\.bms-logout:focus-visible/);
 });
+
+test("New Job remains available from mobile drawer on permitted pages only",()=>{
+ assert.match(nav,/bms-mobile-new-job/);
+ assert.match(nav,/permissions\.includes\("edit_jobs"\)/);
+ assert.match(css,/\.bms-mobile-new-job\{display:block!important/);
+ assert.match(nav,/\{expanded&&<div className="bms-nav-links"/);
+});
