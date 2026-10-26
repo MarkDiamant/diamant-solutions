@@ -44,7 +44,7 @@ export default function AdminBrandBar(){
  return <>
  <header className="bms-app-header print:hidden">
   <div className="bms-app-header-inner">
-   <button className="bms-menu-trigger" type="button" aria-label={mobileOpen?"Close navigation":"Open navigation"} aria-expanded={mobileOpen} aria-controls="bms-sidebar" onClick={()=>setMobileOpen(v=>!v)}>{mobileOpen?"✕":"☰"}</button>
+   <button className="bms-menu-trigger" type="button" aria-label={mobileOpen?"Close navigation":"Open navigation"} aria-expanded={mobileOpen} aria-controls="bms-sidebar" onClick={()=>{if(!mobileOpen)setOpenSections(Object.fromEntries(groups.map(g=>[g.name,true])));setMobileOpen(v=>!v)}}>{mobileOpen?"✕":"☰"}</button>
    <Link href={go("/")} onClick={navigate} className="bms-brand-link">
     {config?.logoUrl?<img src={config.logoUrl} alt={config.businessName||"Business"} className="bms-brand-logo"/>:<span className="bms-brand-placeholder">BMS</span>}
     <span className="bms-brand-details"><strong style={{color:brand}}>{config?.businessName||"Business Management"}</strong><small>{config?.systemName||"Business Management Software"}</small><DiamantCredit compact/></span>
@@ -62,7 +62,7 @@ export default function AdminBrandBar(){
  <aside id="bms-sidebar" aria-label="Business software navigation" className={"bms-sidebar print:hidden "+(compact?"bms-sidebar-compact ":"")+(mobileOpen?"bms-sidebar-mobile-open":"")}>
   <div className="bms-sidebar-top"><span className="bms-side-label">WORKSPACE</span><button type="button" className="bms-compact-toggle" aria-label={compact?"Expand sidebar":"Collapse to icons"} title={compact?"Expand sidebar":"Collapse to icons"} onClick={toggleCompact}>{compact?"»":"«"}</button></div>
   <nav aria-label="Main navigation" className="bms-sidebar-scroll">
-   {available.map(group=>{const expanded=openSections[group.name]??true;const selected=group.entries.some(e=>active(e.href));return <section key={group.name} className="bms-nav-section"><button type="button" className={"bms-nav-heading "+(selected?"bms-nav-heading-active":"")} onClick={()=>toggleSection(group.name)} aria-expanded={expanded} title={compact?group.name:undefined}><span className="bms-side-icon" aria-hidden="true">{group.icon}</span><span className="bms-side-label">{group.name}</span><span className="bms-section-chevron bms-side-label" aria-hidden="true">{expanded?"⌄":"›"}</span></button>{(expanded||compact)&&<div className="bms-nav-links">{group.entries.map(link)}</div>}</section>})}
+   {available.map(group=>{const expanded=mobileOpen?openSections[group.name]!==false:openSections[group.name]??true;const selected=group.entries.some(e=>active(e.href));return <section key={group.name} className="bms-nav-section"><button type="button" className={"bms-nav-heading "+(selected?"bms-nav-heading-active":"")} onClick={()=>toggleSection(group.name)} aria-expanded={expanded} title={compact?group.name:undefined}><span className="bms-side-icon" aria-hidden="true">{group.icon}</span><span className="bms-side-label">{group.name}</span><span className="bms-section-chevron bms-side-label" aria-hidden="true">{expanded?"⌄":"›"}</span></button>{(expanded||compact)&&<div className="bms-nav-links">{group.entries.map(link)}</div>}</section>})}
   </nav>
   <div className="bms-sidebar-bottom"><button type="button" className="bms-side-link bms-logout" onClick={()=>void logout()} title="Log out"><span className="bms-side-icon" aria-hidden="true">↪</span><span className="bms-side-label">Log out</span></button></div>
  </aside>
