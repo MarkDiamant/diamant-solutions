@@ -48,3 +48,11 @@ Shared BMS package `1.0.2` was released from commit `07bb39bb`, superseding `1.0
 - `029e7585`: critical Xero bank-receipt loan classifier used double-escaped regular-expression boundaries and whitespace, causing incorrect loan/transfer classification. Fixed to actual regex escapes. `6ca17f0f` runs classifier against loan, director loan, internal transfer, capital introduced, owner contribution and ordinary customer deposit. GitHub regression suite passed. Production readiness to be checked separately. **Financial acceptance open.**
 - Full job page, MJ048 authenticated item empty state and revisions, notes/files/payment history, Xero N18 transaction verification and mobile role testing remain open. No real operational/financial data was changed.
 - Audited requirement scorecard remains implemented 10/20 (50%), complete automated integration tested 10/20 (50%), authenticated accepted 0/20 (0%). Provisional coverage not raised absent an auditable full-requirement gate.
+
+## Continuation after d5c4a22d
+
+- Verified Vercel deployment for Xero loan classifier `029e7585` is **READY** (`dpl_BQw1Ta62rdtC3wQF8nVkc44XMXbo`). Previous regression suite `6ca17f0f` passed.
+- `5f009de8`: Activity tab retains form entries if the save fails, rather than resetting or silently losing them. `2560da95` adds regression evidence. **Awaiting user acceptance**.
+- `c623922e`: Job Items invalidates cached revision history after append, initial save or revision; suppresses history action during read errors. `23ed58df` adds regression evidence. **Awaiting user acceptance**.
+- Authenticated desktop/mobile browser verification has NOT been performed; no browser session with authorised credentials is available in this tool run. Do not count source assertions or CI as this verification. MJ048 and all other unconfirmed findings remain OPEN.
+- Audited score: 10/20 fully implemented = 50%; 10/20 fully integration-tested = 50%; 0/20 authenticated accepted = 0%. Provisional: unchanged at 50%, 50%, 0% pending end-to-end evidence; no complete requirement newly closed. Tasks-to-MJ048 navigation remains the sole user-confirmed resolution outside the aggregate 20-gate count.
