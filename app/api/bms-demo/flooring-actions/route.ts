@@ -161,7 +161,7 @@ export async function POST(req:Request){
    if(doc.job_id!==job||(kind==="invoice"&&doc.provider!=="internal"))return response("Financial document does not belong to selected fictional job",403);
    if(kind==="quote"&&doc.status!=="approved")return response("Approve the quotation before preparing email",409);
    if(kind==="invoice"&&!["issued","part_paid","paid","settled"].includes(doc.status))return response("Issue the invoice before preparing email",409);
-   if(!/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(to))return response("Valid test recipient required",400);
+   if(!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(to))return response("Valid test recipient required",400);
    const allowlist=String(process.env.BMS_DEMO_EMAIL_ALLOWLIST||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
    if(!allowlist.includes(to))return response("Recipient is not an authorised fictional-tenant test address",403);
    const send=action==="send_financial_email",mode=send?"send":"draft";
