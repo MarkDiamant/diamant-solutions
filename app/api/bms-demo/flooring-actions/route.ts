@@ -67,6 +67,11 @@ export async function POST(req:Request){
    if(!first||!last||first.length>100||last.length>100)return response("Enter a valid customer name",400);
    const r=await centralRest("business_software_customers?tenant_id=eq."+tenant+"&id=eq."+id,{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({first_name:first,last_name:last})});
    if(!r.ok)throw Error("Customer update failed");result=(await json(r))?.[0];
+  }else if(action==="create_enquiry"){
+   const customer=String(d.customer_id||"");await owned("business_software_customers",tenant,customer);
+   const area=num(d.area_m2),title=String(d.title||"New flooring enquiry").trim();
+   if(!Number.isFinite(area)||title.length<3||title.length>160)return response("Valid enquiry area and title required",400);
+   result=await rpc("bms_create_enquiry_once",{p_tenant:tenant,p_customer:customer,p_title:title,p_area_m2:area,p_key:keyValue});
   }else if(action==="create_quote"){
    const job=String(d.job_id||"");await owned("business_software_jobs",tenant,job);
    const total=amount(d.amount);if(!Number.isFinite(total)||total===0)return response("Quote amount must be positive",400);
