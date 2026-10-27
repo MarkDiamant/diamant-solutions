@@ -13,7 +13,7 @@ export default function DemoOperationsPanel(){
  const products=flooring&&connected?.products?.length?connected.products.map((p:any)=>({name:p.name,unit:p.unit,cost:Number(p.cost_net||0),price:Number(p.fixed_sell_net||0),stock:true})):sampleProducts[sample]||sampleProducts.flooring;
  const [connected,setConnected]=useState<any>(null),[connectedError,setConnectedError]=useState("");
  const [refreshKey,setRefreshKey]=useState(0);
- const [busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
+ const [resetPhrase,setResetPhrase]=useState(""),[busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
  const product=connected?.products?.find((p:any)=>p.id===selectedProduct)||connected?.products?.[0];
  const customerId=selectedCustomer||connected?.customers?.[0]?.id;
  const customerPrice=connected?.customer_prices?.find((p:any)=>p.product_id===product?.id&&p.customer_id===customerId);
@@ -60,6 +60,14 @@ export default function DemoOperationsPanel(){
    <div className="mt-3 flex flex-wrap gap-2">
     <BmsButton disabled={busy||!connected} onClick={()=>run("create_quote",{job_id:selectedJob||connected?.jobs?.[0]?.id,scope_text:quoteScope,amount:Number(quoteAmount)})}>Save quote revision</BmsButton>
     <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("create_draft_invoice",{job_id:selectedJob||connected?.jobs?.[0]?.id,total:Number(quoteAmount)*1.2})}>Create internal draft invoice</BmsButton>
+   </div>
+  </BmsCard>
+  <BmsCard className="p-5">
+   <h2 className="text-lg font-bold">Reset fictional demo data</h2>
+   <p className="mt-1 text-sm text-slate-600">Restores the original fictional products, customer prices, purchase order, partial goods receipt, stock, sales order, quotation and draft invoice in one database transaction. This cannot reset live tenants.</p>
+   <div className="mt-3 flex flex-wrap items-end gap-3">
+    <BmsField>Type RESET OAK AND STONE DEMO<BmsInput value={resetPhrase} onChange={e=>setResetPhrase(e.target.value)} autoComplete="off"/></BmsField>
+    <BmsButton variant="danger" disabled={busy||resetPhrase!=="RESET OAK AND STONE DEMO"} onClick={()=>{if(window.confirm("Permanently reset only the fictional Oak & Stone demo records?")){run("reset_demo",{confirm_phrase:resetPhrase});setResetPhrase("")}}}>Reset fictional data</BmsButton>
    </div>
   </BmsCard>
   <BmsCard className="p-5"><h2 className="text-lg font-bold">Connected warehouse and delivery</h2>
