@@ -101,7 +101,7 @@ return async function POST(request:Request){
     `/rest/v1/bms_invoices?job_id=eq.${encodeURIComponent(job.id)}&select=*&limit=30`,
     `/rest/v1/business_software_invoices?job_id=eq.${encodeURIComponent(job.id)}&select=*&limit=30`
    ]:[];
-   const attempts=await Promise.all(queries.map(path=>supabaseRequest(path,{},session.token).then(async res=>({ok:res.ok,rows:res.ok?await res.json().catch(()=>[]):[]})).catch(()=>({ok:false,rows:[]}))));
+   const attempts=await Promise.all(queries.map(path=>supabaseRequest(path,{},session.token).then(async (res:Response)=>({ok:res.ok,rows:res.ok?await res.json().catch(()=>[]):[]})).catch(()=>({ok:false,rows:[]}))));
    invoiceContext={reference,job:job?{id:job.id,reference:job.reference,quoted_amount:job.quoted_amount,vat_rate:job.vat_rate,invoice_status:job.invoice_status}:null,invoices:attempts.flatMap(x=>Array.isArray(x.rows)?x.rows:[]).map((x:any)=>({id:x.id,invoice_number:x.invoice_number,status:x.status,total:x.total,amount_due:x.amount_due,amount_paid:x.amount_paid,due_date:x.due_date,invoice_date:x.invoice_date,provider:x.provider,vat_rate:x.vat_rate,external_invoice_id:x.external_invoice_id})),invoiceLookupAvailable:attempts.some(x=>x.ok)};
   }
  }
