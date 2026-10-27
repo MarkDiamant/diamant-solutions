@@ -4,8 +4,11 @@ on:
     branches: [main]
     paths:
       - "business-software-core/lib/worker-time.ts"
+      - "business-software-core/lib/safe-csv.ts"
+      - "business-software-core/components/admin/LabourCosting.tsx"
       - "business-software-core/components/admin/WorkerPortal.tsx"
       - "tests/worker-time.test.mjs"
+      - "tests/safe-csv.test.mjs"
       - ".github/workflows/bms-unit-regressions.yml"
   workflow_dispatch:
 permissions:
@@ -23,6 +26,6 @@ jobs:
           node-version: "22"
       - run: npm install --ignore-scripts
       - name: Worker daily-hours and UK DST regression
-        run: node --test tests/worker-time.test.mjs
+        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs
         env:
           TZ: Europe/London
