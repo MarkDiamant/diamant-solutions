@@ -132,3 +132,11 @@ See [BMS_REQUIREMENT_ACCEPTANCE_METRICS.md](BMS_REQUIREMENT_ACCEPTANCE_METRICS.m
 
 - `a5e0890d`: shared product autocomplete field with Escape-to-dismiss and expanded-state accessibility. `b8c4d20b` and `2349b5ad`: tenant-colour purchasing controls, mobile form sizes and touch targets. No authenticated mobile screenshot acceptance yet.
 - Vercel build inspection: historical ERROR commits `56e5d3ce` and `404a6e2a` have later successful builds; latest production runtime error-level log query over 30 minutes returned none. This is **not** a complete browser or integration test.
+
+## Live production HTTP evidence and browser environment
+- A restricted London-region Vercel sandbox successfully requested the actual production `/api/bms-demo/flooring-data` endpoint: **HTTP 200** with 4 website-visible products, 2 fictional customers, 1 job, 1 quote, 1 sales order, 1 purchase order, 1 purchase line, 1 sales line, 1 delivery and 1 draft invoice. Product FL-LAM-OAK8 had 2.2 m² coverage, £39 standard unit price, £37 customer-specific override; 48 m² plus 10% wastage calculated to 24 packs. Production `/flooring/operations` returned HTTP 200 HTML. These are real unauthenticated HTTP checks, not interactive browser acceptance.
+- Live unauthenticated POST to `/api/bms-demo/flooring-actions` returned **403**; cross-origin reset POST returned **403**. No demo or live records were mutated during HTTP tests.
+- Seven rollback-only SQL tests passed after the delivery-planning migration, including `4b320b4f` full workflow test updated to use the atomic delivery planning RPC.
+- A Vercel sandbox was created to attempt interactive acceptance, but lacked Chromium/Playwright and npm package installation failed on registry DNS resolution. Protected GitHub Actions Playwright workflow remains available for later authenticated execution. No credentials were invented, and no browser acceptance was claimed.
+- `41da9f6e`: shared modal now traps Tab/Shift+Tab focus within dialog, in addition to Escape and initial focus. Keyboard browser acceptance remains pending.
+- `34bb6dd9`: added a repeatable acceptance runbook documenting tested and untested gates.
