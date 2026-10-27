@@ -68,6 +68,10 @@ test("fictional demo banner and seven-industry selector switch routes without hi
  await page.getByRole("button",{name:"Open navigation"}).click();
  await expect(page.getByRole("navigation",{name:/main/i})).toBeVisible();
  await expect(page.getByRole("link",{name:"Purchasing & Stock"})).toBeVisible();
+ await page.setViewportSize({width:1280,height:900});
+ await expect(page.getByText(/DEMO MODE · Fictional data/)).toBeVisible();
+ await expect(industries.getByRole("button",{name:"Flooring & Tiles"})).toHaveAttribute("aria-pressed","true");
+ await expect(page.getByRole("link",{name:"Purchasing & Stock"})).toBeVisible();
 });
 test("mobile BMS header and original Ruby portrait render across phone and tablet sizes",async({page})=>{
  for(const width of [320,390,768]){
