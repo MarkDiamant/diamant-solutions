@@ -30,3 +30,7 @@ Keep the existing 20-requirement denominator and previously audited stage counts
 ## Current implementation batch
 
 398fc7e8, e94aa4ed, f680b89b, 9c565e72: split tab and header actions, searchable multiselect, Quick Edit and Job Options, historical-payment warning. GitHub CI and production build are engineering gates, not user acceptance. All remain open until the user personally confirms them. Authenticated MJ048 and live Xero transaction verification are still outstanding.
+
+## Shared-core tenant rollout
+
+Shared BMS package `1.0.1` was released from commit `7dc5c668`. The M&J tenant compatibility consumer was updated to pin this immutable release in `MarkDiamant/mjmetal` commits `99bdf33e`, `61e1b9f6` and `e0285f6b`. Initial M&J builds failed on a stale tenant CrmConfig type; the compatibility fields were corrected without changing tenant business data. Confirm the final tenant Vercel READY state separately before reporting deployment complete. No user acceptance inferred.
