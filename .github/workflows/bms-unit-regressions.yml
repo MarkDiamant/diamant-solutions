@@ -2,29 +2,11 @@ name: BMS Unit Regression Tests
 on:
   push:
     branches: [main]
-    paths:
-      - "business-software-core/lib/worker-time.ts"
-      - "business-software-core/lib/safe-csv.ts"
-      - "business-software-core/components/admin/LabourCosting.tsx"
-      - "business-software-core/components/admin/WorkerPortal.tsx"
-      - "tests/worker-time.test.mjs"
-      - "tests/safe-csv.test.mjs"
-      - "tests/ruby-confirmation.test.mjs"
-      - "app/api/bms-live/**/route.ts"
-      - "business-software-core/components/admin/BmsUI.tsx"
-      - "tests/bms-shared-primitives.test.mjs"
-      - "tests/bms-api-static-guards.test.mjs"
-      - "app/api/bms-demo/flooring-actions/route.ts"
-      - "app/api/bms-materials/route.ts"
-      - "app/api/business-software/tenants/**/gmail/**"
-      - "lib/business-software/gmail-send.js"
-      - "app/bms-runtime/ai/page.tsx"
-      - ".github/workflows/bms-unit-regressions.yml"
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  worker-time:
+  regressions:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
