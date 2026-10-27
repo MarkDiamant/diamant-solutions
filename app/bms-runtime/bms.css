@@ -287,14 +287,14 @@
 .bms-shell:has(> .bms-demo-selector)>div:first-child{position:sticky!important;top:0!important;z-index:92!important;box-sizing:border-box!important;height:var(--bms-demo-mode-height)!important;min-height:var(--bms-demo-mode-height)!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#25344a!important;color:#f8fafc!important;font-size:11px!important;font-weight:700!important;letter-spacing:.02em!important;padding:5px 12px!important;box-shadow:none!important}
 .bms-shell>.bms-demo-selector{position:sticky!important;top:var(--bms-demo-mode-height)!important;z-index:91!important;box-sizing:border-box!important;height:var(--bms-demo-selector-height)!important;min-height:var(--bms-demo-selector-height)!important;display:flex!important;align-items:center!important;justify-content:center!important;background:#f8f9fb!important;border-bottom:1px solid #e4e8ee!important;box-shadow:0 1px 3px #11182708!important;overflow:visible!important}
 .bms-shell>.bms-demo-selector>div{width:100%!important;min-width:0!important}
-.bms-shell>.bms-demo-selector>div.sm\\:flex{overflow-x:auto!important;scrollbar-width:thin!important;white-space:nowrap!important;padding:2px 0!important}
+.bms-shell>.bms-demo-selector .bms-demo-industry-scroll{overflow-x:auto!important;scrollbar-width:thin!important;white-space:nowrap!important;padding:2px 0!important}
 .bms-shell:has(> .bms-demo-selector)>.bms-app-header{top:var(--bms-demo-chrome-height)!important;z-index:90!important}
 .bms-shell:has(> .bms-demo-selector)>#bms-sidebar,.bms-shell:has(> .bms-demo-selector)>aside#bms-sidebar{top:calc(var(--bms-demo-chrome-height) + var(--bms-header-height))!important;bottom:0!important;max-height:calc(100dvh - var(--bms-demo-chrome-height) - var(--bms-header-height))!important;z-index:89!important}
 .bms-shell:has(> .bms-demo-selector)>.bms-sidebar-backdrop{top:calc(var(--bms-demo-chrome-height) + var(--bms-header-height))!important;z-index:88!important}
 @media(max-width:850px){
  .bms-shell:has(> .bms-demo-selector){--bms-demo-mode-height:34px;--bms-demo-selector-height:72px}
  .bms-shell>.bms-demo-selector{padding:5px 10px!important}
- .bms-shell>.bms-demo-selector .sm\\:hidden{width:100%!important}
+ .bms-shell>.bms-demo-selector .bms-demo-industry-scroll{width:100%!important}
  .bms-shell>.bms-demo-selector details summary{max-width:calc(100vw - 36px)!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;border-radius:9px!important}
  .bms-shell>.bms-demo-selector details>div{max-height:min(420px,60dvh)!important;overflow-y:auto!important}
 }
