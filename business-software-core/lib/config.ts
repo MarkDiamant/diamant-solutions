@@ -14,6 +14,8 @@ export type CrmConfig = {
   statusOrder?: string[];
   nextActionOptions?: string[];
   finishOptions: string[];
+  materialOptions: string[];
+  colourOptions: string[];
   enquirySources: string[];
   fileCategories: string[];
   quoteTemplate: "mj-signature" | "clean" | "classic";
@@ -31,7 +33,7 @@ export const SHARED_BUSINESS_SOFTWARE_DEFAULTS: CrmConfig = {
   businessName:"Your Business", systemName:"Business Management Software", logoUrl:"/Icon-512.png", accentColour:"#e66a24",
   workforceTitle:"Team", workforceSingular:"team member", workforceRoles:["Engineer","Technician","Contractor","Subcontractor","Surveyor","Project manager","Electrician","Plumber","Carpenter","Builder","Cleaner","Driver","Consultant","Salesperson","Other"],
   statusLabels:{fabrication:"Work underway",installation_scheduled:"Work scheduled",estimate_preparing:"Preparing estimate",awaiting_final_payment:"Completed - awaiting payment",completed:"Completed",quote_preparing:"Preparing quote",deposit_requested:"Payment requested",materials_ordered:"Resources ordered"}, statusOrder:[], nextActionOptions:["Contact customer","Request information","Schedule appointment","Prepare estimate","Send quote","Follow up","Confirm booking","Assign team","Start work","Check progress","Complete work","Send invoice","Follow up payment","Close job","No follow-up required"],
-  managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", quoteDefaultText:"", invoiceTemplate:"clean", tenantKey:"demo",
+  managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], materialOptions:[], colourOptions:[], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", quoteDefaultText:"", invoiceTemplate:"clean", tenantKey:"demo",
   plan:{includedUsers:1,licensedUsers:1,additionalUserMonthly:10,aiAssistantMonthly:15,annualMonthsCharged:10,aiIncluded:false}, ai:{enabled:false,textAssist:false,voiceAssist:false,includedTextActions:null,includedVoiceMinutes:null}, billing:{mode:"free",interval:null,status:"active",resumeUrl:"",customerId:"",subscriptionId:"",currentPeriodEnd:"",cancelAtPeriodEnd:false},
   businessDetails:{phone:"",email:"",website:"",companyNumber:"",officeAddress:"",registeredAddress:"",bankName:"",accountNumber:"",sortCode:"",vatRegistered:false,vatNumber:"",defaultDepositPercent:50,quoteValidityDays:30,paymentTerms:"50% deposit, with the remaining balance due on completion.",defaultVatRate:20,emailSignatureName:"The Team",emailSignatureTagline:""},
   modules:{photos:true,workforce:true,commission:true,payments:true,costs:true,finishes:true,siteVisits:true,scheduling:true,quotes:true,invoices:true,prospects:true,tasks:true,campaigns:true,priceBook:true,files:true,integrations:true}
@@ -57,11 +59,13 @@ export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined)
     statusLabels: value?.statusLabels && typeof value.statusLabels==="object" && !Array.isArray(value.statusLabels) ? value.statusLabels : (tenantKey==="mj-metal"?{}:DEFAULT_CRM_CONFIG.statusLabels),
     statusOrder: Array.isArray(value?.statusOrder) ? value.statusOrder : [],
     nextActionOptions: Array.isArray(value?.nextActionOptions) ? value.nextActionOptions : (tenantKey==="mj-metal"?undefined:DEFAULT_CRM_CONFIG.nextActionOptions),
-    workTypes: Array.isArray(value?.workTypes) && value!.workTypes!.length ? value!.workTypes! : DEFAULT_CRM_CONFIG.workTypes,
-    finishOptions: Array.isArray(value?.finishOptions) && value!.finishOptions!.length ? value!.finishOptions! : DEFAULT_CRM_CONFIG.finishOptions,
+    workTypes: Array.isArray(value?.workTypes) ? value!.workTypes! : DEFAULT_CRM_CONFIG.workTypes,
+    finishOptions: Array.isArray(value?.finishOptions) ? value!.finishOptions! : DEFAULT_CRM_CONFIG.finishOptions,
+    materialOptions: Array.isArray(value?.materialOptions) ? value!.materialOptions! : DEFAULT_CRM_CONFIG.materialOptions,
+    colourOptions: Array.isArray(value?.colourOptions) ? value!.colourOptions! : DEFAULT_CRM_CONFIG.colourOptions,
     enquirySources: Array.isArray(value?.enquirySources) && value!.enquirySources!.length ? value!.enquirySources! : DEFAULT_CRM_CONFIG.enquirySources,
     fileCategories: Array.isArray(value?.fileCategories) && value!.fileCategories!.length ? value!.fileCategories! : DEFAULT_CRM_CONFIG.fileCategories,
     managers: Array.isArray(value?.managers) && value!.managers!.length ? value!.managers! : DEFAULT_CRM_CONFIG.managers,
-    workforceRoles: Array.isArray(value?.workforceRoles) && value!.workforceRoles!.length ? value!.workforceRoles! : DEFAULT_CRM_CONFIG.workforceRoles,
+    workforceRoles: Array.isArray(value?.workforceRoles) ? value!.workforceRoles! : DEFAULT_CRM_CONFIG.workforceRoles,
   };
 }
