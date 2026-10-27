@@ -113,3 +113,6 @@ test("anonymous clients cannot list private fictional jobs",async({request})=>{
  const r=await request.get("/api/bms-demo/flooring-actions?list_jobs=true");
  expect(r.status()).toBe(403);
 });
+
+test("anonymous clients cannot download fictional invoice PDFs",async({request})=>{const r=await request.get("/api/bms-demo/flooring-actions?format=pdf&kind=invoice&job_id=00000000-0000-4000-8000-000000000000&id=00000000-0000-4000-8000-000000000000");expect(r.status()).toBe(403)});
+test("anonymous clients cannot send fictional financial Gmail messages",async({request})=>{const r=await request.post("/api/bms-demo/flooring-actions",{headers:{origin},data:{action:"send_financial_email",request_key:"email-anonymous-denial",recipient:"test@example.com"}});expect(r.status()).toBe(403)});
