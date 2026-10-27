@@ -52,3 +52,5 @@ test("activity submission retains entered data when server rejects save",()=>{as
 test("historical manager assignments remain selectable and quote/invoice notes are not conflated",()=>{assert.match(job,/Previously assigned \(configure name in Settings\)/);assert.match(job,/Customer requirements for quotation/);assert.match(job,/Quote Notes \/ exclusions \(shown on quotation only\)/);assert.match(job,/Invoice-specific wording belongs to the individual invoice/);});
 
 test("work type multiselect rejects accidental zero selections rather than restoring stale types",()=>{assert.match(job,/if\(types\.length===0\)\{alert\("Choose at least one work type before saving this job\."\);return;\}/);assert.match(job,/job_type:types\[0\],job_types:types/);});
+
+test("failed full job load preserves core job and exposes retry rather than infinite skeleton",()=>{assert.match(job,/const \[fullError,setFullError\]=useState\(""/);assert.match(job,/setFullError\(body\.error\|\|"Could not load complete job details"\)/);assert.match(job,/Retry full job details/);assert.match(job,/!data\._full&&!fullError&&<section/);});
