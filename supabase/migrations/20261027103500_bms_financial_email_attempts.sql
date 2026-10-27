@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS public.business_software_financial_email_attempts(id uuid PRIMARY KEY DEFAULT gen_random_uuid(),tenant_id uuid NOT NULL REFERENCES public.business_software_tenants(id),request_key text NOT NULL,job_id uuid NOT NULL,document_id uuid NOT NULL,kind text NOT NULL CHECK(kind IN ('quote','invoice')),recipient text NOT NULL,mode text NOT NULL CHECK(mode IN ('send','draft')),status text NOT NULL DEFAULT 'reserved' CHECK(status IN ('reserved','sent','drafted','failed')),provider_message_id text,created_at timestamptz NOT NULL DEFAULT now(),updated_at timestamptz NOT NULL DEFAULT now(),UNIQUE(tenant_id,request_key));
+ALTER TABLE public.business_software_financial_email_attempts ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.business_software_financial_email_attempts FROM PUBLIC,anon,authenticated;
+GRANT SELECT,INSERT,UPDATE ON public.business_software_financial_email_attempts TO service_role;
