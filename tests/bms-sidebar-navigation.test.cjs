@@ -137,3 +137,15 @@ test("tenant theme contrast and flooring controls are shared",()=>{
  assert.match(ops,/className="bms-floor-calculator/);
  assert.doesNotMatch(ops,/border-orange-200 bg-orange-50/);
 });
+
+test("shared BMS UI primitives are used by operational and demo pages",()=>{
+ const ui=fs.readFileSync("business-software-core/components/admin/BmsUI.tsx","utf8");
+ for(const component of ["BmsCard","BmsPageTitle","BmsSectionTitle","BmsButton","BmsState","BmsTable"])assert.ok(ui.includes("export function "+component));
+ const demo=fs.readFileSync("business-software-core/components/admin/DemoOperationsPanel.tsx","utf8");
+ assert.match(demo,/<BmsPageTitle>/);
+ for(const page of ["OperationsPanel","WorkerPortal"]){
+  const source=fs.readFileSync("business-software-core/components/admin/"+page+".tsx","utf8");
+  assert.match(source,/bms-primary-button/);
+  assert.match(source,/bms-card/);
+ }
+});
