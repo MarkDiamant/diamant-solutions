@@ -42,6 +42,7 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
   const r=await page.goto("/flooring/operations");
   expect(r?.status()).toBe(200);
   await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
+  await page.getByLabel("Product",{exact:true}).selectOption({label:"Natural oak 8mm laminate"});
   await expect(page.getByText(/24 pack/i).first()).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
  }
@@ -66,6 +67,7 @@ test("authenticated fictional customer write, persistence and transactional rese
  await expect(page.getByText("Saved to isolated demo database: create customer")).toBeVisible();
  await page.reload();
  await page.getByLabel("Customer",{exact:true}).selectOption({label:name+" Example"});
+ await page.getByLabel("Product",{exact:true}).selectOption({label:"Natural oak 8mm laminate"});
  await page.getByRole("button",{name:"Create customer enquiry"}).click();
  await expect(page.getByText("Saved to isolated demo database: create enquiry")).toBeVisible();
  await page.getByLabel("Quote scope").fill("Fictional flooring acceptance "+suffix);
@@ -107,7 +109,7 @@ test("authenticated fictional customer write, persistence and transactional rese
  const orderLine=before.sales_lines.find((l:any)=>l.sales_order_id===order.id);
  expect(orderLine).toBeTruthy();
  expect(Number(orderLine.quantity)).toBe(24);
- expect(Number(orderLine.agreed_unit_net)).toBe(37);
+ expect(Number(orderLine.agreed_unit_net)).toBe(39); // New fictional customer has standard price; seeded Sarah Collins retains the £37 override.
  expect(Number(orderLine.reserved_quantity)).toBeGreaterThanOrEqual(1);
  expect(Number(orderLine.picked_quantity)).toBeGreaterThanOrEqual(1);
  expect(before.purchase_lines.length).toBeGreaterThan(1);
