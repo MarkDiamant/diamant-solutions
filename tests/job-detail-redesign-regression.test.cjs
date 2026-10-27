@@ -33,3 +33,9 @@ test('trusted service role can read and revise tenant-verified job items',()=>{
  assert.match(grant,/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public\.business_software_job_items TO service_role/);
  assert.match(grant,/GRANT SELECT, INSERT ON TABLE public\.business_software_job_item_revisions TO service_role/);
 });
+
+test('historical Xero-paid entries without payment dates are visibly flagged, not silently certified',()=>{
+ assert.match(job,/payment_type==="historical_xero_paid"&&!p\.paid_at/);
+ assert.match(job,/Payment evidence needs verification/);
+ assert.match(job,/Verify against the actual Xero transaction/);
+});
