@@ -31,7 +31,7 @@ function Summary({label,children}:{label:string;children:React.ReactNode}){retur
 function Stat({label,value}:{label:string;value:string}){return <div className="rounded-lg bg-[#f5f5f2] p-3"><p className="text-xs text-black/45">{label}</p><p className="mt-1 font-black">{value}</p></div>}
 
 export default function JobDetail({reference}:{reference:string}){
-  const [tab,setTab]=useState<Tab>(()=>{if(typeof window==="undefined")return "Overview";const saved=new URLSearchParams(window.location.search).get("tab");return (tabs as string[]).includes(saved||"")?saved as Tab:"Overview";});
+  const [tab,setTab]=useState<Tab>(()=>{if(typeof window==="undefined")return "Overview";const saved=new URLSearchParams(window.location.search).get("tab");return (tabs as readonly string[]).includes(saved||"")?saved as Tab:"Overview";});
   const [data,setData]=useState<Bundle|null>(null);
   const [loading,setLoading]=useState(true);
   const [fullLoading,setFullLoading]=useState(false);
