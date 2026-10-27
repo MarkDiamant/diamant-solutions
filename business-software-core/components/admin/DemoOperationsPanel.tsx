@@ -13,7 +13,10 @@ export default function DemoOperationsPanel(){
  const products=flooring&&connected?.products?.length?connected.products.map((p:any)=>({name:p.name,unit:p.unit,cost:Number(p.cost_net||0),price:Number(p.fixed_sell_net||0),stock:true})):sampleProducts[sample]||sampleProducts.flooring;
  const [connected,setConnected]=useState<any>(null),[connectedError,setConnectedError]=useState("");
  const [refreshKey,setRefreshKey]=useState(0);
- const [resetPhrase,setResetPhrase]=useState(""),[busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
+ const [purchaseLineId,setPurchaseLineId]=useState(""),[salesLineId,setSalesLineId]=useState(""),[warehouseQty,setWarehouseQty]=useState("1"),[deliveryId,setDeliveryId]=useState(""),[resetPhrase,setResetPhrase]=useState(""),[busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
+ const purchaseLine=connected?.purchase_lines?.find((p:any)=>p.id===purchaseLineId)||connected?.purchase_lines?.[0];
+ const salesLine=connected?.sales_lines?.find((p:any)=>p.id===salesLineId)||connected?.sales_lines?.[0];
+ const selectedDelivery=connected?.deliveries?.find((p:any)=>p.id===deliveryId)||connected?.deliveries?.find((p:any)=>p.status!=="delivered")||connected?.deliveries?.[0];
  const product=connected?.products?.find((p:any)=>p.id===selectedProduct)||connected?.products?.[0];
  const customerId=selectedCustomer||connected?.customers?.[0]?.id;
  const customerPrice=connected?.customer_prices?.find((p:any)=>p.product_id===product?.id&&p.customer_id===customerId);
@@ -72,12 +75,18 @@ export default function DemoOperationsPanel(){
   </BmsCard>
   <BmsCard className="p-5"><h2 className="text-lg font-bold">Connected warehouse and delivery</h2>
    <p className="mt-1 text-sm text-slate-600">Operations use existing tenant-aware, idempotent database functions. Each button submits a new confirmed operation.</p>
+   <div className="mt-3 grid gap-3 sm:grid-cols-2">
+    <BmsField>Purchase order line<BmsSelect value={purchaseLine?.id||""} onChange={e=>setPurchaseLineId(e.target.value)}>{(connected?.purchase_lines||[]).map((x:any)=><option key={x.id} value={x.id}>{connected?.products?.find((p:any)=>p.id===x.product_id)?.name||x.product_id}: {Number(x.ordered_quantity)-Number(x.received_quantity)} outstanding</option>)}</BmsSelect></BmsField>
+    <BmsField>Sales order line<BmsSelect value={salesLine?.id||""} onChange={e=>setSalesLineId(e.target.value)}>{(connected?.sales_lines||[]).map((x:any)=><option key={x.id} value={x.id}>{connected?.products?.find((p:any)=>p.id===x.product_id)?.name||x.product_id}: {x.quantity} ordered, {x.reserved_quantity} reserved, {x.picked_quantity} picked</option>)}</BmsSelect></BmsField>
+    <BmsField>Quantity for stock action<BmsInput type="number" min="0.01" step="0.01" value={warehouseQty} onChange={e=>setWarehouseQty(e.target.value)}/></BmsField>
+    <BmsField>Delivery<BmsSelect value={selectedDelivery?.id||""} onChange={e=>setDeliveryId(e.target.value)}>{(connected?.deliveries||[]).map((x:any)=><option key={x.id} value={x.id}>{x.delivery_address} ({x.status})</option>)}</BmsSelect></BmsField>
+   </div>
    <div className="mt-3 flex flex-wrap gap-2">
-    <BmsButton disabled={busy||!connected?.purchase_lines?.length} onClick={()=>run("receive",{line_id:connected.purchase_lines[0].id,location_id:connected.locations?.[0]?.id,quantity:Math.max(0,Number(connected.purchase_lines[0].ordered_quantity)-Number(connected.purchase_lines[0].received_quantity))})}>Receive outstanding goods</BmsButton>
-    <BmsButton disabled={busy||!connected?.sales_lines?.length} variant="secondary" onClick={()=>run("reserve",{line_id:connected.sales_lines[0].id,location_id:connected.locations?.[0]?.id,quantity:Math.max(0,Number(connected.sales_lines[0].quantity)-Number(connected.sales_lines[0].reserved_quantity))})}>Reserve outstanding stock</BmsButton>
-    <BmsButton disabled={busy||!connected?.sales_lines?.length} variant="secondary" onClick={()=>run("pick",{line_id:connected.sales_lines[0].id,location_id:connected.locations?.[0]?.id,quantity:Number(connected.sales_lines[0].reserved_quantity)})}>Pick reserved stock</BmsButton>
-    <BmsButton disabled={busy||!connected?.deliveries?.length} variant="secondary" onClick={()=>run("deliver",{delivery_id:connected.deliveries[0].id})}>Confirm delivery</BmsButton>
-    <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("return",{product_id:product?.id,location_id:connected.locations?.[0]?.id,quantity:1})}>Accept 1 unused pack</BmsButton>
+    <BmsButton disabled={busy||!purchaseLine||!(Number(warehouseQty)>0)||Number(warehouseQty)>Number(purchaseLine.ordered_quantity)-Number(purchaseLine.received_quantity)} onClick={()=>run("receive",{line_id:purchaseLine.id,location_id:connected.locations?.[0]?.id,quantity:Number(warehouseQty)})}>Receive goods</BmsButton>
+    <BmsButton disabled={busy||!salesLine||!(Number(warehouseQty)>0)||Number(warehouseQty)>Number(salesLine.quantity)-Number(salesLine.reserved_quantity)} variant="secondary" onClick={()=>run("reserve",{line_id:salesLine.id,location_id:connected.locations?.[0]?.id,quantity:Number(warehouseQty)})}>Reserve stock</BmsButton>
+    <BmsButton disabled={busy||!salesLine||!(Number(warehouseQty)>0)||Number(warehouseQty)>Number(salesLine.reserved_quantity)-Number(salesLine.picked_quantity)} variant="secondary" onClick={()=>run("pick",{line_id:salesLine.id,location_id:connected.locations?.[0]?.id,quantity:Number(warehouseQty)})}>Pick stock</BmsButton>
+    <BmsButton disabled={busy||!selectedDelivery||selectedDelivery.status==="delivered"} variant="secondary" onClick={()=>run("deliver",{delivery_id:selectedDelivery.id})}>Confirm delivery</BmsButton>
+    <BmsButton disabled={busy||!connected||!(Number(warehouseQty)>0)} variant="secondary" onClick={()=>run("return",{product_id:product?.id,location_id:connected.locations?.[0]?.id,quantity:Number(warehouseQty)})}>Return unused materials</BmsButton>
    </div>
   </BmsCard>
   </>}
