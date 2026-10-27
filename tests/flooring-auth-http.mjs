@@ -7,7 +7,7 @@ async function getToken(){
  const email=process.env.BMS_TEST_EMAIL,password=process.env.BMS_TEST_PASSWORD,key=process.env.BMS_TEST_SUPABASE_PUBLISHABLE_KEY;
  if(!email||!password||!key)throw Error("Protected dedicated fictional-demo manager credentials are required");
  const r=await fetch(supabase+"/auth/v1/token?grant_type=password",{method:"POST",headers:{apikey:key,"Content-Type":"application/json"},body:JSON.stringify({email,password}),signal:AbortSignal.timeout(20000)});
- if(!r.ok())throw Error("Dedicated demo manager authentication failed");
+ if(!r.ok)throw Error("Dedicated demo manager authentication failed");
  const data=await r.json();if(!data.access_token)throw Error("Authentication returned no token");
  return data.access_token;
 }
