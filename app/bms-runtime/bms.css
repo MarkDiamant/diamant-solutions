@@ -437,3 +437,33 @@
 .bms-shell .bms-dashboard section.rounded-2xl a{transition:color .15s ease,background-color .15s ease}
 @media(max-width:700px){.bms-shell .bms-dashboard section.rounded-2xl{border-radius:16px}.bms-shell .bms-dashboard .bms-money-tiles>button{min-height:82px;padding:12px}.bms-shell .bms-dashboard .bms-money-tiles>button>p:nth-child(2){font-size:17px!important}}
 @media(prefers-reduced-motion:reduce){.bms-shell .bms-dashboard .bms-money-tiles>button{transition:none}.bms-shell .bms-dashboard .bms-money-tiles>button:hover{transform:none}}
+
+/* Dashboard design system: unified sidebar-quality surfaces, controls and responsive hierarchy. */
+.bms-shell .bms-dashboard{--dash-border:var(--bms-border,#e1e7ee);--dash-ink:var(--bms-text,#192537);--dash-muted:#64748b;--dash-surface:var(--bms-card,#fff);background:var(--bms-page-bg,#f5f7fa)!important;color:var(--dash-ink)}
+.bms-shell .bms-dashboard>div{max-width:1640px}
+.bms-shell .bms-dashboard h1{font-weight:850;letter-spacing:-.045em;line-height:1.15}
+.bms-shell .bms-dashboard h2{font-size:1.075rem!important;line-height:1.3;font-weight:800!important;letter-spacing:-.03em}
+.bms-shell .bms-dashboard section.rounded-2xl,.bms-shell .bms-dashboard .rounded-2xl.border{border:1px solid var(--dash-border);border-radius:18px;background:var(--dash-surface);box-shadow:0 2px 10px rgba(17,24,39,.035)}
+.bms-shell .bms-dashboard button,.bms-shell .bms-dashboard select,.bms-shell .bms-dashboard input{font-family:inherit}
+.bms-shell .bms-dashboard button{transition:border-color .16s,box-shadow .16s,background-color .16s,transform .16s}
+.bms-shell .bms-dashboard button:focus-visible,.bms-shell .bms-dashboard a:focus-visible,.bms-shell .bms-dashboard input:focus-visible,.bms-shell .bms-dashboard select:focus-visible{outline:2px solid var(--bms-accent,#e66a24);outline-offset:2px}
+.bms-shell .bms-dashboard button[aria-pressed="true"]{border-color:var(--bms-accent,#e66a24)!important;box-shadow:0 0 0 2px color-mix(in srgb,var(--bms-accent,#e66a24) 25%,transparent)}
+.bms-shell .bms-dashboard [aria-label="Job summary filters"]>button{background:var(--dash-surface)!important;color:var(--dash-ink)!important;min-height:110px;border-color:var(--dash-border)!important}
+.bms-shell .bms-dashboard [aria-label="Job summary filters"]>button:hover{border-color:var(--bms-accent,#e66a24)!important;box-shadow:0 7px 20px rgba(17,24,39,.075)}
+.bms-shell .bms-dashboard .bms-money-tiles{gap:10px}
+.bms-shell .bms-dashboard .bms-money-tiles>button{background:var(--dash-surface)!important;border:1px solid var(--dash-border)!important;border-left:3px solid var(--bms-accent,#e66a24)!important;border-radius:12px!important;min-height:88px!important;align-items:flex-start!important;justify-content:center!important;text-align:left!important;padding:13px!important}
+.bms-shell .bms-dashboard .bms-money-tiles>button>p{max-width:100%;overflow-wrap:anywhere;text-align:left!important}
+.bms-shell .bms-dashboard .bms-money-tiles>button>p:first-child{font-size:10px!important;letter-spacing:.075em!important;color:var(--dash-muted)!important}
+.bms-shell .bms-dashboard .bms-money-tiles>button>p:nth-child(2){font-size:clamp(16px,1.4vw,23px)!important;line-height:1.25!important;font-variant-numeric:tabular-nums;color:var(--dash-ink)!important}
+.bms-shell .bms-dashboard .bms-money-tiles>button[aria-pressed="true"]{border-color:var(--bms-accent,#e66a24)!important;background:color-mix(in srgb,var(--bms-accent,#e66a24) 5%,white)!important}
+.bms-shell .bms-dashboard aside section a.block{border-radius:10px;border-bottom:1px solid var(--dash-border);padding:12px 10px;transition:background .15s}
+.bms-shell .bms-dashboard aside section a.block:hover{background:color-mix(in srgb,var(--bms-accent,#e66a24) 6%,white)}
+.bms-shell .bms-dashboard aside section a.block b{line-height:1.45}
+.bms-shell .bms-dashboard aside section a.block span{font-variant-numeric:tabular-nums}
+.bms-shell .bms-dashboard input,.bms-shell .bms-dashboard select{border-color:var(--dash-border);background:var(--dash-surface);color:var(--dash-ink)}
+.bms-shell .bms-dashboard input:focus,.bms-shell .bms-dashboard select:focus{border-color:var(--bms-accent,#e66a24)}
+.bms-shell .bms-dashboard button:disabled{cursor:not-allowed;opacity:.5}
+@media(max-width:1279px){.bms-shell .bms-dashboard>div{padding-inline:clamp(12px,3vw,26px)}.bms-shell .bms-dashboard aside{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}.bms-shell .bms-dashboard aside>section{margin-top:0}}
+@media(max-width:700px){.bms-shell .bms-dashboard [aria-label="Job summary filters"]>button{min-height:91px;padding:12px!important}.bms-shell .bms-dashboard [aria-label="Job summary filters"]>button p:nth-child(2){font-size:clamp(19px,5vw,27px)}.bms-shell .bms-dashboard .bms-money-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-shell .bms-dashboard .bms-money-tiles>button{min-height:85px!important;padding:11px!important}.bms-shell .bms-dashboard .bms-money-tiles>button>p:nth-child(2){font-size:clamp(14px,4vw,20px)!important}}
+@media(max-width:380px){.bms-shell .bms-dashboard .bms-money-tiles{grid-template-columns:minmax(0,1fr)!important}}
+@media(prefers-reduced-motion:reduce){.bms-shell .bms-dashboard button,.bms-shell .bms-dashboard aside section a.block{transition:none!important;transform:none!important}}
