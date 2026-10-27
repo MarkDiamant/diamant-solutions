@@ -1,4 +1,4 @@
-const {test}=require('node:test');const assert=require('node:assert/strict');const {reconcile,quoteTotals}=require('../business-software-core/lib/finance-reconcile.cjs');
+const {test}=require('node:test');const assert=require('node:assert/strict');const {reconcile,quoteTotals,agingBuckets}=require('../business-software-core/lib/finance-reconcile.cjs');
 test('reconciles pounds and pence',()=>assert.deepEqual(reconcile([{id:'q'}],[{total:120.50,amount_paid:20.25,amount_due:100.25,source_quote_id:'q'}]),{invoiced_total:120.5,paid_total:20.25,outstanding_total:100.25,credited_total:0,net_invoiced_total:120.5}));
 test('rejects inconsistent invoice',()=>assert.throws(()=>reconcile([],[{total:100,amount_paid:60,amount_due:60}])));
 test('rejects cross-job quotation',()=>assert.throws(()=>reconcile([],[{total:100,amount_paid:0,amount_due:100,source_quote_id:'elsewhere'}])));
@@ -11,3 +11,4 @@ test('voided invoices do not inflate receivables',()=>{const x=reconcile([],[{st
 test('voided invoices with paid balance are rejected',()=>assert.throws(()=>reconcile([],[{status:'void',total:144,amount_paid:1,amount_due:0}])));
 test('reconciles invoice credit note against outstanding amount',()=>assert.deepEqual(reconcile([],[{total:144,amount_paid:44,amount_credited:50,amount_due:50}]),{invoiced_total:144,paid_total:44,outstanding_total:50,credited_total:50,net_invoiced_total:94}));
 test('rejects over-credited invoice',()=>assert.throws(()=>reconcile([],[{total:144,amount_paid:44,amount_credited:120,amount_due:0}])));
+test('buckets overdue balances without counting paid void or future invoices',()=>assert.deepEqual(agingBuckets([{status:'issued',due_date:'2026-10-20',amount_due:20},{status:'part_paid',due_date:'2026-09-10',amount_due:30},{status:'issued',due_date:'2026-08-01',amount_due:40},{status:'paid',due_date:'2026-08-01',amount_due:0},{status:'void',due_date:'2026-08-01',amount_due:0},{status:'issued',due_date:'2026-11-01',amount_due:100}],'2026-10-27'),{days_1_30:20,days_31_60:30,days_61_plus:40}));
