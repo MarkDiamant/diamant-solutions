@@ -45,6 +45,15 @@ export async function GET(request:Request){
      for(const tx of txs){checked++;
       if(!tx.BankTransactionID||tx.Type!=="RECEIVE"||tx.IsReconciled!==true||tx.Status!=="AUTHORISED"||String(tx.CurrencyCode||"GBP")!=="GBP"||linkedIds.has(String(tx.BankTransactionID)))continue;
       const amount=Number(tx.Total),date=String(tx.DateString||"");if(!Number.isFinite(amount)||amount<=0||!/^\d{4}-\d{2}-\d{2}/.test(date))continue;
+      // Reconciled RECEIVE transactions can still be loans, transfers or other non-customer income.
+      // Do not infer a customer receipt solely from the direction or a coincidental job reference.
+      const accountClassification=[...(tx.LineItems||[]).map((x:any)=>[x.AccountCode,x.Description,x.LineAmount].filter(Boolean).join(" ")),tx.Reference,tx.Contact?.Name].filter(Boolean).join(" ");
+      if(/\\b(?:director(?:'s)?\\s+loan|loan|inter(?:nal)?\\s*account\\s*transfer|bank\\s*transfer\\s*between\\s*accounts|capital\\s*introduced|owner(?:'s)?\\s*contribution)\\b/i.test(accountClassification)){
+       review++;
+       const queued=await centralRest("business_software_accounting_unmatched_receipts?on_conflict=tenant_id,provider,external_transaction_id",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tenantId,provider:"xero",external_transaction_id:String(tx.BankTransactionID),amount,paid_at:date.slice(0,10),reference:String(tx.Reference||"").slice(0,500),contact_name:String(tx.Contact?.Name||"").slice(0,200)})});
+       if(!queued.ok)failed++;
+       continue;
+      }
       const source=[tx.Reference,...(tx.LineItems||[]).map((x:any)=>x.Description)].filter(Boolean).join(" ").toUpperCase();
       const refs=[...new Set((source.match(/\b[A-Z]{1,8}[- ]?\d{2,8}\b/g)||[]).map((x:string)=>x.replace(/[- ]/g,"")))];
       const matches=[...new Map(refs.flatMap((ref:string)=>byRef.get(ref)||[]).map((j:any)=>[String(j.id),j])).values()];
