@@ -381,6 +381,7 @@ if(p==="invoices/update-notes"){
  if(!ir.ok)return NextResponse.json({error:"Invoice lookup failed"},{status:503});const invoice=(await ir.json().catch(()=>[]))[0];
  if(!invoice)return NextResponse.json({error:"Invoice not found in this tenant"},{status:404});
  if(invoice.provider!=="bms")return NextResponse.json({error:"Xero-linked invoice wording must be amended in Xero; no local change made"},{status:409});
+ if(!["DRAFT","SUBMITTED"].includes(String(invoice.status||"").toUpperCase()))return NextResponse.json({error:"Issued, sent or paid invoices require a formal amendment workflow. No invoice wording was changed.",status:invoice.status},{status:409});
  const value=notes.trim();if(String(invoice.invoice_notes||"")===value)return NextResponse.json({ok:true,invoice_notes:value,unchanged:true});
  const saved=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(id),{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({invoice_notes:value})});
  if(!saved.ok)return NextResponse.json({error:"Could not save invoice notes"},{status:503});const rows=await saved.json().catch(()=>[]);
