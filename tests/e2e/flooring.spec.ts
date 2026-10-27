@@ -36,6 +36,16 @@ test("anonymous mutations rejected",async({request})=>{
  const r=await request.post("/api/bms-demo/flooring-actions",{data:{action:"reset_demo",confirm_phrase:"RESET OAK AND STONE DEMO",request_key:"test-anonymous-reject-001"}});
  expect(r.status()).toBe(403);
 });
+test("public Flooring Demo renders responsive read-only workflow without a session",async({page})=>{
+ for(const width of [320,390,768,1280]){
+  await page.setViewportSize({width,height:850});
+  const r=await page.goto("/flooring/operations");
+  expect(r?.status()).toBe(200);
+  await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
+  await expect(page.getByText("24 packs",{exact:false}).first()).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+ }
+});
 test("authenticated manager desktop and mobile rendering",async({page,context})=>{
  test.skip(!hasAuth,"Requires a dedicated fictional-demo manager test account");
  await auth(context);
