@@ -91,7 +91,7 @@ test("dedicated fictional manager can persist a customer, with no cross-tenant g
     expect(foreignJob.status()).toBe(409);
     for(const invoice of ledger.invoices){
       if(["void","voided","cancelled"].includes(String(invoice.status).toLowerCase()))continue;
-      expect(Math.abs(Number(invoice.total)-Number(invoice.amount_paid)-Number(invoice.amount_due))).toBeLessThanOrEqual(0.011);
+      expect(Math.abs(Number(invoice.total)-Number(invoice.amount_paid)-Number(invoice.amount_credited||0)-Number(invoice.amount_due))).toBeLessThanOrEqual(0.011);
     }
   } finally {
     await context.close();
