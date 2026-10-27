@@ -187,7 +187,7 @@ async function refreshLinkedXeroInvoices(tenantId:string,strict=false){
    const total=Number(inv.Total),due=Number(inv.AmountDue),paid=Number(inv.AmountPaid),credited=Number(inv.AmountCredited||0);
    if(![total,due,paid,credited].every(Number.isFinite)||Math.min(total,due,paid,credited)<0||Math.abs(total-due-paid-credited)>0.02)continue;
    const saved=await centralRest("business_software_invoices?id=eq."+encodeURIComponent(row.id)+"&tenant_id=eq."+encodeURIComponent(tenantId),{method:"PATCH",body:JSON.stringify({status:inv.Status,invoice_number:inv.InvoiceNumber||null,total,amount_due:due,amount_paid:paid,currency_code:inv.CurrencyCode||"GBP",synced_at:new Date().toISOString()})});if(!saved.ok)throw new Error("Unable to save invoice update");refreshed++;
-  }catch(error){failed++;console.error("Xero invoice refresh failed",row.id,error instanceof Error?error.message:"unknown");}
+  }catch(error){failed++;const detail=error instanceof Error?error.message:"unknown";console.error("Xero invoice refresh failed",row.id,detail);if(/\b429\b|AuthorizationUnsuccessful|\b401\b|\b403\b|token refresh failed/i.test(detail)){if(strict)throw new Error("Xero invoice refresh halted after provider throttling or authorisation failure. Reconnect Xero or retry after its rate-limit window.");break;}}
  }
  if(strict&&failed)throw new Error(failed+" Xero invoices could not be refreshed.");
  return {refreshed,failed};
