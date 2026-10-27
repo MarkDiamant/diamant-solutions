@@ -10,9 +10,9 @@ const sampleProducts:Record<string,{name:string;unit:string;cost:number;price:nu
 export default function DemoOperationsPanel(){
  const sample=useSearchParams().get("sample")||"flooring",flooring=sample==="flooring";
  const [message,setMessage]=useState("");
- const products=flooring&&connected?.products?.length?connected.products.map((p:any)=>({name:p.name,unit:p.unit,cost:Number(p.cost_net||0),price:Number(p.fixed_sell_net||0),stock:true})):sampleProducts[sample]||sampleProducts.flooring;
  const [connected,setConnected]=useState<any>(null),[connectedError,setConnectedError]=useState("");
  const [refreshKey,setRefreshKey]=useState(0);
+ const products=flooring&&connected?.products?.length?connected.products.map((p:any)=>({name:p.name,unit:p.unit,cost:Number(p.cost_net||0),price:Number(p.fixed_sell_net||0),stock:true})):sampleProducts[sample]||sampleProducts.flooring;
  const [purchaseLineId,setPurchaseLineId]=useState(""),[salesLineId,setSalesLineId]=useState(""),[warehouseQty,setWarehouseQty]=useState("1"),[deliveryId,setDeliveryId]=useState(""),[resetPhrase,setResetPhrase]=useState(""),[busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
  const purchaseLine=connected?.purchase_lines?.find((p:any)=>p.id===purchaseLineId)||connected?.purchase_lines?.[0];
  const salesLine=connected?.sales_lines?.find((p:any)=>p.id===salesLineId)||connected?.sales_lines?.[0];
