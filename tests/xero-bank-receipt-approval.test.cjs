@@ -27,3 +27,5 @@ test("loan classifier uses real regex boundaries and detects known non-customer 
  for(const value of ["Loan","Director's loan","internal account transfer","capital introduced","owner's contribution"])assert.ok(classifier.test(value),value);
  assert.equal(classifier.test("MJ010 customer deposit"),false);
 });
+
+test("429 recovery retries briefly and leaves longer Retry-After for next scheduled run",()=>{assert.match(route,/async function xeroBankPage/);assert.match(route,/attempt<3/);assert.match(route,/response\.status!==429/);assert.match(route,/if\(seconds>5\)return response/);assert.match(route,/setTimeout\(resolve,seconds\*1000\)/);assert.match(route,/const r=await xeroBankPage/);});
