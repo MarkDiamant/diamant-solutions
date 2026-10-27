@@ -12,6 +12,7 @@ BEGIN
  THEN RAISE EXCEPTION 'Invalid internal draft invoice request'; END IF;
  SELECT * INTO q FROM public.business_software_quotes WHERE id=p_quote AND tenant_id=p_tenant AND job_id=p_job;
  IF NOT FOUND THEN RAISE EXCEPTION 'Quotation outside tenant or job'; END IF;
+ IF q.status<>'approved' THEN RAISE EXCEPTION 'Quotation approval required before invoicing'; END IF;
  IF q.amount<=0 OR q.vat_rate<0 OR q.vat_rate>100 THEN RAISE EXCEPTION 'Invalid quotation total'; END IF;
  gross:=round(q.amount*(1+q.vat_rate/100),2);
  IF gross<=0 OR gross>10000000 THEN RAISE EXCEPTION 'Invalid invoice total'; END IF;
