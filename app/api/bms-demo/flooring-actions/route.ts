@@ -98,7 +98,10 @@ export async function POST(req:Request){
      if(!(await json(deliveries))?.length)return response("Confirm a fictional delivery before accepting unused material",409);
      const picked=await centralRest("business_software_sales_order_lines?tenant_id=eq."+tenant+"&product_id=eq."+product+"&select=picked_quantity&limit=100");
      const pickedTotal=((await json(picked))||[]).reduce((n:number,x:any)=>n+Number(x.picked_quantity||0),0);
-     if(qty>pickedTotal)return response("Returns cannot exceed picked stock",409);
+     const returned=await centralRest("business_software_stock_movements?tenant_id=eq."+tenant+"&product_id=eq."+product+"&source_type=eq.fitting_return&select=quantity_delta&limit=1000");
+     if(!returned.ok)throw Error("Unable to verify previous returns");
+     const returnedTotal=((await json(returned))||[]).reduce((n:number,x:any)=>n+Number(x.quantity_delta||0),0);
+     if(qty+returnedTotal>pickedTotal)return response("Cumulative returns cannot exceed picked stock",409);
      result=await rpc("bms_apply_stock_movement",{p_tenant:tenant,p_product:product,p_location:location,p_delta:qty,p_reason:"Fictional unused materials returned",p_source_type:"fitting_return",p_source_id:"flooring-showcase",p_key:keyValue});
     }else{
      const line=String(d.line_id||"");
