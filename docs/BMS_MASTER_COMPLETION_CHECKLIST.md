@@ -103,3 +103,6 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `c0d3cf12`: invoice reconciliation stops attempting additional invoice requests on 429 or authorization failures rather than repeatedly hammering Xero. Explicit sync remains permission-checked.
 - `dd9e1eaa`, `b65eb950`: applied generic shared atomic customer creation and idempotency migrations; `c50375c2` switched Flooring Demo to the shared RPC. `19f58bde`: rollback tests passed for duplicate retry, conflicting payload rejection and tenant isolation.
 - Authenticated browser tests were not performed because the available connected tools provide build/runtime inspection and SQL execution but no authenticated interactive browser. Do not promote browser acceptance statuses.
+
+- Shared materials UI migration: `d91e2a12` purchasing workspace, `520aa893` receiving, `6223c09e` order copying, `d94ed947` history, `c25433ad` supplier offers. `5a6351ae` New Job menu fallback now uses the tenant accent token. All remain pending authenticated responsive acceptance.
+- Post-migration rollback regression rerun: transactional flooring reset, full order-to-invoice, invoice idempotency and customer idempotency passed.
