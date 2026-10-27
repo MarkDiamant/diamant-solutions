@@ -2,6 +2,21 @@ import {NextResponse} from "next/server";
 import crypto from "crypto";
 import {centralRest} from "@/lib/business-software/db";
 export const maxDuration=60;
+// Respect Xero Retry-After only when it fits a short serverless retry budget.
+// Longer rate limits are recorded as partial syncs and resumed on the next run.
+async function xeroBankPage(url:string,headers:Record<string,string>){
+ let response:Response|null=null;
+ for(let attempt=0;attempt<3;attempt++){
+  response=await fetch(url,{headers,cache:"no-store"});
+  if(response.status!==429||attempt===2)return response;
+  const raw=Number(response.headers.get("retry-after")||0);
+  const seconds=Number.isFinite(raw)&&raw>0?raw:Math.pow(2,attempt);
+  if(seconds>5)return response;
+  await new Promise(resolve=>setTimeout(resolve,seconds*1000));
+ }
+ return response!;
+}
+
 const enc=encodeURIComponent;
 async function rows(path:string){const r=await centralRest(path,{cache:"no-store"});if(!r.ok)throw new Error("Database read failed "+r.status);return r.json();}
 function decrypt(value:string|null){if(!value||!process.env.DS_INTEGRATION_ENCRYPTION_KEY)return null;try{const [iv,tag,data]=value.split(".").map(x=>Buffer.from(x,"base64url"));const key=crypto.createHash("sha256").update(process.env.DS_INTEGRATION_ENCRYPTION_KEY).digest(),d=crypto.createDecipheriv("aes-256-gcm",key,iv);d.setAuthTag(tag);return Buffer.concat([d.update(data),d.final()]).toString("utf8");}catch{return null;}}
@@ -39,7 +54,7 @@ export async function GET(request:Request){
     const byRef=new Map<string,any[]>();for(const j of jobs){const ref=String(j.reference||"").toUpperCase().trim().replace(/[- ]/g,"");if(!ref)continue;byRef.set(ref,[...(byRef.get(ref)||[]),j]);}
     const linkedIds=new Set(links.map((x:any)=>String(x.external_transaction_id))),linkedPayments=new Set(links.map((x:any)=>String(x.payment_id))),invoiced=new Set(invoices.map((x:any)=>String(x.job_id)));
     for(let page=1;page<=100;page++){
-     const r=await fetch("https://api.xero.com/api.xro/2.0/BankTransactions?where="+enc('Type=="RECEIVE" AND IsReconciled==true')+"&page="+page,{headers:{Authorization:"Bearer "+creds.token,"xero-tenant-id":creds.organisation,Accept:"application/json"},cache:"no-store"});
+     const r=await xeroBankPage("https://api.xero.com/api.xro/2.0/BankTransactions?where="+enc('Type=="RECEIVE" AND IsReconciled==true')+"&page="+page,{Authorization:"Bearer "+creds.token,"xero-tenant-id":creds.organisation,Accept:"application/json"});
      if(r.status===429){const raw=Number(r.headers.get("retry-after")||60);errors.push("Xero rate limited for tenant "+tenantId+"; retry after "+(Number.isFinite(raw)&&raw>0?raw:60)+" seconds");failed++;break;}if(!r.ok)throw new Error("Xero bank transaction lookup "+r.status);
      const txs=(await r.json()).BankTransactions||[];if(!Array.isArray(txs))throw new Error("Invalid bank transaction response");
      for(const tx of txs){checked++;
