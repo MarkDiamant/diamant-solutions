@@ -53,6 +53,20 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
  }
  expect(hydrationErrors).toEqual([]);
 });
+test("mobile New Job menu supports arrow navigation, Escape and focus restoration",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto("/flooring/operations");
+ await page.getByRole("button",{name:"Open navigation"}).click();
+ const trigger=page.locator(".bms-mobile-new-job .bms-new-job-button");
+ await trigger.focus();
+ await trigger.press("ArrowDown");
+ await expect(page.getByRole("menuitem",{name:"Quick Add Job"})).toBeFocused();
+ await page.keyboard.press("ArrowDown");
+ await expect(page.getByRole("menuitem",{name:"Full Job"})).toBeFocused();
+ await page.keyboard.press("Escape");
+ await expect(trigger).toHaveAttribute("aria-expanded","false");
+ await expect(trigger).toBeFocused();
+});
 test("anonymous browser write shows a clear denial and persists nothing",async({page,request})=>{
  const before=await (await request.get("/api/bms-demo/flooring-data")).json();
  await page.goto("/flooring/operations");
