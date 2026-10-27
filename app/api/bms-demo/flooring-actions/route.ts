@@ -31,7 +31,7 @@ async function memberAllowed(demoTenantId:string){
  const membership=await centralRest("business_software_users?auth_user_id=eq."+authId+"&tenant_id=eq."+demoTenantId+"&status=eq.active&role=in.(owner,admin,manager)&select=id&limit=1",{cache:"no-store"});
  if(!membership.ok)return false;
  const rows=await json(membership);
- return Array.isArray(rows)&&rows.length>0;
+ return Array.isArray(rows)&&rows.length>0?authId:null;
 }
 
 async function owned(table:string,tenant:string,id:string,columns="id"){
@@ -112,7 +112,8 @@ export async function POST(req:Request){
   try{source=new URL(origin)}catch{return response("Invalid request origin",403)}
   if(source.host.toLowerCase()!==host||source.protocol!=="https:")return response("Cross-site demo mutations are blocked",403);
   const tenant=await demoTenant();
-  if(!await memberAllowed(tenant))return response("Authenticated BMS manager required for fictional demo",403);
+  const actor=await memberAllowed(tenant);
+  if(!actor)return response("Authenticated BMS manager required for fictional demo",403);
   const d=await req.json().catch(()=>null);
   if(!d||typeof d!=="object")return response("Invalid request",400);
   const action=String(d.action||""),keyValue=String(d.request_key||"");
@@ -146,14 +147,14 @@ export async function POST(req:Request){
    const vatRate=d.vat_rate==null?20:Number(d.vat_rate);
    if(!Number.isFinite(vatRate)||vatRate<0||vatRate>100||Math.abs(vatRate*100-Math.round(vatRate*100))>0.000001)return response("VAT rate must be between 0 and 100 with at most two decimal places",400);
    quoteTotals(total,vatRate);
-   result=await rpc("bms_create_quote_revision_once",{p_tenant:tenant,p_job:job,p_scope:scope,p_amount:total,p_vat_rate:vatRate,p_lead_time:leadTime,p_key:keyValue,p_actor:"Demo manager"});
+   result=await rpc("bms_create_quote_revision_once",{p_tenant:tenant,p_job:job,p_scope:scope,p_amount:total,p_vat_rate:vatRate,p_lead_time:leadTime,p_key:keyValue,p_actor:actor});
   }else if(action==="approve_quote"){
    const job=String(d.job_id||""),quoteId=String(d.quote_id||"");
    await owned("business_software_jobs",tenant,job);
    const selected=await owned("business_software_quotes",tenant,quoteId,"id,job_id,version,status,amount,vat_rate");
    if(selected.job_id!==job)return response("Quotation does not belong to the selected job",403);
    quoteTotals(selected.amount,selected.vat_rate);
-   result=await rpc("bms_approve_quote_once",{p_tenant:tenant,p_job:job,p_quote:quoteId,p_actor:"Demo manager",p_key:keyValue});
+   result=await rpc("bms_approve_quote_once",{p_tenant:tenant,p_job:job,p_quote:quoteId,p_actor:actor,p_key:keyValue});
   }else if(action==="create_sales_order"||action==="create_purchase_order"){
    const product=String(d.product_id||""),job=String(d.job_id||"");
    await owned("business_software_price_book_items",tenant,product);
@@ -205,7 +206,7 @@ export async function POST(req:Request){
    if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to selected job",403);
    const creditAmount=amount(d.amount),reason=String(d.reason||"").trim();
    if(!Number.isFinite(creditAmount)||creditAmount<=0||Math.abs(creditAmount*100-Math.round(creditAmount*100))>0.000001||reason.length<3||reason.length>500)return response("Valid credit amount and reason required",400);
-   result=await rpc("bms_issue_internal_invoice_credit_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:creditAmount,p_reason:reason,p_key:keyValue,p_actor:"Demo manager"});
+   result=await rpc("bms_issue_internal_invoice_credit_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:creditAmount,p_reason:reason,p_key:keyValue,p_actor:actor});
   }else if(action==="record_invoice_payment"){
    const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
    await owned("business_software_jobs",tenant,job);
@@ -213,7 +214,7 @@ export async function POST(req:Request){
    if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to selected job",403);
    const paymentAmount=amount(d.amount),method=String(d.payment_method||"").trim(),paidAt=String(d.paid_at||"");
    if(!Number.isFinite(paymentAmount)||paymentAmount<=0||Math.abs(paymentAmount*100-Math.round(paymentAmount*100))>0.000001||method.length<2||method.length>80||!paidAt||!Number.isFinite(Date.parse(paidAt)))return response("Valid payment amount, method and date required",400);
-   result=await rpc("bms_record_internal_invoice_payment_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:paymentAmount,p_method:method,p_paid_at:paidAt,p_key:keyValue,p_actor:"Demo manager"});
+   result=await rpc("bms_record_internal_invoice_payment_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:paymentAmount,p_method:method,p_paid_at:paidAt,p_key:keyValue,p_actor:actor});
   }else if(action==="issue_invoice"||action==="void_invoice"){
    const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
    await owned("business_software_jobs",tenant,job);
@@ -221,7 +222,7 @@ export async function POST(req:Request){
    if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to the selected job",403);
    const dueDate=String(d.due_date||"");
    if(action==="issue_invoice"&&!/^\d{4}-\d{2}-\d{2}$/.test(dueDate))return response("Valid invoice due date required",400);
-   result=await rpc("bms_transition_internal_invoice_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_action:action==="issue_invoice"?"issue":"void",p_actor:"Demo manager",p_key:keyValue,p_due_date:action==="issue_invoice"?dueDate:null});
+   result=await rpc("bms_transition_internal_invoice_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_action:action==="issue_invoice"?"issue":"void",p_actor:actor,p_key:keyValue,p_due_date:action==="issue_invoice"?dueDate:null});
   }else if(action==="create_draft_invoice"){
    const job=String(d.job_id||"");await owned("business_software_jobs",tenant,job);
    const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1",{cache:"no-store"});
