@@ -17,7 +17,7 @@ test('retired work types and workforce roles do not reset to defaults',()=>{
  assert.match(settings,/Existing assignments will keep their recorded role/);
 });
 test('job overview has no duplicate status card and offers material and colour free-text choices',()=>{
- assert.match(job,/aria-label="Job priorities"/);
+ assert.match(job,/aria-label="Job overview"/);
  assert.doesNotMatch(job,/<Summary label="Status">/);
  assert.match(job,/list="bms-job-material-options"/);
  assert.match(job,/list="bms-job-colour-options"/);
