@@ -14,6 +14,7 @@ export async function GET(){
  locations:"business_software_stock_locations?tenant_id=eq."+id+"&select=id,name&limit=100",
  jobs:"business_software_jobs?tenant_id=eq."+id+"&select=id,reference,customer_id,agreed_amount&limit=100",
  stock:"business_software_stock_balances?tenant_id=eq."+id+"&select=product_id,on_hand,reserved&limit=100",
+ customer_prices:"business_software_customer_prices?tenant_id=eq."+id+"&select=customer_id,product_id,sell_net&limit=100",
  customers:"business_software_customers?tenant_id=eq."+id+"&select=id,first_name,last_name&limit=100",
  suppliers:"business_software_suppliers?tenant_id=eq."+id+"&select=id,name&limit=100",
  sales:"business_software_sales_orders?tenant_id=eq."+id+"&select=id,reference,status&limit=100",
