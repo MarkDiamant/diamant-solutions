@@ -37,3 +37,14 @@ test("invalid bearer cookie cannot authorise demo mutations",async()=>{
  const r=await fetch(base+"/api/bms-demo/flooring-actions",{method:"POST",headers:{"Content-Type":"application/json",Origin:base,Cookie:"bms_access_token=invalid-fictional-test-token"},body:JSON.stringify({action:"__non_mutating_auth_probe__",request_key:"public-smoke-invalid-0001"}),signal:AbortSignal.timeout(20000)});
  assert.equal(r.status,403);
 });
+test("server-rendered BMS header has no invalid nested anchors",async()=>{
+ const r=await fetch(base+"/flooring/operations",{signal:AbortSignal.timeout(20000)});
+ assert.equal(r.status,200);
+ const html=await r.text();
+ let depth=0;
+ for(const match of html.matchAll(/<\/?a\b[^>]*>/gi)){
+  if(match[0].startsWith("</"))depth=Math.max(0,depth-1);
+  else{assert.equal(depth,0,"Nested <a> detected in BMS server HTML");depth++;}
+ }
+ assert.equal(depth,0,"Unclosed anchor detected in BMS server HTML");
+});
