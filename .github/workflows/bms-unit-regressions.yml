@@ -2,12 +2,22 @@ name: BMS Unit Regression Tests
 on:
   push:
     branches: [main]
+    paths:
+      - 'tests/**'
+      - 'business-software-core/**'
+      - 'app/api/bms-live/**'
+      - 'app/api/bms-demo/**'
+      - 'lib/**'
+      - 'supabase/migrations/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/bms-unit-regressions.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   regressions:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -16,7 +26,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "22"
-      - run: npm install --ignore-scripts
+      - run: npm ci --ignore-scripts
       - name: Worker daily-hours and UK DST regression
         run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/bms-shared-primitives.test.mjs tests/bms-api-static-guards.test.mjs
         env:
