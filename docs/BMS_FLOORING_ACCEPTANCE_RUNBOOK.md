@@ -10,6 +10,19 @@
 ## Evidence and blockers
 
 - Demo hostname does not have a live tenant context. Write endpoint now checks a verified Supabase auth identity against active BMS manager memberships; it never accepts a client tenant ID for writes.
-- The dedicated manager account, protected credentials and authenticated browser execution remain outstanding. The current production database has **zero active manager memberships in the fictional demo tenant**. The write endpoint accepts a verified active manager membership in an active tenant, including a demo-only membership; it never derives the write target from that membership. A Vercel sandbox provided live HTTP but did not include Chromium or Playwright. Package installation in that sandbox failed because npm registry DNS was unavailable, even after an explicit network-policy allowlist. GitHub Actions can install Playwright in its runner once manually dispatched.
+- The dedicated manager account, protected credentials and authenticated browser execution remain outstanding. The current production database has **zero active manager memberships in the fictional demo tenant**. The write endpoint accepts a verified active manager membership in an active tenant, including a demo-only membership; it never derives the write target from that membership. A Vercel sandbox **can run real Chromium/Playwright**. The earlier attempt failed due to restricted npm registry DNS and missing native browser libraries. A later ephemeral Amazon Linux 2023 sandbox with outbound network access installed Playwright and Chromium, then installed browser dependencies using sudo dnf. The exact public suite ran successfully against production (8/8 passed). Stop the sandbox after testing. GitHub Actions remains the protected environment for authenticated tests and credentials.
 - The Next.js build is configured to ignore TypeScript build errors. READY does not establish type safety or user-facing acceptance. Treat browser, mobile, permission, retry and tenant isolation checks as separate gates.
 - Use `docs/BMS_REQUIREMENT_ACCEPTANCE_METRICS.md` for strict all-or-nothing acceptance percentages. Do not count partial work as complete.
+
+## Reproducible sandbox browser procedure (public tests only)
+
+Create a short-lived Vercel sandbox scoped to the BMS project with Node 22, region London and temporary outbound access for npm/Chromium installation. **Never inject live user tokens or financial credentials into a public-test sandbox.** Run:
+
+~~~sh
+npm install --no-save --ignore-scripts @playwright/test@1.56.1 playwright@1.56.1 typescript@5.9.3
+npx playwright install chromium
+sudo dnf install -y nss nspr atk at-spi2-atk cups-libs libXcomposite libXdamage libXrandr mesa-libgbm pango alsa-lib libxkbcommon libXfixes libXext libX11 libxcb
+npx playwright test --grep-invert authenticated
+~~~
+
+Ensure the repository Playwright config and tests/e2e/flooring.spec.ts are present in the sandbox. This command excludes authenticated tests, which must be run separately using protected CI credentials. On 27 October the exact public suite passed **8/8**, including responsive pricing, reset guard, mobile keyboard controls, denied writes, Worker Portal and Labour Costing error handling. The shared brand nested-anchor hydration error was also fixed and independently verified across three production routes. Always stop the sandbox after use.
