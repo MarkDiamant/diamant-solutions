@@ -1,6 +1,5 @@
 import {NextResponse} from "next/server";
 import {cookies} from "next/headers";
-import {runtimeTenant} from "@/lib/business-software/runtime";
 import {centralRest} from "@/lib/business-software/db";
 
 export const dynamic="force-dynamic";
@@ -18,15 +17,25 @@ async function demoTenant(){
  return String(t.id);
 }
 async function memberAllowed(){
- const current=await runtimeTenant();if(!current?.id)return false;
- const jar=await cookies();const token=jar.get("bms_access_token")?.value;
+ // Demo hostname has no runtimeTenant. Authenticate the bearer cookie against
+ // Supabase, then require an ACTIVE manager membership in an ACTIVE real tenant.
+ // No member tenant identifier is ever used for demo mutations.
+ const jar=await cookies(),token=jar.get("bms_access_token")?.value;
  if(!token)return false;
  const user=await fetch(url+"/auth/v1/user",{headers:{apikey:key,Authorization:"Bearer "+token},cache:"no-store"});
  if(!user.ok)return false;
- const r=await fetch(url+"/rest/v1/rpc/bms_login_membership",{method:"POST",headers:{apikey:key,Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({p_tenant:current.id}),cache:"no-store"});
- if(!r.ok)return false;
- const m=await json(r);return !!m&&["owner","admin","manager"].includes(String(m.role));
+ const identity=await json(user),authId=String(identity?.id||"");
+ if(!uuid.test(authId))return false;
+ const memberships=await centralRest("business_software_users?auth_user_id=eq."+authId+"&status=eq.active&role=in.(owner,admin,manager)&select=tenant_id,role&limit=10");
+ if(!memberships.ok)return false;
+ const rows=await json(memberships);
+ if(!Array.isArray(rows)||rows.length===0)return false;
+ const ids=rows.map((r:any)=>String(r.tenant_id)).filter((id:string)=>uuid.test(id));
+ if(!ids.length)return false;
+ const tenants=await centralRest("business_software_tenants?id=in.("+ids.join(",")+")&status=eq.active&select=id&limit=10");
+ const active=tenants.ok?await json(tenants):null;return Array.isArray(active)&&active.length>0;
 }
+
 async function owned(table:string,tenant:string,id:string,columns="id"){
  if(!uuid.test(id))throw Error("Invalid record identifier");
  const r=await centralRest(table+"?tenant_id=eq."+tenant+"&id=eq."+id+"&select="+columns+"&limit=1");
