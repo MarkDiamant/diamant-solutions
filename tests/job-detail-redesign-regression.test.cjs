@@ -57,4 +57,4 @@ test("failed full job load preserves core job and exposes retry rather than infi
 
 test("mobile save dock has bottom clearance and work type selections do not overflow",()=>{assert.match(job,/pb-28 pt-5 sm:px-5 sm:pb-32/);assert.match(job,/fixed bottom-3 left-3 right-3/);assert.match(job,/min-w-0 truncate/);});
 
-test("activity form prevents duplicate saves and indicates pending state",()=>{assert.match(job,/if\(submitting\)return/);assert.match(job,/finally\{setSubmitting\(false\)\}/);assert.match(job,/disabled=\{submitting\}>\{submitting\?"Saving activity\.\.\.":"Log activity"\}/);});
+test("activity form prevents duplicate saves and indicates pending state",()=>{assert.match(job,/if\(submitting\)return/);assert.match(job,/finally\{setSubmitting\(false\);\}/);assert.match(job,/disabled=\{submitting\}>\{submitting\?"Saving activity\.\.\.":"Log activity"\}/);});
