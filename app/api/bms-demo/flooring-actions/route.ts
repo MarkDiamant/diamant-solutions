@@ -129,7 +129,7 @@ export async function POST(req:Request){
    const scope=String(d.scope_text||"").trim();if(!scope||scope.length>2000)return response("Enter a valid quote scope",400);
    const leadTime=String(d.lead_time||"7-10 working days").trim();if(!leadTime||leadTime.length>200)return response("Enter a valid quotation lead time",400);
    const vatRate=d.vat_rate==null?20:Number(d.vat_rate);
-   if(!Number.isFinite(vatRate)||vatRate<0||vatRate>100||Math.round(vatRate*100)!==vatRate*100)return response("VAT rate must be between 0 and 100 with at most two decimal places",400);
+   if(!Number.isFinite(vatRate)||vatRate<0||vatRate>100||Math.abs(vatRate*100-Math.round(vatRate*100))>0.000001)return response("VAT rate must be between 0 and 100 with at most two decimal places",400);
    quoteTotals(total,vatRate);
    result=await rpc("bms_create_quote_revision_once",{p_tenant:tenant,p_job:job,p_scope:scope,p_amount:total,p_vat_rate:vatRate,p_lead_time:leadTime,p_key:keyValue,p_actor:"Demo manager"});
   }else if(action==="approve_quote"){
