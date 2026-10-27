@@ -26,3 +26,9 @@
 
 ## Safeguards
 Tenant-specific identifiers in this diagnostic document are evidence only. All application features must remain shared and tenant-isolated. Do not alter genuine M&J financial records without explicit user approval. Test writes with fictional tenant only.
+
+## Continuation implementation
+- e3c287b, 4929d6d, c6d9b97, 6fedc72: shared purchasing UI now prints saved supplier-order drafts and records confirmed physical goods receipts against an existing tenant-scoped, idempotent stock RPC. Workspace now loads tenant-specific stock locations. A failing regression test used an incorrect route-section boundary and was repaired. No actual goods receipt was submitted.
+- 06dae9c, 9fb2ec4: new permission-gated, read-only Xero reconciliation audit endpoint at GET /api/admin/integrations/xero/reconciliation-audit. It fetches invoice payments and RECEIVE bank transactions separately, returns separate counts and totals with pagination-completeness warnings, and never adds the overlapping sources together or changes records. Authenticated live acceptance remains required.
+- Production BMS dashboard SQL was rerun and returns M&J £12,325. Browser rendering of earlier £5,695 cannot be verified without an authenticated session; remains open.
+- Saved-order **in-place** editing, supplier document uploads, stock valuation, full job costing, job-page redesign and workforce follow-up remain open. Existing duplicate-as-new-draft editing is available, but is not equivalent to modifying an existing saved order.
