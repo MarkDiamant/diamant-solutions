@@ -2,7 +2,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {useSearchParams} from "next/navigation";
 import Link from "next/link";
-import {BmsPageTitle,BmsPage,BmsPageHeader,BmsCard,BmsButton,BmsState} from "./BmsUI";
+import {BmsPageTitle,BmsPage,BmsPageHeader,BmsCard,BmsButton,BmsState,BmsInput,BmsSelect,BmsField} from "./BmsUI";
 
 type Movement={id:string;product:string;delta:number;reason:string;when:string};
 type DemoState={onHand:number;reserved:number;incoming:number;received:number;picked:number;used:number;returned:number;orderStatus:string;deliveryStatus:string;fittingStatus:string;movements:Movement[]};
@@ -15,6 +15,11 @@ export default function DemoOperationsPanel(){
  const [state,setState]=useState<DemoState>(initial),[ready,setReady]=useState(false),[message,setMessage]=useState("");
  const [connected,setConnected]=useState<any>(null),[connectedError,setConnectedError]=useState("");
  const [refreshKey,setRefreshKey]=useState(0);
+ const [busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
+ const product=connected?.products?.find((p:any)=>p.id===selectedProduct)||connected?.products?.[0];
+ const coverage=Number(product?.specifications?.coverage_m2_per_pack||product?.units_per_pack||0);
+ const packs=Number(area)>0&&Number(waste)>=0&&Number(waste)<=100&&coverage>0?Math.ceil(Number(area)*(1+Number(waste)/100)/coverage):0;
+ const run=async(action:string,extra:Record<string,unknown>={})=>{if(busy)return;setBusy(true);setMessage("");try{const r=await fetch("/api/bms-demo/flooring-actions",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,request_key:"flooring-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,12),...extra})});const data=await r.json();if(!r.ok)throw Error(data.error||"Demo action rejected");setMessage("Saved to isolated demo database: "+action.replaceAll("_"," "));setConnected(null);setRefreshKey(v=>v+1)}catch(e){setMessage("Action not saved: "+(e instanceof Error?e.message:"Unknown error"))}finally{setBusy(false)}};
  useEffect(()=>{if(!flooring)return;let active=true;fetch("/api/bms-demo/flooring-data",{cache:"no-store"}).then(async r=>{if(!r.ok)throw Error("Database snapshot unavailable");return r.json()}).then(data=>{if(active)setConnected(data)}).catch(()=>{if(active)setConnectedError("Connected flooring records could not be loaded. The interactive workflow below is a browser-only simulation.")});return()=>{active=false}},[flooring,refreshKey]);
  useEffect(()=>{try{const raw=sessionStorage.getItem(key);if(raw){const value=JSON.parse(raw);if(value&&typeof value.onHand==="number"&&Array.isArray(value.movements))setState(value);}}catch{}setReady(true);},[key]);
  useEffect(()=>{if(ready)try{sessionStorage.setItem(key,JSON.stringify(state));}catch{}},[state,ready,key]);
@@ -45,12 +50,43 @@ export default function DemoOperationsPanel(){
   {connected&&<><div className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4"><p><b>{connected.products?.length||0}</b> catalogue products</p><p><b>{connected.customers?.length||0}</b> customers</p><p><b>{connected.suppliers?.length||0}</b> suppliers</p><p><b>{connected.sales?.length||0}</b> sales orders</p><p><b>{connected.purchase?.length||0}</b> purchase orders</p><p><b>{connected.quotes?.length||0}</b> quotations</p><p><b>{connected.deliveries?.length||0}</b> deliveries</p><p><b>{connected.invoices?.length||0}</b> internal invoices</p></div><div className="mt-4 overflow-x-auto"><table className="w-full text-left text-xs sm:text-sm"><thead><tr><th className="p-2">Live demo product</th><th className="p-2">Coverage</th><th className="p-2">On hand</th><th className="p-2">Reserved</th><th className="p-2">Standard price</th></tr></thead><tbody>{(connected.products||[]).map((p:any)=>{const b=(connected.stock||[]).find((x:any)=>x.product_id===p.id);return <tr key={p.id} className="border-t"><td className="p-2">{p.name}</td><td className="p-2">{Number(p.specifications?.coverage_m2_per_pack||p.units_per_pack||0)} m²/{p.unit}</td><td className="p-2">{Number(b?.on_hand||0)}</td><td className="p-2">{Number(b?.reserved||0)}</td><td className="p-2">{money(Number(p.fixed_sell_net||0))}</td></tr>})}</tbody></table></div><div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4"><h3 className="font-bold text-slate-800">Connected website catalogue preview</h3><p className="mt-1 text-xs text-slate-600">Only products marked for website publication in this isolated BMS tenant. Prices and coverage are read directly from its central price book.</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{(connected.products||[]).filter((p:any)=>p.show_on_website).map((p:any)=><article key={p.id} className="rounded-lg border border-slate-200 bg-white p-3"><p className="font-semibold">{p.name}</p><p className="mt-1 text-xs text-slate-500">{p.sku} · {Number(p.specifications?.coverage_m2_per_pack||p.units_per_pack||0)} m² per {p.unit}</p><p className="mt-2 font-bold">{money(Number(p.fixed_sell_net||0))} / {p.unit}</p></article>)}</div></div><p className="mt-3 text-xs text-slate-600">Customer-specific pricing and a draft invoice are stored in the demo tenant. No external accounting provider is connected.</p></>}
   </BmsCard>
 
-  <p className="text-sm font-semibold text-amber-800">The stock and purchase-order counters below are browser simulations. The invoice amount is a read-only connected database value.</p>
-  <div className="grid gap-4 md:grid-cols-3"><BmsCard className="p-5"><div className="text-xs text-slate-500">Laminate stock on hand</div><div className="text-3xl font-bold">{state.onHand} packs</div><p className="text-sm">Reserved: {state.reserved} · Available: {available}</p></BmsCard><BmsCard className="p-5"><div className="text-xs text-slate-500">Supplier order PO-1001</div><div className="text-3xl font-bold">{state.received}/20</div><p className="text-sm">Received / ordered packs · {state.incoming} incoming</p></BmsCard><BmsCard className="p-5"><div className="text-xs text-slate-500">Internal draft invoice</div><div className="text-3xl font-bold">{money(Number(connected?.invoices?.[0]?.amount_due||0))}</div><p className="text-sm">{connected?.invoices?.[0]?.invoice_number||"Awaiting connected data"} · No payment recorded</p></BmsCard></div>
-  <BmsCard className="p-5"><h2 className="text-lg font-bold">Connected flooring job: <Link href="/jobs/FL001" className="underline">FL001</Link></h2><p className="mt-2 text-sm">Customer: Sarah Collins · Supply and fit · 48 m² laminate with 10% wastage · 2.2 m² per pack · 24 packs required (rounded up)</p><p className="mt-2 text-sm">Customer-specific price: £37 per pack, compared with £39 standard · Sales order SO-2001 · Total £888</p><p className="mt-2 text-sm">Sales order: {state.orderStatus} · Delivery: {state.deliveryStatus} · Fitting: {state.fittingStatus}</p>
-   <div className="mt-4 flex flex-wrap gap-2">{[["Receive remaining 12 packs","receive"],["Reserve remaining 12 packs","reserve"],["Pick 24 packs","pick"],["Record 22 packs used","use"],["Accept 2 returned packs","return"]].map(([label,action])=><button key={action} type="button" onClick={()=>add(action as "receive"|"reserve"|"pick"|"use"|"return")} className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-100">{label}</button>)}<BmsButton variant="secondary" onClick={()=>{setState(initial);setMessage("Browser simulation reset. Connected database records were not changed.");}}>Reset demo</BmsButton></div>
+  <BmsCard className="p-5">
+   <h2 className="text-lg font-bold">Connected flooring workflow</h2>
+   <p className="mt-1 text-sm text-slate-600">Actions below persist in the isolated fictional flooring tenant. Manager login required. No live tenant stock or accounting is affected.</p>
+   <div className="mt-4 grid gap-3 sm:grid-cols-2">
+    <BmsField>Product<BmsSelect value={selectedProduct||product?.id||""} onChange={e=>setSelectedProduct(e.target.value)}>{(connected?.products||[]).map((p:any)=><option key={p.id} value={p.id}>{p.name}</option>)}</BmsSelect></BmsField>
+    <BmsField>Customer<BmsSelect value={selectedCustomer||connected?.customers?.[0]?.id||""} onChange={e=>setSelectedCustomer(e.target.value)}>{(connected?.customers||[]).map((p:any)=><option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>)}</BmsSelect></BmsField>
+    <BmsField>Area (m²)<BmsInput type="number" min="0.1" step="0.1" value={area} onChange={e=>setArea(e.target.value)}/></BmsField>
+    <BmsField>Wastage (%)<BmsInput type="number" min="0" max="100" value={waste} onChange={e=>setWaste(e.target.value)}/></BmsField>
+    <BmsField>Supplier<BmsSelect value={selectedSupplier||connected?.suppliers?.[0]?.id||""} onChange={e=>setSelectedSupplier(e.target.value)}>{(connected?.suppliers||[]).map((p:any)=><option key={p.id} value={p.id}>{p.name}</option>)}</BmsSelect></BmsField>
+    <BmsField>Job<BmsSelect value={selectedJob||connected?.jobs?.[0]?.id||""} onChange={e=>setSelectedJob(e.target.value)}>{(connected?.jobs||[]).map((p:any)=><option key={p.id} value={p.id}>{p.reference}</option>)}</BmsSelect></BmsField>
+   </div>
+   <p className="mt-3 font-semibold">{packs?packs+" "+(product?.unit||"packs")+" required at "+coverage+" m² per unit":"Enter valid area, wastage and product coverage."}</p>
+   <div className="mt-3 flex flex-wrap gap-2">
+    <BmsButton disabled={busy||!packs||!connected} onClick={()=>run("create_sales_order",{customer_id:selectedCustomer||connected?.customers?.[0]?.id,job_id:selectedJob||connected?.jobs?.[0]?.id,product_id:product?.id,quantity:packs,area_m2:Number(area),wastage_percent:Number(waste)})}>Create sales order</BmsButton>
+    <BmsButton disabled={busy||!packs||!connected} variant="secondary" onClick={()=>run("create_purchase_order",{supplier_id:selectedSupplier||connected?.suppliers?.[0]?.id,job_id:selectedJob||connected?.jobs?.[0]?.id,product_id:product?.id,quantity:packs,unit_cost_net:Number(product?.cost_net||0)})}>Create purchase order</BmsButton>
+   </div>
+   <div className="mt-5 grid gap-3 sm:grid-cols-2">
+    <BmsField>New customer name<BmsInput placeholder="First and last name" value={customerName} onChange={e=>setCustomerName(e.target.value)}/></BmsField>
+    <div className="flex items-end"><BmsButton disabled={busy||customerName.trim().split(/\s+/).length<2} onClick={()=>{const parts=customerName.trim().split(/\s+/);run("create_customer",{first_name:parts[0],last_name:parts.slice(1).join(" ")})}}>Create customer</BmsButton></div>
+    <BmsField>Quote scope<BmsInput value={quoteScope} onChange={e=>setQuoteScope(e.target.value)}/></BmsField>
+    <BmsField>Quote net amount (£)<BmsInput type="number" min="0.01" step="0.01" value={quoteAmount} onChange={e=>setQuoteAmount(e.target.value)}/></BmsField>
+   </div>
+   <div className="mt-3 flex flex-wrap gap-2">
+    <BmsButton disabled={busy||!connected} onClick={()=>run("create_quote",{job_id:selectedJob||connected?.jobs?.[0]?.id,scope_text:quoteScope,amount:Number(quoteAmount)})}>Save quote revision</BmsButton>
+    <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("create_draft_invoice",{job_id:selectedJob||connected?.jobs?.[0]?.id,total:Number(quoteAmount)*1.2})}>Create internal draft invoice</BmsButton>
+   </div>
   </BmsCard>
-  <BmsCard className="p-5"><h2 className="text-lg font-bold">Stock audit trail</h2><div className="mt-3 space-y-2">{state.movements.map(m=><div key={m.id} className="flex flex-wrap justify-between gap-2 border-b pb-2 text-sm"><span>{m.reason}</span><span className="font-semibold">{m.delta>0?"+":""}{m.delta} packs · {m.when}</span></div>)}</div><p className="mt-3 text-xs text-slate-500">Reservations do not alter stock on hand. Picking reduces stock on hand. Unused materials become available only after warehouse acceptance.</p></BmsCard>
+  <BmsCard className="p-5"><h2 className="text-lg font-bold">Connected warehouse and delivery</h2>
+   <p className="mt-1 text-sm text-slate-600">Operations use existing tenant-aware, idempotent database functions. Each button submits a new confirmed operation.</p>
+   <div className="mt-3 flex flex-wrap gap-2">
+    <BmsButton disabled={busy||!connected?.purchase_lines?.length} onClick={()=>run("receive",{line_id:connected.purchase_lines[0].id,location_id:connected.locations?.[0]?.id,quantity:Math.max(0,Number(connected.purchase_lines[0].ordered_quantity)-Number(connected.purchase_lines[0].received_quantity))})}>Receive outstanding goods</BmsButton>
+    <BmsButton disabled={busy||!connected?.sales_lines?.length} variant="secondary" onClick={()=>run("reserve",{line_id:connected.sales_lines[0].id,location_id:connected.locations?.[0]?.id,quantity:Math.max(0,Number(connected.sales_lines[0].quantity)-Number(connected.sales_lines[0].reserved_quantity))})}>Reserve outstanding stock</BmsButton>
+    <BmsButton disabled={busy||!connected?.sales_lines?.length} variant="secondary" onClick={()=>run("pick",{line_id:connected.sales_lines[0].id,location_id:connected.locations?.[0]?.id,quantity:Number(connected.sales_lines[0].reserved_quantity)})}>Pick reserved stock</BmsButton>
+    <BmsButton disabled={busy||!connected?.deliveries?.length} variant="secondary" onClick={()=>run("deliver",{delivery_id:connected.deliveries[0].id})}>Confirm delivery</BmsButton>
+    <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("return",{product_id:product?.id,location_id:connected.locations?.[0]?.id,quantity:1})}>Accept 1 unused pack</BmsButton>
+   </div>
+  </BmsCard>
   </>}
  </BmsPage>;
 }
