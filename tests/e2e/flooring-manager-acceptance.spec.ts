@@ -98,6 +98,26 @@ test("dedicated fictional manager can persist a customer, with no cross-tenant g
   }
 });
 
+test("fictional manager can revise approve convert issue and download finance PDFs",async({browser})=>{
+ const auth=await browser.newContext();let token="";try{const r=await auth.request.post(supabaseUrl+"/auth/v1/token?grant_type=password",{headers:{apikey:publishableKey,"Content-Type":"application/json"},data:{email:demoEmail,password:demoPassword}});expect(r.ok()).toBe(true);token=String((await r.json()).access_token||"")}finally{await auth.close()}
+ const ctx=await browser.newContext({baseURL:origin});const job="47029266-51a3-4caa-b70d-fbb8a4d3c419";
+ try{
+  await ctx.addCookies([{name:"bms_access_token",value:token,url:origin,httpOnly:true,secure:true,sameSite:"Lax"}]);
+  const nonce=Date.now().toString(36);const post=async(action:string,extra:Record<string,unknown>)=>{const r=await ctx.request.post("/api/bms-demo/flooring-actions",{headers:{origin},data:{action,job_id:job,request_key:"accept:"+action+":"+nonce,...extra}});expect(r.status(),await r.text()).toBe(200);return r.json()};
+  await post("create_quote",{scope_text:"Fictional manager E2E flooring quote "+nonce,amount:125,vat_rate:20,lead_time:"5 working days"});
+  const ledger=async()=>{const r=await ctx.request.get("/api/bms-demo/flooring-actions?job_id="+job);expect(r.status()).toBe(200);return r.json()};
+  let data=await ledger();const quote=data.quotes[0];expect(quote.status).toBe("draft");expect(Number(quote.amount)).toBe(125);
+  await post("approve_quote",{quote_id:quote.id});data=await ledger();expect(data.quotes[0].status).toBe("approved");
+  const qpdf=await ctx.request.get("/api/bms-demo/flooring-actions?job_id="+job+"&format=pdf&kind=quote&id="+quote.id);expect(qpdf.status()).toBe(200);expect(qpdf.headers()["content-type"]).toContain("application/pdf");expect((await qpdf.body()).subarray(0,5).toString()).toBe("%PDF-");
+  await post("create_draft_invoice",{});data=await ledger();const invoice=data.invoices.find((i:{source_quote_id?:string})=>i.source_quote_id===quote.id);expect(invoice).toBeTruthy();expect(Number(invoice.total)).toBe(150);
+  if(invoice.status==="draft")await post("issue_invoice",{invoice_id:invoice.id,due_date:"2026-12-31"});
+  data=await ledger();const issued=data.invoices.find((i:{id:string})=>i.id===invoice.id);expect(["issued","part_paid","paid","settled"]).toContain(issued.status);
+  const ipdf=await ctx.request.get("/api/bms-demo/flooring-actions?job_id="+job+"&format=pdf&kind=invoice&id="+invoice.id);expect(ipdf.status()).toBe(200);expect((await ipdf.body()).subarray(0,5).toString()).toBe("%PDF-");
+  expect(issued.source_quote_valid).toBe(true);expect(Number(issued.amount_due)+Number(issued.amount_paid)+Number(issued.amount_credited||0)).toBeCloseTo(150,2);
+  const foreign=await ctx.request.get("/api/bms-demo/flooring-actions?job_id=00000000-0000-4000-8000-000000000001&format=pdf&kind=invoice&id="+invoice.id);expect(foreign.status()).not.toBe(200);
+ }finally{await ctx.close()}
+});
+
 });
 test("anonymous clients cannot read private flooring finance ledger", async ({ request }) => {
  const response=await request.get("/api/bms-demo/flooring-actions?job_id=47029266-51a3-4caa-b70d-fbb8a4d3c419");
