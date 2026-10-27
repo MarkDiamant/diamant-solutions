@@ -357,3 +357,6 @@
  .bms-shell>.bms-demo-selector .bms-demo-selector-label{font-size:10px}
  .bms-shell>.bms-demo-selector .bms-demo-industry-button{font-size:10px;padding:5px 8px}
 }
+
+.bms-shell .bms-floor-calculator{background:var(--bms-accent-soft);border:1px solid var(--bms-accent-border);border-radius:var(--bms-radius)}
+.bms-shell .bms-floor-calculator legend{color:var(--bms-accent-ink)}
