@@ -19,3 +19,11 @@ test("Xero pages and 429 retry-after are handled without silent success",()=>{
  assert.match(route,/failed\+\+;break/);
  assert.match(route,/if\(txs\.length<100\)break/);
 });
+
+test("loan classifier uses real regex boundaries and detects known non-customer receipts",()=>{
+ const match=route.match(/if\((\/[^\n]+?\/i)\.test\(accountClassification\)\)/);
+ assert.ok(match,"Expected explicit loan exclusion regex");
+ const classifier=Function("return "+match[1])();
+ for(const value of ["Loan","Director's loan","internal account transfer","capital introduced","owner's contribution"])assert.ok(classifier.test(value),value);
+ assert.equal(classifier.test("MJ010 customer deposit"),false);
+});
