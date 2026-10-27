@@ -1,0 +1,7 @@
+-- Enforce invoice/payment allocation ownership across tenant and job.
+ALTER TABLE public.business_software_invoices ADD CONSTRAINT bms_invoice_tenant_job_id_unique UNIQUE(tenant_id,job_id,id);
+ALTER TABLE public.business_software_payments ADD CONSTRAINT bms_payment_tenant_job_id_unique UNIQUE(tenant_id,job_id,id);
+ALTER TABLE public.business_software_invoice_payment_allocations ADD CONSTRAINT bms_alloc_invoice_tenant_job_fk FOREIGN KEY(tenant_id,job_id,invoice_id) REFERENCES public.business_software_invoices(tenant_id,job_id,id) NOT VALID;
+ALTER TABLE public.business_software_invoice_payment_allocations ADD CONSTRAINT bms_alloc_payment_tenant_job_fk FOREIGN KEY(tenant_id,job_id,payment_id) REFERENCES public.business_software_payments(tenant_id,job_id,id) NOT VALID;
+ALTER TABLE public.business_software_invoice_payment_allocations VALIDATE CONSTRAINT bms_alloc_invoice_tenant_job_fk;
+ALTER TABLE public.business_software_invoice_payment_allocations VALIDATE CONSTRAINT bms_alloc_payment_tenant_job_fk;
