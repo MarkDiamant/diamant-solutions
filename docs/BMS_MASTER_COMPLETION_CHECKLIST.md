@@ -62,3 +62,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `57874dd5`: applied shared `bms_create_enquiry_once` migration with tenant/customer validation, advisory lock and idempotent request key; rollback-only duplicate-prevention test passed.
 - `b3e47d87` and `aa17ebbf`: connected customer enquiry API and UI. Enquiry-to-quote-to-invoice authenticated browser acceptance still outstanding.
 - **Do not mark complete:** authenticated browser E2E, actual API persistence verification, full-page design migration, other industries, Ruby, Worker Portal and accounting integrations remain open.
+
+- `81c87b2c`: complete rollback-only database workflow passed: 48 m²/10%/2.2 m² = 24 packs, customer-specific £37/pack, new enquiry, quote, sales order, purchase order, two partial receipts, reservation, picking, confirmed delivery and draft invoice. Live tenant job count unchanged. This is **database integration**, not authenticated browser E2E.
+- Reset, seed and enquiry RPCs verified inaccessible to anon/authenticated roles and executable only by service_role.
+- `df8f20cc`: server rejects sales order when customer differs from selected job's customer; `ebeb7724`: UI selects newly created customer/enquiry and clears stale choices after reset.
