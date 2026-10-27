@@ -1,4 +1,6 @@
 import test from "node:test";
+// These fixtures assert UK local calendar-day boundaries, not the CI runner timezone.
+process.env.TZ="Europe/London";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {runInNewContext} from "node:vm";
