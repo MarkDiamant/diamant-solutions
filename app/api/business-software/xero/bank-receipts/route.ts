@@ -64,7 +64,14 @@ export async function GET(request:Request){
       }
       const jobId=String(matches[0].id);
       const candidates=payments.filter((p:any)=>String(p.job_id)===jobId&&p.payment_type!=="xero_bank_receipt"&&Math.abs(Number(p.amount)-amount)<0.01&&!linkedPayments.has(String(p.id)));
-      if(candidates.length>1){review++;continue;}
+      // Never link an undated historical entry or a different-date manual receipt
+      // by amount alone. A matching value is not proof of the same bank payment.
+      if(candidates.length>1||candidates.some((p:any)=>String(p.paid_at||"").slice(0,10)!==date.slice(0,10))){
+       review++;
+       const queued=await centralRest("business_software_accounting_unmatched_receipts?on_conflict=tenant_id,provider,external_transaction_id",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tenantId,provider:"xero",external_transaction_id:String(tx.BankTransactionID),amount,paid_at:date.slice(0,10),reference:String(tx.Reference||"").slice(0,500),contact_name:String(tx.Contact?.Name||"").slice(0,200)})});
+       if(!queued.ok)failed++;
+       continue;
+      }
       const existing=candidates.length===1?String(candidates[0].id):null;
       const result=await centralRest("rpc/bms_record_verified_bank_receipt",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_job:jobId,p_external:String(tx.BankTransactionID),p_amount:amount,p_paid_at:date.slice(0,10),p_existing_payment:existing})});
       if(!result.ok){failed++;continue;}const outcome=await result.json().catch(()=>null);linkedIds.add(String(tx.BankTransactionID));if(existing)linkedPayments.add(existing);if(outcome==="imported")imported++;else linked++;
