@@ -145,8 +145,8 @@ test("shared BMS UI primitives are used by operational and demo pages",()=>{
  assert.match(demo,/<BmsPageTitle>/);
  for(const page of ["OperationsPanel","WorkerPortal"]){
   const source=fs.readFileSync("business-software-core/components/admin/"+page+".tsx","utf8");
-  assert.match(source,/bms-primary-button/);
-  assert.match(source,/bms-card/);
+  assert.match(source,/(?:bms-primary-button|<BmsButton)/);
+  assert.match(source,/(?:bms-card|<BmsCard)/);
  }
 });
 
