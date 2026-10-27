@@ -47,7 +47,7 @@ test("secondary job tabs show skeleton and split waits for full data",()=>{
 
 test("Quick Edit cancel restores persisted job fields and refresh resynchronises",()=>{assert.match(job,/Cancel Quick Edit/);assert.match(job,/if\(quickOpen\)\{setQuickTitle/);assert.match(job,/\[j\.job_title,j\.job_type,j\.manager,j\.next_action,j\.next_action_at,j\.internal_notes,quickOpen\]/);});
 
-test("activity submission retains entered data when server rejects save",()=>{assert.match(job,/const form=e\.currentTarget;try\{await onAction\(\{type:"activity"/);assert.match(job,/form\.reset\(\);\}catch\(error\)/);});
+test("activity submission retains entered data when server rejects save",()=>{assert.match(job,/const form=e\.currentTarget;setSubmitting\(true\);try\{await onAction\(\{type:"activity"/);assert.match(job,/form\.reset\(\);\}catch\(error\)/);});
 
 test("historical manager assignments remain selectable and quote/invoice notes are not conflated",()=>{assert.match(job,/Previously assigned \(configure name in Settings\)/);assert.match(job,/Customer requirements for quotation/);assert.match(job,/Quote Notes \/ exclusions \(shown on quotation only\)/);assert.match(job,/Invoice-specific wording belongs to the individual invoice/);});
 
