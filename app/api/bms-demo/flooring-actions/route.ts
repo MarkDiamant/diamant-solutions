@@ -78,6 +78,19 @@ export async function GET(req:Request){
    payment_reconciled:x.provider!=="internal"||Math.abs(allocations.filter((a:any)=>a.invoice_id===x.id).reduce((sum:number,a:any)=>sum+Number(a.amount||0),0)-Number(x.amount_paid||0))<0.011,
    overdue:!!x.due_date&&x.due_date<new Date().toISOString().slice(0,10)&&["issued","part_paid"].includes(String(x.status).toLowerCase())&&Number(x.amount_due)>0,
   }));
+  if(params.get("format")==="print"){
+   const invoiceId=params.get("invoice_id")||"";
+   if(!uuid.test(invoiceId))return response("Valid invoice_id required",400);
+   const inv=invoiceRows.find((x:any)=>x.id===invoiceId&&x.provider==="internal");
+   if(!inv)return response("Internal invoice not found in selected fictional job",404);
+   const quote=quotes.find((x:any)=>x.id===inv.source_quote_id);
+   const esc=(v:unknown)=>String(v??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]||ch));
+   const gbp=(v:unknown)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(Number(v||0));
+   const net=quote?Number(quote.amount):null;
+   const vat=net===null?null:Number(inv.total)-net;
+   const page=`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Invoice ${esc(inv.invoice_number)}</title><style>body{font:16px system-ui,Arial,sans-serif;max-width:820px;margin:48px auto;color:#202936;padding:0 20px}header{display:flex;justify-content:space-between;border-bottom:2px solid #273d52;padding-bottom:24px}h1{margin:0}table{width:100%;border-collapse:collapse;margin:35px 0}td,th{padding:12px;text-align:left;border-bottom:1px solid #d4dce5}td:last-child,th:last-child{text-align:right}.total{font-size:22px;font-weight:bold}.note{color:#536477}.actions{margin:18px 0}@media print{.actions{display:none}body{margin:0;max-width:none}}</style></head><body><div class="actions"><button onclick="window.print()">Print / Save as PDF</button></div><header><div><h1>INVOICE</h1><p>Oak &amp; Stone Flooring Demo</p><p class="note">Fictional demonstration invoice, not a tax invoice</p></div><div><strong>${esc(inv.invoice_number)}</strong><p>Status: ${esc(inv.status)}</p><p>Issued: ${esc(inv.invoice_date||"Not issued")}</p><p>Due: ${esc(inv.due_date||"Not set")}</p></div></header><p>Job reference: ${esc(job)}</p><table><thead><tr><th>Description</th><th>Amount</th></tr></thead><tbody><tr><td>Approved quotation ${esc(quote?.version??"")} ${quote?("(revision "+esc(quote.version)+")"):""}</td><td>${esc(net===null?"See total":gbp(net))}</td></tr>${vat===null?"":`<tr><td>VAT (${esc(quote?.vat_rate)}%)</td><td>${esc(gbp(vat))}</td></tr>`}</tbody></table><p class="total">Invoice total: ${esc(gbp(inv.total))}</p><p>Paid: ${esc(gbp(inv.amount_paid))} | Credits: ${esc(gbp(inv.amount_credited))} | Outstanding: ${esc(gbp(inv.amount_due))}</p><p class="note">Generated from the isolated fictional BMS demonstration tenant. Verify all details before using any real business invoice.</p></body></html>`;
+   return new Response(page,{headers:{"Content-Type":"text/html; charset=utf-8","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"}});
+  }
   if(new URL(req.url).searchParams.get("format")==="csv"){
    const headers=["Invoice number","Status","Gross GBP","Paid GBP","Credited GBP","Outstanding GBP","Due date","Source quotation"];
    const values=invoiceRows.map((x:any)=>[x.invoice_number,x.status,x.total,x.amount_paid,x.amount_credited,x.amount_due,x.due_date||"",x.source_quote_id||""]);
