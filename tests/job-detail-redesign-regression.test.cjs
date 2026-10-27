@@ -39,3 +39,8 @@ test('historical Xero-paid entries without payment dates are visibly flagged, no
  assert.match(job,/Payment evidence needs verification/);
  assert.match(job,/Verify against the actual Xero transaction/);
 });
+
+test("secondary job tabs show skeleton and split waits for full data",()=>{
+ assert.match(job,/aria-label="Loading job section"/);
+ assert.match(job,/data\._full&&tab==="Split Job\/Order"&&canPricing/);
+});
