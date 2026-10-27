@@ -30,7 +30,7 @@ export default function DemoOperationsPanel(){
    if(action==="return"){if(current.used!==22||current.returned){setMessage("Record actual materials used before returning leftovers.");return current;}delta=2;next.onHand+=2;next.returned=2;next.fittingStatus="Completed: 2 unused packs returned";next.orderStatus="Fulfilled";reason="Warehouse accepted 2 unused packs in good condition";}
    next.movements.push({id:action+"-"+current.movements.length,product:"Oak laminate 8mm",delta,reason,when:new Date().toLocaleTimeString("en-GB")});return next;
   });
-  setMessage("Demo workflow updated. No real stock or financial records were changed.");
+  // The functional state updater owns action-specific rejection messages. Do not overwrite them with a success notice.
  };
  return <BmsPage className="max-w-6xl">
   <BmsPageHeader className="bms-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><BmsPageTitle>{sampleNames[sample]||"Business"} operations demo</BmsPageTitle><p className="mt-1 text-sm text-slate-600">Fictional data. Stock action buttons below are browser-only simulations; the connected records are read-only.</p></div><Link href="/" className="rounded-lg border px-3 py-2 text-sm font-semibold">Dashboard</Link></div></BmsPageHeader>
