@@ -2,7 +2,7 @@ import {NextResponse} from "next/server";
 import {cookies} from "next/headers";
 import {centralRest} from "@/lib/business-software/db";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const {reconcile}=require("@/business-software-core/lib/finance-reconcile.cjs");
+const {reconcile,quoteTotals}=require("@/business-software-core/lib/finance-reconcile.cjs");
 
 export const dynamic="force-dynamic";
 const url="https://iepqggrfenfqrqyzqyed.supabase.co";
@@ -73,6 +73,7 @@ export async function GET(req:Request){
    summary:{
     latest_quote_net:quotes.length?Number(quotes[0].amount||0):null,
     latest_quote_vat_rate:quotes.length?Number(quotes[0].vat_rate||0):null,
+    latest_quote_totals:quotes.length?quoteTotals(quotes[0].amount,quotes[0].vat_rate):null,
     ...balances,
     draft_count:invoiceRows.filter((x:any)=>x.status==="draft").length,
    },
