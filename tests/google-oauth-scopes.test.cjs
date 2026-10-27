@@ -1,0 +1,4 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');
+const api=fs.readFileSync('app/api/bms-live/[...path]/route.ts','utf8');
+test('Google OAuth requests only identity, Gmail draft and send scopes',()=>{assert.match(api,/scope:"openid email profile https:\/\/www\.googleapis\.com\/auth\/gmail\.send https:\/\/www\.googleapis\.com\/auth\/gmail\.compose"/);assert.doesNotMatch(api,/https:\/\/www\.googleapis\.com\/auth\/gmail\.(modify|readonly|mail\.google\.com)/);});
+test('Gmail draft and send have distinct user actions and require PDF',()=>{assert.match(api,/endpoint=send\?"messages\/send":"drafts"/);assert.match(api,/Quotation PDF attachment is missing or invalid/);assert.match(api,/gmail\.googleapis\.com\/gmail\/v1\/users\/me\//);});
