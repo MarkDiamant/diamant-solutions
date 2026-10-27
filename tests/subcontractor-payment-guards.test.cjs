@@ -325,7 +325,8 @@ test("labour billing CSV export neutralises spreadsheet formulas",()=>{
  assert.match(ui,/import \{safeCsvCell\} from "\.\.\/\.\.\/lib\/safe-csv"/);
  const csv=fs.readFileSync("business-software-core/lib/safe-csv.ts","utf8");
  assert.match(csv,/function safeCsvCell/);
- assert.match(csv,/\[=\+@\]/);
+ assert.match(csv,/\\s\*\[=\+@-\]/);
+ assert.match(csv,/escaped\.replace\(\/"\/g/);
  assert.match(ui,/Payable cost GBP/);
 });
 
