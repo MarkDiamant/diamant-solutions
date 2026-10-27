@@ -14,7 +14,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Flooring PO, goods receipt, reservation, picking, return | Database integration verified | Rollback SQL under service role |
 | Flooring public demo interactive actions persisted | Implemented, authenticated E2E open | New manager-authorised `/api/bms-demo/flooring-actions` uses shared tenant-aware RPCs for sales, purchasing, goods receipts, reservations, picking, deliveries and returns; UI connected; production browser acceptance pending |
 | Flooring connected website catalogue preview | Read-only implemented | `/api/bms-demo/flooring-data` |
-| Flooring demo safe reset | **Open** | Obsolete browser-only simulation removed; transactional persisted demo reset not implemented |
+| Flooring demo safe reset | Implemented and rollback-tested; authenticated E2E open | Guarded atomic database reset, explicit confirmation UI, seeded catalogue/customers/invoice restoration; rollback-only test passed |
 | Flooring quotation, draft invoice, accounting | Implemented for isolated internal drafts, E2E open | Manager actions create quote revisions and internal draft invoices; no external accounting provider for demo |
 | Purchasing, sales, stock and logistics master core | Partially integrated | Authenticated UI and role acceptance pending |
 | Ruby document interpretation and confirmed actions | Open for end-to-end verification | Test each document type, confirmation, permissions, idempotency |
@@ -50,3 +50,15 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `0ab7d08a`: added repeatable rollback-only cross-tenant receipt and website catalogue test; executed successfully against Supabase. No live records changed.
 
 - `f1d0e56a`: demo-only return endpoint now checks cumulative previously returned stock against picked quantity; concurrency and authenticated browser testing still required.
+
+## 27 October 2026 continuation: verified reset and enquiry pipeline
+- Vercel production deployments `f1d0e56a` and `1501effb` confirmed READY.
+- `171059db`: repaired a missing catalogue binding in the user-facing demo component and removed stale simulation error.
+- `a0ee0413`: authenticated BMS managers can operate the **hardcoded fictional demo only**; no demo user membership exists, and no client tenant ID is accepted. Browser E2E still open.
+- `d30dc314`: applied `flooring_showcase_transactional_reset` migration to Supabase. Guarded RPC rejects wrong confirmation and refuses reset if financial payments or connected external integrations exist. Restores seed data atomically without touching any live tenant.
+- `790db9c6` and `2d89b72d`: reset API and explicit confirmation UI implemented.
+- `d930bc09`: rollback-only reset acceptance test passed, including catalogue, customer, invoice restoration and unchanged live-tenant job count.
+- `d2c73cab`: warehouse UI selects exact purchase/sales lines, quantities and delivery rather than always using the first record.
+- `57874dd5`: applied shared `bms_create_enquiry_once` migration with tenant/customer validation, advisory lock and idempotent request key; rollback-only duplicate-prevention test passed.
+- `b3e47d87` and `aa17ebbf`: connected customer enquiry API and UI. Enquiry-to-quote-to-invoice authenticated browser acceptance still outstanding.
+- **Do not mark complete:** authenticated browser E2E, actual API persistence verification, full-page design migration, other industries, Ruby, Worker Portal and accounting integrations remain open.
