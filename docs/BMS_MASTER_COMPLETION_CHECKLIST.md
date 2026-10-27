@@ -32,7 +32,7 @@ See [BMS_REQUIREMENT_ACCEPTANCE_METRICS.md](BMS_REQUIREMENT_ACCEPTANCE_METRICS.m
 | Evidence gate | At baseline `1501effb` | Current | Change |
 |---|---:|---:|---:|
 | Fully implemented scope | 9/20 (45%) | 10/20 (50%) | +1 requirement |
-| Fully database/integration tested scope | 4/20 (20%) | 6/20 (30%) | +2 requirements |
+| Complete automated integration-tested scope | 4/20 (20%) | 10/20 (50%) | +6 requirements |
 | Authenticated browser end-to-end accepted | 0/20 (0%) | 0/20 (0%) | 0 |
 
 **Method:** strict all-or-nothing gate per existing top-level requirement, no credit for partial implementation, no invented effort weighting. The ratios describe unweighted coverage, **not percentage of development effort complete**. The separate per-requirement ledger identifies outstanding work and blockers. No requirement is marked browser accepted.
@@ -181,4 +181,11 @@ See [BMS_REQUIREMENT_ACCEPTANCE_METRICS.md](BMS_REQUIREMENT_ACCEPTANCE_METRICS.m
 - Live Chromium revealed that public demo Worker Portal crashed on undefined entries.filter and Labour Costing crashed on noniterable budgets. Shared-master fixes f4a6715a and e4034187 normalised incomplete API payloads; 016d2383 and eef8c9b6 explicitly reject generic demo stubs rather than falsely reporting saved timesheets or billing.
 - After deployment, both routes rendered their correct headings and clear unavailable messages, with zero uncaught browser errors and no horizontal overflow at 390px.
 - Re-ran the exact public Playwright suite after adding reset-phrase and worker/labour safety cases: **8 passed, 0 failed, 0 skipped**. Eight public browser tests are not authenticated E2E.
-- Strict 20-requirement complete-gate metrics remain **10/20 implemented, 6/20 fully database/integration tested, 0/20 authenticated E2E accepted**.
+- Strict 20-requirement complete-gate metrics remain **10/20 implemented, 10/20 complete automated integration tested, 0/20 authenticated E2E accepted**.
+
+## Full evidence-based scorecard re-audit (27 October)
+- Strict denominator 20. Fully implemented **10/20 (50%)**, unchanged; fully integration tested **10/20 (50%)**, up from 6/20 (30%); authenticated E2E **0/20 (0%)**, unchanged. This is complete-requirement coverage, not an estimate of remaining effort.
+- Newly fully integration-tested requirements: **#2** shared UI primitives (3/3 React rendering tests); **#4** fictional banner and seven-industry selector (mobile and desktop route switching); **#5** mobile header/New Job/Ruby original image (Chromium at 320/390/768); **#10** connected website catalogue preview (four public products matched to loaded UI, private data excluded). **11/11 public Chromium Playwright tests passed**. No authenticated tests were substituted.
+- Security audit tightened fictional demo writes to a manager of the *fictional tenant itself* and enforced HTTPS same-origin; zero active demo managers still exist. A protected dedicated account must be provisioned by an authorised identity; no real-tenant credentials or MJ010 records changed.
+- Repaired live bugs: shadowed URL constructors in shared materials and BMS APIs, Ruby pending-confirmation state, stray labour inputs in invoice form, invalid Gmail route helper export, and demo selector CSS. Updated Next and PostCSS; isolated build passed, npm production dependency audit found zero vulnerabilities, and repeatable TypeScript diagnostics passed with the unused legacy MJ-only file explicitly excluded.
+- The remaining ten requirements #3, #12-#20 retain explicit unverified whole-scope criteria in the scorecard. Provider OAuth consent, protected demo-manager identity and final user acceptance cannot be manufactured.
