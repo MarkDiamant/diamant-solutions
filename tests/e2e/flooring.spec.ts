@@ -44,7 +44,10 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
   expect(r?.status()).toBe(200);
   await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
   await page.getByLabel("Product",{exact:true}).selectOption({label:"Natural oak 8mm laminate"});
-  await expect(page.getByText(/24 pack/i).first()).toBeVisible();
+  await page.getByLabel("Customer",{exact:true}).selectOption({label:"Sarah Collins"});
+  await expect(page.getByText(/24 pack.*£37\.00 per unit/i).first()).toBeVisible();
+  await page.getByLabel("Customer",{exact:true}).selectOption({label:"North London Developments"});
+  await expect(page.getByText(/24 pack.*£39\.00 per unit/i).first()).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   expect(await page.locator("a a").count()).toBe(0);
  }
