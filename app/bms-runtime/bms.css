@@ -304,7 +304,7 @@
 
 /* Master BMS design system: tenant-driven, shared by every industry and tenant. */
 .bms-shell{
- --bms-accent:#365b85;
+ --bms-accent:#365b85;--bms-on-accent:#fff;
  --bms-accent-soft:color-mix(in srgb,var(--bms-accent) 10%,white);
  --bms-accent-border:color-mix(in srgb,var(--bms-accent) 28%,white);
  --bms-accent-ink:color-mix(in srgb,var(--bms-accent) 75%,#101828);
@@ -319,7 +319,7 @@
 .bms-shell :is(.bms-page-title,.bms-section-title){font-weight:760;letter-spacing:-.025em;line-height:1.2;color:var(--bms-text)}
 .bms-shell .bms-page-title{font-size:clamp(1.35rem,2vw,1.85rem)}
 .bms-shell .bms-section-title{font-size:1.1rem}
-.bms-shell :is(.bms-primary-button,.bms-action-primary){background:var(--bms-accent);border:1px solid var(--bms-accent);color:#fff;border-radius:var(--bms-radius-sm);font-weight:700;min-height:38px;padding:8px 13px}
+.bms-shell :is(.bms-primary-button,.bms-action-primary){background:var(--bms-accent);border:1px solid var(--bms-accent);color:var(--bms-on-accent);border-radius:var(--bms-radius-sm);font-weight:700;min-height:38px;padding:8px 13px}
 .bms-shell :is(.bms-secondary-button,.bms-action-secondary){background:#fff;border:1px solid var(--bms-border);color:var(--bms-text);border-radius:var(--bms-radius-sm);min-height:38px;padding:8px 13px}
 .bms-shell :is(.bms-primary-button,.bms-action-primary):hover{filter:brightness(.92)}
 .bms-shell :is(.bms-secondary-button,.bms-action-secondary):hover{border-color:var(--bms-accent-border);background:var(--bms-accent-soft)}
