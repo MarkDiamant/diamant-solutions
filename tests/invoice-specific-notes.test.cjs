@@ -7,3 +7,5 @@ test("Xero invoices cannot be silently modified in local invoice notes",()=>{ass
 test("invoice notes persist only on the invoice and render in regenerated PDF",()=>{assert.match(section,/invoice_notes:value/);assert.match(ui,/Edit Invoice Notes/);assert.match(ui,/Save Invoice Notes/);assert.match(ui,/invoice\.invoice_notes&&<section/);assert.match(ui,/white-space|whitespace-pre-line/);assert.match(ui,/window.confirm\("Save invoice-specific notes/);});
 
 test("invoice notes editor falls back to canonical BMS runtime endpoint",()=>{assert.match(ui,/r.status===404/);assert.match(ui,/\/api\/bms-live\/invoices\/update-notes/);});
+
+test("invoice notes edits retain tenant-scoped previous and updated wording in audit history",()=>{assert.match(section,/business_software_audit_events/);assert.match(section,/invoice_notes_updated/);assert.match(section,/previous_notes/);assert.match(section,/updated_notes:value/);assert.match(section,/invoiceUpdated:true/);});
