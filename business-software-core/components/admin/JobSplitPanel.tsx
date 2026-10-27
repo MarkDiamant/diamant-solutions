@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import {BmsModal,BmsState} from "./BmsUI";
+import {BmsCard,BmsModal,BmsState} from "./BmsUI";
 
 type Item={id:number;label:string;amount:number|null;group:number};
 const titleFromItem=(label:string)=>label.split("\n")[0].replace(/^\s*(?:item\s*|section\s*)?\d+[.)\-:]\s*/i,"").replace(/\s*[:=]?\s*\d+(?:\.\d+)?\s*[x×]\s*£\s*[\d,]+(?:\.\d{1,2})?\s*=\s*£\s*[\d,]+(?:\.\d{1,2})?.*$/i,"").replace(/\s*[:·-]?\s*£\s*[\d,]+(?:\.\d{1,2})?.*$/,"").replace(/[\s:·-]+$/,"").replace(/\b(?:approximately|approx\.?|about)\b.*$/i,"").replace(/[,;:]\s*(?:including|with|measuring|dimensions?|length|width|height)\b.*$/i,"").replace(/\b\d+(?:\.\d+)?\s*(?:mm|cm|metres?|meters?|m)\b.*$/i,"").replace(/[,;:\s-]+$/,"").trim().slice(0,75);
@@ -54,7 +54,7 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
   return <section id="split-order-panel" className="mt-4 scroll-mt-24">
     {!open&&<button type="button" disabled={busy||!quote} onClick={()=>void start()} className="rounded-xl border border-[var(--bms-accent)] bg-white px-4 py-2.5 text-sm font-black text-[var(--bms-accent)] disabled:opacity-50">{busy?"Checking...":"Split job / order"}</button>}
     {error&&<BmsState kind="error" className="mt-2">{error}</BmsState>}
-    {open&&<div className="mt-3 rounded-2xl border border-orange-200 bg-white p-5">
+    {open&&<BmsCard className="mt-3 p-5">
       <h2 className="text-lg font-black">Split quoted order</h2>
       <p className="mt-1 text-sm text-black/60">Choose how many orders you need, then assign each quoted item to the correct order. Choose each order title from any quote item or type your own. Nothing is grouped automatically. Review the totals before confirming. The original quote is retained.</p>
       {items.length>0&&<label className="mt-4 block max-w-xs text-sm font-bold">Split into how many orders?<select value={count} onChange={e=>changeCount(Number(e.target.value))} className="mt-2 w-full rounded-lg border border-slate-300 bg-white p-3">{Array.from({length:Math.max(2,items.length)-1},(_,i)=>i+2).map(n=><option key={n} value={n}>{n} orders</option>)}</select></label>}
@@ -65,7 +65,7 @@ export default function JobSplitPanel({reference,quotes}:{reference:string;quote
       <p className="mt-4 text-sm font-bold">Original quote: {gbp(total)}. Split total: {gbp(parts.reduce((a,p)=>a+p.amount,0))}</p>
       {!valid&&<p className="mt-1 text-xs text-amber-800">Check every item price and assign each item to an order. Each order needs a positive total, and all totals must equal the original quote.</p>}
       <div className="mt-3 flex gap-2"><button type="button" disabled={!valid||busy} onClick={()=>setReview(true)} className="rounded-xl bg-[var(--bms-accent)] px-4 py-2 text-sm font-black text-white disabled:opacity-40">Review split</button><button type="button" onClick={()=>{setOpen(false);setError("");}} className="rounded-xl border px-4 py-2 text-sm">Cancel</button></div>
-    </div>}
+    </BmsCard>}
     {review&&<BmsModal title="Confirm order split" onClose={()=>{if(!busy)setReview(false)}} className="max-w-lg"><p className="mt-2 text-sm">The original job and quote will be archived. Separate jobs and editable draft quotes will be created. One order will be marked for work now; all other orders will also be created separately, awaiting work. No customer messages will be sent.</p>{parts.map((p,i)=><div key={i} className="mt-3 rounded-lg bg-[#f5f5f2] p-3"><strong>{p.scope} · {gbp(p.amount)}</strong><p className="text-xs">{p.disposition==="proceed"?"Active order: work starts now":"Separate order created: awaiting work"}</p><p className="mt-2 whitespace-pre-wrap text-xs">{p.description}</p></div>)}<div className="mt-4 flex gap-2"><button type="button" disabled={busy} onClick={()=>void submit()} className="rounded-lg bg-[var(--bms-accent)] px-4 py-2 font-black text-white">{busy?"Splitting...":"Confirm split"}</button><button type="button" disabled={busy} onClick={()=>setReview(false)} className="rounded-lg border px-4 py-2">Back</button></div></BmsModal>}
   </section>;
 }
