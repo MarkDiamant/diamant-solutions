@@ -94,3 +94,5 @@ Status is requirement-based, not based on commit counts or estimated percentages
 
 - Production Vercel runtime error clusters showed repeated Xero 429 throttling and 504/authorisation errors, including hundreds of invoice-refresh errors and over 1,000 bank-sync errors during 26 October. `cf63095b`: removed automatic Xero provider calls from the read-only jobs GET route; cached local financial snapshots remain, and explicit reconciliation remains available.
 - `d519350c`: corrected integrations Xero sync button to issue POST, matching the permission-checked mutation endpoint. **Not yet authenticated browser-tested;** provider 429 recovery and financial matching still require controlled acceptance. No historical payment records changed.
+
+- `76d93f1b`: explicit Xero invoice and bank sync now execute sequentially, reducing simultaneous OAuth token refresh and provider rate-limit pressure. Live Xero reconciliation acceptance remains open; no MJ010 financial data was edited.
