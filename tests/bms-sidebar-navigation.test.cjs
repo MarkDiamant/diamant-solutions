@@ -127,3 +127,13 @@ test("demo banners and selector reserve full sidebar offset on all widths",()=>{
  assert.match(css,/top:calc\(84px \+ var\(--bms-header-height\)\)!important/);
  assert.match(css,/max-height:calc\(100dvh - 84px - var\(--bms-header-height\)\)!important/);
 });
+
+test("tenant theme contrast and flooring controls are shared",()=>{
+ const ops=fs.readFileSync("business-software-core/components/admin/OperationsPanel.tsx","utf8");
+ assert.match(nav,/--bms-on-accent/);
+ assert.match(nav,/luminance>\.179/);
+ assert.match(css,/color:var\(--bms-on-accent\)/);
+ assert.match(css,/\.bms-floor-calculator\{background:var\(--bms-accent-soft\)/);
+ assert.match(ops,/className="bms-floor-calculator/);
+ assert.doesNotMatch(ops,/border-orange-200 bg-orange-50/);
+});
