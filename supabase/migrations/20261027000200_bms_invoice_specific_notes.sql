@@ -1,0 +1,1 @@
+alter table public.business_software_invoices add column if not exists invoice_notes text; comment on column public.business_software_invoices.invoice_notes is 'Invoice-specific customer-facing wording, separate from job notes and quotation notes.';
