@@ -28,6 +28,6 @@ jobs:
           node-version: "22"
       - run: npm ci --ignore-scripts
       - name: Worker daily-hours and UK DST regression
-        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/bms-shared-primitives.test.mjs tests/bms-api-static-guards.test.mjs tests/finance-reconciliation.test.cjs
+        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/bms-shared-primitives.test.mjs tests/bms-api-static-guards.test.mjs tests/finance-reconciliation.test.cjs tests/flooring-finance-guards.test.cjs
         env:
           TZ: Europe/London
