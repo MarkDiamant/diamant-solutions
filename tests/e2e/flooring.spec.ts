@@ -43,6 +43,9 @@ test("authenticated fictional customer write, persistence and transactional rese
  await page.getByLabel("Quote lead time").fill("7 working days");
  await page.getByRole("button",{name:"Save quote revision"}).click();
  await expect(page.getByText("Saved to isolated demo database: create quote")).toBeVisible();
+ await page.getByLabel("Quote net amount (£)").fill("900");
+ await page.getByRole("button",{name:"Save quote revision"}).click();
+ await expect(page.getByText("Saved to isolated demo database: create quote")).toBeVisible();
  await page.getByRole("button",{name:"Create sales order"}).click();
  await expect(page.getByText("Saved to isolated demo database: create sales order")).toBeVisible();
  await page.getByRole("button",{name:"Create purchase order"}).click();
