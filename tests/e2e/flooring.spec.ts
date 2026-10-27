@@ -67,6 +67,18 @@ test("mobile New Job menu supports arrow navigation, Escape and focus restoratio
  await expect(trigger).toHaveAttribute("aria-expanded","false");
  await expect(trigger).toBeFocused();
 });
+test("fictional reset requires exact phrase and an explicit confirmation",async({page})=>{
+ await page.goto("/flooring/operations");
+ const reset=page.getByRole("button",{name:"Reset fictional data"});
+ await expect(reset).toBeDisabled();
+ await page.getByLabel("Type RESET OAK AND STONE DEMO").fill("RESET OAK AND STONE");
+ await expect(reset).toBeDisabled();
+ await page.getByLabel("Type RESET OAK AND STONE DEMO").fill("RESET OAK AND STONE DEMO");
+ await expect(reset).toBeEnabled();
+ page.once("dialog",dialog=>dialog.dismiss());
+ await reset.click();
+ await expect(page.getByLabel("Type RESET OAK AND STONE DEMO")).toHaveValue("RESET OAK AND STONE DEMO");
+});
 test("anonymous browser write shows a clear denial and persists nothing",async({page,request})=>{
  const before=await (await request.get("/api/bms-demo/flooring-data")).json();
  await page.goto("/flooring/operations");
