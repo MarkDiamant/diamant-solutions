@@ -1,0 +1,8 @@
+import type {ButtonHTMLAttributes,HTMLAttributes,ReactNode} from "react";
+type Props=HTMLAttributes<HTMLElement>&{children:ReactNode};
+export function BmsCard({children,className="",...rest}:Props){return <section {...rest} className={["bms-card",className].filter(Boolean).join(" ")}>{children}</section>}
+export function BmsPageTitle({children,className="",...rest}:Props){return <h1 {...rest} className={["bms-page-title",className].filter(Boolean).join(" ")}>{children}</h1>}
+export function BmsSectionTitle({children,className="",...rest}:Props){return <h2 {...rest} className={["bms-section-title",className].filter(Boolean).join(" ")}>{children}</h2>}
+export function BmsButton({children,className="",variant="primary",type="button",...rest}:ButtonHTMLAttributes<HTMLButtonElement>&{variant?:"primary"|"secondary"|"danger"}){return <button {...rest} type={type} className={[(variant==="primary"?"bms-primary-button":variant==="danger"?"bms-danger-button":"bms-secondary-button"),className].filter(Boolean).join(" ")}>{children}</button>}
+export function BmsState({children,kind="empty",className="",...rest}:HTMLAttributes<HTMLDivElement>&{kind?:"empty"|"error"|"success"|"loading"}){return <div {...rest} role={kind==="error"?"alert":"status"} className={[(kind==="empty"?"bms-empty-state":"bms-state-"+kind),className].filter(Boolean).join(" ")}>{children}</div>}
+export function BmsTable({children,className="",...rest}:HTMLAttributes<HTMLTableElement>){return <div className="bms-table-scroll"><table {...rest} className={["bms-table",className].filter(Boolean).join(" ")}>{children}</table></div>}
