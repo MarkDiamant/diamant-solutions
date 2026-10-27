@@ -7,7 +7,7 @@ AS $function$
 DECLARE q public.business_software_quotes%ROWTYPE; latest uuid;
 BEGIN
  IF p_tenant IS NULL OR p_job IS NULL OR p_quote IS NULL OR p_key !~ '^[a-zA-Z0-9:_-]{8,150}$' THEN RAISE EXCEPTION 'Invalid quotation approval'; END IF;
- PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant::text||':'||p_job::text,88227));
+ PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant::text||':'||p_job::text,90211));
  SELECT id INTO latest FROM public.business_software_quotes WHERE tenant_id=p_tenant AND job_id=p_job ORDER BY version DESC LIMIT 1;
  IF latest IS DISTINCT FROM p_quote THEN RAISE EXCEPTION 'Only latest quotation revision can be approved'; END IF;
  SELECT * INTO q FROM public.business_software_quotes WHERE tenant_id=p_tenant AND job_id=p_job AND id=p_quote FOR UPDATE;
