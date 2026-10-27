@@ -27,6 +27,17 @@ jobs:
       - run: npm install --ignore-scripts
       - run: npm install --no-save --ignore-scripts @playwright/test@1.56.1
       - run: npx playwright install --with-deps chromium
+      - name: Require protected demo-manager test identity
+        env:
+          BMS_TEST_ACCESS_TOKEN: ${{ secrets.BMS_TEST_ACCESS_TOKEN }}
+          BMS_TEST_EMAIL: ${{ secrets.BMS_TEST_EMAIL }}
+          BMS_TEST_PASSWORD: ${{ secrets.BMS_TEST_PASSWORD }}
+          BMS_TEST_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.BMS_TEST_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          if [ -n "$BMS_TEST_ACCESS_TOKEN" ]; then exit 0; fi
+          if [ -n "$BMS_TEST_EMAIL" ] && [ -n "$BMS_TEST_PASSWORD" ] && [ -n "$BMS_TEST_SUPABASE_PUBLISHABLE_KEY" ]; then exit 0; fi
+          echo "::error::Dedicated demo-manager credentials are required; browser acceptance cannot be marked passed."
+          exit 1
       - name: Read-only smoke and opt-in manager acceptance
         run: npx playwright test
         env:
