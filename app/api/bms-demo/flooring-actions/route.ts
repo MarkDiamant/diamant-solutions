@@ -54,8 +54,9 @@ export async function POST(req:Request){
   if(action==="create_customer"){
    const first=String(d.first_name||"").trim(),last=String(d.last_name||"").trim(),email=String(d.email||"").trim();
    if(!first||!last||first.length>100||last.length>100||email.length>200)return response("Enter a valid customer name",400);
-   const r=await centralRest("business_software_customers",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,first_name:first,last_name:last,email:email||null,notes:"Fictional flooring showcase customer"})});
-   if(!r.ok)throw Error("Customer creation failed");result=(await json(r))?.[0];
+   const previous=await centralRest("business_software_customers?tenant_id=eq."+tenant+"&notes=eq."+encodeURIComponent("Fictional demo request "+keyValue)+"&select=id,first_name,last_name&limit=1");
+   const found=(await json(previous))?.[0];if(found){result=found;}else{const r=await centralRest("business_software_customers",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,first_name:first,last_name:last,email:email||null,notes:"Fictional demo request "+keyValue})});
+   if(!r.ok)throw Error("Customer creation failed");result=(await json(r))?.[0];}
   }else if(action==="edit_customer"){
    const id=String(d.customer_id||"");await owned("business_software_customers",tenant,id);
    const first=String(d.first_name||"").trim(),last=String(d.last_name||"").trim();
@@ -93,6 +94,11 @@ export async function POST(req:Request){
     const qty=num(d.quantity);if(!Number.isFinite(qty))return response("Invalid stock quantity",400);
     if(action==="return"){
      const product=String(d.product_id||"");await owned("business_software_price_book_items",tenant,product);
+     const deliveries=await centralRest("business_software_deliveries?tenant_id=eq."+tenant+"&status=eq.delivered&select=id&limit=1");
+     if(!(await json(deliveries))?.length)return response("Confirm a fictional delivery before accepting unused material",409);
+     const picked=await centralRest("business_software_sales_order_lines?tenant_id=eq."+tenant+"&product_id=eq."+product+"&select=picked_quantity&limit=100");
+     const pickedTotal=((await json(picked))||[]).reduce((n:number,x:any)=>n+Number(x.picked_quantity||0),0);
+     if(qty>pickedTotal)return response("Returns cannot exceed picked stock",409);
      result=await rpc("bms_apply_stock_movement",{p_tenant:tenant,p_product:product,p_location:location,p_delta:qty,p_reason:"Fictional unused materials returned",p_source_type:"fitting_return",p_source_id:"flooring-showcase",p_key:keyValue});
     }else{
      const line=String(d.line_id||"");
