@@ -66,7 +66,15 @@ export async function GET(req:Request){
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
    quotes,invoices:invoiceRows,
-   unlinked_invoice_count:invoiceRows.filter((x:any)=>!x.source_quote_valid).length,\n   summary:{\n    latest_quote_net:quotes.length?Number(quotes[0].amount||0):null,\n    latest_quote_vat_rate:quotes.length?Number(quotes[0].vat_rate||0):null,\n    invoiced_total:invoiceRows.reduce((n:number,x:any)=>n+Number(x.total||0),0),\n    paid_total:invoiceRows.reduce((n:number,x:any)=>n+Number(x.amount_paid||0),0),\n    outstanding_total:invoiceRows.reduce((n:number,x:any)=>n+Number(x.amount_due||0),0),\n    draft_count:invoiceRows.filter((x:any)=>x.status==="draft").length,\n   },
+   unlinked_invoice_count:invoiceRows.filter((x:any)=>!x.source_quote_valid).length,
+   summary:{
+    latest_quote_net:quotes.length?Number(quotes[0].amount||0):null,
+    latest_quote_vat_rate:quotes.length?Number(quotes[0].vat_rate||0):null,
+    invoiced_total:invoiceRows.reduce((n:number,x:any)=>n+Number(x.total||0),0),
+    paid_total:invoiceRows.reduce((n:number,x:any)=>n+Number(x.amount_paid||0),0),
+    outstanding_total:invoiceRows.reduce((n:number,x:any)=>n+Number(x.amount_due||0),0),
+    draft_count:invoiceRows.filter((x:any)=>x.status==="draft").length,
+   },
    accounting_provider_connected:false,
    external_sync_permitted:false
   },{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
