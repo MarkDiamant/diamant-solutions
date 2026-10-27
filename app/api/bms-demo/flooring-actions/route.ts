@@ -76,11 +76,7 @@ export async function POST(req:Request){
    const job=String(d.job_id||"");await owned("business_software_jobs",tenant,job);
    const total=amount(d.amount);if(!Number.isFinite(total)||total===0)return response("Quote amount must be positive",400);
    const scope=String(d.scope_text||"").trim();if(!scope||scope.length>2000)return response("Enter a valid quote scope",400);
-   const r=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=version&order=version.desc&limit=1");
-   if(!r.ok)throw Error("Unable to read quote versions");
-   const version=Number((await json(r))?.[0]?.version||0)+1;
-   const saved=await centralRest("business_software_quotes",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,job_id:job,version,status:"draft",scope_text:scope,amount:total,vat_rate:20,lead_time:"7-10 working days",created_by:"Demo manager"})});
-   if(!saved.ok)throw Error("Quote creation failed");result=(await json(saved))?.[0];
+   result=await rpc("bms_create_quote_revision_once",{p_tenant:tenant,p_job:job,p_scope:scope,p_amount:total,p_vat_rate:20,p_lead_time:"7-10 working days",p_key:keyValue,p_actor:"Demo manager"});
   }else if(action==="create_sales_order"||action==="create_purchase_order"){
    const product=String(d.product_id||""),job=String(d.job_id||"");
    await owned("business_software_price_book_items",tenant,product);
