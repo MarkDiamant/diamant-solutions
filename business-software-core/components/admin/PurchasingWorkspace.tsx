@@ -10,7 +10,9 @@ type Workspace={products:Product[];suppliers:Supplier[];jobs:Job[];orders:Order[
 const money=(v:number)=>new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(v);
 async function request(path:string,body?:unknown){const r=await fetch("/api/admin/"+path,{method:body?"POST":"GET",headers:body?{"Content-Type":"application/json"}:undefined,body:body?JSON.stringify(body):undefined,cache:"no-store"});const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.error||"Purchasing request failed");return d;}
 export default function PurchasingWorkspace(){
- const requestKey=useRef<string|null>(null);\n const receiptKey=useRef<string|null>(null);\n const [receiptLine,setReceiptLine]=useState(""),[receiptLocation,setReceiptLocation]=useState(""),[receiptQty,setReceiptQty]=useState("1");
+ const requestKey=useRef<string|null>(null);
+ const receiptKey=useRef<string|null>(null);
+ const [receiptLine,setReceiptLine]=useState(""),[receiptLocation,setReceiptLocation]=useState(""),[receiptQty,setReceiptQty]=useState("1");
  const [newSupplier,setNewSupplier]=useState(""),[lengthM,setLengthM]=useState(""),[widthM,setWidthM]=useState("");
  const [data,setData]=useState<Workspace|null>(null),[supplier,setSupplier]=useState(""),[job,setJob]=useState(""),[lines,setLines]=useState<Line[]>([]),[notes,setNotes]=useState(""),[product,setProduct]=useState(""),[qty,setQty]=useState("1"),[cost,setCost]=useState(""),[notice,setNotice]=useState(""),[busy,setBusy]=useState(false),[search,setSearch]=useState("");
  const refresh=useCallback(async()=>{setData(await request("purchasing/workspace"));},[]);
