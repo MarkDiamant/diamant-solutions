@@ -10,7 +10,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Demo banner and industry selector clear sidebar | Code implemented, visual QA open | Verify desktop and mobile authenticated views |
 | Mobile header, New Job, Ruby original image | Code implemented, visual QA open | Verify menu scroll and tenant logo at 320/390/768px |
 | Flooring fictional tenant isolated data | Database integration verified | `supabase/demo/flooring_showcase_seed.sql`, rollback SQL |
-| Flooring products, coverage and customer pricing | Database integration verified | `tests/flooring-showcase-connected.sql` |
+| Flooring products, coverage and customer pricing | Database integration verified; connected UI implemented | `tests/flooring-showcase-connected.sql`; connected customer price lookup and area-to-pack estimate; authenticated visual QA pending |
 | Flooring PO, goods receipt, reservation, picking, return | Database integration verified | Rollback SQL under service role |
 | Flooring public demo interactive actions persisted | Implemented, authenticated E2E open | New manager-authorised `/api/bms-demo/flooring-actions` uses shared tenant-aware RPCs for sales, purchasing, goods receipts, reservations, picking, deliveries and returns; UI connected; production browser acceptance pending |
 | Flooring connected website catalogue preview | Read-only implemented | `/api/bms-demo/flooring-data` |
@@ -45,3 +45,6 @@ Status is requirement-based, not based on commit counts or estimated percentages
 
 - `a8559608`: applied shared, tenant-accent-aware legacy-page compatibility styling for inputs, tables and focus without tenant-specific overrides. Visual QA remains open.
 - Cross-tenant purchase-line receipt rejection tested with service_role inside an explicit rolled-back transaction; passed without financial or stock changes.
+
+- `83e381af` and `7b350306`: connected customer-specific price records and displayed selected-customer pricing with flooring pack/m² calculations.
+- `0ab7d08a`: added repeatable rollback-only cross-tenant receipt and website catalogue test; executed successfully against Supabase. No live records changed.
