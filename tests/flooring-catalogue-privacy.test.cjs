@@ -1,0 +1,4 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');
+const src=fs.readFileSync('app/api/bms-demo/catalogue/route.ts','utf8');
+test('fictional public catalogue is scoped to isolated showcase tenant',()=>{assert.match(src,/slug=eq\.flooring-showcase-demo/);assert.match(src,/canonical_host=eq\.flooring-showcase\.invalid/);assert.match(src,/reference_tenant=eq\.false/);assert.match(src,/tenant_id=eq\."\+encodeURIComponent\(tenant\.id\)/);});
+test('only public list price and explicit safe product fields are returned',()=>{assert.match(src,/show_on_website=eq\.true/);assert.match(src,/select=sku,name,category,unit,units_per_pack,specifications,fixed_sell_net/);assert.match(src,/products:rows\.map/);assert.doesNotMatch(src,/select=[^\n]*unit_cost/);assert.doesNotMatch(src,/select=[^\n]*supplier_price/);});
