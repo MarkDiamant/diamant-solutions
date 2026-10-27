@@ -77,6 +77,8 @@ test("dedicated fictional manager can persist a customer, with no cross-tenant g
     expect(ledger).toMatchObject({fictional:true,tenant:"flooring-showcase-demo"});
     expect(Array.isArray(ledger.invoices)).toBe(true);
     expect(Array.isArray(ledger.allocations)).toBe(true);
+    const foreignJob=await context.request.get("/api/bms-demo/flooring-actions?job_id=00000000-0000-4000-8000-000000000001");
+    expect(foreignJob.status()).toBe(409);
     for(const invoice of ledger.invoices){
       if(["void","voided","cancelled"].includes(String(invoice.status).toLowerCase()))continue;
       expect(Math.abs(Number(invoice.total)-Number(invoice.amount_paid)-Number(invoice.amount_due))).toBeLessThanOrEqual(0.011);
