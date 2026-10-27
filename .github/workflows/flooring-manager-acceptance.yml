@@ -23,7 +23,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - name: Run anonymous and cross-origin tests
-        run: npx playwright test tests/e2e/flooring-manager-acceptance.spec.ts --grep "anonymous clients|cross-origin cookie|public flooring catalogue"
+        run: npx playwright test tests/e2e/flooring-manager-acceptance.spec.ts --grep "anonymous clients|cross-origin cookie|spoofed forwarded-host|public flooring catalogue"
         env:
           BMS_TEST_BASE_URL: https://bms.diamantsolutions.co.uk
   protected-manager:
