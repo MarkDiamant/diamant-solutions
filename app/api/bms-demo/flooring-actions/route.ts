@@ -1,6 +1,7 @@
 import {NextResponse} from "next/server";
 import {cookies} from "next/headers";
 import {centralRest} from "@/lib/business-software/db";
+import {safeCsvCell} from "@/business-software-core/lib/safe-csv";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const {reconcile,quoteTotals}=require("@/business-software-core/lib/finance-reconcile.cjs");
 
@@ -71,6 +72,12 @@ export async function GET(req:Request){
    payment_reconciled:x.provider!=="internal"||Math.abs(allocations.filter((a:any)=>a.invoice_id===x.id).reduce((sum:number,a:any)=>sum+Number(a.amount||0),0)-Number(x.amount_paid||0))<0.011,
    overdue:!!x.due_date&&x.due_date<new Date().toISOString().slice(0,10)&&["issued","part_paid"].includes(String(x.status).toLowerCase())&&Number(x.amount_due)>0,
   }));
+  if(new URL(req.url).searchParams.get("format")==="csv"){
+   const headers=["Invoice number","Status","Gross GBP","Paid GBP","Credited GBP","Outstanding GBP","Due date","Source quotation"];
+   const values=invoiceRows.map((x:any)=>[x.invoice_number,x.status,x.total,x.amount_paid,x.amount_credited,x.amount_due,x.due_date||"",x.source_quote_id||""]);
+   const csv=[headers,...values].map(row=>row.map(safeCsvCell).join(",")).join("\r\n")+"\r\n";
+   return new Response(csv,{headers:{"Content-Type":"text/csv; charset=utf-8","Content-Disposition":"attachment; filename=\"bms-invoices-"+job+".csv\"","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"}});
+  }
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
    quotes,invoices:invoiceRows,allocations,credits,
