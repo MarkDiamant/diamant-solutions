@@ -96,3 +96,8 @@ test("anonymous clients cannot read private flooring finance ledger", async ({ r
  const response=await request.get("/api/bms-demo/flooring-actions?job_id=47029266-51a3-4caa-b70d-fbb8a4d3c419");
  expect(response.status()).toBe(403);
 });
+
+test("spoofed forwarded-host cannot bypass cross-origin write protection", async ({ request }) => {
+ const response=await request.post("/api/bms-demo/flooring-actions",{headers:{origin:"https://attacker.invalid","x-forwarded-host":"attacker.invalid"},data:{action:"create_customer",first_name:"Denied",last_name:"SpoofedHost",request_key:"forged-forwarded-host-test"}});
+ expect(response.status()).toBe(403);
+});
