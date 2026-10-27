@@ -2,7 +2,6 @@ import {NextResponse} from "next/server";
 import {cookies} from "next/headers";
 import {runtimeTenant} from "@/lib/business-software/runtime";
 import {centralRest} from "@/lib/business-software/db";
-import crypto from "crypto";
 
 export const dynamic="force-dynamic";
 const url="https://iepqggrfenfqrqyzqyed.supabase.co";
@@ -123,16 +122,8 @@ export async function POST(req:Request){
    const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1");
    if(!latestQuote.ok)throw Error("Unable to verify latest quotation");
    const quote=(await json(latestQuote))?.[0];if(!quote)return response("Create a quotation before drafting an invoice",409);
-   const total=Math.round((Number(quote.amount)*(1+Number(quote.vat_rate||0)/100)+Number.EPSILON)*100)/100;
-   if(!Number.isFinite(total)||total<=0||total>10000000)return response("Latest quotation total is invalid",409);
-   const invoiceNumber="FLI-"+crypto.createHash("sha256").update(tenant+":"+keyValue).digest("hex").slice(0,16).toUpperCase();
-   const existing=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&invoice_number=eq."+invoiceNumber+"&select=id,invoice_number&limit=1");
-   const previous=(await json(existing))?.[0];
-   if(previous)result=previous;
-   else{
-    const saved=await centralRest("business_software_invoices",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,job_id:job,provider:"internal",invoice_number:invoiceNumber,status:"draft",total,amount_due:total,amount_paid:0,currency_code:"GBP",created_by:"Demo manager"})});
-    if(!saved.ok)throw Error("Draft invoice creation failed");result=(await json(saved))?.[0];
-   }
+   result=await rpc("bms_create_internal_draft_invoice_once",{p_tenant:tenant,p_job:job,p_quote:String(quote.id),p_key:"quote:"+String(quote.id),p_invoice_prefix:"FLI"});
+
   }else return response("Unsupported demo action",400);
   return NextResponse.json({ok:true,action,result,fictional:true,tenant:"flooring-showcase-demo",accounting_provider_connected:false},{headers:{"Cache-Control":"no-store"}});
  }catch(e){return response(e instanceof Error?e.message:"Demo action failed",409)}
