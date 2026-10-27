@@ -10,6 +10,8 @@ BEGIN
  OR p_key !~ '^[a-zA-Z0-9:_-]{8,150}$'
  OR p_invoice_prefix IS NULL OR p_invoice_prefix !~ '^[A-Za-z0-9-]{2,12}$'
  THEN RAISE EXCEPTION 'Invalid internal draft invoice request'; END IF;
+ PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant::text||':'||p_job::text,90211));
+ IF p_quote IS DISTINCT FROM (SELECT id FROM public.business_software_quotes WHERE tenant_id=p_tenant AND job_id=p_job ORDER BY version DESC LIMIT 1) THEN RAISE EXCEPTION 'Only latest approved quotation can be converted'; END IF;
  SELECT * INTO q FROM public.business_software_quotes WHERE id=p_quote AND tenant_id=p_tenant AND job_id=p_job;
  IF NOT FOUND THEN RAISE EXCEPTION 'Quotation outside tenant or job'; END IF;
  IF q.status<>'approved' THEN RAISE EXCEPTION 'Quotation approval required before invoicing'; END IF;
