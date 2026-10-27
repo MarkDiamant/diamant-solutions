@@ -52,3 +52,9 @@ Baseline: commit `1501effb`. Current evidence snapshot: baseline `1f741ea5` plus
 - **6/6 public Playwright tests passed** in real headless Chromium against production on 27 October 2026. This separately measures public rendering, mobile responsive layout, catalogue privacy, keyboard navigation and denied unauthenticated writes. It is not one of the 20 full-requirement gates.
 - **3/3 routes free of hydration errors** after the shared header nested-anchor fix: root, Flooring Demo operations and BMS runtime. Earlier React #418 errors were reproduced and then resolved in production.
 - **Authenticated E2E: 0/20 accepted.** A dedicated demo-only Supabase Auth manager identity, protected CI credentials and execution of the opt-in write/reset browser suite are still missing. Do not substitute public browser smoke for authenticated permission/persistence acceptance.
+
+## Expanded executed browser smoke (latest 27 October run)
+
+- **8/8 public Playwright tests passed** in a real Chromium runner against production. New checks cover exact reset confirmation, and safe Worker Portal/Labour Costing fallback without false save claims.
+- Public browser investigation uncovered real React crashes in demo worker/labour routes (undefined entries.filter and noniterable budgets). Shared-master commits f4a6715a, e4034187, 016d2383 and eef8c9b6 normalised or rejected incomplete demo API payloads. Re-tested both routes: HTTP 200, expected headings and clear unavailable messages, no uncaught browser errors or horizontal overflow.
+- **Authenticated E2E remains 0/20** until a dedicated active demo manager account and protected credentials permit real write/persistence/reset acceptance. Do not count public tests as authenticated.
