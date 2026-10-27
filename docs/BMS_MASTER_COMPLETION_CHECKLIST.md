@@ -20,7 +20,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Ruby document interpretation and confirmed actions | Open for end-to-end verification | Test each document type, confirmation, permissions, idempotency |
 | Worker Portal, scheduling, timesheets and labour billing | Open for end-to-end verification | Role matrix and invoice evidence pending |
 | QuickBooks integration | Open for authorised integration verification | Credentials/consent required for live provider link |
-| Xero, Money Overview and matching | Open for reconciliation verification | MJ010 historical anomalies untouched |
+| Xero, Money Overview and matching | Rate-limit defect mitigated in code; reconciliation acceptance open | Jobs GET no longer triggers repeated Xero sync; explicit POST sync button corrected; MJ010 historical anomalies untouched |
 | Quote versions, lead times and PDF output | Atomic versioning implemented and database-tested; PDF/browser QA open | Shared idempotent quote revision RPC, version lock, cross-tenant rejection; visual PDF, exports and authenticated QA pending |
 | Tenant isolation and financial safety | Partial database verification | Multi-tenant rollback SQL; authenticated role matrix pending |
 | Full desktop/tablet/mobile usability | Open | Authenticated screenshot and interaction QA needed |
@@ -91,3 +91,6 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `30503790`: applied shared tenant-scoped internal draft invoice RPC migration. Invoice gross is derived from a persisted quotation and VAT, not client form totals; unique request keys prevent duplicate drafts. Existing live invoices unchanged.
 - `4cb2049b`, `69e70162`: fictional demo invoice button now uses the latest saved quote and a deterministic quote-specific request key. `fdbe9856` rollback tests passed for £888 net + 20% VAT = £1,065.60, retry deduplication and cross-tenant rejection. RPC is service-role-only.
 - `ef13f9ff`: full fictional enquiry-to-invoice rollback test now exercises both atomic quotation and invoice RPCs; passed. Transactional reset test also passed after invoice migration.
+
+- Production Vercel runtime error clusters showed repeated Xero 429 throttling and 504/authorisation errors, including hundreds of invoice-refresh errors and over 1,000 bank-sync errors during 26 October. `cf63095b`: removed automatic Xero provider calls from the read-only jobs GET route; cached local financial snapshots remain, and explicit reconciliation remains available.
+- `d519350c`: corrected integrations Xero sync button to issue POST, matching the permission-checked mutation endpoint. **Not yet authenticated browser-tested;** provider 429 recovery and financial matching still require controlled acceptance. No historical payment records changed.
