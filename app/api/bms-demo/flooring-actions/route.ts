@@ -78,6 +78,23 @@ export async function GET(req:Request){
    payment_reconciled:x.provider!=="internal"||Math.abs(allocations.filter((a:any)=>a.invoice_id===x.id).reduce((sum:number,a:any)=>sum+Number(a.amount||0),0)-Number(x.amount_paid||0))<0.011,
    overdue:!!x.due_date&&x.due_date<new Date().toISOString().slice(0,10)&&["issued","part_paid"].includes(String(x.status).toLowerCase())&&Number(x.amount_due)>0,
   }));
+  if(params.get("format")==="pdf"){
+   const kind=params.get("kind"),documentId=params.get("id")||"";
+   if(!["quote","invoice"].includes(String(kind))||!uuid.test(documentId))return response("Valid financial document required",400);
+   const selected=kind==="quote"?quotes.find((x:any)=>x.id===documentId):invoiceRows.find((x:any)=>x.id===documentId&&x.provider==="internal");
+   if(!selected)return response("Financial document not found in the selected fictional job",404);
+   const quote=kind==="quote"?selected:quotes.find((x:any)=>x.id===selected.source_quote_id);
+   const net=quote?Number(quote.amount):null;
+   const vat=quote?quoteTotals(quote.amount,quote.vat_rate):null;
+   const total=kind==="invoice"?Number(selected.total):vat?.gross;
+   if(!Number.isFinite(total)||total<0)return response("Invalid financial amount",409);
+   const ref=kind==="invoice"?String(selected.invoice_number):"FLOOR-"+String(selected.version)+"-"+documentId.slice(0,8);
+   // eslint-disable-next-line @typescript-eslint/no-require-imports
+   const {pdfDocument}=require("@/business-software-core/lib/financial-pdf.cjs");
+   const rows=[kind==="quote"?String(quote?.scope_text||"Flooring works quotation"):"Flooring services per approved quotation",...(net===null?[]:["Net: GBP "+net.toFixed(2),"VAT ("+Number(quote.vat_rate)+"%): GBP "+(vat?.vat||0).toFixed(2)]),"Total: GBP "+Number(total).toFixed(2),...(kind==="invoice"?["Paid: GBP "+Number(selected.amount_paid||0).toFixed(2),"Credited: GBP "+Number(selected.amount_credited||0).toFixed(2),"Outstanding: GBP "+Number(selected.amount_due||0).toFixed(2),"Due: "+String(selected.due_date||"Not issued")]:["Lead time: "+String(quote?.lead_time||"Not specified")])];
+   const pdf=pdfDocument({title:kind==="quote"?"Quotation":"Invoice",issuer:"Oak & Stone Flooring Demo",brandColor:"#263c54",reference:ref,recipient:"Fictional Flooring customer",items:rows,footer:"Fictional demonstration document. Not valid for commercial use."});
+   return new Response(new Uint8Array(pdf),{headers:{"Content-Type":"application/pdf","Content-Disposition":"attachment; filename="+JSON.stringify(ref.replace(/[^a-zA-Z0-9._-]/g,"_")+".pdf"),"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"}});
+  }
   if(params.get("format")==="print"){
    const invoiceId=params.get("invoice_id")||"";
    if(!uuid.test(invoiceId))return response("Valid invoice_id required",400);
