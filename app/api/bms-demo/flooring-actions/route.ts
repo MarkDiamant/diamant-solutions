@@ -67,6 +67,7 @@ export async function GET(req:Request){
    source_quote_valid:!!x.source_quote_id&&quoteIds.has(x.source_quote_id),
    external_sync: x.provider!=="internal",
    payment_allocation_total:allocations.filter((a:any)=>a.invoice_id===x.id).reduce((sum:number,a:any)=>sum+Number(a.amount||0),0),
+   payment_reconciled:x.provider!=="internal"||Math.abs(allocations.filter((a:any)=>a.invoice_id===x.id).reduce((sum:number,a:any)=>sum+Number(a.amount||0),0)-Number(x.amount_paid||0))<0.011,
    overdue:!!x.due_date&&x.due_date<new Date().toISOString().slice(0,10)&&["issued","part_paid"].includes(String(x.status).toLowerCase())&&Number(x.amount_due)>0,
   }));
   return NextResponse.json({
