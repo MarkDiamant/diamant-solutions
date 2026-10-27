@@ -1,4 +1,4 @@
-import type {ButtonHTMLAttributes,HTMLAttributes,ReactNode} from "react";
+import type {ButtonHTMLAttributes,HTMLAttributes,InputHTMLAttributes,SelectHTMLAttributes,TextareaHTMLAttributes,ReactNode} from "react";
 type Props=HTMLAttributes<HTMLElement>&{children:ReactNode};
 export function BmsCard({children,className="",...rest}:Props){return <section {...rest} className={["bms-card",className].filter(Boolean).join(" ")}>{children}</section>}
 export function BmsPageTitle({children,className="",...rest}:Props){return <h1 {...rest} className={["bms-page-title",className].filter(Boolean).join(" ")}>{children}</h1>}
@@ -6,3 +6,12 @@ export function BmsSectionTitle({children,className="",...rest}:Props){return <h
 export function BmsButton({children,className="",variant="primary",type="button",...rest}:ButtonHTMLAttributes<HTMLButtonElement>&{variant?:"primary"|"secondary"|"danger"}){return <button {...rest} type={type} className={[(variant==="primary"?"bms-primary-button":variant==="danger"?"bms-danger-button":"bms-secondary-button"),className].filter(Boolean).join(" ")}>{children}</button>}
 export function BmsState({children,kind="empty",className="",...rest}:HTMLAttributes<HTMLDivElement>&{kind?:"empty"|"error"|"success"|"loading"}){return <div {...rest} role={kind==="error"?"alert":"status"} className={[(kind==="empty"?"bms-empty-state":"bms-state-"+kind),className].filter(Boolean).join(" ")}>{children}</div>}
 export function BmsTable({children,className="",...rest}:HTMLAttributes<HTMLTableElement>){return <div className="bms-table-scroll"><table {...rest} className={["bms-table",className].filter(Boolean).join(" ")}>{children}</table></div>}
+
+export function BmsPage({children,className="",...rest}:Props){return <main {...rest} className={["bms-page",className].filter(Boolean).join(" ")}>{children}</main>}
+export function BmsPageHeader({children,className="",...rest}:Props){return <header {...rest} className={["bms-page-header",className].filter(Boolean).join(" ")}>{children}</header>}
+export function BmsField({children,className="",...rest}:HTMLAttributes<HTMLLabelElement>&{children:ReactNode}){return <label {...rest} className={["bms-field-label",className].filter(Boolean).join(" ")}>{children}</label>}
+export function BmsInput(props:React.InputHTMLAttributes<HTMLInputElement>){return <input {...props} className={["bms-input",props.className].filter(Boolean).join(" ")}/>}
+export function BmsSelect(props:React.SelectHTMLAttributes<HTMLSelectElement>){return <select {...props} className={["bms-select",props.className].filter(Boolean).join(" ")}/>}
+export function BmsTextarea(props:React.TextareaHTMLAttributes<HTMLTextAreaElement>){return <textarea {...props} className={["bms-textarea",props.className].filter(Boolean).join(" ")}/>}
+export function BmsBadge({children,tone="neutral",className="",...rest}:HTMLAttributes<HTMLSpanElement>&{tone?:"neutral"|"success"|"warning"|"error"|"accent"}){return <span {...rest} className={["bms-badge","bms-badge-"+tone,className].filter(Boolean).join(" ")}>{children}</span>}
+export function BmsModal({children,title,onClose,className=""}:{children:ReactNode;title:string;onClose:()=>void;className?:string}){return <div className="bms-modal-backdrop" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}><section role="dialog" aria-modal="true" aria-label={title} className={["bms-modal",className].filter(Boolean).join(" ")}><header className="bms-modal-header"><h2 className="bms-section-title">{title}</h2><button type="button" className="bms-secondary-button" aria-label="Close dialog" onClick={onClose}>Close</button></header>{children}</section></div>}
