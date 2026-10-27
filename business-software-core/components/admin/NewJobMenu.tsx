@@ -2,7 +2,7 @@
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect,useRef,useState} from "react";
-export default function NewJobMenu({accent="#e66a24",className="",basePath}:{accent?:string;className?:string;basePath?:string}){
+export default function NewJobMenu({accent="var(--bms-accent)",className="",basePath}:{accent?:string;className?:string;basePath?:string}){
  const [open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null),pathname=usePathname();
  const prefix=basePath??(pathname.startsWith("/bms-runtime")?"/bms-runtime":pathname.startsWith("/admin")?"/admin":"/bms-runtime");
  useEffect(()=>{if(!open)return;const close=(e:PointerEvent)=>{if(root.current&&!root.current.contains(e.target as Node))setOpen(false)};const key=(e:KeyboardEvent)=>{if(e.key==="Escape")setOpen(false)};document.addEventListener("pointerdown",close);document.addEventListener("keydown",key);return()=>{document.removeEventListener("pointerdown",close);document.removeEventListener("keydown",key)}},[open]);
