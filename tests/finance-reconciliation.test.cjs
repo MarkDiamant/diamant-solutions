@@ -5,3 +5,5 @@ test('rejects cross-job quotation',()=>assert.throws(()=>reconcile([],[{total:10
 test('rejects invalid financial numbers',()=>assert.throws(()=>reconcile([],[{total:'NaN',amount_paid:0,amount_due:0}])));
 test('calculates VAT from integer pence',()=>assert.deepEqual(quoteTotals(99.99,20),{net:99.99,vat:20,gross:119.99}));
 test('rejects invalid VAT rate',()=>assert.throws(()=>quoteTotals(100,200)));
+test('rejects sub-penny invoice amounts',()=>assert.throws(()=>reconcile([],[{total:1.005,amount_paid:0,amount_due:1.005}])));
+test('rejects VAT precision beyond two decimals',()=>assert.throws(()=>quoteTotals(100,20.123)));
