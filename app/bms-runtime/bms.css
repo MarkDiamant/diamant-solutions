@@ -38,9 +38,9 @@
 /* Consistent visible feedback for the primary BMS navigation. */
 @media (hover:hover) and (pointer:fine){
  .bms-shell header nav a[href]{transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease,filter .16s ease;transform-origin:center}
- .bms-shell header nav a[href]:hover{transform:translateY(-2px) scale(1.045);background-color:rgba(230,106,36,.12)!important;box-shadow:0 4px 12px rgba(0,0,0,.12);filter:brightness(1.03)}
+ .bms-shell header nav a[href]:hover{transform:translateY(-2px) scale(1.045);background-color:var(--bms-accent-soft)!important;box-shadow:0 4px 12px rgba(0,0,0,.12);filter:brightness(1.03)}
 }
-.bms-shell header nav a[href]:focus-visible{outline:2px solid #e66a24;outline-offset:2px}
+.bms-shell header nav a[href]:focus-visible{outline:2px solid var(--bms-accent);outline-offset:2px}
 
 /* Keep selected navigation labels legible when hovered. */
 @media (hover:hover) and (pointer:fine){.bms-shell header nav a[href]:hover,.bms-shell header nav a[href]:hover *{color:#111!important}}
@@ -53,8 +53,8 @@
 .bms-shell .bms-money-tiles>button:nth-child(4n+2){background:#eaf7ef}
 .bms-shell .bms-money-tiles>button:nth-child(4n+3){background:#f0f1fc}
 .bms-shell .bms-money-tiles>button:nth-child(4n+4){background:#fff3e7}
-.bms-shell .bms-money-tiles>button:hover{border-color:var(--brand,#df6a26);box-shadow:0 2px 9px rgba(0,0,0,.08)}
-.bms-shell .bms-money-tiles>button[aria-pressed="true"]{border:2px solid var(--brand,#df6a26);box-shadow:0 0 0 1px rgba(0,0,0,.04)}
+.bms-shell .bms-money-tiles>button:hover{border-color:var(--bms-accent);box-shadow:0 2px 9px rgba(0,0,0,.08)}
+.bms-shell .bms-money-tiles>button[aria-pressed="true"]{border:2px solid var(--bms-accent);box-shadow:0 0 0 1px rgba(0,0,0,.04)}
 .bms-shell .bms-money-tiles>button>p:first-child{font-size:10px!important;line-height:1.3!important;font-weight:700!important;letter-spacing:.065em!important;text-transform:uppercase!important;color:#657085!important;margin:0!important}
 .bms-shell .bms-money-tiles>button>p:nth-child(2){font-size:19px!important;line-height:1.25!important;font-weight:800!important;margin:0!important;letter-spacing:0!important}
 .bms-shell .bms-money-tiles>button>p:nth-child(n+3){font-size:10px!important;line-height:1.35!important;font-weight:500!important;color:#667085!important;margin:0!important}
@@ -406,3 +406,12 @@
  .bms-shell :is(main,.bms-main) :is(input,select,textarea){max-width:100%;min-width:0}
  .bms-shell :is(main,.bms-main) :is(table){font-size:clamp(.75rem,2.6vw,.9rem)}
 }
+
+/* Page headers are content sections, never sticky application chrome. */
+.bms-shell .bms-page-header{position:static!important;top:auto!important;z-index:auto!important;box-shadow:none}
+/* Standardize the migrated shared cards and form controls across all tenants. */
+.bms-shell .bms-page>.bms-card,.bms-shell .bms-page>.bms-page-header.bms-card{min-width:0}
+.bms-shell .bms-page .bms-card :is(.bms-input,.bms-select,.bms-textarea){font-size:16px}
+.bms-shell .bms-page :is(.bms-primary-button,.bms-secondary-button,.bms-danger-button){max-width:100%;touch-action:manipulation}
+.bms-shell .bms-page .bms-table :is(th,td){white-space:normal;overflow-wrap:anywhere}
+@media(max-width:600px){.bms-shell .bms-page .bms-card{min-width:0}.bms-shell .bms-page .bms-table-scroll{width:100%;overflow-x:auto}.bms-shell .bms-page .bms-card :is(button,select,input,textarea){min-width:0}}
