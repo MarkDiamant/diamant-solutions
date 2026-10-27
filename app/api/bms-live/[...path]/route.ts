@@ -479,7 +479,7 @@ if(parts[0]==="jobs"&&parts[2]==="invoice-share"){if(!canBms(member,"view_paymen
  }
  const gmail=await googleAccessToken(tenantId);
  if(!gmail.token)return NextResponse.json({error:gmail.account?"Gmail is linked to "+gmail.account+", but Google authorisation has expired. Please reconnect Gmail in Integrations, then try again.":"Connect Gmail in Integrations to email invoices."},{status:409});
- const businessName=String(raw?.settings?.businessName||tenant.business_name||"M&J Metal");
+ const businessName=String(raw?.settings?.businessName||tenant.business_name||"Business");
  const number=String(result.invoice.invoice_number||parts[1]);
  const subject=String(data.subject||businessName+" invoice "+number).slice(0,220);
  const firstName=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
