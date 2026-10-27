@@ -188,9 +188,11 @@ export async function POST(req:Request){
    }
   }else if(action==="create_draft_invoice"){
    const job=String(d.job_id||"");await owned("business_software_jobs",tenant,job);
-   const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1");
+   const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1",{cache:"no-store"});
    if(!latestQuote.ok)throw Error("Unable to verify latest quotation");
    const quote=(await json(latestQuote))?.[0];if(!quote)return response("Create a quotation before drafting an invoice",409);
+   if(quote.status!=="approved")return response("Approve the latest quotation before converting it to an invoice",409);
+   quoteTotals(quote.amount,quote.vat_rate);
    const settings=await centralRest("business_software_tenant_settings?tenant_id=eq."+tenant+"&select=invoice_prefix&limit=1");if(!settings.ok)throw Error("Unable to load tenant invoice numbering settings");const invoicePrefix=String((await json(settings))?.[0]?.invoice_prefix||"INV").trim();if(!/^[A-Za-z0-9-]{2,12}$/.test(invoicePrefix))throw Error("Invalid tenant invoice prefix");
    result=await rpc("bms_create_internal_draft_invoice_once",{p_tenant:tenant,p_job:job,p_quote:String(quote.id),p_key:"quote:"+String(quote.id),p_invoice_prefix:invoicePrefix});
 
