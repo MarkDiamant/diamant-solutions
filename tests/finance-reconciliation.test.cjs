@@ -7,3 +7,5 @@ test('calculates VAT from integer pence',()=>assert.deepEqual(quoteTotals(99.99,
 test('rejects invalid VAT rate',()=>assert.throws(()=>quoteTotals(100,200)));
 test('rejects sub-penny invoice amounts',()=>assert.throws(()=>reconcile([],[{total:1.005,amount_paid:0,amount_due:1.005}])));
 test('rejects VAT precision beyond two decimals',()=>assert.throws(()=>quoteTotals(100,20.123)));
+test('voided invoices do not inflate receivables',()=>{const x=reconcile([],[{status:'void',total:144,amount_paid:0,amount_due:0}]);assert.equal(x.invoiced_total,0);assert.equal(x.outstanding_total,0);});
+test('voided invoices with paid balance are rejected',()=>assert.throws(()=>reconcile([],[{status:'void',total:144,amount_paid:1,amount_due:0}])));
