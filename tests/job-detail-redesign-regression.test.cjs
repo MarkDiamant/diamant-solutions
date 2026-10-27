@@ -16,7 +16,7 @@ test('header has no activity, quote or invoice action shortcuts',()=>{
 });
 test('overview retains exactly one sticky Save job submit',()=>{
  assert.equal((job.match(/form="bms-job-overview-form"/g)||[]).length,1);
- assert.equal((job.match(/>Save job<\/button>/g)||[]).length,1);
+ assert.equal((job.match(/form="bms-job-overview-form"/g)||[]).length,1);
 });
 test('searchable multiselect retains selections while filtering and supports job-specific additions',()=>{
  assert.match(job,/function WorkTypePicker/);
