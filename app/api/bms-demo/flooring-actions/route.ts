@@ -56,20 +56,22 @@ export async function GET(req:Request){
   await owned("business_software_jobs",tenant,job);
   const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
   const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,source_quote_id,invoice_date,due_date,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
-  if(!q.ok||!i.ok)throw Error("Unable to read fictional quote and invoice ledger");
-  const quotes=await json(q),invoices=await json(i);
-  if(!Array.isArray(quotes)||!Array.isArray(invoices))throw Error("Invalid fictional accounting ledger");
+  const a=await centralRest("business_software_invoice_payment_allocations?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=invoice_id,payment_id,amount,created_at&order=created_at.desc&limit=500",{cache:"no-store"});
+  if(!q.ok||!i.ok||!a.ok)throw Error("Unable to read fictional quote, invoice and payment ledger");
+  const quotes=await json(q),invoices=await json(i),allocations=await json(a);
+  if(!Array.isArray(quotes)||!Array.isArray(invoices)||!Array.isArray(allocations))throw Error("Invalid fictional accounting ledger");
   const balances=reconcile(quotes,invoices);
   const quoteIds=new Set(quotes.map((x:any)=>x.id));
   const invoiceRows=invoices.map((x:any)=>({
    ...x,
    source_quote_valid:!!x.source_quote_id&&quoteIds.has(x.source_quote_id),
    external_sync: x.provider!=="internal",
+   payment_allocation_total:allocations.filter((a:any)=>a.invoice_id===x.id).reduce((sum:number,a:any)=>sum+Number(a.amount||0),0),
    overdue:!!x.due_date&&x.due_date<new Date().toISOString().slice(0,10)&&["issued","part_paid"].includes(String(x.status).toLowerCase())&&Number(x.amount_due)>0,
   }));
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
-   quotes,invoices:invoiceRows,
+   quotes,invoices:invoiceRows,allocations,
    unlinked_invoice_count:invoiceRows.filter((x:any)=>!x.source_quote_valid).length,
    summary:{
     latest_quote_net:quotes.length?Number(quotes[0].amount||0):null,
