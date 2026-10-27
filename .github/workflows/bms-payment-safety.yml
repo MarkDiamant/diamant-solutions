@@ -17,13 +17,14 @@ on:
       - 'app/bms-runtime/jobs/**/subcontractors/**'
       - 'supabase/migrations/**'
       - 'tests/subcontractor-payment-guards.test.cjs'
+      - 'business-software-core/lib/safe-csv.ts'
       - '.github/workflows/bms-payment-safety.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   payment-safety:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
