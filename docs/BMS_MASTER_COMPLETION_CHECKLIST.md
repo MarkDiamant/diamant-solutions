@@ -109,3 +109,6 @@ Status is requirement-based, not based on commit counts or estimated percentages
 
 - `e6f18659`: shared BMS modal now supports Escape dismissal and initial keyboard focus; focus containment, restoration and authenticated browser QA remain open.
 - Vercel alias inspection confirmed `bms.diamantsolutions.co.uk` and other configured domains were attached to a subsequent READY production deployment. This is deployment routing evidence only, not an authenticated page render or functional acceptance.
+
+- `a5e0890d`: shared product autocomplete field with Escape-to-dismiss and expanded-state accessibility. `b8c4d20b` and `2349b5ad`: tenant-colour purchasing controls, mobile form sizes and touch targets. No authenticated mobile screenshot acceptance yet.
+- Vercel build inspection: historical ERROR commits `56e5d3ce` and `404a6e2a` have later successful builds; latest production runtime error-level log query over 30 minutes returned none. This is **not** a complete browser or integration test.
