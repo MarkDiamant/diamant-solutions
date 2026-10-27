@@ -36,6 +36,15 @@ test("anonymous mutations rejected",async({request})=>{
  const r=await request.post("/api/bms-demo/flooring-actions",{data:{action:"reset_demo",confirm_phrase:"RESET OAK AND STONE DEMO",request_key:"test-anonymous-reject-001"}});
  expect(r.status()).toBe(403);
 });
+test("fictional cookie-write endpoint rejects missing and cross-site Origin before authentication",async({request})=>{
+ const payload={action:"__non_mutating_auth_probe__",request_key:"origin-test-fictitious-001"};
+ const missing=await request.post("/api/bms-demo/flooring-actions",{data:payload});
+ expect(missing.status()).toBe(403);
+ expect((await missing.json()).error).toMatch(/origin required/i);
+ const foreign=await request.post("/api/bms-demo/flooring-actions",{headers:{Origin:"https://attacker.invalid"},data:payload});
+ expect(foreign.status()).toBe(403);
+ expect((await foreign.json()).error).toMatch(/Cross-site demo mutations are blocked/);
+});
 test("public Flooring Demo renders responsive read-only workflow without a session",async({page})=>{
  const hydrationErrors:string[]=[];page.on("pageerror",e=>{if(/hydration|React error #418/i.test(e.message))hydrationErrors.push(e.message)});
  for(const width of [320,390,768,1280]){
