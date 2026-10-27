@@ -42,7 +42,7 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
   const r=await page.goto("/flooring/operations");
   expect(r?.status()).toBe(200);
   await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
-  await expect(page.getByText("24 packs",{exact:false}).first()).toBeVisible();
+  await expect(page.getByText(/24 pack/i).first()).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
  }
 });
