@@ -99,3 +99,13 @@ test("mobile quick actions scroll with navigation, desktop collapse remains avai
  assert.match(menu,/className="bms-new-job-chevron"/);
  assert.doesNotMatch(menu,/>⌄<\/span>/);
 });
+
+test("demo banners reserve space above shared sidebar and preserve mobile controls",()=>{
+ const selector=fs.readFileSync("components/DemoSelector.tsx","utf8");
+ assert.match(selector,/bms-demo-selector/);
+ assert.match(css,/--bms-demo-chrome-height/);
+ assert.match(css,/top:calc\(var\(--bms-demo-chrome-height\) \+ var\(--bms-header-height\)\)!important/);
+ assert.match(css,/max-height:calc\(100dvh - var\(--bms-demo-chrome-height\) - var\(--bms-header-height\)\)!important/);
+ assert.match(css,/\.bms-app-header\{top:var\(--bms-demo-chrome-height\)!important/);
+ assert.match(css,/\.bms-sidebar-backdrop\{top:calc/);
+});
