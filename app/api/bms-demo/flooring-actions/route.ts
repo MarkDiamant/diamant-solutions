@@ -87,9 +87,11 @@ export async function POST(req:Request){
    const jobRow=job?await owned("business_software_jobs",tenant,job,"id,customer_id"):null;
    const qty=num(d.quantity);if(!Number.isFinite(qty))return response("Invalid quantity",400);
    if(action==="create_sales_order"){
+    const areaValue=d.area_m2==null?null:num(d.area_m2),wastage=Number(d.wastage_percent??10);
+    if((areaValue!==null&&!Number.isFinite(areaValue))||!Number.isFinite(wastage)||wastage<0||wastage>100)return response("Invalid flooring area or wastage percentage",400);
     const customer=String(d.customer_id||"");await owned("business_software_customers",tenant,customer);
     if(jobRow&&jobRow.customer_id!==customer)return response("Sales order customer must match selected job",400);
-    result=await rpc("bms_create_sales_order_once",{p_tenant:tenant,p_customer:customer,p_job:job||null,p_lines:[{product_id:product,quantity:qty,...(d.area_m2!=null?{area_m2:num(d.area_m2),wastage_percent:Number(d.wastage_percent??10)}:{})}],p_reference:String(d.reference||"DEMO-"+keyValue).slice(0,100),p_key:keyValue});
+    result=await rpc("bms_create_sales_order_once",{p_tenant:tenant,p_customer:customer,p_job:job||null,p_lines:[{product_id:product,quantity:qty,...(d.area_m2!=null?{area_m2:areaValue,wastage_percent:wastage}:{})}],p_reference:String(d.reference||"DEMO-"+keyValue).slice(0,100),p_key:keyValue});
    }else{
     const supplier=String(d.supplier_id||"");await owned("business_software_suppliers",tenant,supplier);
     const cost=amount(d.unit_cost_net);if(!Number.isFinite(cost))return response("Invalid unit cost",400);
