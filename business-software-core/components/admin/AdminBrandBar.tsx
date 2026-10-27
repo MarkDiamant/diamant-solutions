@@ -76,9 +76,12 @@ export default function AdminBrandBar(){
   const shell=document.querySelector<HTMLElement>(".bms-shell");
   if(!shell)return;
   const safe=/^#[0-9a-fA-F]{6}$/.test(brand)?brand:"#365b85";
+  const rgb=[1,3,5].map(i=>parseInt(safe.slice(i,i+2),16)/255);
+  const luminance=rgb.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
+  shell.style.setProperty("--bms-on-accent",luminance>.179?"#101828":"#ffffff");
   shell.style.setProperty("--bms-accent",safe);
   shell.style.setProperty("--nav-accent",safe);
-  return()=>{shell.style.removeProperty("--bms-accent");shell.style.removeProperty("--nav-accent")};
+  return()=>{shell.style.removeProperty("--bms-on-accent");shell.style.removeProperty("--bms-accent");shell.style.removeProperty("--nav-accent")};
  },[brand]);
  if(local==="/login")return null;
 
