@@ -44,6 +44,35 @@ async function rpc(name:string,body:Record<string,unknown>){
  if(!r.ok)throw Error(String(data?.message||"Operation rejected").slice(0,200));
  return data;
 }
+/** Read-only fictional quote-to-invoice audit. Never queries another tenant. */
+export async function GET(req:Request){
+ try{
+  const tenant=await demoTenant();
+  if(!await memberAllowed(tenant))return response("Authenticated BMS manager required for fictional demo",403);
+  const job=new URL(req.url).searchParams.get("job_id")||"";
+  if(!uuid.test(job))return response("Valid fictional job_id required",400);
+  await owned("business_software_jobs",tenant,job);
+  const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
+  const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,source_quote_id,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
+  if(!q.ok||!i.ok)throw Error("Unable to read fictional quote and invoice ledger");
+  const quotes=await json(q),invoices=await json(i);
+  if(!Array.isArray(quotes)||!Array.isArray(invoices))throw Error("Invalid fictional accounting ledger");
+  const quoteIds=new Set(quotes.map((x:any)=>x.id));
+  const invoiceRows=invoices.map((x:any)=>({
+   ...x,
+   source_quote_valid:!!x.source_quote_id&&quoteIds.has(x.source_quote_id),
+   external_sync: x.provider!=="internal",
+  }));
+  return NextResponse.json({
+   fictional:true,tenant:"flooring-showcase-demo",job_id:job,
+   quotes,invoices:invoiceRows,
+   unlinked_invoice_count:invoiceRows.filter((x:any)=>!x.source_quote_valid).length,
+   accounting_provider_connected:false,
+   external_sync_permitted:false
+  },{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
+ }catch(e){return response(e instanceof Error?e.message:"Unable to inspect fictional accounting",409)}
+}
+
 export async function POST(req:Request){
  try{
   // Cookie-authenticated mutations must originate from this application.
