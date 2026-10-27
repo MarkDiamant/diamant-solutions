@@ -58,3 +58,5 @@ test("failed full job load preserves core job and exposes retry rather than infi
 test("mobile save dock has bottom clearance and work type selections do not overflow",()=>{assert.match(job,/pb-28 pt-5 sm:px-5 sm:pb-32/);assert.match(job,/fixed bottom-3 left-3 right-3/);assert.match(job,/min-w-0 truncate/);});
 
 test("activity form prevents duplicate saves and indicates pending state",()=>{assert.match(job,/if\(submitting\)return/);assert.match(job,/finally\{setSubmitting\(false\);\}/);assert.match(job,/disabled=\{submitting\}>\{submitting\?"Saving activity\.\.\.":"Log activity"\}/);});
+
+test('Open Quote and Open Invoice use identical pill button styles',()=>{const invoice=job.match(/<a className="([^"]+)" href=\{inv.provider/);const quote=job.match(/<a href=\{\x60\/admin\/jobs\/\$\{reference\}\/quote\/\$\{q.id\}\x60\} target="_blank"[^>]*className="([^"]+)"/);assert.ok(invoice,'invoice action');assert.ok(quote,'quote action');assert.equal(invoice[1],quote[1]);assert.match(invoice[1],/rounded-full/);assert.match(invoice[1],/underline/);});
