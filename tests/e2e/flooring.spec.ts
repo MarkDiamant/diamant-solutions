@@ -12,6 +12,17 @@ test("public fictional catalogue and coverage data",async({request})=>{
  expect(d.products.some((p:any)=>Number(p.units_per_pack)>0)).toBe(true);
  expect(d.customers.length).toBeGreaterThan(0);
 });
+test("public website catalogue excludes customer prices, supplier costs and private records",async({request})=>{
+ const r=await request.get("/api/bms-demo/catalogue");
+ expect(r.status()).toBe(200);
+ const d=await r.json();
+ expect(d.fictional).toBe(true);
+ expect(d.schema_version).toBe(1);
+ expect(d.products.length).toBe(4);
+ expect(d.products.every((p:any)=>p.sku&&p.name&&Number(p.coverage_m2)>0&&Number(p.list_price_net)>0)).toBe(true);
+ const raw=JSON.stringify(d);
+ for(const privateKey of ["customer_prices","cost_net","customer_id","supplier_id","auth_user_id","email","phone"])expect(raw).not.toContain('"'+privateKey+'"');
+});
 test("anonymous mutations rejected",async({request})=>{
  const r=await request.post("/api/bms-demo/flooring-actions",{data:{action:"reset_demo",confirm_phrase:"RESET OAK AND STONE DEMO",request_key:"test-anonymous-reject-001"}});
  expect(r.status()).toBe(403);
