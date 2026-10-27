@@ -1,16 +1,16 @@
 @import "tailwindcss";
 /* The public marketing site's unscoped header/nav/heading rules must not affect BMS. */
 .bms-shell{font-family:Arial,Helvetica,sans-serif;color:#171717;background:#f5f5f2;min-height:100vh;display:flex;flex-direction:column}.bms-shell>main,.bms-shell>.bms-main{flex:1 0 auto}.bms-shell>footer.bms-footer{margin-top:auto;flex-shrink:0}
-.bms-shell header{height:auto;min-height:0;display:block;padding:0;position:sticky;top:0;z-index:40;background:rgba(255,255,255,.95);border-bottom:1px solid #00000014}
-.bms-shell header nav{display:block;gap:0;font-size:inherit;font-weight:inherit;background:#fffaf6}
+.bms-shell > header.bms-app-header{height:auto;min-height:0;display:block;padding:0;position:sticky;top:0;z-index:40;background:rgba(255,255,255,.95);border-bottom:1px solid #00000014}
+.bms-shell > header.bms-app-header nav{display:block;gap:0;font-size:inherit;font-weight:inherit;background:#fffaf6}
 .bms-shell h2{font-size:inherit;letter-spacing:normal;line-height:normal}
-.bms-shell header img{max-height:44px;width:auto;max-width:130px;object-fit:contain}
+.bms-shell > header.bms-app-header img{max-height:44px;width:auto;max-width:130px;object-fit:contain}
 .bms-shell footer{height:auto;padding:8px 16px;display:block;position:static}
 .bms-shell footer img{max-height:24px;object-fit:contain}
 
 
 
-@media(min-width:640px){.bms-shell header nav a[data-ai-nav]{margin-left:auto;min-width:92px;display:flex;align-items:center;justify-content:center;gap:8px}}
+@media(min-width:640px){ .bms-shell > header.bms-app-header nav a[data-ai-nav]{margin-left:auto;min-width:92px;display:flex;align-items:center;justify-content:center;gap:8px}}
 
 /* Same compact badge treatment as the Edible Print DS credit. */
 .bms-shell .builtBy{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:max-content;max-width:100%;padding:0;border:0;background:none;box-shadow:none;text-decoration:none;font-size:11px;line-height:1.25;color:#64748b}
@@ -37,13 +37,13 @@
 
 /* Consistent visible feedback for the primary BMS navigation. */
 @media (hover:hover) and (pointer:fine){
- .bms-shell header nav a[href]{transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease,filter .16s ease;transform-origin:center}
- .bms-shell header nav a[href]:hover{transform:translateY(-2px) scale(1.045);background-color:var(--bms-accent-soft)!important;box-shadow:0 4px 12px rgba(0,0,0,.12);filter:brightness(1.03)}
+  .bms-shell > header.bms-app-header nav a[href]{transition:transform .16s ease,background-color .16s ease,box-shadow .16s ease,filter .16s ease;transform-origin:center}
+  .bms-shell > header.bms-app-header nav a[href]:hover{transform:translateY(-2px) scale(1.045);background-color:var(--bms-accent-soft)!important;box-shadow:0 4px 12px rgba(0,0,0,.12);filter:brightness(1.03)}
 }
-.bms-shell header nav a[href]:focus-visible{outline:2px solid var(--bms-accent);outline-offset:2px}
+ .bms-shell > header.bms-app-header nav a[href]:focus-visible{outline:2px solid var(--bms-accent);outline-offset:2px}
 
 /* Keep selected navigation labels legible when hovered. */
-@media (hover:hover) and (pointer:fine){.bms-shell header nav a[href]:hover,.bms-shell header nav a[href]:hover *{color:#111!important}}
+@media (hover:hover) and (pointer:fine){ .bms-shell > header.bms-app-header nav a[href]:hover, .bms-shell > header.bms-app-header nav a[href]:hover *{color:#111!important}}
 
 /* Quote action links must match the adjacent buttons, including hover and visited states. */
 .bms-shell .quote-action-bar :is(a,a:link,a:visited,a:hover,a:focus-visible,button){color:#fff!important;font-family:Arial,Helvetica,sans-serif!important;font-size:14px!important;font-weight:500!important;line-height:1!important;text-decoration:none!important}
@@ -75,7 +75,7 @@
 
 /* Keep every Money Overview KPI in the same two-column grid, including the demo. */
 .bms-shell .bms-money-tiles>button{grid-column:span 1 / span 1!important}
-@media(max-width:640px){.bms-shell header .builtByCompact .builtByLogo img{width:48px!important;max-width:48px!important;max-height:13px!important}.bms-shell header .builtByCompact .builtByPrefix{font-size:8px!important}.bms-shell header .builtByCompact .builtByLine{gap:3px}.bms-shell header a:has(.builtByCompact){min-width:0}.bms-shell header img{max-width:100px}}
+@media(max-width:640px){.bms-shell header .builtByCompact .builtByLogo img{width:48px!important;max-width:48px!important;max-height:13px!important}.bms-shell header .builtByCompact .builtByPrefix{font-size:8px!important}.bms-shell header .builtByCompact .builtByLine{gap:3px}.bms-shell header a:has(.builtByCompact){min-width:0}.bms-shell > header.bms-app-header img{max-width:100px}}
 
 
 /* Shared master BMS application navigation. */
@@ -415,3 +415,6 @@
 .bms-shell .bms-page :is(.bms-primary-button,.bms-secondary-button,.bms-danger-button){max-width:100%;touch-action:manipulation}
 .bms-shell .bms-page .bms-table :is(th,td){white-space:normal;overflow-wrap:anywhere}
 @media(max-width:600px){.bms-shell .bms-page .bms-card{min-width:0}.bms-shell .bms-page .bms-table-scroll{width:100%;overflow-x:auto}.bms-shell .bms-page .bms-card :is(button,select,input,textarea){min-width:0}}
+
+/* Modal and local content headers must not inherit application-header positioning. */
+.bms-shell .bms-modal-header{position:static!important;top:auto!important;z-index:auto!important;border-bottom:0;background:transparent;min-height:0}
