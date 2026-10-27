@@ -418,3 +418,9 @@
 
 /* Modal and local content headers must not inherit application-header positioning. */
 .bms-shell .bms-modal-header{position:static!important;top:auto!important;z-index:auto!important;border-bottom:0;background:transparent;min-height:0}
+
+/* Keep complete financial values visible on narrower laptop and tablet layouts. */
+.bms-shell .bms-money-tiles{min-width:0;max-width:100%}
+.bms-shell .bms-money-tiles>button{min-width:0;overflow-wrap:anywhere}
+.bms-shell .bms-money-tiles>button>p:nth-child(2){max-width:100%;min-width:0;overflow-wrap:anywhere;font-size:clamp(13px,1.35vw,19px)!important;font-variant-numeric:tabular-nums}
+@media(max-width:1100px){.bms-shell .bms-money-tiles>button>p:nth-child(2){font-size:16px!important}}
