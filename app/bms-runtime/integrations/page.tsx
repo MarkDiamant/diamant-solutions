@@ -46,7 +46,7 @@ export default function IntegrationsPage() {
 
   return (
     <BmsPage className="min-h-screen bg-[var(--bms-canvas)] px-5 py-8 text-[#141414]">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-start justify-between gap-4">
           <div><p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--bms-accent-ink)]">Connections</p><h1 className="mt-1 text-3xl font-black">Integrations</h1><p className="mt-2 text-sm text-black/55">Connect the services your business uses. Connections are authorised by the provider and can be disconnected here.</p></div>
           <a href="/admin" className="rounded-xl border border-black/15 bg-white px-4 py-2.5 text-sm font-bold">Back</a>
