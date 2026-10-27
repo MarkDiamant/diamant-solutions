@@ -48,3 +48,5 @@ Status is requirement-based, not based on commit counts or estimated percentages
 
 - `83e381af` and `7b350306`: connected customer-specific price records and displayed selected-customer pricing with flooring pack/m² calculations.
 - `0ab7d08a`: added repeatable rollback-only cross-tenant receipt and website catalogue test; executed successfully against Supabase. No live records changed.
+
+- `f1d0e56a`: demo-only return endpoint now checks cumulative previously returned stock against picked quantity; concurrency and authenticated browser testing still required.
