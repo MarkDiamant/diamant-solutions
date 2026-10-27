@@ -265,10 +265,15 @@ test("flooring showcase reads only isolated fictional tenant and labels simulate
  const demo=fs.readFileSync("business-software-core/components/admin/DemoOperationsPanel.tsx","utf8");
  assert.match(route,/slug=eq\.flooring-showcase-demo/);
  assert.match(route,/tenant_id=eq\."\+id/);
- assert.match(route,/read_only:true,connected:true/);
+ assert.match(route,/fictional:true,read_only:false,connected:true,write_access:"authenticated_manager_only"/);
+ const actions=fs.readFileSync("app/api/bms-demo/flooring-actions/route.ts","utf8");
+ assert.match(actions,/memberAllowed\(tenant\)/);
+ assert.match(actions,/tenant_id=eq\."\+demoTenantId/);
+ assert.match(actions,/Cross-site demo mutations are blocked/);
  assert.doesNotMatch(route,/method:"POST"|method:"PATCH"|method:"DELETE"/);
  assert.match(demo,/Connected BMS flooring records/);
- assert.match(demo,/workflow buttons below remain a separate simulation/);
+ assert.match(demo,/Connected BMS flooring records/);
+ assert.match(actions,/bms_reset_flooring_showcase/);
 });
 test("flooring server checks area and waste before accepting quantity",()=>{
  const sql=fs.readFileSync("supabase/migrations/20261026001700_bms_flooring_order_pack_validation.sql","utf8");
@@ -317,8 +322,10 @@ test("Ruby confirmed document actions require attachment ownership, explicit con
 
 test("labour billing CSV export neutralises spreadsheet formulas",()=>{
  const ui=fs.readFileSync("business-software-core/components/admin/LabourCosting.tsx","utf8");
- assert.match(ui,/const quote=\(x:unknown\)=>\{const v=String/);
- assert.match(ui,/\[=\+@\]/);
+ assert.match(ui,/import \{safeCsvCell\} from "\.\.\/\.\.\/lib\/safe-csv"/);
+ const csv=fs.readFileSync("business-software-core/lib/safe-csv.ts","utf8");
+ assert.match(csv,/function safeCsvCell/);
+ assert.match(csv,/\[=\+@\]/);
  assert.match(ui,/Payable cost GBP/);
 });
 
