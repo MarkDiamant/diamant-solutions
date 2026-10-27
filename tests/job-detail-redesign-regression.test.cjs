@@ -46,3 +46,5 @@ test("secondary job tabs show skeleton and split waits for full data",()=>{
 });
 
 test("Quick Edit cancel restores persisted job fields and refresh resynchronises",()=>{assert.match(job,/Cancel Quick Edit/);assert.match(job,/if\(quickOpen\)\{setQuickTitle/);assert.match(job,/\[j\.job_title,j\.job_type,j\.manager,j\.next_action,j\.next_action_at,j\.internal_notes,quickOpen\]/);});
+
+test("activity submission retains entered data when server rejects save",()=>{assert.match(job,/const form=e\.currentTarget;try\{await onAction\(\{type:"activity"/);assert.match(job,/form\.reset\(\);\}catch\(error\)/);});
