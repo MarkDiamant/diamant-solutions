@@ -149,3 +149,14 @@ test("shared BMS UI primitives are used by operational and demo pages",()=>{
   assert.match(source,/bms-card/);
  }
 });
+
+test("central BMS design system exports reusable tenant-scoped page and form primitives",()=>{
+ const ui=fs.readFileSync("business-software-core/components/admin/BmsUI.tsx","utf8");
+ for(const name of ["BmsPage","BmsPageHeader","BmsCard","BmsButton","BmsField","BmsInput","BmsSelect","BmsTextarea","BmsBadge","BmsModal","BmsState","BmsTable"])assert.ok(ui.includes("function "+name+"("),name);
+ for(const name of ["bms-page","bms-page-header","bms-field-label","bms-input","bms-select","bms-textarea","bms-modal","bms-badge-accent"])assert.ok(css.includes(name),name);
+ assert.match(css,/--bms-accent-soft:color-mix/);
+ assert.match(css,/\.bms-shell \.bms-modal-backdrop/);
+ const demo=fs.readFileSync("business-software-core/components/admin/DemoOperationsPanel.tsx","utf8");
+ assert.match(demo,/<BmsPage /);
+ assert.equal((demo.match(/<BmsCard/g)||[]).length,(demo.match(/<\/BmsCard>/g)||[]).length);
+});
