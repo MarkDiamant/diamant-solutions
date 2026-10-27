@@ -18,7 +18,7 @@ async function demoTenant(){
 }
 async function memberAllowed(){
  // Demo hostname has no runtimeTenant. Authenticate the bearer cookie against
- // Supabase, then require an ACTIVE manager membership in an ACTIVE real tenant.
+ // Supabase, then require an ACTIVE manager membership in an ACTIVE tenant (demo-only is permitted).
  // No member tenant identifier is ever used for demo mutations.
  const jar=await cookies(),token=jar.get("bms_access_token")?.value;
  if(!token)return false;
