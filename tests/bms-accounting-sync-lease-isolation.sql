@@ -15,6 +15,9 @@ BEGIN
  IF (SELECT count(*) FROM public.business_software_accounting_sync_leases WHERE tenant_id=other)<>1 THEN RAISE EXCEPTION 'Cross-tenant lease isolation failed';END IF;
  BEGIN PERFORM public.bms_claim_accounting_sync(demo,'unknown','test-sync-lease-0004',180);EXCEPTION WHEN others THEN invalid_rejected:=true;END;
  IF NOT invalid_rejected THEN RAISE EXCEPTION 'Unsupported provider accepted';END IF;
+ UPDATE public.business_software_accounting_sync_leases SET lease_until=now()-interval '1 second' WHERE tenant_id=demo AND provider='xero';
+ IF public.bms_claim_accounting_sync(demo,'xero','test-sync-lease-after-expiry',180) IS NOT TRUE THEN RAISE EXCEPTION 'Expired lease could not be reclaimed';END IF;
+ IF (SELECT request_key FROM public.business_software_accounting_sync_leases WHERE tenant_id=demo AND provider='xero')<>'test-sync-lease-after-expiry' THEN RAISE EXCEPTION 'Reclaimed lease retained stale key';END IF;
  IF (SELECT count(*) FROM public.business_software_accounting_sync_leases WHERE tenant_id=demo)<>2 THEN RAISE EXCEPTION 'Unexpected lease count';END IF;
 END $$;
 ROLLBACK;
