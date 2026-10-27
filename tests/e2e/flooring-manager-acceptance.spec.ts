@@ -75,3 +75,8 @@ test("dedicated fictional manager can persist a customer, with no cross-tenant g
     await context.close();
   }
 });
+
+test("anonymous clients cannot read private flooring finance ledger", async ({ request }) => {
+ const response=await request.get("/api/bms-demo/flooring-actions?job_id=47029266-51a3-4caa-b70d-fbb8a4d3c419");
+ expect(response.status()).toBe(403);
+});
