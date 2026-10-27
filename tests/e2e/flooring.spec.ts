@@ -85,7 +85,12 @@ test("authenticated fictional customer write, persistence and transactional rese
  expect(revisions.map((q:any)=>Number(q.amount))).toEqual([888,900]);
  const order=before.sales.find((o:any)=>o.job_id===savedJob.id);
  expect(order).toBeTruthy();
- expect(before.sales_lines.some((l:any)=>l.sales_order_id===order.id)).toBe(true);
+ const orderLine=before.sales_lines.find((l:any)=>l.sales_order_id===order.id);
+ expect(orderLine).toBeTruthy();
+ expect(Number(orderLine.quantity)).toBe(24);
+ expect(Number(orderLine.agreed_unit_net)).toBe(37);
+ expect(Number(orderLine.reserved_quantity)).toBeGreaterThanOrEqual(1);
+ expect(Number(orderLine.picked_quantity)).toBeGreaterThanOrEqual(1);
  expect(before.purchase_lines.length).toBeGreaterThan(1);
  expect(before.deliveries.length).toBeGreaterThan(1);
  const invoice=before.invoices.find((i:any)=>i.job_id===savedJob.id);
