@@ -120,7 +120,11 @@ export async function POST(req:Request){
    }
   }else if(action==="create_draft_invoice"){
    const job=String(d.job_id||"");await owned("business_software_jobs",tenant,job);
-   const total=amount(d.total);if(!Number.isFinite(total)||total===0)return response("Invoice total must be positive",400);
+   const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1");
+   if(!latestQuote.ok)throw Error("Unable to verify latest quotation");
+   const quote=(await json(latestQuote))?.[0];if(!quote)return response("Create a quotation before drafting an invoice",409);
+   const total=Math.round((Number(quote.amount)*(1+Number(quote.vat_rate||0)/100)+Number.EPSILON)*100)/100;
+   if(!Number.isFinite(total)||total<=0||total>10000000)return response("Latest quotation total is invalid",409);
    const invoiceNumber="FLI-"+crypto.createHash("sha256").update(tenant+":"+keyValue).digest("hex").slice(0,16).toUpperCase();
    const existing=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&invoice_number=eq."+invoiceNumber+"&select=id,invoice_number&limit=1");
    const previous=(await json(existing))?.[0];
