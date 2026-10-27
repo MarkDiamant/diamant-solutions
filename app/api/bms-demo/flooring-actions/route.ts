@@ -57,9 +57,7 @@ export async function POST(req:Request){
   }else if(action==="create_customer"){
    const first=String(d.first_name||"").trim(),last=String(d.last_name||"").trim(),email=String(d.email||"").trim();
    if(!first||!last||first.length>100||last.length>100||email.length>200)return response("Enter a valid customer name",400);
-   const previous=await centralRest("business_software_customers?tenant_id=eq."+tenant+"&notes=eq."+encodeURIComponent("Fictional demo request "+keyValue)+"&select=id,first_name,last_name&limit=1");
-   const found=(await json(previous))?.[0];if(found){result=found;}else{const r=await centralRest("business_software_customers",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,first_name:first,last_name:last,email:email||null,notes:"Fictional demo request "+keyValue})});
-   if(!r.ok)throw Error("Customer creation failed");result=(await json(r))?.[0];}
+   result=await rpc("bms_create_customer_once",{p_tenant:tenant,p_first:first,p_last:last,p_email:email,p_key:keyValue});
   }else if(action==="edit_customer"){
    const id=String(d.customer_id||"");await owned("business_software_customers",tenant,id);
    const first=String(d.first_name||"").trim(),last=String(d.last_name||"").trim();
