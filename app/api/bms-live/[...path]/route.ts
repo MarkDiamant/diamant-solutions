@@ -320,8 +320,9 @@ if(p==="integrations/quickbooks/company"){
  try{
   const base=process.env.QBO_ENVIRONMENT==="sandbox"?"https://sandbox-quickbooks.api.intuit.com":"https://quickbooks.api.intuit.com";
   const response=await fetch(base+"/v3/company/"+realm+"/companyinfo/"+realm+"?minorversion=75",{headers:{Authorization:"Bearer "+token,Accept:"application/json"},cache:"no-store",signal:AbortSignal.timeout(12000)});
-  if(response.status===401)return NextResponse.json({connected:true,needs_reauthorisation:true,reason:"provider_unauthorised"});
-  if(!response.ok)return NextResponse.json({error:"QuickBooks company verification failed",provider_status:response.status},{status:502});
+  if(response.status===401||response.status===403)return NextResponse.json({connected:true,needs_reauthorisation:true,reason:"provider_unauthorised"},{headers:{"Cache-Control":"no-store"}});
+  if(response.status===429){const retry=Number(response.headers.get("Retry-After")||60);return NextResponse.json({error:"QuickBooks rate limit reached; please retry later",retry_after_seconds:Number.isFinite(retry)?Math.min(3600,Math.max(30,retry)):60},{status:429,headers:{"Retry-After":String(Number.isFinite(retry)?Math.min(3600,Math.max(30,retry)):60),"Cache-Control":"no-store"}});}
+  if(!response.ok)return NextResponse.json({error:"QuickBooks company verification failed",provider_status:response.status},{status:502,headers:{"Cache-Control":"no-store"}});
   const data=await response.json().catch(()=>({}));
   const company=data?.CompanyInfo;
   if(!company||String(company.Id)!==realm)return NextResponse.json({error:"QuickBooks returned an unexpected company"},{status:502});
