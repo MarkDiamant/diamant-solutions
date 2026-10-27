@@ -25,6 +25,26 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Tenant isolation and financial safety | Partial database verification | Multi-tenant rollback SQL; authenticated role matrix pending |
 | Full desktop/tablet/mobile usability | Open | Authenticated screenshot and interaction QA needed |
 
+## Measured acceptance scorecard (fixed 20-requirement denominator)
+
+See [BMS_REQUIREMENT_ACCEPTANCE_METRICS.md](BMS_REQUIREMENT_ACCEPTANCE_METRICS.md) for the per-requirement gate decisions and evidence.
+
+| Evidence gate | At baseline `1501effb` | Current | Change |
+|---|---:|---:|---:|
+| Fully implemented scope | 9/20 (45%) | 10/20 (50%) | +1 requirement |
+| Fully database/integration tested scope | 4/20 (20%) | 6/20 (30%) | +2 requirements |
+| Authenticated browser end-to-end accepted | 0/20 (0%) | 0/20 (0%) | 0 |
+
+**Method:** strict all-or-nothing gate per existing top-level requirement, no credit for partial implementation, no invented effort weighting. The ratios describe unweighted coverage, **not percentage of development effort complete**. The separate per-requirement ledger identifies outstanding work and blockers. No requirement is marked browser accepted.
+
+## Latest authenticated-testing and flooring development evidence
+- `1f741ea5` is READY on production, as are `2349b5ad` and the earlier shared design changes. This confirms successful Vercel builds only.
+- `8a1e25e4`: fixed demo-host authorization mismatch: `runtimeTenant()` is absent on the public demo host, so previously the demo write API could not authorize a manager. The endpoint now verifies the Supabase auth token and checks an active owner/admin/manager membership in an active real tenant, but writes still target only the hardcoded fictional flooring tenant. **Authenticated HTTP/browser acceptance remains unverified.**
+- `facdc6e0`: added same-origin rejection for cookie-authenticated demo writes.
+- `6f7fd351`: deployed shared, idempotent delivery planning RPC with tenant-bound sales order and conflicting retry rejection. `d920f017`, `219b3dd9`, `40c2b136`: connected new sales order delivery planning to the fictional demo UI. `f77f2595`: rollback-only delivery retry and cross-tenant tests passed.
+- `309d0056`, `f7d688f4`: Playwright test configuration and read-only public API, anonymous rejection, authenticated responsive smoke and opt-in fictional customer persistence/reset tests. `3f369a30`, `4b68a246`: protected manually triggered GitHub Actions workflow. **The Playwright suite has not yet executed**. It requires a dedicated, active manager test token in the protected environment; mutation tests additionally require an explicit workflow input. No secrets are stored in source or test artifacts.
+- No authenticated browser session or dedicated test credentials were available in connected tools. Vercel named sandbox and session inventories were empty. Direct external HTTP calls from the container failed DNS resolution, and external URL retrieval could not access the BMS demo endpoint. Do not mark any authenticated acceptance passed.
+
 ## Non-negotiable safeguards
 - All functionality and design code belongs in the shared BMS core; tenant branding and fictional seed data may differ.
 - Never change historical MJ010 or any other live financial entries without explicit approval.
