@@ -71,7 +71,6 @@ export default function AdminBrandBar(){
  const toggleSection=(name:string)=>setOpenSections(old=>{const next={...old,[name]:!(old[name]??true)};try{localStorage.setItem(sectionsKey,JSON.stringify(next))}catch{}return next});
  const toggleCompact=()=>setCompact(old=>{try{localStorage.setItem(storeKey,old?"0":"1")}catch{}return !old});
  async function logout(){await fetch("/api/admin/auth/logout",{method:"POST"});router.replace("/login");router.refresh()}
- if(local==="/login")return null;
  const brand=config?.accentColour||"#e66a24";
  useEffect(()=>{
   const shell=document.querySelector<HTMLElement>(".bms-shell");
@@ -81,6 +80,7 @@ export default function AdminBrandBar(){
   shell.style.setProperty("--nav-accent",safe);
   return()=>{shell.style.removeProperty("--bms-accent");shell.style.removeProperty("--nav-accent")};
  },[brand]);
+ if(local==="/login")return null;
 
  const link=(e:Entry)=> <Link key={e.href} href={go(e.href)} onClick={navigate} title={compact?e.label:undefined} aria-current={active(e.href)?"page":undefined} className={"bms-side-link "+(active(e.href)?"bms-side-active":"")} style={active(e.href)?{"--nav-accent":brand} as React.CSSProperties:undefined}><span className="bms-side-icon" aria-hidden="true"><NavIcon name={e.icon}/></span><span className="bms-side-label">{e.label}</span></Link>;
  return <>
