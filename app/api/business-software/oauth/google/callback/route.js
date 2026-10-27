@@ -17,7 +17,7 @@ function encrypt(value){
 }
 
 function safeReturn(origin,path="/admin/integrations"){
-  const u=new URL(origin);u.pathname=path;u.search="";u.hash="";return u.toString();
+  const u=new URL(origin);u.pathname=u.pathname==="/bms-demo/flooring/finance"?"/bms-demo/flooring/finance":path;u.search="";u.hash="";return u.toString();
 }
 
 export async function GET(request){
