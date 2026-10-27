@@ -52,7 +52,10 @@ export async function POST(req:Request){
   let result:unknown;
   const num=(v:unknown)=>{const n=Number(v);if(!Number.isFinite(n)||n<=0||n>100000)return NaN;return n};
   const amount=(v:unknown)=>{const n=Number(v);if(!Number.isFinite(n)||n<0||n>10000000)return NaN;return n};
-  if(action==="create_customer"){
+  if(action==="reset_demo"){
+   if(d.confirm_phrase!=="RESET OAK AND STONE DEMO")return response("Type the exact reset confirmation",400);
+   result=await rpc("bms_reset_flooring_showcase",{p_confirm:"RESET OAK AND STONE DEMO"});
+  }else if(action==="create_customer"){
    const first=String(d.first_name||"").trim(),last=String(d.last_name||"").trim(),email=String(d.email||"").trim();
    if(!first||!last||first.length>100||last.length>100||email.length>200)return response("Enter a valid customer name",400);
    const previous=await centralRest("business_software_customers?tenant_id=eq."+tenant+"&notes=eq."+encodeURIComponent("Fictional demo request "+keyValue)+"&select=id,first_name,last_name&limit=1");
