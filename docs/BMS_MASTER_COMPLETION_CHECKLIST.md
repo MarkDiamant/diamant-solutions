@@ -15,7 +15,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Flooring public demo interactive actions persisted | Implemented, authenticated E2E open | New manager-authorised `/api/bms-demo/flooring-actions` uses shared tenant-aware RPCs for sales, purchasing, goods receipts, reservations, picking, deliveries and returns; UI connected; production browser acceptance pending |
 | Flooring connected website catalogue preview | Read-only implemented | `/api/bms-demo/flooring-data` |
 | Flooring demo safe reset | Implemented and rollback-tested; authenticated E2E open | Guarded atomic database reset, explicit confirmation UI, seeded catalogue/customers/invoice restoration; rollback-only test passed |
-| Flooring quotation, draft invoice, accounting | Implemented for isolated internal drafts, E2E open | Manager actions create quote revisions and internal draft invoices; no external accounting provider for demo |
+| Flooring quotation, draft invoice, accounting | Atomic quote and internal draft workflows database-tested; authenticated E2E open | Server-derived quote/VAT invoice totals, idempotent quote and invoice RPCs; no external accounting provider for demo |
 | Purchasing, sales, stock and logistics master core | Partially integrated | Authenticated UI and role acceptance pending |
 | Ruby document interpretation and confirmed actions | Open for end-to-end verification | Test each document type, confirmation, permissions, idempotency |
 | Worker Portal, scheduling, timesheets and labour billing | Open for end-to-end verification | Role matrix and invoice evidence pending |
@@ -87,3 +87,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `44c130d9`, `628c8cc8`: demo quotation revisions now accept editable, server-validated lead times.
 - `4001de6e`: applied retry-terms guard to shared quote RPC; `610dc1bd` rollback test verifies conflicting lead times are rejected.
 - Repeated rollback-only reset, complete order-to-invoice, quote revision and cross-tenant enquiry tests after migrations: all passed. No MJ010 or other live financial data changed.
+
+- `30503790`: applied shared tenant-scoped internal draft invoice RPC migration. Invoice gross is derived from a persisted quotation and VAT, not client form totals; unique request keys prevent duplicate drafts. Existing live invoices unchanged.
+- `4cb2049b`, `69e70162`: fictional demo invoice button now uses the latest saved quote and a deterministic quote-specific request key. `fdbe9856` rollback tests passed for £888 net + 20% VAT = £1,065.60, retry deduplication and cross-tenant rejection. RPC is service-role-only.
+- `ef13f9ff`: full fictional enquiry-to-invoice rollback test now exercises both atomic quotation and invoice RPCs; passed. Transactional reset test also passed after invoice migration.
