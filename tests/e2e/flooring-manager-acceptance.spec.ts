@@ -106,3 +106,8 @@ test("spoofed forwarded-host cannot bypass cross-origin write protection", async
  const response=await request.post("/api/bms-demo/flooring-actions",{headers:{origin:"https://attacker.invalid","x-forwarded-host":"attacker.invalid"},data:{action:"create_customer",first_name:"Denied",last_name:"SpoofedHost",request_key:"forged-forwarded-host-test"}});
  expect(response.status()).toBe(403);
 });
+
+test("anonymous clients cannot list private fictional jobs",async({request})=>{
+ const r=await request.get("/api/bms-demo/flooring-actions?list_jobs=true");
+ expect(r.status()).toBe(403);
+});
