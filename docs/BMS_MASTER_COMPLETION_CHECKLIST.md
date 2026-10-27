@@ -12,9 +12,9 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Flooring fictional tenant isolated data | Database integration verified | `supabase/demo/flooring_showcase_seed.sql`, rollback SQL |
 | Flooring products, coverage and customer pricing | Database integration verified | `tests/flooring-showcase-connected.sql` |
 | Flooring PO, goods receipt, reservation, picking, return | Database integration verified | Rollback SQL under service role |
-| Flooring public demo interactive actions persisted | **Open** | Current demo buttons are browser-only simulations; do not claim complete |
+| Flooring public demo interactive actions persisted | **Open** | Browser-only actions remain; simulation feedback corrected and connected-data refresh added in `DemoOperationsPanel.tsx`; authenticated persisted actions not implemented |
 | Flooring connected website catalogue preview | Read-only implemented | `/api/bms-demo/flooring-data` |
-| Flooring demo safe reset | **Open** | Browser reset only; persisted tenant reset and access model not implemented |
+| Flooring demo safe reset | **Open** | Browser reset explicitly labelled as simulation-only; persisted tenant reset and access model not implemented |
 | Flooring quotation, draft invoice, accounting | Partially implemented | Versioned quote, internal draft invoice; no connected provider for demo |
 | Purchasing, sales, stock and logistics master core | Partially integrated | Authenticated UI and role acceptance pending |
 | Ruby document interpretation and confirmed actions | Open for end-to-end verification | Test each document type, confirmation, permissions, idempotency |
@@ -29,3 +29,9 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - All functionality and design code belongs in the shared BMS core; tenant branding and fictional seed data may differ.
 - Never change historical MJ010 or any other live financial entries without explicit approval.
 - Do not equate a successful CI build, READY deployment or rollback-only SQL with complete user-facing acceptance.
+
+## 27 October 2026 continuation evidence
+- `c1345a37`: removed unconditional success notice overriding rejected simulated stock actions; deployment subsequently confirmed READY.
+- `43b890e7`: added connected flooring snapshot refresh, shared loading/error UI primitives, shared cards and a simulation disclosure. GitHub commit recorded; production verification pending.
+- `5fc05628`: clarified connected invoice versus simulated stock counters and browser-only reset. GitHub commit recorded; production verification pending.
+- No checklist item has advanced to authenticated end-to-end verification. No production financial records or tenant subscriptions were modified.
