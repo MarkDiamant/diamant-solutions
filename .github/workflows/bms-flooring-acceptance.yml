@@ -24,8 +24,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "22"
-          cache: npm
-      - run: npm ci
+      - run: npm install --ignore-scripts
       - run: npm install --no-save --ignore-scripts @playwright/test@1.56.1
       - run: npx playwright install --with-deps chromium
       - name: Read-only smoke and opt-in manager acceptance
