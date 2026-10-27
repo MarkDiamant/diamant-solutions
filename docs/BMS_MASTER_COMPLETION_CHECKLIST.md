@@ -66,3 +66,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `81c87b2c`: complete rollback-only database workflow passed: 48 m²/10%/2.2 m² = 24 packs, customer-specific £37/pack, new enquiry, quote, sales order, purchase order, two partial receipts, reservation, picking, confirmed delivery and draft invoice. Live tenant job count unchanged. This is **database integration**, not authenticated browser E2E.
 - Reset, seed and enquiry RPCs verified inaccessible to anon/authenticated roles and executable only by service_role.
 - `df8f20cc`: server rejects sales order when customer differs from selected job's customer; `ebeb7724`: UI selects newly created customer/enquiry and clears stale choices after reset.
+
+- `bef5a56d`: catalogue product cards now create persisted customer enquiries; `8dffe592`: area and wastage limits validated on server before sales order RPC.
+- `d6484966`: rollback-only cross-tenant enquiry rejection test passed.
+- Full browser acceptance remains open, despite successful database workflow and deployment builds.
