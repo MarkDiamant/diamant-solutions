@@ -49,11 +49,11 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
    const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/^\n+|\n+$/g,""));
    if(text!==value){lastValue.current=text;onChange(text);}
  }
- return <div className="rounded-xl border border-black/15 bg-white p-3">
+ return <div className="rounded-xl border border-[var(--bms-border)] bg-[var(--bms-surface)] p-3">
   <div className="mb-2 text-[11px] font-bold uppercase tracking-wide text-black/45">Edit quotation directly · Select text and press Ctrl+B to bold</div>
   <div ref={ref} contentEditable suppressContentEditableWarning role="textbox" aria-multiline="true" aria-label="Edit formatted quotation" spellCheck={false}
-    style={{fontFamily:"inherit",fontSize:"14px",caretColor:"#141414"}}
-    className="min-h-52 cursor-text whitespace-pre-wrap rounded-lg p-2 leading-6 text-[#141414] outline-none focus:ring-2 focus:ring-black/10"
+    style={{fontFamily:"inherit",fontSize:"16px",caretColor:"var(--bms-accent)"}}
+    className="min-h-52 cursor-text whitespace-pre-wrap rounded-lg p-2 leading-6 text-[var(--bms-text)] outline-none focus:ring-2 focus:ring-[var(--bms-accent-soft)]"
     onFocus={()=>{focused.current=true;}}
     onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="b"){e.preventDefault();document.execCommand("bold");save();}}}
     onInput={save}
