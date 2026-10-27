@@ -10,7 +10,7 @@ on:
       - "tests/worker-time.test.mjs"
       - "tests/safe-csv.test.mjs"
       - "tests/ruby-confirmation.test.mjs"
-      - "app/api/bms-live/[...path]/route.ts"
+      - "app/api/bms-live/**/route.ts"
       - "business-software-core/components/admin/BmsUI.tsx"
       - "tests/bms-shared-primitives.test.mjs"
       - "tests/bms-api-static-guards.test.mjs"
