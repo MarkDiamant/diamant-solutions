@@ -53,6 +53,17 @@ export async function GET(req:Request){
   const tenant=await demoTenant();
   if(!await memberAllowed(tenant))return response("Authenticated BMS manager required for fictional demo",403);
   const params=new URL(req.url).searchParams;
+  if(params.get("connect_google")==="true"){
+   if(!process.env.GOOGLE_CLIENT_ID||!process.env.GOOGLE_CLIENT_SECRET)return response("Google OAuth is not configured",503);
+   // eslint-disable-next-line @typescript-eslint/no-require-imports
+   const crypto=require("node:crypto");
+   const state=crypto.randomBytes(32).toString("base64url"),origin=new URL(req.url).origin;
+   const tx=await centralRest("business_software_oauth_transactions",{method:"POST",body:JSON.stringify({tenant_id:tenant,provider:"google",state_hash:crypto.createHash("sha256").update(state).digest("hex"),return_origin:origin+"/bms-demo/flooring/finance",expires_at:new Date(Date.now()+600000).toISOString()})});
+   if(!tx.ok)return response("Unable to initiate fictional tenant Gmail connection",503);
+   const callback=origin+"/api/business-software/oauth/google/callback",google=new URL("https://accounts.google.com/o/oauth2/v2/auth");
+   for(const [name,value] of Object.entries({client_id:process.env.GOOGLE_CLIENT_ID,redirect_uri:callback,response_type:"code",scope:"openid email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.compose",access_type:"offline",prompt:"consent",state}))google.searchParams.set(name,value);
+   return NextResponse.redirect(google);
+  }
   if(params.get("list_jobs")==="true"){
    const jobs=await centralRest("business_software_jobs?tenant_id=eq."+tenant+"&select=id,reference,status,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
    if(!jobs.ok)return response("Unable to list fictional tenant jobs",503);
