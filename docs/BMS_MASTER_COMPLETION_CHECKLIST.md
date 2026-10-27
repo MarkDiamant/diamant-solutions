@@ -189,3 +189,8 @@ See [BMS_REQUIREMENT_ACCEPTANCE_METRICS.md](BMS_REQUIREMENT_ACCEPTANCE_METRICS.m
 - Security audit tightened fictional demo writes to a manager of the *fictional tenant itself* and enforced HTTPS same-origin; zero active demo managers still exist. A protected dedicated account must be provisioned by an authorised identity; no real-tenant credentials or MJ010 records changed.
 - Repaired live bugs: shadowed URL constructors in shared materials and BMS APIs, Ruby pending-confirmation state, stray labour inputs in invoice form, invalid Gmail route helper export, and demo selector CSS. Updated Next and PostCSS; isolated build passed, npm production dependency audit found zero vulnerabilities, and repeatable TypeScript diagnostics passed with the unused legacy MJ-only file explicitly excluded.
 - The remaining ten requirements #3, #12-#20 retain explicit unverified whole-scope criteria in the scorecard. Provider OAuth consent, protected demo-manager identity and final user acceptance cannot be manufactured.
+
+## Final automated verification after re-audit
+- **12/12** public Playwright tests, **18/18** Node/React/security regressions, **13/13** rollback-only SQL scripts passed; no MJ010 financial modifications.
+- Strict production Next.js TypeScript validation re-enabled at `7e242a36`; standalone `npx tsc --noEmit` and Next production build passed. Dependency audit 0 vulnerabilities after Next/PostCSS patch. All deployments through `7e242a36` READY; error-level runtime logs absent in checked 30-minute window.
+- Protected manager acceptance remains blocked by the fictional tenant's zero active managers and missing protected test credentials. Provider OAuth consent and full role/financial acceptance remain outstanding.
