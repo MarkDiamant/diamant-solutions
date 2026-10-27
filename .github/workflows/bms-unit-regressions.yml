@@ -9,6 +9,8 @@ on:
       - "business-software-core/components/admin/WorkerPortal.tsx"
       - "tests/worker-time.test.mjs"
       - "tests/safe-csv.test.mjs"
+      - "tests/ruby-confirmation.test.mjs"
+      - "app/api/bms-live/[...path]/route.ts"
       - "business-software-core/lib/safe-csv.ts"
       - "tests/safe-csv.test.mjs"
       - ".github/workflows/bms-unit-regressions.yml"
@@ -28,6 +30,6 @@ jobs:
           node-version: "22"
       - run: npm install --ignore-scripts
       - name: Worker daily-hours and UK DST regression
-        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/safe-csv.test.mjs
+        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/safe-csv.test.mjs
         env:
           TZ: Europe/London
