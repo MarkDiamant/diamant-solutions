@@ -1,10 +1,19 @@
 import {test,expect,type BrowserContext} from "@playwright/test";
 const base=process.env.BMS_TEST_BASE_URL||"https://bms.diamantsolutions.co.uk";
 const token=process.env.BMS_TEST_ACCESS_TOKEN||"";
+const email=process.env.BMS_TEST_EMAIL||"",password=process.env.BMS_TEST_PASSWORD||"",publishableKey=process.env.BMS_TEST_SUPABASE_PUBLISHABLE_KEY||"";
+const hasAuth=Boolean(token||(email&&password&&publishableKey));
 const mutate=process.env.BMS_RUN_MUTATIONS==="1";
 async function auth(context:BrowserContext){
- if(!token)throw Error("BMS_TEST_ACCESS_TOKEN not configured");
- await context.addCookies([{name:"bms_access_token",value:token,url:base,httpOnly:true,secure:true,sameSite:"Lax"}]);
+ let accessToken=token;
+ if(!accessToken){
+  if(!email||!password||!publishableKey)throw Error("Configure dedicated fictional-demo manager credentials in protected CI secrets");
+  const r=await context.request.post("https://iepqggrfenfqrqyzqyed.supabase.co/auth/v1/token?grant_type=password",{headers:{apikey:publishableKey,"Content-Type":"application/json"},data:{email,password}});
+  if(!r.ok())throw Error("Dedicated fictional-demo manager login failed");
+  accessToken=String((await r.json()).access_token||"");
+  if(!accessToken)throw Error("Demo manager login returned no access token");
+ }
+ await context.addCookies([{name:"bms_access_token",value:accessToken,url:base,httpOnly:true,secure:true,sameSite:"Lax"}]);
 }
 test("public fictional catalogue and coverage data",async({request})=>{
  const r=await request.get("/api/bms-demo/flooring-data");expect(r.status()).toBe(200);
@@ -28,7 +37,7 @@ test("anonymous mutations rejected",async({request})=>{
  expect(r.status()).toBe(403);
 });
 test("authenticated manager desktop and mobile rendering",async({page,context})=>{
- test.skip(!token,"Requires an active dedicated manager test token");
+ test.skip(!hasAuth,"Requires a dedicated fictional-demo manager test account");
  await auth(context);
  for(const width of [1280,390,320]){
   await page.setViewportSize({width,height:850});await page.goto("/flooring/operations");
@@ -39,7 +48,7 @@ test("authenticated manager desktop and mobile rendering",async({page,context})=
  }
 });
 test("authenticated fictional customer write, persistence and transactional reset",async({page,context,request})=>{
- test.skip(!token||!mutate,"Requires active manager token and BMS_RUN_MUTATIONS=1");
+ test.skip(!hasAuth||!mutate,"Requires dedicated manager credentials and BMS_RUN_MUTATIONS=1");
  await auth(context);await page.goto("/flooring/operations");
  const suffix=Date.now().toString(36),name="Acceptance"+suffix;
  await page.getByLabel("New customer name").fill(name+" Example");
