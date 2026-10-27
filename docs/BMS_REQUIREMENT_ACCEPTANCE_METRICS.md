@@ -82,3 +82,44 @@ Baseline: commit `1501effb`. Current evidence snapshot: baseline `1f741ea5` plus
 - GitHub Actions unit workflow failed before job scheduling on multiple commits because its path filter used an unescaped literal Next.js catch-all segment `app/api/bms-live/[...path]/route.ts`; GitHub's event annotation explicitly reported `push event contained invalid paths patterns`. Commit `e3c4fe10` replaces it with the valid glob `app/api/bms-live/**/route.ts`, retaining all unit tests. GitHub Actions run 40470940404: **SUCCESS**, job worker-time executed.
 - Payment safety run 40466365407 executed 61 assertions and failed three after deliberate architectural changes: shared `BmsCard`/`BmsButton` components replacing raw CSS, fictional manager-protected writes replacing a read-only demo, and central `safeCsvCell` replacing inline CSV quoting. Assertions were updated to require equivalent or stronger controls, not skipped. GitHub Actions run 40470770140: **SUCCESS**. Independent runner confirmed **61/61** payment/navigation and **18/18** unit tests passed.
 - This CI repair does not constitute authenticated E2E acceptance or completion of another top-level requirement. Strict scores remain **implemented 10/20 (50%)**, **complete automated integration tested 10/20 (50%)**, **authenticated E2E 0/20 (0%)**. No MJ010 historical financial writes.
+
+## 27 October 2026 measured continuation at 7bc85699
+
+**Authoritative denominator remains 20.** Requirement IDs #1 through #20 and the strict all-or-nothing gates above remain unchanged. The earlier per-row current evidence was checked against the latest repository and deployment states; none of the new inventory or dashboard changes establishes complete implementation of a previously incomplete top-level requirement.
+
+| Gate | Count | Percentage | Evidence rule |
+|---|---:|---:|---|
+| Fully implemented top-level requirement | 10/20 | 50% | Entire named scope in source; partial endpoints, tables or CSS do not qualify |
+| Fully integration-tested top-level requirement | 10/20 | 50% | Executed complete-workflow tests; isolated unit tests alone do not qualify |
+| Authenticated browser accepted | 0/20 | 0% | Real logged-in workflow, persisted effects and applicable role/mobile gates |
+
+**These are unweighted scope coverage metrics, not an estimate of effort remaining or production readiness.** Each requirement has equal weight; partial features contribute zero. Acceptance is separately counted, never inferred from READY.
+
+| Requirement | Evidence-based stage | Recent evidence and outstanding gate |
+|---|---|---|
+| #1 Shared design tokens | Implemented and deployed, integration tested; awaiting authenticated acceptance | Tenant-aware CSS and shared primitives |
+| #2 Shared UI primitives | Implemented and deployed, integration tested; awaiting authenticated acceptance | React rendering tests |
+| #3 All pages migrated | Partial | Legacy components and authenticated page-by-page QA |
+| #4 Demo selector and banner | Implemented and deployed, integration tested; awaiting authenticated acceptance | Public Playwright checks |
+| #5 Mobile header, New Job, Ruby image | Implemented and deployed, integration tested; awaiting authenticated acceptance | Public mobile Playwright checks |
+| #6 Fictional flooring isolation and seed | Implemented and deployed, integration tested; awaiting authenticated acceptance | Rollback-only tenant tests |
+| #7 Flooring catalogue and pricing | Implemented and deployed, integration tested; awaiting authenticated acceptance | Connected catalogue and customer-price tests |
+| #8 Flooring PO, receipt, reserve, pick, return | Implemented and deployed, integration tested; awaiting authenticated acceptance | Rollback-only workflow |
+| #9 Flooring persisted actions | Implemented and deployed, integration tested; awaiting authenticated acceptance | Fictional tenant RPC integration |
+| #10 Flooring public catalogue preview | Implemented and deployed, integration tested; awaiting authenticated acceptance | Public Chromium and privacy checks |
+| #11 Flooring transactional reset | Implemented and deployed, integration tested; awaiting authenticated acceptance | Rollback reset tests |
+| #12 Flooring quote, invoice and accounting | Partial | External accounting and authenticated end-to-end |
+| #13 Master purchasing, sales, stock, logistics | Partial | FIFO cost-layer schema and valuation read path deployed at fbf43c80; automatic receipt/consumption allocation, corrections and full workflow incomplete |
+| #14 Ruby document-confirmed actions | Partial | Invoice guidance only; confirmed execution and document matrix incomplete |
+| #15 Worker Portal, timesheets, labour billing | Partial | Worker unit tests; role matrix, approvals and billing acceptance missing |
+| #16 QuickBooks integration | Partial | Provider authorisation and synchronisation incomplete |
+| #17 Xero, Money Overview, matching | Partial | Financial dashboard and Xero integration exist; transaction-level reconciliation unresolved |
+| #18 Quote versioning, lead times, PDFs | Partial | Revision SQL tested; PDF and approval end-to-end incomplete |
+| #19 Tenant isolation and financial safety | Partial | Rollback SQL exists; authenticated two-tenant role matrix incomplete |
+| #20 Full responsive usability | Partial | Dashboard design deployed at e913e152; authenticated cross-device visual and interaction QA incomplete |
+
+**Status distinction:** All ten fully implemented rows have production code deployed and complete integration-test evidence from prior checks. Their authenticated acceptance is still pending. Rows marked partial are not counted as complete even when individual components are deployed. No complete top-level requirement is currently in the 'implemented but deployment pending' category. Latest inventory test-only commit 7bc85699 passed CI but its own Vercel deployment was cancelled; the purchasing valuation UI at fbf43c80 is READY.
+
+**Operational subrequirements, not additional denominator entries:** structured job-item first save, revision editing, history and audit are deployed; inventory FIFO layer/allocation schema and valuation endpoint are deployed but not integrated into automatic goods receipt and job consumption; dashboard cohesive styling deployed but not visually accepted; Ruby invoice due-date confirmation and execution not implemented. Job-page Quick Edit, uploads, notes, document relationships, payments and workforce labels remain partial. Keep these as child gates under the existing 20 requirements, not extra weighted points.
+
+**Next measurement:** change an implemented or tested count only after full named scope has evidence; record the exact commit, migration, executed test and READY deployment. Do not alter genuine tenant records to obtain evidence.
