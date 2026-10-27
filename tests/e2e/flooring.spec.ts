@@ -53,6 +53,50 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
  }
  expect(hydrationErrors).toEqual([]);
 });
+test("fictional demo banner and seven-industry selector switch routes without hiding navigation",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await page.goto("/flooring/operations");
+ await expect(page.getByText(/DEMO MODE · Fictional data/)).toBeVisible();
+ const industries=page.getByRole("group",{name:"Demo industry"});
+ await expect(industries.getByRole("button")).toHaveCount(7);
+ await expect(industries.getByRole("button",{name:"Flooring & Tiles"})).toHaveAttribute("aria-pressed","true");
+ await industries.getByRole("button",{name:"Electrician"}).click();
+ await expect(page).toHaveURL(/\/electrical\/operations/);
+ await expect(industries.getByRole("button",{name:"Electrician"})).toHaveAttribute("aria-pressed","true");
+ await industries.getByRole("button",{name:"Flooring & Tiles"}).click();
+ await expect(page).toHaveURL(/\/flooring\/operations/);
+ await page.getByRole("button",{name:"Open navigation"}).click();
+ await expect(page.getByRole("navigation",{name:/main/i})).toBeVisible();
+ await expect(page.getByRole("link",{name:"Purchasing & Stock"})).toBeVisible();
+});
+test("mobile BMS header and original Ruby portrait render across phone and tablet sizes",async({page})=>{
+ for(const width of [320,390,768]){
+  await page.setViewportSize({width,height:844});
+  await page.goto("/flooring/operations");
+  await expect(page.getByRole("link",{name:"Ask Ruby"}).first()).toBeVisible();
+  const avatar=page.locator("img.bms-ruby-avatar:visible").first();
+  await expect(avatar).toBeVisible();
+  expect(await avatar.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+ }
+});
+test("connected website catalogue preview agrees with the public privacy-filtered export",async({page,request})=>{
+ const r=await request.get("/api/bms-demo/catalogue");expect(r.status()).toBe(200);
+ const catalogue=await r.json();
+ expect(catalogue.schema_version).toBe(1);
+ expect(catalogue.products).toHaveLength(4);
+ const privateKeys=["customer_prices","cost_net","customer_id","supplier_id","auth_user_id","email","phone"];
+ for(const product of catalogue.products){
+  expect(product.sku).toBeTruthy();
+  expect(Number(product.coverage_m2)).toBeGreaterThan(0);
+  expect(Number(product.list_price_net)).toBeGreaterThan(0);
+  for(const key of privateKeys)expect(product).not.toHaveProperty(key);
+ }
+ await page.goto("/flooring/operations");
+ await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
+ const ui=await page.locator("main").innerText();
+ for(const product of catalogue.products)expect(ui).toContain(product.name);
+});
 test("mobile New Job menu supports arrow navigation, Escape and focus restoration",async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto("/flooring/operations");
