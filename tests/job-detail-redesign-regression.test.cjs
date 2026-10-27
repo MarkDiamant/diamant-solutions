@@ -50,3 +50,5 @@ test("Quick Edit cancel restores persisted job fields and refresh resynchronises
 test("activity submission retains entered data when server rejects save",()=>{assert.match(job,/const form=e\.currentTarget;try\{await onAction\(\{type:"activity"/);assert.match(job,/form\.reset\(\);\}catch\(error\)/);});
 
 test("historical manager assignments remain selectable and quote/invoice notes are not conflated",()=>{assert.match(job,/Previously assigned \(configure name in Settings\)/);assert.match(job,/Customer requirements for quotation/);assert.match(job,/Quote Notes \/ exclusions \(shown on quotation only\)/);assert.match(job,/Invoice-specific wording belongs to the individual invoice/);});
+
+test("work type multiselect rejects accidental zero selections rather than restoring stale types",()=>{assert.match(job,/if\(types\.length===0\)\{alert\("Choose at least one work type before saving this job\."\);return;\}/);assert.match(job,/job_type:types\[0\],job_types:types/);});
