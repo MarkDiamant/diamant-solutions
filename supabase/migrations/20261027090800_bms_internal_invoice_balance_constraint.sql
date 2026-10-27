@@ -1,0 +1,3 @@
+-- Preserve internal invoice financial balance without altering external provider invoices.
+ALTER TABLE public.business_software_invoices ADD CONSTRAINT bms_internal_invoice_balance_check CHECK(provider<>'internal' OR (total IS NOT NULL AND amount_paid IS NOT NULL AND amount_due IS NOT NULL AND amount_credited IS NOT NULL AND total>=0 AND amount_paid>=0 AND amount_due>=0 AND amount_credited>=0 AND ((lower(status) IN ('void','voided','cancelled') AND amount_paid=0 AND amount_due=0) OR abs(total-amount_paid-amount_credited-amount_due)<=0.01))) NOT VALID;
+ALTER TABLE public.business_software_invoices VALIDATE CONSTRAINT bms_internal_invoice_balance_check;
