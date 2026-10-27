@@ -41,8 +41,8 @@ test("cross-origin cookie writes are rejected before authentication", async ({ r
   expect(response.status()).toBe(403);
 });
 
+test.skip(!demoEmail || !demoPassword || !writeEnabled, "Requires protected demo-manager credentials and explicit mutation opt-in");
 test("dedicated fictional manager can persist a customer, with no cross-tenant grant", async ({ browser }) => {
-  test.skip(!demoEmail || !demoPassword || !writeEnabled, "Requires protected demo-manager credentials and explicit mutation opt-in");
   const login = await browser.newContext();
   let token: string;
   try {
