@@ -5,7 +5,10 @@ import { test, expect } from "@playwright/test";
  * BMS_DEMO_MANAGER_ACCESS_TOKEN must be stored only in a protected CI secret.
  * No credential is written to source, traces or screenshots.
  */
-const demoEmail = process.env.BMS_DEMO_MANAGER_EMAIL;\nconst demoPassword = process.env.BMS_DEMO_MANAGER_PASSWORD;\nconst supabaseUrl = "https://iepqggrfenfqrqyzqyed.supabase.co";\nconst publishableKey = "sb_publishable_ivTCLFGFroexc-3IHe25bg_qhzg_GIy";
+const demoEmail = process.env.BMS_DEMO_MANAGER_EMAIL;
+const demoPassword = process.env.BMS_DEMO_MANAGER_PASSWORD;
+const supabaseUrl = "https://iepqggrfenfqrqyzqyed.supabase.co";
+const publishableKey = "sb_publishable_ivTCLFGFroexc-3IHe25bg_qhzg_GIy";
 const writeEnabled = process.env.BMS_DEMO_ALLOW_MUTATIONS === "true";
 const origin = new URL(process.env.BMS_TEST_BASE_URL || "https://bms.diamantsolutions.co.uk").origin;
 
@@ -39,7 +42,18 @@ test("cross-origin cookie writes are rejected before authentication", async ({ r
 });
 
 test("dedicated fictional manager can persist a customer, with no cross-tenant grant", async ({ browser }) => {
-  test.skip(!demoEmail || !demoPassword || !writeEnabled, "Requires protected demo-manager credentials and explicit mutation opt-in");\n  const login = await browser.newContext();\n  let token: string;\n  try {\n    const response = await login.request.post(supabaseUrl + "/auth/v1/token?grant_type=password", {\n      headers: { apikey: publishableKey, "Content-Type": "application/json" },\n      data: { email: demoEmail, password: demoPassword },\n    });\n    expect(response.ok(), "Dedicated fictional demo-manager sign-in must succeed").toBe(true);\n    token = String((await response.json()).access_token || "");\n    expect(token.length).toBeGreaterThan(50);\n  } finally { await login.close(); }
+  test.skip(!demoEmail || !demoPassword || !writeEnabled, "Requires protected demo-manager credentials and explicit mutation opt-in");
+  const login = await browser.newContext();
+  let token: string;
+  try {
+    const response = await login.request.post(supabaseUrl + "/auth/v1/token?grant_type=password", {
+      headers: { apikey: publishableKey, "Content-Type": "application/json" },
+      data: { email: demoEmail, password: demoPassword },
+    });
+    expect(response.ok(), "Dedicated fictional demo-manager sign-in must succeed").toBe(true);
+    token = String((await response.json()).access_token || "");
+    expect(token.length).toBeGreaterThan(50);
+  } finally { await login.close(); }
   const context = await browser.newContext({ baseURL: origin });
   try {
     await context.addCookies([{ name: "bms_access_token", value: token!, url: origin, httpOnly: true, secure: true, sameSite: "Lax" }]);
