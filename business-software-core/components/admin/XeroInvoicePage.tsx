@@ -1,3 +1,4 @@
+import {invoiceEmailBody} from "../../lib/invoice-email";
 "use client";
 import {BmsInput,BmsTextarea} from "./BmsUI";
 import { friendlyError } from "../../lib/friendly-error";
@@ -185,7 +186,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
         setSharePrompt({file,text,number,invoiceNumber:String(invoice.invoice_number||reference)});
         setMessage("");
       }else{
-        setEmailPrompt({action,to:String(jobData?.customer?.email||""),subject:`${crmConfig.businessName} invoice ${invoice.invoice_number||reference}`,body:`Hi ${String(jobData?.customer?.first_name||"").trim().split(/\s+/)[0]||"there"},\n\nPlease find attached your invoice ${invoice.invoice_number||reference}.\n\nTo get started on your project, we kindly ask for a 50% deposit. Once received, we can begin work, with the remaining 50% payable on completion.\n\nThank you very much for your business, we really appreciate it. If you have any questions at all, please feel free to get in touch.\n\nKind regards,\n${senderName?senderName+"\n":""}${crmConfig.businessName}`});return;
+        setEmailPrompt({action,to:String(jobData?.customer?.email||""),subject:`${crmConfig.businessName} invoice ${invoice.invoice_number||reference}`,body:invoiceEmailBody({invoiceNumber:String(invoice.invoice_number||reference),customerFirstName:String(jobData?.customer?.first_name||""),businessName:crmConfig.businessName,senderName, total:Number(invoice.total),amountPaid:Number(invoice.amount_paid),amountDue:Number(invoice.amount_due),dueDate:invoice.due_date,paymentVerified:Number.isFinite(Number(invoice.total))&&Number.isFinite(Number(invoice.amount_paid))&&Number.isFinite(Number(invoice.amount_due))&&Math.abs(Number(invoice.total)-Number(invoice.amount_paid)-Number(invoice.amount_due))<0.02})});return;
       }
     }catch(e){setError(friendlyError(e)||"Could not share invoice");}
     finally{setSharing("");}
