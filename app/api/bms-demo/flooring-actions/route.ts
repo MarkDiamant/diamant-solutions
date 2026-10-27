@@ -49,11 +49,10 @@ export async function POST(req:Request){
   // Cookie-authenticated mutations must originate from this application.
   const origin=req.headers.get("origin");
   const host=(req.headers.get("x-forwarded-host")||req.headers.get("host")||new URL(req.url).host).toLowerCase();
-  if(origin){
-   let source:URL;
-   try{source=new URL(origin)}catch{return response("Invalid request origin",403)}
-   if(source.host.toLowerCase()!==host||!["https:","http:"].includes(source.protocol))return response("Cross-site demo mutations are blocked",403);
-  }
+  if(!origin)return response("Request origin required for cookie-authenticated demo writes",403);
+  let source:URL;
+  try{source=new URL(origin)}catch{return response("Invalid request origin",403)}
+  if(source.host.toLowerCase()!==host||source.protocol!=="https:")return response("Cross-site demo mutations are blocked",403);
   const tenant=await demoTenant();
   if(!await memberAllowed(tenant))return response("Authenticated BMS manager required for fictional demo",403);
   const d=await req.json().catch(()=>null);
