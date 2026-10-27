@@ -10,7 +10,7 @@ create table if not exists public.business_software_purchase_documents (
  storage_path text not null unique,
  uploaded_by text,
  created_at timestamptz not null default now(),
- foreign key (tenant_id,material_order_id) references public.business_software_material_orders(tenant_id,id)
+ foreign key (material_order_id) references public.business_software_material_orders(id)
 );
 create index if not exists bms_purchase_documents_order_idx on public.business_software_purchase_documents(tenant_id,material_order_id,created_at desc);
 alter table public.business_software_purchase_documents enable row level security;
