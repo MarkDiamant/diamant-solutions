@@ -76,3 +76,10 @@ Updated: 26 October 2026. Scope: shared BMS core, all tenants. Do not alter MJ01
 - Audited all BMS tables for missing server-side read/insert privileges. Fixed missing Ruby attachment/usage, labour rate, worker location update and material allocation audit permissions. Unused legacy estimate/campaign/job-split tables were left restricted.
 - Verified direct authenticated access to Ruby attachments remains denied. Confirm real Ruby file upload, OCR/AI review and document-action confirmation tomorrow.
 - All changes apply to the shared BMS core. Only isolated fictional flooring tenant rows were seeded, and no existing tenant financial entries were edited.
+
+## 27 October: demo chrome and flooring fixtures
+- Demo selector and mode banner now reserve explicit sticky vertical space above the shared sidebar and header, including mobile drawer/backdrop. Confirm in a real browser at 320/390/768/1440 px, scroll, open Workspace, collapse on desktop, switch industry and ensure the sidebar is never obscured.
+- Industry selector updated to restrained light controls. Shared CSS is used, not a tenant-specific sidebar implementation.
+- Flooring demo generated jobs now use flooring product names, pack coverages, areas and job references instead of Northstar property scope. The featured FL001 no longer falsely shows an unverified £400 receipt as settled.
+- **Still incomplete:** Public demo action buttons are session simulations, not persisted warehouse/accounting actions. Real connected data snapshot is read-only. Do not demonstrate it as fully live until a dedicated authenticated and safely resettable demo tenant workflow is implemented and tested.
+- Acceptance testing should also confirm tenant isolation, no accidental writes to M&J, demo reset, quote version/PDF, worker labour, Ruby document confirmation, QuickBooks sandbox, Xero Money Overview and cross-tenant access denial.
