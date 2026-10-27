@@ -179,6 +179,14 @@ export async function POST(req:Request){
      result=action==="receive"?await rpc("bms_receive_purchase_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_receipt_key:keyValue}):action==="reserve"?await rpc("bms_reserve_sales_order_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_key:keyValue}):await rpc("bms_pick_sales_order_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_key:keyValue});
     }
    }
+  }else if(action==="record_invoice_payment"){
+   const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
+   await owned("business_software_jobs",tenant,job);
+   const row=await owned("business_software_invoices",tenant,invoice,"id,job_id,provider,status");
+   if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to selected job",403);
+   const paymentAmount=amount(d.amount),method=String(d.payment_method||"").trim(),paidAt=String(d.paid_at||"");
+   if(!Number.isFinite(paymentAmount)||paymentAmount<=0||!Number.isInteger(paymentAmount*100)||method.length<2||method.length>80||!paidAt||!Number.isFinite(Date.parse(paidAt)))return response("Valid payment amount, method and date required",400);
+   result=await rpc("bms_record_internal_invoice_payment_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:paymentAmount,p_method:method,p_paid_at:paidAt,p_key:keyValue,p_actor:"Demo manager"});
   }else if(action==="issue_invoice"||action==="void_invoice"){
    const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
    await owned("business_software_jobs",tenant,job);
