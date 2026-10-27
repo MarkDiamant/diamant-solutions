@@ -81,3 +81,9 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `bf039c13`: client retries use the same request key for identical actions after ambiguous network failures. `5dcfbd90`: accessible error/success feedback and correct Oak & Stone Flooring Demo name.
 - Supabase advisor still reports pre-existing security warnings for 34 authenticated-callable SECURITY DEFINER functions, public extension and leaked-password protection. Review individual authorisation semantics before revoking or changing functions; no broad access changes made.
 - **Authenticated browser end-to-end and mobile acceptance have NOT run:** no authenticated interactive browser session is available in the connected development tools. Production READY is not proof of user-facing persistence or mobile usability.
+
+- `70d82b89`: removed hardcoded orange fallback from shared navigation; configured tenant colour continues to drive accent and contrast.
+- `4cd2995f`, `0e136ad3`, `d27e6c3a`: preserved full-width responsive administration content inside migrated settings, integrations and users pages.
+- `44c130d9`, `628c8cc8`: demo quotation revisions now accept editable, server-validated lead times.
+- `4001de6e`: applied retry-terms guard to shared quote RPC; `610dc1bd` rollback test verifies conflicting lead times are rejected.
+- Repeated rollback-only reset, complete order-to-invoice, quote revision and cross-tenant enquiry tests after migrations: all passed. No MJ010 or other live financial data changed.
