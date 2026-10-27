@@ -160,7 +160,7 @@ export async function POST(req:Request){
    if(!uuid.test(job)||!uuid.test(documentId)||!["quote","invoice"].includes(kind))return response("Select a fictional quotation or invoice",400);
    await owned("business_software_jobs",tenant,job);
    const table=kind==="quote"?"business_software_quotes":"business_software_invoices";
-   const doc=await owned(table,tenant,documentId,kind==="quote"?"id,job_id,version,status,amount,vat_rate,scope_text":"id,job_id,invoice_number,status,total,amount_paid,amount_due,source_quote_id,provider");
+   const doc=await owned(table,tenant,documentId,kind==="quote"?"id,job_id,version,status,amount,vat_rate,scope_text":"id,job_id,invoice_number,status,total,amount_paid,amount_credited,amount_due,source_quote_id,provider");
    if(doc.job_id!==job||(kind==="invoice"&&doc.provider!=="internal"))return response("Financial document does not belong to selected fictional job",403);
    if(kind==="quote"&&doc.status!=="approved")return response("Approve the quotation before preparing email",409);
    if(kind==="invoice"&&!["issued","part_paid","paid","settled"].includes(doc.status))return response("Issue the invoice before preparing email",409);
@@ -184,7 +184,7 @@ export async function POST(req:Request){
     const settings=await centralRest("business_software_tenant_settings?tenant_id=eq."+tenant+"&select=accent_colour&limit=1",{cache:"no-store"});
     if(!settings.ok)throw Error("Unable to load tenant branding");
     const settingsRow=(await json(settings))?.[0];
-    const pdf=pdfDocument({title:kind==="quote"?"Quotation":"Invoice",issuer:"Oak & Stone Flooring Demo",brandColor:settingsRow?.accent_colour||"#263c54",reference:ref,recipient:"Fictional Flooring customer",items:[String(quote?.scope_text||"Fictional flooring works"),...(net===null?[]:["Net: GBP "+net.toFixed(2),"VAT ("+Number(quote.vat_rate)+"%): GBP "+Number(vat?.vat).toFixed(2)]),"Total: GBP "+total.toFixed(2),...(kind==="invoice"?["Paid: GBP "+Number(doc.amount_paid||0).toFixed(2),"Outstanding: GBP "+Number(doc.amount_due||0).toFixed(2)]:[])],footer:"Fictional demonstration. Not valid for commercial use."});
+    const pdf=pdfDocument({title:kind==="quote"?"Quotation":"Invoice",issuer:"Oak & Stone Flooring Demo",brandColor:settingsRow?.accent_colour||"#263c54",reference:ref,recipient:"Fictional Flooring customer",items:[String(quote?.scope_text||"Fictional flooring works"),...(net===null?[]:["Net: GBP "+net.toFixed(2),"VAT ("+Number(quote.vat_rate)+"%): GBP "+Number(vat?.vat).toFixed(2)]),"Total: GBP "+total.toFixed(2),...(kind==="invoice"?["Paid: GBP "+Number(doc.amount_paid||0).toFixed(2),"Credited: GBP "+Number(doc.amount_credited||0).toFixed(2),"Outstanding: GBP "+Number(doc.amount_due||0).toFixed(2)]:[])],footer:"Fictional demonstration. Not valid for commercial use."});
     const mail=await gmailFinancial({tenant,to,subject:"Fictional Flooring "+(kind==="quote"?"quotation ":"invoice ")+ref,body:"Fictional BMS acceptance test only. Please find the demonstration document attached.",filename:ref+".pdf",pdf,send,centralRest,env:process.env});
     const updated=await centralRest("business_software_financial_email_attempts?id=eq."+attempt.id+"&tenant_id=eq."+tenant,{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:send?"sent":"drafted",provider_message_id:mail.gmail_id,updated_at:new Date().toISOString()})});
     if(!updated.ok)throw Error("Gmail accepted the message but the audit update failed. Do not retry without checking Gmail.");
