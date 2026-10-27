@@ -17,7 +17,7 @@ BEGIN
    IF p_due_date IS NULL OR p_due_date<CURRENT_DATE THEN RAISE EXCEPTION 'Invoice due date must be today or later'; END IF;
    UPDATE public.business_software_invoices SET status='issued',invoice_date=CURRENT_DATE,due_date=p_due_date WHERE id=inv.id AND tenant_id=p_tenant AND job_id=p_job;
  ELSE
-   IF inv.status NOT IN ('draft','issued') OR coalesce(inv.amount_paid,0)<>0 THEN RAISE EXCEPTION 'Paid invoices cannot be voided'; END IF;
+   IF inv.status NOT IN ('draft','issued') OR (coalesce(inv.amount_paid,0)<>0 OR coalesce(inv.amount_credited,0)<>0) THEN RAISE EXCEPTION 'Paid invoices cannot be voided'; END IF;
    UPDATE public.business_software_invoices SET status='void',amount_due=0 WHERE id=inv.id AND tenant_id=p_tenant AND job_id=p_job;
  END IF;
  INSERT INTO public.business_software_audit_events(tenant_id,actor,action,entity_type,entity_id,metadata)
