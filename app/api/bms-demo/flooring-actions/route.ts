@@ -179,6 +179,14 @@ export async function POST(req:Request){
      result=action==="receive"?await rpc("bms_receive_purchase_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_receipt_key:keyValue}):action==="reserve"?await rpc("bms_reserve_sales_order_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_key:keyValue}):await rpc("bms_pick_sales_order_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_key:keyValue});
     }
    }
+  }else if(action==="issue_invoice"||action==="void_invoice"){
+   const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
+   await owned("business_software_jobs",tenant,job);
+   const row=await owned("business_software_invoices",tenant,invoice,"id,job_id,provider,status");
+   if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to the selected job",403);
+   const dueDate=String(d.due_date||"");
+   if(action==="issue_invoice"&&!/^\d{4}-\d{2}-\d{2}$/.test(dueDate))return response("Valid invoice due date required",400);
+   result=await rpc("bms_transition_internal_invoice_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_action:action==="issue_invoice"?"issue":"void",p_actor:"Demo manager",p_key:keyValue,p_due_date:action==="issue_invoice"?dueDate:null});
   }else if(action==="create_draft_invoice"){
    const job=String(d.job_id||"");await owned("business_software_jobs",tenant,job);
    const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1",{cache:"no-store"});
