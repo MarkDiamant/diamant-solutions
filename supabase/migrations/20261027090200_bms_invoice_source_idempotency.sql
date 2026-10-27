@@ -16,7 +16,7 @@ BEGIN
  IF q.amount<=0 OR q.vat_rate<0 OR q.vat_rate>100 THEN RAISE EXCEPTION 'Invalid quotation total'; END IF;
  gross:=round(q.amount*(1+q.vat_rate/100),2);
  IF gross<=0 OR gross>10000000 THEN RAISE EXCEPTION 'Invalid invoice total'; END IF;
- PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant::text||':'||p_key,90918));
+ PERFORM pg_advisory_xact_lock(hashtextextended(p_tenant::text||':'||p_quote::text,90918));
  SELECT * INTO prior FROM public.business_software_invoices WHERE tenant_id=p_tenant AND request_key=p_key LIMIT 1;
  IF FOUND THEN
   IF prior.job_id<>p_job OR prior.total<>gross OR prior.provider<>'internal' OR prior.source_quote_id IS DISTINCT FROM p_quote THEN
