@@ -274,7 +274,7 @@ async function syncDraftXeroInvoiceTitle(tenantId:string,reference:string,extern
 async function xeroInvoicePdf(tenantId:string,reference:string,invoiceId:string){
  const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id&limit=1");
  const job=(await jr.json().catch(()=>[]))[0];if(!job)throw new Error("Job not found.");
- const ir=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&id=eq."+encodeURIComponent(invoiceId)+"&provider=eq.xero&select=external_invoice_id,status,invoice_number&limit=1");
+ const ir=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&id=eq."+encodeURIComponent(invoiceId)+"&provider=eq.xero&select=external_invoice_id,status,invoice_number,total,amount_paid,amount_due,due_date&limit=1");
  const invoice=(await ir.json().catch(()=>[]))[0];if(!invoice?.external_invoice_id)throw new Error("Xero invoice not found for this job.");
  await syncDraftXeroInvoiceTitle(tenantId,reference,invoice.external_invoice_id);
  const pdf=await xeroRequest(tenantId,"Invoices/"+encodeURIComponent(invoice.external_invoice_id),"GET",undefined,"pdf");
@@ -457,7 +457,7 @@ if(["update_user","update_settings","disconnect_integration"].includes(plan.kind
  const pdf=Buffer.from(encoded,"base64");if(pdf.subarray(0,5).toString()!=="%PDF-")return NextResponse.json({error:"Invalid PDF attachment"},{status:400});
  const gmail=await googleAccessToken(tenantId);if(!gmail.token)return NextResponse.json({error:gmail.account?"Gmail is linked to "+gmail.account+", but authorisation has expired. Reconnect Gmail in Integrations.":"Connect Gmail in Integrations"},{status:409});
  const businessName=String(raw?.settings?.businessName||tenant.business_name||"Business"),number=String(invoice.invoice_number||parts[1]),first=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
- const subject=businessName+" invoice "+number,body=invoiceEmailBody({invoiceNumber:number,customerFirstName:first,businessName,total:Number(invoice.total),amountPaid:Number(invoice.amount_paid),amountDue:Number(invoice.amount_due),dueDate:invoice.due_date,paymentVerified:invoice.payment_verified!==false});
+ const subject=businessName+" invoice "+number,body=invoiceEmailBody({invoiceNumber:number,customerFirstName:first,businessName,total:Number(invoice.total),amountPaid:Number(invoice.amount_paid),amountDue:Number(invoice.amount_due),dueDate:invoice.due_date,paymentVerified:Number.isFinite(Number(invoice.total))&&Number.isFinite(Number(invoice.amount_due))&&Number.isFinite(Number(invoice.amount_paid))&&Math.abs(Number(invoice.total)-Number(invoice.amount_due)-Number(invoice.amount_paid))<0.02});
  const mime=rawEmail(String(customer.email),subject,body,{name:number+"-Invoice.pdf",data:encoded});
  const send=data.action==="send",endpoint=send?"messages/send":"drafts";
  const gr=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+endpoint,{method:"POST",headers:{"Authorization":"Bearer "+gmail.token,"Content-Type":"application/json"},body:JSON.stringify(send?{raw:mime}:{message:{raw:mime}})});
@@ -483,7 +483,7 @@ if(parts[0]==="jobs"&&parts[2]==="invoice-share"){if(!canBms(member,"view_paymen
  const number=String(result.invoice.invoice_number||parts[1]);
  const subject=String(data.subject||businessName+" invoice "+number).slice(0,220);
  const firstName=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
- const body=String(data.body||invoiceEmailBody({invoiceNumber:number,customerFirstName:firstName,businessName,total:Number(result.invoice.total),amountPaid:Number(result.invoice.amount_paid),amountDue:Number(result.invoice.amount_due),dueDate:result.invoice.due_date,paymentVerified:result.invoice.payment_verified!==false})).slice(0,10000);
+ const body=String(data.body||invoiceEmailBody({invoiceNumber:number,customerFirstName:firstName,businessName,total:Number(result.invoice.total),amountPaid:Number(result.invoice.amount_paid),amountDue:Number(result.invoice.amount_due),dueDate:result.invoice.due_date,paymentVerified:Number.isFinite(Number(result.invoice.total))&&Number.isFinite(Number(result.invoice.amount_due))&&Number.isFinite(Number(result.invoice.amount_paid))&&Math.abs(Number(result.invoice.total)-Number(result.invoice.amount_due)-Number(result.invoice.amount_paid))<0.02})).slice(0,10000);
  const mime=rawEmail(recipient,subject,body,{name:number+"-Invoice.pdf",data:result.pdf.toString("base64")});
  const send=data.action==="send",endpoint=send?"messages/send":"drafts";
  const gr=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+endpoint,{method:"POST",headers:{"Authorization":"Bearer "+gmail.token,"Content-Type":"application/json"},body:JSON.stringify(send?{raw:mime}:{message:{raw:mime}})});
