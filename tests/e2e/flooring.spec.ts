@@ -37,6 +37,7 @@ test("anonymous mutations rejected",async({request})=>{
  expect(r.status()).toBe(403);
 });
 test("public Flooring Demo renders responsive read-only workflow without a session",async({page})=>{
+ const hydrationErrors:string[]=[];page.on("pageerror",e=>{if(/hydration|React error #418/i.test(e.message))hydrationErrors.push(e.message)});
  for(const width of [320,390,768,1280]){
   await page.setViewportSize({width,height:850});
   const r=await page.goto("/flooring/operations");
@@ -45,7 +46,9 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
   await page.getByLabel("Product",{exact:true}).selectOption({label:"Natural oak 8mm laminate"});
   await expect(page.getByText(/24 pack/i).first()).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  expect(await page.locator("a a").count()).toBe(0);
  }
+ expect(hydrationErrors).toEqual([]);
 });
 test("authenticated manager desktop and mobile rendering",async({page,context})=>{
  test.skip(!hasAuth,"Requires a dedicated fictional-demo manager test account");
