@@ -43,10 +43,10 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
   const r=await page.goto("/flooring/operations");
   expect(r?.status()).toBe(200);
   await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
-  await page.getByLabel("Product",{exact:true}).selectOption({label:"Natural oak 8mm laminate"});
-  await page.getByLabel("Customer",{exact:true}).selectOption({label:"Sarah Collins"});
+  await page.getByRole("combobox",{name:"Product",exact:true}).selectOption({label:"Natural oak 8mm laminate"});
+  await page.getByRole("combobox",{name:"Customer",exact:true}).selectOption({label:"Sarah Collins"});
   await expect(page.getByText(/24 pack.*£37\.00 per unit/i).first()).toBeVisible();
-  await page.getByLabel("Customer",{exact:true}).selectOption({label:"North London Developments"});
+  await page.getByRole("combobox",{name:"Customer",exact:true}).selectOption({label:"North London Developments"});
   await expect(page.getByText(/24 pack.*£39\.00 per unit/i).first()).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
   expect(await page.locator("a a").count()).toBe(0);
@@ -72,8 +72,8 @@ test("authenticated fictional customer write, persistence and transactional rese
  await page.getByRole("button",{name:"Create customer",exact:true}).click();
  await expect(page.getByText("Saved to isolated demo database: create customer")).toBeVisible();
  await page.reload();
- await page.getByLabel("Customer",{exact:true}).selectOption({label:name+" Example"});
- await page.getByLabel("Product",{exact:true}).selectOption({label:"Natural oak 8mm laminate"});
+ await page.getByRole("combobox",{name:"Customer",exact:true}).selectOption({label:name+" Example"});
+ await page.getByRole("combobox",{name:"Product",exact:true}).selectOption({label:"Natural oak 8mm laminate"});
  await page.getByRole("button",{name:"Create customer enquiry"}).click();
  await expect(page.getByText("Saved to isolated demo database: create enquiry")).toBeVisible();
  await page.getByLabel("Quote scope").fill("Fictional flooring acceptance "+suffix);
