@@ -7,7 +7,7 @@ test('navigation precedes priorities and Split Job Order is a permission-gated t
  assert.ok(job.indexOf('aria-label="Job sections"')<job.indexOf('aria-label="Job overview"'));
  assert.match(job,/"Split Job\/Order"/);
  assert.match(job,/x!=="Split Job\/Order"\|\|canPricing/);
- assert.match(job,/tab==="Split Job\/Order"&&canPricing/);
+ assert.match(job,/activeTab==="Split Job\/Order"&&canPricing/);
  assert.doesNotMatch(job,/Job options and split order/);
 });
 test('header has no activity, quote or invoice action shortcuts',()=>{
@@ -42,7 +42,7 @@ test('historical Xero-paid entries without payment dates are visibly flagged, no
 
 test("secondary job tabs show skeleton and split waits for full data",()=>{
  assert.match(job,/aria-label="Loading job section"/);
- assert.match(job,/data\._full&&tab==="Split Job\/Order"&&canPricing/);
+ assert.match(job,/data\._full&&activeTab==="Split Job\/Order"&&canPricing/);
 });
 
 test("Quick Edit cancel restores persisted job fields and refresh resynchronises",()=>{assert.match(job,/Cancel Quick Edit/);assert.match(job,/if\(quickOpen\)\{setQuickTitle/);assert.match(job,/\[j\.job_title,j\.job_type,j\.manager,j\.next_action,j\.next_action_at,j\.internal_notes,quickOpen\]/);});
