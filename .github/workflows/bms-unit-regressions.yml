@@ -13,6 +13,12 @@ on:
       - "app/api/bms-live/[...path]/route.ts"
       - "business-software-core/components/admin/BmsUI.tsx"
       - "tests/bms-shared-primitives.test.mjs"
+      - "tests/bms-api-static-guards.test.mjs"
+      - "app/api/bms-demo/flooring-actions/route.ts"
+      - "app/api/bms-materials/route.ts"
+      - "app/api/business-software/tenants/**/gmail/**"
+      - "lib/business-software/gmail-send.js"
+      - "app/bms-runtime/ai/page.tsx"
       - ".github/workflows/bms-unit-regressions.yml"
   workflow_dispatch:
 permissions:
@@ -30,6 +36,6 @@ jobs:
           node-version: "22"
       - run: npm install --ignore-scripts
       - name: Worker daily-hours and UK DST regression
-        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/bms-shared-primitives.test.mjs
+        run: node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/bms-shared-primitives.test.mjs tests/bms-api-static-guards.test.mjs
         env:
           TZ: Europe/London
