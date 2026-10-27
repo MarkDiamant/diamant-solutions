@@ -26,8 +26,7 @@ BEGIN
  PERFORM bms_receive_purchase_line(t,pl,l,12,'test-full-workflow-receipt-2');
  PERFORM bms_reserve_sales_order_line(t,sl,l,12,'test-full-workflow-reserve');
  PERFORM bms_pick_sales_order_line(t,sl,l,12,'test-full-workflow-pick');
- INSERT INTO business_software_deliveries(tenant_id,sales_order_id,job_id,status,delivery_address,request_key)
- VALUES(t,so,j,'planned','Fictional site, London','test-full-workflow-delivery') RETURNING id INTO delivery;
+ delivery:=(bms_plan_delivery_once(t,so,'Fictional site, London','test-full-workflow-delivery')->>'id')::uuid;
  PERFORM bms_confirm_delivery(t,delivery,'test-full-workflow-delivery-confirm','Acceptance test');
  PERFORM bms_create_internal_draft_invoice_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'test-full-workflow-invoice','FLI');
  IF NOT EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j AND status='draft') THEN RAISE EXCEPTION 'Invoice missing'; END IF;
