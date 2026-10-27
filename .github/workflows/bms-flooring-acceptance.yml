@@ -1,0 +1,36 @@
+name: BMS Flooring Acceptance
+on:
+  workflow_dispatch:
+    inputs:
+      run_mutations:
+        description: "Explicitly allow isolated fictional-demo write and reset tests"
+        required: true
+        default: false
+        type: boolean
+permissions:
+  contents: read
+concurrency:
+  group: bms-flooring-acceptance
+  cancel-in-progress: false
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    environment: bms-acceptance
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save --ignore-scripts @playwright/test@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - name: Read-only smoke and opt-in manager acceptance
+        run: npx playwright test
+        env:
+          BMS_TEST_BASE_URL: https://bms.diamantsolutions.co.uk
+          BMS_TEST_ACCESS_TOKEN: ${{ secrets.BMS_TEST_ACCESS_TOKEN }}
+          BMS_RUN_MUTATIONS: ${{ inputs.run_mutations && '1' || '0' }}
