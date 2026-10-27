@@ -329,3 +329,11 @@ test("Ruby and workforce service grants do not grant direct client access",()=>{
  assert.doesNotMatch(sql,/TO anon|TO authenticated/);
  }
 });
+
+test("flooring demo fixtures do not reuse property-job scope or claim a fictional payment was verified",()=>{
+ const demo=fs.readFileSync("app/api/bms-demo/[...path]/route.ts","utf8");
+ assert.match(demo,/if\(key==="flooring"&&i>0\)/);
+ assert.match(demo,/coverage=\[2\.2,2\.5,1\.44\]/);
+ assert.match(demo,/reference:"FL001"/);
+ assert.match(demo,/status:"materials_ordered",quotedAmount:888,preliminaryEstimate:888,estimatedCost:576,amountPaid:0/);
+});
