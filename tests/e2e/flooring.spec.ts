@@ -79,6 +79,18 @@ test("fictional reset requires exact phrase and an explicit confirmation",async(
  await reset.click();
  await expect(page.getByLabel("Type RESET OAK AND STONE DEMO")).toHaveValue("RESET OAK AND STONE DEMO");
 });
+test("worker and labour demo routes fail safely without crashing or claiming saved changes",async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ const errors:string[]=[];page.on("pageerror",e=>errors.push(e.message));
+ await page.goto("/flooring/worker");
+ await expect(page.getByRole("heading",{name:"My work"})).toBeVisible();
+ await expect(page.getByText(/Worker operations are unavailable in this fictional preview/)).toBeVisible();
+ await page.goto("/flooring/labour");
+ await expect(page.getByRole("heading",{name:"Labour and job costing"})).toBeVisible();
+ await expect(page.getByText(/Labour costing is unavailable/)).toBeVisible();
+ expect(errors).toEqual([]);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+});
 test("anonymous browser write shows a clear denial and persists nothing",async({page,request})=>{
  const before=await (await request.get("/api/bms-demo/flooring-data")).json();
  await page.goto("/flooring/operations");
