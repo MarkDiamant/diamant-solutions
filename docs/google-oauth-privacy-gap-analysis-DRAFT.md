@@ -16,7 +16,7 @@ The public policy covers general enquiries, customer documents, accounting reten
 
 ## Blocking evidence checks
 
-1. Verify the BMS integration-disconnect endpoint actually revokes Google refresh tokens and removes stored credentials, and verify backup retention.
+1. Source now attempts Google OAuth token revocation on an authorised disconnect, clears encrypted stored access/refresh tokens, and signals when Google-side revocation could not be confirmed. Production end-to-end revocation, backup retention and any downstream token copies still require verification.
 2. Verify the exact data subprocessors and encryption-at-rest/secret handling implementation.
 3. Confirm the policy is linked on the OAuth consent screen for project 305628074304.
 4. Obtain legal/owner approval before changing the public Wix privacy page or representing these claims to Google.
