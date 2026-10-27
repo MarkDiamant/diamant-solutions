@@ -52,7 +52,13 @@ export async function GET(req:Request){
  try{
   const tenant=await demoTenant();
   if(!await memberAllowed(tenant))return response("Authenticated BMS manager required for fictional demo",403);
-  const job=new URL(req.url).searchParams.get("job_id")||"";
+  const params=new URL(req.url).searchParams;
+  if(params.get("list_jobs")==="true"){
+   const jobs=await centralRest("business_software_jobs?tenant_id=eq."+tenant+"&select=id,reference,status,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
+   if(!jobs.ok)return response("Unable to list fictional tenant jobs",503);
+   return NextResponse.json({fictional:true,jobs:await json(jobs)},{headers:{"Cache-Control":"private, no-store"}});
+  }
+  const job=params.get("job_id")||"";
   if(!uuid.test(job))return response("Valid fictional job_id required",400);
   await owned("business_software_jobs",tenant,job);
   const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
