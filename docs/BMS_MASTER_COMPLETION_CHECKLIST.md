@@ -12,10 +12,10 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Flooring fictional tenant isolated data | Database integration verified | `supabase/demo/flooring_showcase_seed.sql`, rollback SQL |
 | Flooring products, coverage and customer pricing | Database integration verified | `tests/flooring-showcase-connected.sql` |
 | Flooring PO, goods receipt, reservation, picking, return | Database integration verified | Rollback SQL under service role |
-| Flooring public demo interactive actions persisted | **Open** | Browser-only actions remain; simulation feedback corrected and connected-data refresh added in `DemoOperationsPanel.tsx`; authenticated persisted actions not implemented |
+| Flooring public demo interactive actions persisted | Implemented, authenticated E2E open | New manager-authorised `/api/bms-demo/flooring-actions` uses shared tenant-aware RPCs for sales, purchasing, goods receipts, reservations, picking, deliveries and returns; UI connected; production browser acceptance pending |
 | Flooring connected website catalogue preview | Read-only implemented | `/api/bms-demo/flooring-data` |
-| Flooring demo safe reset | **Open** | Browser reset explicitly labelled as simulation-only; persisted tenant reset and access model not implemented |
-| Flooring quotation, draft invoice, accounting | Partially implemented | Versioned quote, internal draft invoice; no connected provider for demo |
+| Flooring demo safe reset | **Open** | Obsolete browser-only simulation removed; transactional persisted demo reset not implemented |
+| Flooring quotation, draft invoice, accounting | Implemented for isolated internal drafts, E2E open | Manager actions create quote revisions and internal draft invoices; no external accounting provider for demo |
 | Purchasing, sales, stock and logistics master core | Partially integrated | Authenticated UI and role acceptance pending |
 | Ruby document interpretation and confirmed actions | Open for end-to-end verification | Test each document type, confirmation, permissions, idempotency |
 | Worker Portal, scheduling, timesheets and labour billing | Open for end-to-end verification | Role matrix and invoice evidence pending |
@@ -35,3 +35,10 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `43b890e7`: added connected flooring snapshot refresh, shared loading/error UI primitives, shared cards and a simulation disclosure. GitHub commit recorded; production verification pending.
 - `5fc05628`: clarified connected invoice versus simulated stock counters and browser-only reset. GitHub commit recorded; production verification pending.
 - No checklist item has advanced to authenticated end-to-end verification. No production financial records or tenant subscriptions were modified.
+
+## 27 October 2026 functional continuation
+- `e77b4a62`: new manager-authorised isolated demo action endpoint, reusing existing tenant-scoped stock, purchase, sales and delivery RPCs. No live tenant IDs accepted.
+- `838bb614`: connected read endpoint now returns location, job, purchase-line, sales-line and delivery identifiers for authorised actions.
+- `90eb2ab5` and `eeaa7692`: connected operations UI for customers, quotation revisions, flooring m²/pack calculations, sales orders, purchasing, goods receipt, reservations, picking, delivery and draft invoice; obsolete browser simulator removed.
+- `e5f457d8`: customer retry handling and return guard. Existing rollback-only flooring integration test rerun successfully; anon and authenticated cannot directly execute the stock/sales/delivery RPCs, while service_role can.
+- Build pipelines skip TypeScript validation, so successful Vercel compilation is not a type-check or authenticated browser acceptance. Reset, full workflow acceptance and all-page design migration remain open.
