@@ -109,3 +109,21 @@ test("demo banners reserve space above shared sidebar and preserve mobile contro
  assert.match(css,/\.bms-app-header\{top:var\(--bms-demo-chrome-height\)!important/);
  assert.match(css,/\.bms-sidebar-backdrop\{top:calc/);
 });
+
+test("shared design tokens inherit tenant accent without hardcoded navigation colour",()=>{
+ assert.match(nav,/--bms-accent/);
+ assert.match(nav,/config\?\.accentColour/);
+ assert.match(css,/--bms-accent-soft:color-mix/);
+ assert.match(css,/\.bms-side-active\{background:var\(--bms-accent-soft\)!important/);
+ assert.match(css,/\.bms-primary-button/);
+ assert.match(css,/\.bms-table/);
+ assert.match(css,/\.bms-status-error/);
+});
+test("demo banners and selector reserve full sidebar offset on all widths",()=>{
+ const selector=fs.readFileSync("components/DemoSelector.tsx","utf8");
+ assert.match(selector,/bms-demo-industry-scroll/);
+ assert.match(selector,/aria-pressed=\{key===selected\}/);
+ assert.match(css,/--bms-demo-chrome-height:84px/);
+ assert.match(css,/top:calc\(84px \+ var\(--bms-header-height\)\)!important/);
+ assert.match(css,/max-height:calc\(100dvh - 84px - var\(--bms-header-height\)\)!important/);
+});
