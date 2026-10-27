@@ -26,3 +26,7 @@ npx playwright test --grep-invert authenticated
 ~~~
 
 Ensure the repository Playwright config and tests/e2e/flooring.spec.ts are present in the sandbox. This command excludes authenticated tests, which must be run separately using protected CI credentials. On 27 October the exact public suite passed **8/8**, including responsive pricing, reset guard, mobile keyboard controls, denied writes, Worker Portal and Labour Costing error handling. The shared brand nested-anchor hydration error was also fixed and independently verified across three production routes. Always stop the sandbox after use.
+
+## Latest full verification
+- Public Chromium suite: **12/12 passed** after demo write Origin regression. Node/React/security suite: **18/18 passed**. Rollback-only SQL integration: **13/13 passed**.
+- Production Next.js build now enforces TypeScript checking and passes; npm audit 0 vulnerabilities. Authenticated manager tests still require a dedicated, active account of the fictional tenant with credentials stored only in the protected GitHub Actions environment.
