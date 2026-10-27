@@ -28,6 +28,6 @@ export async function GET(){
  const results=await Promise.all(Object.values(endpoints).map(path=>centralRest(path)));
  if(results.some(r=>!r.ok)){const failed=await Promise.all(results.map(async(r,i)=>!r.ok?{source:Object.keys(endpoints)[i],status:r.status,detail:String((await r.json().catch(()=>({})))?.message||"").slice(0,160)}:null));return NextResponse.json({error:"Showcase data unavailable",failed_sources:failed.filter(Boolean)},{status:503});}
  const data=await Promise.all(results.map(r=>r.json()));
- return NextResponse.json({business:tenant.business_name,fictional:true,read_only:true,connected:true,...Object.fromEntries(Object.keys(endpoints).map((key,i)=>[key,data[i]]))},{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
+ return NextResponse.json({business:tenant.business_name,fictional:true,read_only:false,connected:true,write_access:"authenticated_manager_only",...Object.fromEntries(Object.keys(endpoints).map((key,i)=>[key,data[i]]))},{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
  }catch{return NextResponse.json({error:"Showcase temporarily unavailable"},{status:503});}
 }
