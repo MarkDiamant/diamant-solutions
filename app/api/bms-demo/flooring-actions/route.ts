@@ -18,13 +18,13 @@ async function demoTenant(){
  if(!t||t.slug!=="flooring-showcase-demo"||!uuid.test(t.id))throw Error("Demo tenant not provisioned");
  return String(t.id);
 }
-async function memberAllowed(demoTenantId:string){
+async function memberAllowed(){
  const current=await runtimeTenant();if(!current?.id)return false;
  const jar=await cookies();const token=jar.get("bms_access_token")?.value;
  if(!token)return false;
  const user=await fetch(url+"/auth/v1/user",{headers:{apikey:key,Authorization:"Bearer "+token},cache:"no-store"});
  if(!user.ok)return false;
- const r=await fetch(url+"/rest/v1/rpc/bms_login_membership",{method:"POST",headers:{apikey:key,Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({p_tenant:demoTenantId}),cache:"no-store"});
+ const r=await fetch(url+"/rest/v1/rpc/bms_login_membership",{method:"POST",headers:{apikey:key,Authorization:"Bearer "+token,"Content-Type":"application/json"},body:JSON.stringify({p_tenant:current.id}),cache:"no-store"});
  if(!r.ok)return false;
  const m=await json(r);return !!m&&["owner","admin","manager"].includes(String(m.role));
 }
@@ -44,7 +44,7 @@ async function rpc(name:string,body:Record<string,unknown>){
 export async function POST(req:Request){
  try{
   const tenant=await demoTenant();
-  if(!await memberAllowed(tenant))return response("Flooring demo tenant manager membership required",403);
+  if(!await memberAllowed())return response("Authenticated BMS manager required for fictional demo",403);
   const d=await req.json().catch(()=>null);
   if(!d||typeof d!=="object")return response("Invalid request",400);
   const action=String(d.action||""),keyValue=String(d.request_key||"");
