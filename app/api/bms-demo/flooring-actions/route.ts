@@ -51,6 +51,14 @@ async function rpc(name:string,body:Record<string,unknown>){
 }
 export async function POST(req:Request){
  try{
+  // Cookie-authenticated mutations must originate from this application.
+  const origin=req.headers.get("origin");
+  const host=(req.headers.get("x-forwarded-host")||req.headers.get("host")||new URL(req.url).host).toLowerCase();
+  if(origin){
+   let source:URL;
+   try{source=new URL(origin)}catch{return response("Invalid request origin",403)}
+   if(source.host.toLowerCase()!==host||!["https:","http:"].includes(source.protocol))return response("Cross-site demo mutations are blocked",403);
+  }
   const tenant=await demoTenant();
   if(!await memberAllowed())return response("Authenticated BMS manager required for fictional demo",403);
   const d=await req.json().catch(()=>null);
