@@ -6,7 +6,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 |---|---|---|
 | Shared tenant-aware design tokens | Implemented, automated regression | `app/bms-runtime/bms.css`, `BmsUI.tsx`, sidebar navigation test |
 | Shared page, header, cards, forms, tables, modal, badge primitives | Implemented | `BmsUI.tsx`; migration of every existing page still open |
-| All BMS pages migrated to central components | In progress | Demo operations migrated; audit remaining pages |
+| All BMS pages migrated to central components | In progress | Shared tenant-accent-aware compatibility styling now covers legacy forms, tables and focus across pages; individual page component migration and visual QA still open |
 | Demo banner and industry selector clear sidebar | Code implemented, visual QA open | Verify desktop and mobile authenticated views |
 | Mobile header, New Job, Ruby original image | Code implemented, visual QA open | Verify menu scroll and tenant logo at 320/390/768px |
 | Flooring fictional tenant isolated data | Database integration verified | `supabase/demo/flooring_showcase_seed.sql`, rollback SQL |
@@ -42,3 +42,6 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `90eb2ab5` and `eeaa7692`: connected operations UI for customers, quotation revisions, flooring m²/pack calculations, sales orders, purchasing, goods receipt, reservations, picking, delivery and draft invoice; obsolete browser simulator removed.
 - `e5f457d8`: customer retry handling and return guard. Existing rollback-only flooring integration test rerun successfully; anon and authenticated cannot directly execute the stock/sales/delivery RPCs, while service_role can.
 - Build pipelines skip TypeScript validation, so successful Vercel compilation is not a type-check or authenticated browser acceptance. Reset, full workflow acceptance and all-page design migration remain open.
+
+- `a8559608`: applied shared, tenant-accent-aware legacy-page compatibility styling for inputs, tables and focus without tenant-specific overrides. Visual QA remains open.
+- Cross-tenant purchase-line receipt rejection tested with service_role inside an explicit rolled-back transaction; passed without financial or stock changes.
