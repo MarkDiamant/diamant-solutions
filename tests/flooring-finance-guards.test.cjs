@@ -1,0 +1,7 @@
+const {test}=require("node:test");const assert=require("node:assert/strict");const fs=require("node:fs");
+const api=fs.readFileSync("app/api/bms-demo/flooring-actions/route.ts","utf8");const ui=fs.readFileSync("business-software-core/components/admin/FlooringFinanceReview.tsx","utf8");
+test("flooring finance requires authenticated fictional manager and tenant ownership",()=>{assert.match(api,/if\(!await memberAllowed\(tenant\)\)/);assert.match(api,/tenant_id=eq\.\x22\+tenant/);assert.match(api,/await owned\(\x22business_software_jobs\x22,tenant,job\)/);});
+test("quote approval requires latest revision and concurrency-safe draft transition",()=>{assert.match(api,/action===\x22approve_quote\x22/);assert.match(api,/selected\.job_id!==job/);assert.match(api,/Only the latest quotation revision can be approved/);assert.match(api,/status=eq\.draft/);});
+test("invoice conversion requires approved latest quotation and source quotation idempotency",()=>{assert.match(api,/if\(quote\.status!==\x22approved\x22\)/);assert.match(api,/p_quote:String\(quote\.id\)/);assert.match(api,/p_key:\x22quote:\x22\+String\(quote\.id\)/);});
+test("quotation VAT is validated and configurable",()=>{assert.match(api,/d\.vat_rate==null\?20:Number\(d\.vat_rate\)/);assert.match(api,/vatRate<0\|\|vatRate>100/);assert.match(api,/quoteTotals\(total,vatRate\)/);});
+test("shared finance UI blocks invoice conversion before approval",()=>{assert.match(ui,/ledger\.quotes\[0\]\.status!==\x22approved\x22/);assert.match(ui,/action\(\x22approve_quote\x22,q\.id\)/);});
