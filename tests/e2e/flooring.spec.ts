@@ -91,6 +91,7 @@ test("authenticated fictional customer write, persistence and transactional rese
  const invoice=before.invoices.find((i:any)=>i.job_id===savedJob.id);
  expect(invoice).toBeTruthy();
  expect(Number(invoice.total)).toBe(1080);
+ expect(invoice.source_quote_id).toBe(revisions[1].id);
  expect(invoice.invoice_number).toMatch(/^FLI/);
  await page.getByLabel("Type RESET OAK AND STONE DEMO").fill("RESET OAK AND STONE DEMO");
  page.once("dialog",dialog=>dialog.accept());
