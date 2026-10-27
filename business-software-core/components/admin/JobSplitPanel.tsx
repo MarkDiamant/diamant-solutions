@@ -1,6 +1,6 @@
 "use client";
 import {useEffect,useMemo,useState} from "react";
-import {BmsModal,BmsButton,BmsState} from "./BmsUI";
+import {BmsModal,BmsState} from "./BmsUI";
 
 type Item={id:number;label:string;amount:number|null;group:number};
 const titleFromItem=(label:string)=>label.split("\n")[0].replace(/^\s*(?:item\s*|section\s*)?\d+[.)\-:]\s*/i,"").replace(/\s*[:=]?\s*\d+(?:\.\d+)?\s*[x×]\s*£\s*[\d,]+(?:\.\d{1,2})?\s*=\s*£\s*[\d,]+(?:\.\d{1,2})?.*$/i,"").replace(/\s*[:·-]?\s*£\s*[\d,]+(?:\.\d{1,2})?.*$/,"").replace(/[\s:·-]+$/,"").replace(/\b(?:approximately|approx\.?|about)\b.*$/i,"").replace(/[,;:]\s*(?:including|with|measuring|dimensions?|length|width|height)\b.*$/i,"").replace(/\b\d+(?:\.\d+)?\s*(?:mm|cm|metres?|meters?|m)\b.*$/i,"").replace(/[,;:\s-]+$/,"").trim().slice(0,75);
