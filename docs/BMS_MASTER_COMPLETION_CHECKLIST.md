@@ -176,3 +176,9 @@ See [BMS_REQUIREMENT_ACCEPTANCE_METRICS.md](BMS_REQUIREMENT_ACCEPTANCE_METRICS.m
 - Tightened Xero organisation selection, QuickBooks verification, invoice email permissions, Ruby tenant/user-bound signed confirmations and invoice-payload binding. Exact-source Ruby HMAC tests passed locally; no financial records changed.
 - Customer creation no longer writes internal request keys into notes; rollback-only idempotency/privacy test passed. Shared Job Detail inputs/selects/textareas, Job Split controls and demo tables migrated to BMS primitives. Xero now exposes 429 Retry-After and reauthorisation responses.
 - **Strict 20-requirement gates unchanged:** implemented 10/20 (50%); fully database/integration tested 6/20 (30%); authenticated E2E accepted 0/20 (0%). Public browser smoke is separately recorded, not authenticated acceptance.
+
+## Worker and labour browser crash regression (27 October)
+- Live Chromium revealed that public demo Worker Portal crashed on undefined entries.filter and Labour Costing crashed on noniterable budgets. Shared-master fixes f4a6715a and e4034187 normalised incomplete API payloads; 016d2383 and eef8c9b6 explicitly reject generic demo stubs rather than falsely reporting saved timesheets or billing.
+- After deployment, both routes rendered their correct headings and clear unavailable messages, with zero uncaught browser errors and no horizontal overflow at 390px.
+- Re-ran the exact public Playwright suite after adding reset-phrase and worker/labour safety cases: **8 passed, 0 failed, 0 skipped**. Eight public browser tests are not authenticated E2E.
+- Strict 20-requirement complete-gate metrics remain **10/20 implemented, 6/20 fully database/integration tested, 0/20 authenticated E2E accepted**.
