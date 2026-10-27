@@ -71,7 +71,7 @@ export default function AdminBrandBar(){
  const toggleSection=(name:string)=>setOpenSections(old=>{const next={...old,[name]:!(old[name]??true)};try{localStorage.setItem(sectionsKey,JSON.stringify(next))}catch{}return next});
  const toggleCompact=()=>setCompact(old=>{try{localStorage.setItem(storeKey,old?"0":"1")}catch{}return !old});
  async function logout(){await fetch("/api/admin/auth/logout",{method:"POST"});router.replace("/login");router.refresh()}
- const brand=config?.accentColour||"#e66a24";
+ const brand=config?.accentColour||"#365b85";
  useEffect(()=>{
   const shell=document.querySelector<HTMLElement>(".bms-shell");
   if(!shell)return;
