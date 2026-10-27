@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "22"
-      - run: npm ci --ignore-scripts
+      - run: npm install --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - name: Run anonymous and cross-origin tests
         run: npx playwright test tests/e2e/flooring-manager-acceptance.spec.ts --grep "anonymous clients|cross-origin cookie|public flooring catalogue"
@@ -38,15 +38,17 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: "22"
-      - run: npm ci --ignore-scripts
+      - run: npm install --ignore-scripts
       - run: npx playwright install --with-deps chromium
       - name: Require dedicated credential
         env:
-          BMS_DEMO_MANAGER_EMAIL: ${{ secrets.BMS_DEMO_MANAGER_EMAIL }}\n          BMS_DEMO_MANAGER_PASSWORD: ${{ secrets.BMS_DEMO_MANAGER_PASSWORD }}
+          BMS_DEMO_MANAGER_EMAIL: ${{ secrets.BMS_DEMO_MANAGER_EMAIL }}
+          BMS_DEMO_MANAGER_PASSWORD: ${{ secrets.BMS_DEMO_MANAGER_PASSWORD }}
         run: test -n "$BMS_DEMO_MANAGER_EMAIL" && test -n "$BMS_DEMO_MANAGER_PASSWORD"
       - name: Execute authenticated persisted-write acceptance
         env:
           BMS_TEST_BASE_URL: https://bms.diamantsolutions.co.uk
-          BMS_DEMO_MANAGER_EMAIL: ${{ secrets.BMS_DEMO_MANAGER_EMAIL }}\n          BMS_DEMO_MANAGER_PASSWORD: ${{ secrets.BMS_DEMO_MANAGER_PASSWORD }}
+          BMS_DEMO_MANAGER_EMAIL: ${{ secrets.BMS_DEMO_MANAGER_EMAIL }}
+          BMS_DEMO_MANAGER_PASSWORD: ${{ secrets.BMS_DEMO_MANAGER_PASSWORD }}
           BMS_DEMO_ALLOW_MUTATIONS: "true"
         run: npx playwright test tests/e2e/flooring-manager-acceptance.spec.ts --grep "dedicated fictional manager"
