@@ -3,7 +3,7 @@ import {cookies} from "next/headers";
 import {centralRest} from "@/lib/business-software/db";
 import {safeCsvCell} from "@/business-software-core/lib/safe-csv";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const {reconcile,quoteTotals}=require("@/business-software-core/lib/finance-reconcile.cjs");
+const {reconcile,quoteTotals,agingBuckets}=require("@/business-software-core/lib/finance-reconcile.cjs");
 
 export const dynamic="force-dynamic";
 const url="https://iepqggrfenfqrqyzqyed.supabase.co";
@@ -95,6 +95,7 @@ export async function GET(req:Request){
     ...balances,
     draft_count:invoiceRows.filter((x:any)=>x.status==="draft").length,
     overdue_total:invoiceRows.filter((x:any)=>x.overdue).reduce((sum:number,x:any)=>sum+Number(x.amount_due||0),0),
+    aging:agingBuckets(invoiceRows,new Date().toISOString().slice(0,10)),
    },
    accounting_provider_connected:false,
    external_sync_permitted:false
