@@ -13,6 +13,9 @@ on:
       - 'package-lock.json'
       - '.github/workflows/bms-unit-regressions.yml'
   workflow_dispatch:
+concurrency:
+  group: bms-unit-regressions-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
