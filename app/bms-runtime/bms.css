@@ -360,3 +360,10 @@
 
 .bms-shell .bms-floor-calculator{background:var(--bms-accent-soft);border:1px solid var(--bms-accent-border);border-radius:var(--bms-radius)}
 .bms-shell .bms-floor-calculator legend{color:var(--bms-accent-ink)}
+
+.bms-shell .bms-danger-button{min-height:38px;padding:8px 13px;border-radius:var(--bms-radius-sm);background:#b42318;color:#fff;border:1px solid #b42318;font-weight:700}
+.bms-shell .bms-danger-button:hover{background:#912018}
+.bms-shell .bms-state-error,.bms-shell .bms-state-success,.bms-shell .bms-state-loading{padding:12px 14px;border-radius:var(--bms-radius-sm);font-size:.875rem}
+.bms-shell .bms-state-error{background:#fff1ef;color:#9c241a;border:1px solid #f6d0cb}
+.bms-shell .bms-state-success{background:#eaf7ee;color:#186d3a;border:1px solid #c9ebd5}
+.bms-shell .bms-state-loading{background:var(--bms-surface-muted);color:var(--bms-muted);border:1px solid var(--bms-border)}
