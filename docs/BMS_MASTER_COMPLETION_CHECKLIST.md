@@ -96,3 +96,10 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `d519350c`: corrected integrations Xero sync button to issue POST, matching the permission-checked mutation endpoint. **Not yet authenticated browser-tested;** provider 429 recovery and financial matching still require controlled acceptance. No historical payment records changed.
 
 - `76d93f1b`: explicit Xero invoice and bank sync now execute sequentially, reducing simultaneous OAuth token refresh and provider rate-limit pressure. Live Xero reconciliation acceptance remains open; no MJ010 financial data was edited.
+
+## 27 October 2026 production-stability follow-up
+- Vercel production deployment history (100 most recent at inspection) contained two historical ERROR builds: `56e5d3ce` DemoOperationsPanel JSX mismatched closing section; `404a6e2a` WorkerPortal JSX mismatched error-state section. Both errors were subsequently corrected and the later worker/demo changes built READY. `d6b757e6` and every later commit through `bb9b18bc` were covered by READY production deployments; production browser acceptance remains separate.
+- Vercel production runtime logs for the latest 1-hour window reported no error-level entries. Historical grouped runtime errors from 26 October showed Xero bank sync authorization failures, 429/504 responses and repeated invoice refreshes. This is not proof that every route or Xero reconciliation is healthy.
+- `c0d3cf12`: invoice reconciliation stops attempting additional invoice requests on 429 or authorization failures rather than repeatedly hammering Xero. Explicit sync remains permission-checked.
+- `dd9e1eaa`, `b65eb950`: applied generic shared atomic customer creation and idempotency migrations; `c50375c2` switched Flooring Demo to the shared RPC. `19f58bde`: rollback tests passed for duplicate retry, conflicting payload rejection and tenant isolation.
+- Authenticated browser tests were not performed because the available connected tools provide build/runtime inspection and SQL execution but no authenticated interactive browser. Do not promote browser acceptance statuses.
