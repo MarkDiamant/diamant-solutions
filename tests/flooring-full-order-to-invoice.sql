@@ -29,8 +29,7 @@ BEGIN
  INSERT INTO business_software_deliveries(tenant_id,sales_order_id,job_id,status,delivery_address,request_key)
  VALUES(t,so,j,'planned','Fictional site, London','test-full-workflow-delivery') RETURNING id INTO delivery;
  PERFORM bms_confirm_delivery(t,delivery,'test-full-workflow-delivery-confirm','Acceptance test');
- INSERT INTO business_software_invoices(tenant_id,job_id,provider,invoice_number,status,total,amount_due,amount_paid,currency_code,created_by)
- VALUES(t,j,'internal','FLI-TEST-FLOW','draft',1065.60,1065.60,0,'GBP','Workflow acceptance');
+ PERFORM bms_create_internal_draft_invoice_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'test-full-workflow-invoice','FLI');
  IF NOT EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j AND status='draft') THEN RAISE EXCEPTION 'Invoice missing'; END IF;
  SELECT count(*) INTO live_after FROM business_software_jobs WHERE tenant_id<>t;
  IF live_before<>live_after THEN RAISE EXCEPTION 'Live tenant changed'; END IF;
