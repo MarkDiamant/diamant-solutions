@@ -79,6 +79,7 @@ export async function GET(req:Request){
   if(!q.ok||!i.ok||!a.ok||!cr.ok)throw Error("Unable to read fictional quote, invoice and payment ledger");
   const quotes=await json(q),invoices=await json(i),allocations=await json(a),credits=await json(cr);
   if(!Array.isArray(quotes)||!Array.isArray(invoices)||!Array.isArray(allocations)||!Array.isArray(credits))throw Error("Invalid fictional accounting ledger");
+  const emailHistoryResponse=await centralRest("business_software_financial_email_attempts?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,kind,recipient,mode,status,provider_message_id,created_at&order=created_at.desc&limit=30",{cache:"no-store"});if(!emailHistoryResponse.ok)throw Error("Unable to load fictional financial email audit");const emailHistory=await json(emailHistoryResponse);
   const balances=reconcile(quotes,invoices);
   const quoteIds=new Set(quotes.map((x:any)=>x.id));
   const invoiceRows=invoices.map((x:any)=>({
@@ -128,7 +129,7 @@ export async function GET(req:Request){
   const googleStatus=await centralRest("business_software_integrations?tenant_id=eq."+tenant+"&provider=eq.google&status=eq.connected&select=id&limit=1",{cache:"no-store"});const googleRows=googleStatus.ok?await json(googleStatus):[];const gmailConnected=Array.isArray(googleRows)&&googleRows.length>0;
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
-   quotes,invoices:invoiceRows,allocations,credits,
+   quotes,invoices:invoiceRows,allocations,credits,email_history:emailHistory,
    unlinked_invoice_count:invoiceRows.filter((x:any)=>!x.source_quote_valid).length,
    summary:{
     latest_quote_net:quotes.length?Number(quotes[0].amount||0):null,
