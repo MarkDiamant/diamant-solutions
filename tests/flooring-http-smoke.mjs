@@ -33,3 +33,7 @@ test("cross-origin reset is forbidden",async()=>{
  const r=await fetch(base+"/api/bms-demo/flooring-actions",{method:"POST",headers:{"Content-Type":"application/json",Origin:"https://invalid.example"},body:JSON.stringify({action:"reset_demo",confirm_phrase:"RESET OAK AND STONE DEMO",request_key:"public-smoke-origin-0001"}),signal:AbortSignal.timeout(20000)});
  assert.equal(r.status,403);
 });
+test("invalid bearer cookie cannot authorise demo mutations",async()=>{
+ const r=await fetch(base+"/api/bms-demo/flooring-actions",{method:"POST",headers:{"Content-Type":"application/json",Origin:base,Cookie:"bms_access_token=invalid-fictional-test-token"},body:JSON.stringify({action:"__non_mutating_auth_probe__",request_key:"public-smoke-invalid-0001"}),signal:AbortSignal.timeout(20000)});
+ assert.equal(r.status,403);
+});
