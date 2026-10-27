@@ -152,7 +152,45 @@ export async function POST(req:Request){
   let result:unknown;
   const num=(v:unknown)=>{const n=Number(v);if(!Number.isFinite(n)||n<=0||n>100000)return NaN;return n};
   const amount=(v:unknown)=>{const n=Number(v);if(!Number.isFinite(n)||n<0||n>10000000)return NaN;return n};
-  if(action==="reset_demo"){
+  if(action==="draft_financial_email"||action==="send_financial_email"){
+   const job=String(d.job_id||""),documentId=String(d.document_id||""),kind=String(d.kind||""),to=String(d.recipient||"").trim().toLowerCase();
+   if(!uuid.test(job)||!uuid.test(documentId)||!["quote","invoice"].includes(kind))return response("Select a fictional quotation or invoice",400);
+   await owned("business_software_jobs",tenant,job);
+   const table=kind==="quote"?"business_software_quotes":"business_software_invoices";
+   const doc=await owned(table,tenant,documentId,kind==="quote"?"id,job_id,version,status,amount,vat_rate,scope_text":"id,job_id,invoice_number,status,total,amount_paid,amount_due,source_quote_id,provider");
+   if(doc.job_id!==job||(kind==="invoice"&&doc.provider!=="internal"))return response("Financial document does not belong to selected fictional job",403);
+   if(kind==="quote"&&doc.status!=="approved")return response("Approve the quotation before preparing email",409);
+   if(kind==="invoice"&&!["issued","part_paid","paid","settled"].includes(doc.status))return response("Issue the invoice before preparing email",409);
+   if(!/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(to))return response("Valid test recipient required",400);
+   const allowlist=String(process.env.BMS_DEMO_EMAIL_ALLOWLIST||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
+   if(!allowlist.includes(to))return response("Recipient is not an authorised fictional-tenant test address",403);
+   const send=action==="send_financial_email",mode=send?"send":"draft";
+   const reserved=await centralRest("business_software_financial_email_attempts",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,request_key:keyValue,job_id:job,document_id:documentId,kind,recipient:to,mode,status:"reserved"})});
+   if(!reserved.ok){if(reserved.status===409)return response("Email request key already used. Check the prior result before retrying.",409);return response("Unable to reserve email request",503)}
+   const attempt=(await json(reserved))?.[0];if(!attempt?.id)throw Error("Email reservation not confirmed");
+   try{
+    const quote=kind==="quote"?doc:doc.source_quote_id?await owned("business_software_quotes",tenant,String(doc.source_quote_id),"id,amount,vat_rate,scope_text"):null;
+    const net=quote?Number(quote.amount):null,vat=quote?quoteTotals(quote.amount,quote.vat_rate):null;
+    const total=kind==="quote"?Number(vat?.gross):Number(doc.total);
+    if(!Number.isFinite(total)||total<0)throw Error("Invalid financial document amount");
+    const ref=kind==="quote"?"FLOOR-Q"+doc.version+"-"+documentId.slice(0,8):String(doc.invoice_number);
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const {pdfDocument}=require("@/business-software-core/lib/financial-pdf.cjs");
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const {gmailFinancial}=require("@/business-software-core/lib/fictional-gmail-finance.cjs");
+    const settings=await centralRest("business_software_tenant_settings?tenant_id=eq."+tenant+"&select=accent_colour&limit=1",{cache:"no-store"});
+    if(!settings.ok)throw Error("Unable to load tenant branding");
+    const settingsRow=(await json(settings))?.[0];
+    const pdf=pdfDocument({title:kind==="quote"?"Quotation":"Invoice",issuer:"Oak & Stone Flooring Demo",brandColor:settingsRow?.accent_colour||"#263c54",reference:ref,recipient:"Fictional Flooring customer",items:[String(quote?.scope_text||"Fictional flooring works"),...(net===null?[]:["Net: GBP "+net.toFixed(2),"VAT ("+Number(quote.vat_rate)+"%): GBP "+Number(vat?.vat).toFixed(2)]),"Total: GBP "+total.toFixed(2),...(kind==="invoice"?["Paid: GBP "+Number(doc.amount_paid||0).toFixed(2),"Outstanding: GBP "+Number(doc.amount_due||0).toFixed(2)]:[])],footer:"Fictional demonstration. Not valid for commercial use."});
+    const mail=await gmailFinancial({tenant,to,subject:"Fictional Flooring "+(kind==="quote"?"quotation ":"invoice ")+ref,body:"Fictional BMS acceptance test only. Please find the demonstration document attached.",filename:ref+".pdf",pdf,send,centralRest,env:process.env});
+    const updated=await centralRest("business_software_financial_email_attempts?id=eq."+attempt.id+"&tenant_id=eq."+tenant,{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:send?"sent":"drafted",provider_message_id:mail.gmail_id,updated_at:new Date().toISOString()})});
+    if(!updated.ok)throw Error("Gmail accepted the message but the audit update failed. Do not retry without checking Gmail.");
+    return NextResponse.json({ok:true,fictional:true,action,delivery:mail},{headers:{"Cache-Control":"private, no-store"}});
+   }catch(err){
+    await centralRest("business_software_financial_email_attempts?id=eq."+attempt.id+"&tenant_id=eq."+tenant+"&status=eq.reserved",{method:"PATCH",body:JSON.stringify({status:"failed",updated_at:new Date().toISOString()})}).catch(()=>{});
+    throw err;
+   }
+  }else if(action==="reset_demo"){
    if(d.confirm_phrase!=="RESET OAK AND STONE DEMO")return response("Type the exact reset confirmation",400);
    result=await rpc("bms_reset_flooring_showcase",{p_confirm:"RESET OAK AND STONE DEMO"});
   }else if(action==="create_customer"){
