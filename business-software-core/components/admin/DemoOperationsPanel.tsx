@@ -13,7 +13,7 @@ export default function DemoOperationsPanel(){
  const [connected,setConnected]=useState<any>(null),[connectedError,setConnectedError]=useState("");
  const [refreshKey,setRefreshKey]=useState(0);
  const products=flooring&&connected?.products?.length?connected.products.map((p:any)=>({name:p.name,unit:p.unit,cost:Number(p.cost_net||0),price:Number(p.fixed_sell_net||0),stock:true})):sampleProducts[sample]||sampleProducts.flooring;
- const [purchaseLineId,setPurchaseLineId]=useState(""),[salesLineId,setSalesLineId]=useState(""),[warehouseQty,setWarehouseQty]=useState("1"),[deliveryId,setDeliveryId]=useState(""),[resetPhrase,setResetPhrase]=useState(""),[busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
+ const [purchaseLineId,setPurchaseLineId]=useState(""),[salesLineId,setSalesLineId]=useState(""),[warehouseQty,setWarehouseQty]=useState("1"),[deliveryId,setDeliveryId]=useState(""),[resetPhrase,setResetPhrase]=useState(""),[busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteLeadTime,setQuoteLeadTime]=useState("7-10 working days"),[quoteAmount,setQuoteAmount]=useState("888");
  const purchaseLine=connected?.purchase_lines?.find((p:any)=>p.id===purchaseLineId)||connected?.purchase_lines?.[0];
  const salesLine=connected?.sales_lines?.find((p:any)=>p.id===salesLineId)||connected?.sales_lines?.[0];
  const selectedDelivery=connected?.deliveries?.find((p:any)=>p.id===deliveryId)||connected?.deliveries?.find((p:any)=>p.status!=="delivered")||connected?.deliveries?.[0];
@@ -71,9 +71,10 @@ export default function DemoOperationsPanel(){
     <div className="flex flex-wrap items-end gap-2"><BmsButton disabled={busy||customerName.trim().split(/\s+/).length<2} onClick={()=>{const parts=customerName.trim().split(/\s+/);run("create_customer",{first_name:parts[0],last_name:parts.slice(1).join(" ")})}}>Create customer</BmsButton><BmsButton variant="secondary" disabled={busy||customerName.trim().split(/\s+/).length<2} onClick={()=>{const parts=customerName.trim().split(/\s+/);run("edit_customer",{customer_id:selectedCustomer||connected?.customers?.[0]?.id,first_name:parts[0],last_name:parts.slice(1).join(" ")})}}>Rename selected customer</BmsButton></div>
     <BmsField>Quote scope<BmsInput value={quoteScope} onChange={e=>setQuoteScope(e.target.value)}/></BmsField>
     <BmsField>Quote net amount (£)<BmsInput type="number" min="0.01" step="0.01" value={quoteAmount} onChange={e=>setQuoteAmount(e.target.value)}/></BmsField>
+    <BmsField>Quote lead time<BmsInput maxLength={200} value={quoteLeadTime} onChange={e=>setQuoteLeadTime(e.target.value)}/></BmsField>
    </div>
    <div className="mt-3 flex flex-wrap gap-2">
-    <BmsButton disabled={busy||!connected} onClick={()=>run("create_quote",{job_id:selectedJob||connected?.jobs?.[0]?.id,scope_text:quoteScope,amount:Number(quoteAmount)})}>Save quote revision</BmsButton>
+    <BmsButton disabled={busy||!connected} onClick={()=>run("create_quote",{job_id:selectedJob||connected?.jobs?.[0]?.id,scope_text:quoteScope,amount:Number(quoteAmount),lead_time:quoteLeadTime})}>Save quote revision</BmsButton>
     <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("create_draft_invoice",{job_id:selectedJob||connected?.jobs?.[0]?.id,total:Number(quoteAmount)*1.2})}>Create internal draft invoice</BmsButton>
    </div>
   </BmsCard>
