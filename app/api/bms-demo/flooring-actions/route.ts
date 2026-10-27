@@ -133,18 +133,8 @@ export async function POST(req:Request){
    await owned("business_software_jobs",tenant,job);
    const selected=await owned("business_software_quotes",tenant,quoteId,"id,job_id,version,status,amount,vat_rate");
    if(selected.job_id!==job)return response("Quotation does not belong to the selected job",403);
-   const latest=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version&order=version.desc&limit=1",{cache:"no-store"});
-   if(!latest.ok)throw Error("Unable to verify latest quotation revision");
-   if((await json(latest))?.[0]?.id!==quoteId)return response("Only the latest quotation revision can be approved",409);
-   if(selected.status==="approved"){result=selected;}
-   else{
-    if(selected.status!=="draft")return response("Only draft quotations can be approved",409);
-    quoteTotals(selected.amount,selected.vat_rate);
-    const update=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&id=eq."+quoteId+"&status=eq.draft",{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status:"approved"})});
-    if(!update.ok)throw Error("Quotation approval rejected");
-    result=(await json(update))?.[0];
-    if(!result)return response("Quotation was modified concurrently; reload before approving",409);
-   }
+   quoteTotals(selected.amount,selected.vat_rate);
+   result=await rpc("bms_approve_quote_once",{p_tenant:tenant,p_job:job,p_quote:quoteId,p_actor:"Demo manager",p_key:keyValue});
   }else if(action==="create_sales_order"||action==="create_purchase_order"){
    const product=String(d.product_id||""),job=String(d.job_id||"");
    await owned("business_software_price_book_items",tenant,product);
