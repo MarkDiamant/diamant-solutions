@@ -51,6 +51,7 @@ export default function DemoOperationsPanel(){
    <p className="mt-3 font-semibold">{packs?packs+" "+(product?.unit||"packs")+" required at "+coverage+" m² per unit, "+money(unitPrice)+" per unit, "+money(packs*unitPrice)+" net":"Enter valid area, wastage and product coverage."}</p>
    {customerPrice&&<p className="text-xs text-slate-600">Customer-specific price applied from the shared BMS price book.</p>}
    <div className="mt-3 flex flex-wrap gap-2">
+    <BmsButton disabled={busy||!connected||!(Number(area)>0)} variant="secondary" onClick={()=>run("create_enquiry",{customer_id:customerId,title:"Flooring enquiry "+area+" m²",area_m2:Number(area)})}>Create customer enquiry</BmsButton>
     <BmsButton disabled={busy||!packs||!connected} onClick={()=>run("create_sales_order",{customer_id:selectedCustomer||connected?.customers?.[0]?.id,job_id:selectedJob||connected?.jobs?.[0]?.id,product_id:product?.id,quantity:packs,area_m2:Number(area),wastage_percent:Number(waste)})}>Create sales order</BmsButton>
     <BmsButton disabled={busy||!packs||!connected} variant="secondary" onClick={()=>run("create_purchase_order",{supplier_id:selectedSupplier||connected?.suppliers?.[0]?.id,job_id:selectedJob||connected?.jobs?.[0]?.id,product_id:product?.id,quantity:packs,unit_cost_net:Number(product?.cost_net||0)})}>Create purchase order</BmsButton>
    </div>
