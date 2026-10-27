@@ -16,24 +16,19 @@ async function demoTenant(){
  if(!t||t.slug!=="flooring-showcase-demo"||!uuid.test(t.id))throw Error("Demo tenant not provisioned");
  return String(t.id);
 }
-async function memberAllowed(){
- // Demo hostname has no runtimeTenant. Authenticate the bearer cookie against
- // Supabase, then require an ACTIVE manager membership in an ACTIVE tenant (demo-only is permitted).
- // No member tenant identifier is ever used for demo mutations.
+async function memberAllowed(demoTenantId:string){
+ // Demo mutations require a manager of THIS isolated fictional tenant.
+ // A manager of an unrelated production tenant must never inherit demo write access.
  const jar=await cookies(),token=jar.get("bms_access_token")?.value;
  if(!token)return false;
  const user=await fetch(url+"/auth/v1/user",{headers:{apikey:key,Authorization:"Bearer "+token},cache:"no-store"});
  if(!user.ok)return false;
  const identity=await json(user),authId=String(identity?.id||"");
- if(!uuid.test(authId))return false;
- const memberships=await centralRest("business_software_users?auth_user_id=eq."+authId+"&status=eq.active&role=in.(owner,admin,manager)&select=tenant_id,role&limit=10");
- if(!memberships.ok)return false;
- const rows=await json(memberships);
- if(!Array.isArray(rows)||rows.length===0)return false;
- const ids=rows.map((r:any)=>String(r.tenant_id)).filter((id:string)=>uuid.test(id));
- if(!ids.length)return false;
- const tenants=await centralRest("business_software_tenants?id=in.("+ids.join(",")+")&status=eq.active&select=id&limit=10");
- const active=tenants.ok?await json(tenants):null;return Array.isArray(active)&&active.length>0;
+ if(!uuid.test(authId)||!uuid.test(demoTenantId))return false;
+ const membership=await centralRest("business_software_users?auth_user_id=eq."+authId+"&tenant_id=eq."+demoTenantId+"&status=eq.active&role=in.(owner,admin,manager)&select=id&limit=1",{cache:"no-store"});
+ if(!membership.ok)return false;
+ const rows=await json(membership);
+ return Array.isArray(rows)&&rows.length>0;
 }
 
 async function owned(table:string,tenant:string,id:string,columns="id"){
@@ -60,7 +55,7 @@ export async function POST(req:Request){
    if(source.host.toLowerCase()!==host||!["https:","http:"].includes(source.protocol))return response("Cross-site demo mutations are blocked",403);
   }
   const tenant=await demoTenant();
-  if(!await memberAllowed())return response("Authenticated BMS manager required for fictional demo",403);
+  if(!await memberAllowed(tenant))return response("Authenticated BMS manager required for fictional demo",403);
   const d=await req.json().catch(()=>null);
   if(!d||typeof d!=="object")return response("Invalid request",400);
   const action=String(d.action||""),keyValue=String(d.request_key||"");
