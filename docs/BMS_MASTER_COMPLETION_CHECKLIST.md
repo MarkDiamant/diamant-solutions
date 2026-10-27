@@ -6,7 +6,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 |---|---|---|
 | Shared tenant-aware design tokens | Implemented, automated regression | `app/bms-runtime/bms.css`, `BmsUI.tsx`, sidebar navigation test |
 | Shared page, header, cards, forms, tables, modal, badge primitives | Implemented | `BmsUI.tsx`; migration of every existing page still open |
-| All BMS pages migrated to central components | In progress | Shared tenant-accent-aware compatibility styling now covers legacy forms, tables and focus across pages; individual page component migration and visual QA still open |
+| All BMS pages migrated to central components | In progress, expanded coverage | Worker Portal, operations, labour costing, settings, integrations, users, price book and shared customer/job/quote/invoice/payments directory migrated to central primitives; Ruby uses tenant accent tokens. Remaining pages and authenticated visual QA open |
 | Demo banner and industry selector clear sidebar | Code implemented, visual QA open | Verify desktop and mobile authenticated views |
 | Mobile header, New Job, Ruby original image | Code implemented, visual QA open | Verify menu scroll and tenant logo at 320/390/768px |
 | Flooring fictional tenant isolated data | Database integration verified | `supabase/demo/flooring_showcase_seed.sql`, rollback SQL |
@@ -21,7 +21,7 @@ Status is requirement-based, not based on commit counts or estimated percentages
 | Worker Portal, scheduling, timesheets and labour billing | Open for end-to-end verification | Role matrix and invoice evidence pending |
 | QuickBooks integration | Open for authorised integration verification | Credentials/consent required for live provider link |
 | Xero, Money Overview and matching | Open for reconciliation verification | MJ010 historical anomalies untouched |
-| Quote versions, lead times and PDF output | Open for PDF visual and authenticated QA | Test quote revisions, exports, customer-specific terms |
+| Quote versions, lead times and PDF output | Atomic versioning implemented and database-tested; PDF/browser QA open | Shared idempotent quote revision RPC, version lock, cross-tenant rejection; visual PDF, exports and authenticated QA pending |
 | Tenant isolation and financial safety | Partial database verification | Multi-tenant rollback SQL; authenticated role matrix pending |
 | Full desktop/tablet/mobile usability | Open | Authenticated screenshot and interaction QA needed |
 
@@ -70,3 +70,14 @@ Status is requirement-based, not based on commit counts or estimated percentages
 - `bef5a56d`: catalogue product cards now create persisted customer enquiries; `8dffe592`: area and wastage limits validated on server before sales order RPC.
 - `d6484966`: rollback-only cross-tenant enquiry rejection test passed.
 - Full browser acceptance remains open, despite successful database workflow and deployment builds.
+
+## 27 October 2026 extended implementation and evidence
+- `d6b757e6`: corrected a render-blocking JavaScript temporal-dead-zone reference in the Flooring Demo, where `connected` was used before `useState` initialized it. Vercel READY verified. Authenticated browser render remains untested.
+- Shared design migration: `6c703037` Worker Portal, `6abd7cd8` sales/purchasing/warehouse/logistics, `e5153991` labour costing and billing, `d1ba6015` settings, `f7a9087b` integrations, `f6c66e4b` shared customer/job/quote/invoice/payment directory, `43b0e150` price book, `668f237e` users/permissions. Ruby tenant token migration `41867f04`. Shared CSS accent/focus/mobile/header refinements `b90b63ee`. These are **code migrations, not browser-verified completions**.
+- `050cd9a7` shows persisted customer enquiries, quotation revisions, sales orders and draft invoices from the database rather than browser-only counters. `69fce044` adds job-linked snapshot fields; schema columns verified.
+- `5264987b`: applied shared atomic quote revision migration. Advisory-lock version allocation, tenant validation, request-key uniqueness and conflicting retry rejection. `3eb3942b`: rollback-only version, duplicate and cross-tenant tests passed. `14c836b6` wired demo quote action to the shared RPC. RPC is service-role-only.
+- `3d7d9ddd`: reran the full fictional enquiry → quotation → sales order → purchase → partial receipts → reservation → pick → delivery → draft invoice database integration workflow successfully under rollback. Transactional reset regression rerun successfully.
+- `dae1e89a`: applied shared security migration pinning search paths for 16 tenant validation and worker-costing trigger functions. Supabase security advisor's `function_search_path_mutable` warnings reduced from 16 to zero; the full flooring workflow still passed.
+- `bf039c13`: client retries use the same request key for identical actions after ambiguous network failures. `5dcfbd90`: accessible error/success feedback and correct Oak & Stone Flooring Demo name.
+- Supabase advisor still reports pre-existing security warnings for 34 authenticated-callable SECURITY DEFINER functions, public extension and leaked-password protection. Review individual authorisation semantics before revoking or changing functions; no broad access changes made.
+- **Authenticated browser end-to-end and mobile acceptance have NOT run:** no authenticated interactive browser session is available in the connected development tools. Production READY is not proof of user-facing persistence or mobile usability.
