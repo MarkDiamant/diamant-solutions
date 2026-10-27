@@ -53,6 +53,15 @@ test("public Flooring Demo renders responsive read-only workflow without a sessi
  }
  expect(hydrationErrors).toEqual([]);
 });
+test("anonymous browser write shows a clear denial and persists nothing",async({page,request})=>{
+ const before=await (await request.get("/api/bms-demo/flooring-data")).json();
+ await page.goto("/flooring/operations");
+ await page.getByLabel("New customer name").fill("Anonymous BrowserProbe");
+ await page.getByRole("button",{name:"Create customer",exact:true}).click();
+ await expect(page.getByText(/Action not saved: Authenticated BMS manager required/)).toBeVisible();
+ const after=await (await request.get("/api/bms-demo/flooring-data")).json();
+ expect(after.customers.length).toBe(before.customers.length);
+});
 test("authenticated manager desktop and mobile rendering",async({page,context})=>{
  test.skip(!hasAuth,"Requires a dedicated fictional-demo manager test account");
  await auth(context);
