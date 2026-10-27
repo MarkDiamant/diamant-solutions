@@ -55,7 +55,7 @@ export async function GET(req:Request){
   if(!uuid.test(job))return response("Valid fictional job_id required",400);
   await owned("business_software_jobs",tenant,job);
   const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
-  const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,source_quote_id,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
+  const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,source_quote_id,invoice_date,due_date,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
   if(!q.ok||!i.ok)throw Error("Unable to read fictional quote and invoice ledger");
   const quotes=await json(q),invoices=await json(i);
   if(!Array.isArray(quotes)||!Array.isArray(invoices))throw Error("Invalid fictional accounting ledger");
@@ -65,6 +65,7 @@ export async function GET(req:Request){
    ...x,
    source_quote_valid:!!x.source_quote_id&&quoteIds.has(x.source_quote_id),
    external_sync: x.provider!=="internal",
+   overdue:!!x.due_date&&x.due_date<new Date().toISOString().slice(0,10)&&["issued","part_paid"].includes(String(x.status).toLowerCase())&&Number(x.amount_due)>0,
   }));
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
@@ -76,6 +77,7 @@ export async function GET(req:Request){
     latest_quote_totals:quotes.length?quoteTotals(quotes[0].amount,quotes[0].vat_rate):null,
     ...balances,
     draft_count:invoiceRows.filter((x:any)=>x.status==="draft").length,
+    overdue_total:invoiceRows.filter((x:any)=>x.overdue).reduce((sum:number,x:any)=>sum+Number(x.amount_due||0),0),
    },
    accounting_provider_connected:false,
    external_sync_permitted:false
