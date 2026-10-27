@@ -25,7 +25,13 @@ async function xeroRequest(tenantId:string,path:string,method="GET",body?:unknow
   const saved=await centralRest("business_software_integrations?tenant_id=eq."+encodeURIComponent(tenantId)+"&provider=eq.xero",{method:"PATCH",body:JSON.stringify({access_token_ciphertext:encryptSecret(token),refresh_token_ciphertext:encryptSecret(String(rb.refresh_token||refresh)),token_expires_at:new Date(Date.now()+Number(rb.expires_in||1800)*1000).toISOString(),updated_at:new Date().toISOString()})});
   if(!saved.ok)throw new Error("Unable to save refreshed Xero credentials.");
  }
- const r=await fetch("https://api.xero.com/api.xro/2.0/"+path,{method,headers:{"Authorization":"Bearer "+token,"xero-tenant-id":row.external_tenant_id,"Accept":format==="pdf"?"application/pdf":"application/json",...(body?{"Content-Type":"application/json"}:{}),...(path==="Invoices"&&method==="POST"?{"Idempotency-Key":crypto.createHash("sha256").update(tenantId+JSON.stringify(body)).digest("hex")}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:"no-store"});
+ let r=await fetch("https://api.xero.com/api.xro/2.0/"+path,{method,headers:{"Authorization":"Bearer "+token,"xero-tenant-id":row.external_tenant_id,"Accept":format==="pdf"?"application/pdf":"application/json",...(body?{"Content-Type":"application/json"}:{}),...(path==="Invoices"&&method==="POST"?{"Idempotency-Key":crypto.createHash("sha256").update(tenantId+JSON.stringify(body)).digest("hex")}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:"no-store"});
+ if(r.status===429&&method==="GET"){
+  const raw=Number(r.headers.get("retry-after")||0);
+  const delay=Number.isFinite(raw)&&raw>0?raw:1;
+  if(delay<=3){await new Promise(resolve=>setTimeout(resolve,delay*1000));r=await fetch("https://api.xero.com/api.xro/2.0/"+path,{method,headers:{"Authorization":"Bearer "+token,"xero-tenant-id":row.external_tenant_id,"Accept":format==="pdf"?"application/pdf":"application/json"},cache:"no-store"});}
+  if(r.status===429)throw new Error("Xero rate limit reached. Retry-After: "+(r.headers.get("retry-after")||"not supplied")+" seconds. This audit did not complete; no payment records changed.");
+ }
  if(format==="pdf"&&r.ok)return Buffer.from(await r.arrayBuffer());
  const result=await r.json().catch(()=>({}));
  if(!r.ok)throw new Error("Xero: "+String(result?.Message||result?.Elements?.[0]?.ValidationErrors?.[0]?.Message||result?.Detail||"Request failed ("+r.status+")"));
