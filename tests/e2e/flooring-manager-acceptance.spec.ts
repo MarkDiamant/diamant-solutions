@@ -71,6 +71,11 @@ test("dedicated fictional manager can persist a customer, with no cross-tenant g
     });
     expect(retry.status(), await retry.text()).toBe(200);
     expect((await retry.json()).result).toEqual(body.result);
+    const jobList=await context.request.get("/api/bms-demo/flooring-actions?list_jobs=true");
+    expect(jobList.status()).toBe(200);
+    const availableJobs=(await jobList.json()).jobs;
+    expect(Array.isArray(availableJobs)).toBe(true);
+    expect(availableJobs.some((j:{id:string})=>j.id==="47029266-51a3-4caa-b70d-fbb8a4d3c419")).toBe(true);
     const finance=await context.request.get("/api/bms-demo/flooring-actions?job_id=47029266-51a3-4caa-b70d-fbb8a4d3c419");
     expect(finance.status(),await finance.text()).toBe(200);
     const ledger=await finance.json();
