@@ -94,6 +94,7 @@ test("connected website catalogue preview agrees with the public privacy-filtere
  }
  await page.goto("/flooring/operations");
  await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
+ await expect(page.getByRole("combobox",{name:"Product",exact:true}).locator("option")).toHaveCount(4);
  const ui=await page.locator("main").innerText();
  for(const product of catalogue.products)expect(ui).toContain(product.name);
 });
