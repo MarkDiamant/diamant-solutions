@@ -23,7 +23,7 @@ export async function GET(){
  purchase_lines:"business_software_purchase_order_lines?tenant_id=eq."+id+"&select=id,material_order_id,product_id,ordered_quantity,received_quantity&limit=100",
  quotes:"business_software_quotes?tenant_id=eq."+id+"&select=id,job_id,version,status,amount,lead_time&order=created_at.desc&limit=100",
  deliveries:"business_software_deliveries?tenant_id=eq."+id+"&select=id,status,delivery_address&limit=100",
- invoices:"business_software_invoices?tenant_id=eq."+id+"&provider=eq.internal&select=id,job_id,invoice_number,status,total,amount_due,amount_paid&order=created_at.desc&limit=100"
+ invoices:"business_software_invoices?tenant_id=eq."+id+"&provider=eq.internal&select=id,job_id,source_quote_id,invoice_number,status,total,amount_due,amount_paid&order=created_at.desc&limit=100"
  };
  const results=await Promise.all(Object.values(endpoints).map(path=>centralRest(path)));
  if(results.some(r=>!r.ok)){const failed=await Promise.all(results.map(async(r,i)=>!r.ok?{source:Object.keys(endpoints)[i],status:r.status,detail:String((await r.json().catch(()=>({})))?.message||"").slice(0,160)}:null));return NextResponse.json({error:"Showcase data unavailable",failed_sources:failed.filter(Boolean)},{status:503});}
