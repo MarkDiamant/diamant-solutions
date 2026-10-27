@@ -124,7 +124,10 @@ export async function POST(req:Request){
    const total=amount(d.amount);if(!Number.isFinite(total)||total===0)return response("Quote amount must be positive",400);
    const scope=String(d.scope_text||"").trim();if(!scope||scope.length>2000)return response("Enter a valid quote scope",400);
    const leadTime=String(d.lead_time||"7-10 working days").trim();if(!leadTime||leadTime.length>200)return response("Enter a valid quotation lead time",400);
-   result=await rpc("bms_create_quote_revision_once",{p_tenant:tenant,p_job:job,p_scope:scope,p_amount:total,p_vat_rate:20,p_lead_time:leadTime,p_key:keyValue,p_actor:"Demo manager"});
+   const vatRate=d.vat_rate==null?20:Number(d.vat_rate);
+   if(!Number.isFinite(vatRate)||vatRate<0||vatRate>100||Math.round(vatRate*100)!==vatRate*100)return response("VAT rate must be between 0 and 100 with at most two decimal places",400);
+   quoteTotals(total,vatRate);
+   result=await rpc("bms_create_quote_revision_once",{p_tenant:tenant,p_job:job,p_scope:scope,p_amount:total,p_vat_rate:vatRate,p_lead_time:leadTime,p_key:keyValue,p_actor:"Demo manager"});
   }else if(action==="approve_quote"){
    const job=String(d.job_id||""),quoteId=String(d.quote_id||"");
    await owned("business_software_jobs",tenant,job);
