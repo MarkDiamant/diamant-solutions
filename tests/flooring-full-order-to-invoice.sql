@@ -16,8 +16,7 @@ BEGIN
  IF packs<>24 THEN RAISE EXCEPTION 'Pack rounding failed'; END IF;
  enquiry:=bms_create_enquiry_once(t,c,'48 m2 oak floor fitting',48,'test-full-workflow-enquiry');
  j:=(enquiry->>'id')::uuid;
- INSERT INTO business_software_quotes(tenant_id,job_id,version,status,scope_text,amount,vat_rate,lead_time,created_by)
- VALUES(t,j,1,'draft','Supply 24 oak laminate packs',888,20,'7-10 working days','Workflow acceptance');
+ PERFORM bms_create_quote_revision_once(t,j,'Supply 24 oak laminate packs',888,20,'7-10 working days','test-full-workflow-quote','Workflow acceptance');
  so:=bms_create_sales_order_once(t,c,j,jsonb_build_array(jsonb_build_object('product_id',p,'quantity',packs,'area_m2',48,'wastage_percent',10)),'SO-TEST-FLOW','test-full-workflow-so');
  SELECT agreed_unit_net,id INTO unit_net,sl FROM business_software_sales_order_lines WHERE tenant_id=t AND sales_order_id=so;
  IF unit_net<>37 THEN RAISE EXCEPTION 'Customer-specific price failed: %',unit_net; END IF;
