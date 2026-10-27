@@ -92,7 +92,7 @@ export default function AdminBrandBar(){
    <button className="bms-menu-trigger" type="button" aria-label={mobileOpen?"Close navigation":"Open navigation"} aria-expanded={mobileOpen} aria-controls="bms-sidebar" onClick={()=>{if(!mobileOpen)setOpenSections(Object.fromEntries(groups.map(g=>[g.name,true])));setMobileOpen(v=>!v)}}>{mobileOpen?<span aria-hidden="true">×</span>:<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>}</button>
    <Link href={go("/")} onClick={navigate} className="bms-brand-link">
     {config?.logoUrl?<img src={config.logoUrl} alt={config.businessName||"Business"} className="bms-brand-logo"/>:<span className="bms-brand-placeholder">BMS</span>}
-    <span className="bms-brand-details"><strong style={{color:brand}}>{config?.businessName||"Business Management"}</strong><DiamantCredit compact/></span>
+    <span className="bms-brand-details"><strong style={{color:brand}}>{config?.businessName||"Business Management"}</strong><DiamantCredit compact linked={false}/></span>
    </Link>
    <div className="bms-header-actions">
     <Link href={go("/ai")} onClick={navigate} aria-label="Ask Ruby" className="bms-ruby-link bms-header-ruby" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
