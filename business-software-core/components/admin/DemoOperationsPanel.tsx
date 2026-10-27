@@ -75,7 +75,7 @@ export default function DemoOperationsPanel(){
    </div>
    <div className="mt-3 flex flex-wrap gap-2">
     <BmsButton disabled={busy||!connected} onClick={()=>run("create_quote",{job_id:selectedJob||connected?.jobs?.[0]?.id,scope_text:quoteScope,amount:Number(quoteAmount),lead_time:quoteLeadTime})}>Save quote revision</BmsButton>
-    <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("create_draft_invoice",{job_id:selectedJob||connected?.jobs?.[0]?.id,total:Number(quoteAmount)*1.2})}>Create internal draft invoice</BmsButton>
+    <BmsButton disabled={busy||!connected} variant="secondary" onClick={()=>run("create_draft_invoice",{job_id:selectedJob||connected?.jobs?.[0]?.id})}>Invoice latest saved quote</BmsButton>
    </div>
   </BmsCard>
   <BmsCard className="p-5">
