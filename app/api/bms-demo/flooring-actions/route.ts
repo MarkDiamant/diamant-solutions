@@ -55,11 +55,12 @@ export async function GET(req:Request){
   if(!uuid.test(job))return response("Valid fictional job_id required",400);
   await owned("business_software_jobs",tenant,job);
   const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
-  const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,source_quote_id,invoice_date,due_date,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
+  const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,amount_credited,source_quote_id,invoice_date,due_date,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
   const a=await centralRest("business_software_invoice_payment_allocations?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=invoice_id,payment_id,amount,created_at&order=created_at.desc&limit=500",{cache:"no-store"});
-  if(!q.ok||!i.ok||!a.ok)throw Error("Unable to read fictional quote, invoice and payment ledger");
-  const quotes=await json(q),invoices=await json(i),allocations=await json(a);
-  if(!Array.isArray(quotes)||!Array.isArray(invoices)||!Array.isArray(allocations))throw Error("Invalid fictional accounting ledger");
+  const cr=await centralRest("business_software_invoice_credit_notes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_id,credit_number,amount,reason,issued_at&order=issued_at.desc&limit=500",{cache:"no-store"});
+  if(!q.ok||!i.ok||!a.ok||!cr.ok)throw Error("Unable to read fictional quote, invoice and payment ledger");
+  const quotes=await json(q),invoices=await json(i),allocations=await json(a),credits=await json(cr);
+  if(!Array.isArray(quotes)||!Array.isArray(invoices)||!Array.isArray(allocations)||!Array.isArray(credits))throw Error("Invalid fictional accounting ledger");
   const balances=reconcile(quotes,invoices);
   const quoteIds=new Set(quotes.map((x:any)=>x.id));
   const invoiceRows=invoices.map((x:any)=>({
@@ -72,7 +73,7 @@ export async function GET(req:Request){
   }));
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
-   quotes,invoices:invoiceRows,allocations,
+   quotes,invoices:invoiceRows,allocations,credits,
    unlinked_invoice_count:invoiceRows.filter((x:any)=>!x.source_quote_valid).length,
    summary:{
     latest_quote_net:quotes.length?Number(quotes[0].amount||0):null,
@@ -184,6 +185,14 @@ export async function POST(req:Request){
      result=action==="receive"?await rpc("bms_receive_purchase_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_receipt_key:keyValue}):action==="reserve"?await rpc("bms_reserve_sales_order_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_key:keyValue}):await rpc("bms_pick_sales_order_line",{p_tenant:tenant,p_line:line,p_location:location,p_qty:qty,p_key:keyValue});
     }
    }
+  }else if(action==="issue_invoice_credit"){
+   const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
+   await owned("business_software_jobs",tenant,job);
+   const row=await owned("business_software_invoices",tenant,invoice,"id,job_id,provider,status");
+   if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to selected job",403);
+   const creditAmount=amount(d.amount),reason=String(d.reason||"").trim();
+   if(!Number.isFinite(creditAmount)||creditAmount<=0||Math.abs(creditAmount*100-Math.round(creditAmount*100))>0.000001||reason.length<3||reason.length>500)return response("Valid credit amount and reason required",400);
+   result=await rpc("bms_issue_internal_invoice_credit_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:creditAmount,p_reason:reason,p_key:keyValue,p_actor:"Demo manager"});
   }else if(action==="record_invoice_payment"){
    const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
    await owned("business_software_jobs",tenant,job);
