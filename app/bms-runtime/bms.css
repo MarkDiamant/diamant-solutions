@@ -339,3 +339,21 @@
 .bms-shell .bms-mobile-ruby-link:hover{background:var(--bms-accent-soft)!important}
 @media(max-width:850px){.bms-shell{--bms-radius:11px}.bms-shell :is(.bms-card,.bms-panel){padding:clamp(12px,3vw,18px)}.bms-shell .bms-table-scroll{overflow-x:auto;overscroll-behavior-x:contain}}
 @media(prefers-reduced-motion:reduce){.bms-shell :is(button,a,summary){transition:none!important}}
+
+/* Compact shared demo chrome. Both rows are included in fixed sidebar offsets. */
+.bms-shell:has(> .bms-demo-selector){--bms-demo-mode-height:34px;--bms-demo-selector-height:50px;--bms-demo-chrome-height:84px}
+.bms-shell>.bms-demo-selector{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;top:34px!important;height:50px!important;min-height:50px!important;max-height:50px!important;padding:6px 16px!important;overflow:hidden!important;background:#f8fafc!important}
+.bms-shell>.bms-demo-selector .bms-demo-selector-label{flex:none;white-space:nowrap;font-size:11px;font-weight:750;color:#475467}
+.bms-shell>.bms-demo-selector .bms-demo-industry-scroll{display:flex!important;flex:1 1 auto;align-items:center;gap:5px;min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding:2px 0}
+.bms-shell>.bms-demo-selector .bms-demo-industry-button{flex:none;white-space:nowrap;min-height:30px;padding:5px 11px;border:1px solid #e1e5ec;border-radius:8px;background:#fff;color:#475467;font-size:11px;font-weight:650;line-height:1.2;transition:background .15s}
+.bms-shell>.bms-demo-selector .bms-demo-industry-button:hover{background:#eef2f7}
+.bms-shell>.bms-demo-selector .bms-demo-industry-button[aria-pressed="true"]{background:color-mix(in srgb,var(--demo-industry-accent,#365b85) 12%,white);color:color-mix(in srgb,var(--demo-industry-accent,#365b85) 75%,#101828);border-color:color-mix(in srgb,var(--demo-industry-accent,#365b85) 45%,white);box-shadow:inset 0 -2px 0 var(--demo-industry-accent,#365b85)}
+.bms-shell:has(> .bms-demo-selector)>.bms-app-header{top:84px!important}
+.bms-shell:has(> .bms-demo-selector)>#bms-sidebar,.bms-shell:has(> .bms-demo-selector)>aside#bms-sidebar{top:calc(84px + var(--bms-header-height))!important;max-height:calc(100dvh - 84px - var(--bms-header-height))!important}
+.bms-shell:has(> .bms-demo-selector)>.bms-sidebar-backdrop{top:calc(84px + var(--bms-header-height))!important}
+@media(max-width:850px){
+ .bms-shell:has(> .bms-demo-selector){--bms-demo-selector-height:50px;--bms-demo-chrome-height:84px}
+ .bms-shell>.bms-demo-selector{gap:8px!important;padding:6px 9px!important}
+ .bms-shell>.bms-demo-selector .bms-demo-selector-label{font-size:10px}
+ .bms-shell>.bms-demo-selector .bms-demo-industry-button{font-size:10px;padding:5px 8px}
+}
