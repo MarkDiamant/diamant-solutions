@@ -30,4 +30,6 @@ test("Gmail send and draft routes expose only supported Next route exports",()=>
 test("Ruby confirmation state is explicitly declared",()=>{
  const s=source("app/bms-runtime/ai/page.tsx");
  assert.match(s,/\[pending,setPending\]=useState/);
+ assert.match(s,/async function confirmAction\(\).*?finally\{setBusy\(false\)\}/s);
+ assert.match(s,/async function undoLast\(\).*?finally\{setBusy\(false\)\}/s);
 });
