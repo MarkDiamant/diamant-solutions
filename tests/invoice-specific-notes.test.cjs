@@ -9,3 +9,5 @@ test("invoice notes persist only on the invoice and render in regenerated PDF",(
 test("invoice notes editor falls back to canonical BMS runtime endpoint",()=>{assert.match(ui,/r.status===404/);assert.match(ui,/\/api\/bms-live\/invoices\/update-notes/);});
 
 test("invoice notes edits retain tenant-scoped previous and updated wording in audit history",()=>{assert.match(section,/business_software_audit_events/);assert.match(section,/invoice_notes_updated/);assert.match(section,/previous_notes/);assert.match(section,/updated_notes:value/);assert.match(section,/invoiceUpdated:true/);});
+
+test("issued or paid invoices require formal amendments rather than changing wording",()=>{assert.match(section,/\["DRAFT","SUBMITTED"\]/);assert.match(section,/formal amendment workflow/);assert.match(ui,/Issued, sent or paid invoice wording is locked/);});
