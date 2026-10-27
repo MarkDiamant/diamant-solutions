@@ -24,7 +24,7 @@ This is an evidence inventory for the unfinished requirements, not a substitute 
 | Finance review UI | Implemented; browser acceptance outstanding | Shared UI provides quote, issue, void, payment and overdue display |
 | Authenticated browser E2E | Blocked by protected manager credentials | CI environment secrets not configured through connector |
 | External accounting reconciliation | Outstanding | No external accounting write integration accepted for this workflow |
-| Credit notes, adjustments, refunds | Outstanding | Requires accounting-consistent credit/reversal model |
+| Internal credit notes against outstanding invoices | Database integration tested | £75 and £125 fictional credits persisted, invoice settled; retry returned same note |\n| Credit-note overcredit and cross-tenant rejection | Negative database integration tested | Both rejected |\n| Internal invoice financial balance constraint | Database validated | Gross = paid + credited + due; inconsistent write rejected |\n| Refunds and external accounting credit synchronisation | Outstanding | Requires accounting-consistent refund and provider integration |
 
 ## Requirement #9, fictional Flooring acceptance
 
