@@ -218,3 +218,11 @@
 .bms-materials .bms-materials-panel:has(>button.bms-primary){padding:20px 22px!important}
 .bms-materials .bms-materials-panel:has(>button.bms-primary)>button.bms-primary{margin:0!important}
 @media(max-width:580px){.bms-materials .bms-materials-panel:has(>button.bms-primary){padding:16px!important}}
+
+/* Shared BMS tenant branding for purchasing, warehouse and supplier screens. */
+.bms-materials{--bm-blue:var(--bms-accent);--bm-accent:var(--bms-accent);--bm-border:var(--bms-border,#dce4ed);background:var(--bms-canvas,#f5f7fa)}
+.bms-materials :is(input,select,textarea):focus-visible{border-color:var(--bms-accent);box-shadow:0 0 0 3px var(--bms-accent-soft,rgba(36,77,114,.12))}
+.bms-materials .bms-primary,.bms-materials .bms-primary:hover:not(:disabled){background:var(--bms-accent);border-color:var(--bms-accent);color:var(--bms-on-accent,#fff)}
+.bms-materials .bms-materials-summary{background:var(--bms-accent-soft,#eef4fa);border-color:var(--bms-accent-border,#d4e4f1)}
+.bms-materials .bms-materials-summary strong{color:var(--bms-accent-ink,#193e61)}
+.bms-materials button:focus-visible{outline:2px solid var(--bms-accent);outline-offset:2px}
