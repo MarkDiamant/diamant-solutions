@@ -1,3 +1,4 @@
+import {invoiceEmailBody} from "@/business-software-core/lib/invoice-email";
 import {NextResponse} from "next/server";
 import crypto from "crypto";
 import {cookies} from "next/headers";
@@ -456,7 +457,7 @@ if(["update_user","update_settings","disconnect_integration"].includes(plan.kind
  const pdf=Buffer.from(encoded,"base64");if(pdf.subarray(0,5).toString()!=="%PDF-")return NextResponse.json({error:"Invalid PDF attachment"},{status:400});
  const gmail=await googleAccessToken(tenantId);if(!gmail.token)return NextResponse.json({error:gmail.account?"Gmail is linked to "+gmail.account+", but authorisation has expired. Reconnect Gmail in Integrations.":"Connect Gmail in Integrations"},{status:409});
  const businessName=String(raw?.settings?.businessName||tenant.business_name||"Business"),number=String(invoice.invoice_number||parts[1]),first=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
- const subject=businessName+" invoice "+number,body="Hi "+first+",\n\nPlease find attached your invoice "+number+".\n\nThank you for your business, we really appreciate it. If you have any questions, please get in touch.\n\nKind regards,\n"+businessName;
+ const subject=businessName+" invoice "+number,body=invoiceEmailBody({invoiceNumber:number,customerFirstName:first,businessName,total:Number(invoice.total),amountPaid:Number(invoice.amount_paid),amountDue:Number(invoice.amount_due),dueDate:invoice.due_date,paymentVerified:invoice.payment_verified!==false});
  const mime=rawEmail(String(customer.email),subject,body,{name:number+"-Invoice.pdf",data:encoded});
  const send=data.action==="send",endpoint=send?"messages/send":"drafts";
  const gr=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+endpoint,{method:"POST",headers:{"Authorization":"Bearer "+gmail.token,"Content-Type":"application/json"},body:JSON.stringify(send?{raw:mime}:{message:{raw:mime}})});
@@ -482,7 +483,7 @@ if(parts[0]==="jobs"&&parts[2]==="invoice-share"){if(!canBms(member,"view_paymen
  const number=String(result.invoice.invoice_number||parts[1]);
  const subject=String(data.subject||businessName+" invoice "+number).slice(0,220);
  const firstName=String(customer.first_name||"").trim().split(/\s+/)[0]||"there";
- const body=String(data.body||"Hi "+firstName+",\n\nPlease find attached your invoice "+number+".\n\nThank you very much for your business, we really appreciate it. If you have any questions, please feel free to get in touch.\n\nKind regards,\n"+businessName).slice(0,10000);
+ const body=String(data.body||invoiceEmailBody({invoiceNumber:number,customerFirstName:firstName,businessName,total:Number(result.invoice.total),amountPaid:Number(result.invoice.amount_paid),amountDue:Number(result.invoice.amount_due),dueDate:result.invoice.due_date,paymentVerified:result.invoice.payment_verified!==false})).slice(0,10000);
  const mime=rawEmail(recipient,subject,body,{name:number+"-Invoice.pdf",data:result.pdf.toString("base64")});
  const send=data.action==="send",endpoint=send?"messages/send":"drafts";
  const gr=await fetch("https://gmail.googleapis.com/gmail/v1/users/me/"+endpoint,{method:"POST",headers:{"Authorization":"Bearer "+gmail.token,"Content-Type":"application/json"},body:JSON.stringify(send?{raw:mime}:{message:{raw:mime}})});
