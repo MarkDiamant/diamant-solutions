@@ -106,3 +106,6 @@ Status is requirement-based, not based on commit counts or estimated percentages
 
 - Shared materials UI migration: `d91e2a12` purchasing workspace, `520aa893` receiving, `6223c09e` order copying, `d94ed947` history, `c25433ad` supplier offers. `5a6351ae` New Job menu fallback now uses the tenant accent token. All remain pending authenticated responsive acceptance.
 - Post-migration rollback regression rerun: transactional flooring reset, full order-to-invoice, invoice idempotency and customer idempotency passed.
+
+- `e6f18659`: shared BMS modal now supports Escape dismissal and initial keyboard focus; focus containment, restoration and authenticated browser QA remain open.
+- Vercel alias inspection confirmed `bms.diamantsolutions.co.uk` and other configured domains were attached to a subsequent READY production deployment. This is deployment routing evidence only, not an authenticated page render or functional acceptance.
