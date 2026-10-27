@@ -13,7 +13,7 @@
 ## Implemented commits
 - 5e8123e: review loan and internal-transfer classifications before automatic bank receipt matching.
 - 8cf87f2: source-qualify dashboard recorded payments and identify historical unverified entries.
-- 08b4ebf: regression assertions for the safeguards and dashboard labels.
+- 08b4ebf, d0c633f, b40b606f: regression assertions for safeguards, date matching and dashboard labels.\n- f1b7f97: scheduled Xero sync requires exact matching payment dates; undated historical entries go to review.\n- cd09f60, 0b64aa9: purchasing draft quantity and unit-cost editing with regression coverage.
 
 ## Outstanding, ordered
 1. Obtain Xero invoice Payments and relevant bank transaction totals by consistent date window, currency and classification; match unique external IDs and exclude loans/transfers and duplicates. Determine why user sees >£18k, and why the earlier UI showed £5,695. Do not silently rewrite historical £5,200.
