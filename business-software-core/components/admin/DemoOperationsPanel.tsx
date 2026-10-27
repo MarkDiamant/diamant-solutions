@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {useSearchParams} from "next/navigation";
 import Link from "next/link";
+import {BmsPageTitle} from "./BmsUI";
 
 type Movement={id:string;product:string;delta:number;reason:string;when:string};
 type DemoState={onHand:number;reserved:number;incoming:number;received:number;picked:number;used:number;returned:number;orderStatus:string;deliveryStatus:string;fittingStatus:string;movements:Movement[]};
@@ -32,7 +33,7 @@ export default function DemoOperationsPanel(){
   setMessage("Demo workflow updated. No real stock or financial records were changed.");
  };
  return <main className="mx-auto max-w-6xl space-y-5 px-4 py-6 text-slate-900">
-  <header className="rounded-2xl bg-white p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-2xl font-bold">{sampleNames[sample]||"Business"} operations demo</h1><p className="mt-1 text-sm text-slate-600">Fictional, isolated workflows. Changes stay in this browser session.</p></div><Link href="/" className="rounded-lg border px-3 py-2 text-sm font-semibold">Dashboard</Link></div></header>
+  <header className="rounded-2xl bg-white p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><BmsPageTitle>{sampleNames[sample]||"Business"} operations demo</BmsPageTitle><p className="mt-1 text-sm text-slate-600">Fictional, isolated workflows. Changes stay in this browser session.</p></div><Link href="/" className="rounded-lg border px-3 py-2 text-sm font-semibold">Dashboard</Link></div></header>
   {message&&<p role="status" className="rounded-lg bg-white p-3 text-sm">{message}</p>}
   <section className="rounded-2xl bg-white p-5"><h2 className="text-lg font-bold">Central product catalogue</h2><div className="mt-3 overflow-x-auto"><table className="w-full text-left text-sm"><thead><tr><th className="p-2">Product</th><th className="p-2">Unit</th><th className="p-2">Supplier cost</th><th className="p-2">Standard price</th><th className="p-2">Stock controlled</th></tr></thead><tbody>{products.map(p=><tr key={p.name} className="border-t"><td className="p-2">{p.name}</td><td className="p-2">{p.unit}</td><td className="p-2">{money(p.cost)}</td><td className="p-2">{money(p.price)}</td><td className="p-2">{p.stock?"Yes":"No"}</td></tr>)}</tbody></table></div></section>
   {flooring&&<>
