@@ -1,5 +1,5 @@
 "use client";
-import {BmsInput,BmsTable} from "./BmsUI";
+import {BmsTable} from "./BmsUI";
 import {useState} from "react";
 type Row={name:string;sku:string;category:string;unit:string;cost_net:string|null;sell_net:string|null;stock_controlled:boolean;description:string};
 function parseCsv(input:string):string[][]{
