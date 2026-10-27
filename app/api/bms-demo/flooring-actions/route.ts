@@ -61,7 +61,7 @@ export async function GET(req:Request){
   const job=params.get("job_id")||"";
   if(!uuid.test(job))return response("Valid fictional job_id required",400);
   await owned("business_software_jobs",tenant,job);
-  const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
+  const q=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,version,status,amount,vat_rate,scope_text,lead_time,created_at&order=version.desc&limit=100",{cache:"no-store"});
   const i=await centralRest("business_software_invoices?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_number,provider,status,total,amount_due,amount_paid,amount_credited,source_quote_id,invoice_date,due_date,created_at&order=created_at.desc&limit=100",{cache:"no-store"});
   const a=await centralRest("business_software_invoice_payment_allocations?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=invoice_id,payment_id,amount,created_at&order=created_at.desc&limit=500",{cache:"no-store"});
   const cr=await centralRest("business_software_invoice_credit_notes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,invoice_id,credit_number,amount,reason,issued_at&order=issued_at.desc&limit=500",{cache:"no-store"});
