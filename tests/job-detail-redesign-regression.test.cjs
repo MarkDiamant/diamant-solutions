@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const job=fs.readFileSync('business-software-core/components/admin/JobDetail.tsx','utf8');
 const grant=fs.readFileSync('supabase/migrations/20261027000100_bms_job_items_service_role_grants.sql','utf8');
 test('navigation precedes priorities and Split Job Order is a permission-gated tab',()=>{
- assert.ok(job.indexOf('aria-label="Job sections"')<job.indexOf('aria-label="Job priorities"'));
+ assert.ok(job.indexOf('aria-label="Job sections"')<job.indexOf('aria-label="Job overview"'));
  assert.match(job,/"Split Job\/Order"/);
  assert.match(job,/x!=="Split Job\/Order"\|\|canPricing/);
  assert.match(job,/tab==="Split Job\/Order"&&canPricing/);
@@ -37,7 +37,7 @@ test('trusted service role can read and revise tenant-verified job items',()=>{
 test('historical Xero-paid entries without payment dates are visibly flagged, not silently certified',()=>{
  assert.match(job,/payment_type==="historical_xero_paid"&&!p\.paid_at/);
  assert.match(job,/Payment evidence needs verification/);
- assert.match(job,/Verify against the actual Xero transaction/);
+ assert.match(job,/Verify original transactions/);
 });
 
 test("secondary job tabs show skeleton and split waits for full data",()=>{
@@ -47,7 +47,7 @@ test("secondary job tabs show skeleton and split waits for full data",()=>{
 
 test("Quick Edit cancel restores persisted job fields and refresh resynchronises",()=>{assert.match(job,/Cancel Quick Edit/);assert.match(job,/if\(quickOpen\)\{setQuickTitle/);assert.match(job,/\[j\.job_title,j\.job_type,j\.manager,j\.next_action,j\.next_action_at,j\.internal_notes,quickOpen\]/);});
 
-test("activity submission retains entered data when server rejects save",()=>{assert.match(job,/const form=e\.currentTarget;setSubmitting\(true\);try\{await onAction\(\{type:"activity"/);assert.match(job,/form\.reset\(\);\}catch\(error\)/);});
+test("activity submission retains entered data when server rejects save",()=>{assert.match(job,/const form=e\.currentTarget;setActivityError\(""\);setSubmitting\(true\);try\{await onAction\(\{type:"activity"/);assert.match(job,/form\.reset\(\);\}catch\(error\)/);});
 
 test("historical manager assignments remain selectable and quote/invoice notes are not conflated",()=>{assert.match(job,/Previously assigned \(configure name in Settings\)/);assert.match(job,/Customer requirements for quotation/);assert.match(job,/Quote Notes \/ exclusions \(shown on quotation only\)/);assert.match(job,/Invoice-specific wording belongs to the individual invoice/);});
 
