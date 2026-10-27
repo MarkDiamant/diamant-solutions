@@ -103,6 +103,7 @@ test("fictional manager can revise approve convert issue and download finance PD
  const ctx=await browser.newContext({baseURL:origin});const job="47029266-51a3-4caa-b70d-fbb8a4d3c419";
  try{
   await ctx.addCookies([{name:"bms_access_token",value:token,url:origin,httpOnly:true,secure:true,sameSite:"Lax"}]);
+  const page=await ctx.newPage();await page.goto("/bms-demo/flooring/finance");await page.getByRole("combobox").selectOption(job);await page.getByRole("button",{name:"Load ledger"}).click();await expect(page.getByText("Create quotation revision")).toBeVisible();await page.close();
   const nonce=Date.now().toString(36);const post=async(action:string,extra:Record<string,unknown>)=>{const r=await ctx.request.post("/api/bms-demo/flooring-actions",{headers:{origin},data:{action,job_id:job,request_key:"accept:"+action+":"+nonce,...extra}});expect(r.status(),await r.text()).toBe(200);return r.json()};
   await post("create_quote",{scope_text:"Fictional manager E2E flooring quote "+nonce,amount:125,vat_rate:20,lead_time:"5 working days"});
   const ledger=async()=>{const r=await ctx.request.get("/api/bms-demo/flooring-actions?job_id="+job);expect(r.status()).toBe(200);return r.json()};
