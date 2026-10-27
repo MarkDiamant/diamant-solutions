@@ -141,7 +141,8 @@ export async function POST(req:Request){
    const latestQuote=await centralRest("business_software_quotes?tenant_id=eq."+tenant+"&job_id=eq."+job+"&select=id,amount,vat_rate,status&order=version.desc&limit=1");
    if(!latestQuote.ok)throw Error("Unable to verify latest quotation");
    const quote=(await json(latestQuote))?.[0];if(!quote)return response("Create a quotation before drafting an invoice",409);
-   result=await rpc("bms_create_internal_draft_invoice_once",{p_tenant:tenant,p_job:job,p_quote:String(quote.id),p_key:"quote:"+String(quote.id),p_invoice_prefix:"FLI"});
+   const settings=await centralRest("business_software_tenant_settings?tenant_id=eq."+tenant+"&select=invoice_prefix&limit=1");if(!settings.ok)throw Error("Unable to load tenant invoice numbering settings");const invoicePrefix=String((await json(settings))?.[0]?.invoice_prefix||"INV").trim();if(!/^[A-Za-z0-9-]{2,16}$/.test(invoicePrefix))throw Error("Invalid tenant invoice prefix");
+   result=await rpc("bms_create_internal_draft_invoice_once",{p_tenant:tenant,p_job:job,p_quote:String(quote.id),p_key:"quote:"+String(quote.id),p_invoice_prefix:invoicePrefix});
 
   }else return response("Unsupported demo action",400);
   return NextResponse.json({ok:true,action,result,fictional:true,tenant:"flooring-showcase-demo",accounting_provider_connected:false},{headers:{"Cache-Control":"no-store"}});
