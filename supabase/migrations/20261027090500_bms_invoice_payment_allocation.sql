@@ -26,7 +26,7 @@ BEGIN
  due:=coalesce(inv.amount_due,0);
  IF p_amount>due THEN RAISE EXCEPTION 'Payment exceeds outstanding invoice balance'; END IF;
  INSERT INTO public.business_software_payments(tenant_id,job_id,direction,payment_type,amount,payment_method,paid_at,notes)
- VALUES(p_tenant,p_job,'in','customer',p_amount,left(trim(p_method),80),p_paid_at,'Allocated to internal invoice '||p_invoice::text) RETURNING id INTO payment;
+ VALUES(p_tenant,p_job,'customer_in','Invoice payment',p_amount,left(trim(p_method),80),p_paid_at,'Allocated to internal invoice '||p_invoice::text) RETURNING id INTO payment;
  INSERT INTO public.business_software_invoice_payment_allocations(tenant_id,job_id,invoice_id,payment_id,request_key,amount)
  VALUES(p_tenant,p_job,p_invoice,payment,p_key,p_amount);
  UPDATE public.business_software_invoices SET amount_paid=coalesce(amount_paid,0)+p_amount,amount_due=due-p_amount,status=CASE WHEN due=p_amount THEN 'paid' ELSE 'part_paid' END
