@@ -2,6 +2,6 @@ const test=require("node:test"),assert=require("node:assert/strict"),fs=require(
 
 test("mobile refinements keep Xero sync within expandable details and remove redundant activity labels",()=>{const moneyStart=s.indexOf('id="bms-mobile-money-details"');const sync=s.indexOf('Sync Xero',moneyStart);assert.ok(moneyStart>=0&&sync>moneyStart);assert.doesNotMatch(s,/Activity feed<\/p>/i);assert.doesNotMatch(s,/\{activities.length\} updates/);assert.doesNotMatch(s,/Includes normal system activity/);assert.match(s,/Recorded Receipts:/);});
 
-test("Latest activity summary uses same mobile shaded summary treatment as Money overview",()=>{const style='className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-700 md:hidden"';assert.ok(s.includes(style+'><strong>Latest:</strong>'));assert.ok(s.includes(style+'>{crmConfig.modules.quotes'));});
+test("mobile shaded summaries appear only when their sections are collapsed",()=>{assert.match(s,/moneyMobileExpanded\?"hidden":"block"/);assert.match(s,/activityMobileExpanded\?"hidden":"block"/);assert.match(s,/Latest:<\/strong>/);assert.match(s,/bg-slate-50 px-3 py-2 text-xs text-slate-700 md:hidden/);});
 
 test("collapsed Money summary uses bold labels on separate lines without dot separator",()=>{assert.match(s,/<strong className="font-bold">Open Pipeline:<\/strong>/);assert.match(s,/<p className="mt-1"><strong className="font-bold">Recorded Receipts:<\/strong>/);assert.doesNotMatch(s,/ · Recorded Receipts:/);});
