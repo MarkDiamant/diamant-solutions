@@ -1,12 +1,15 @@
 "use client";
+import type {CSSProperties} from "react";
 import {usePathname,useSearchParams} from "next/navigation";
 const demos=[["northstar","Property & Projects","#17385f"],["electrical","Electrician","#d27832"],["insurance","Insurance","#377d68"],["studio","Creative Agency","#7656a6"],["consultancy","Consultancy","#536f91"],["distribution","Distribution","#6c7f45"],["flooring","Flooring & Tiles","#9a6744"]];
 export default function DemoSelector(){
  const params=useSearchParams(),pathname=usePathname(),parts=pathname.split("/").filter(Boolean),keys=demos.map(([k])=>k),selected=keys.includes(parts[0])?parts[0]:(params.get("sample")||"northstar");
  const accent=demos.find(([k])=>k===selected)?.[2]||"#17385f";
  const choose=(key:string)=>{try{sessionStorage.removeItem("bms-directory-data");sessionStorage.removeItem("bms-tenant-config")}catch{}const rest=keys.includes(parts[0])?parts.slice(1):parts[0]==="bms-runtime"?parts.slice(1):parts;window.location.assign("/"+key+(rest.length?"/"+rest.join("/"):""))};
- return <div className="bms-demo-selector border-b border-slate-200 bg-white px-3 py-2 text-center text-xs font-bold print:hidden">
-  <div className="sm:hidden"><div className="mb-1.5 text-[11px] font-black text-black/65">Switch business demo</div><details className="relative mx-auto inline-block text-left"><summary className="cursor-pointer list-none rounded-lg border border-black/20 px-4 py-2 font-black !text-white" style={{backgroundColor:accent}}>{demos.find(([k])=>k===selected)?.[1]||"Choose business demo"} ▾</summary><div className="absolute left-1/2 z-[80] mt-2 w-56 -translate-x-1/2 rounded-xl border border-black/10 bg-white p-2 shadow-xl">{demos.map(([key,label])=><button type="button" key={key} onClick={()=>choose(key)} className={`block w-full rounded-lg px-3 py-2 text-left ${key===selected?"!text-white":"text-black hover:bg-black/5"}`} style={key===selected?{backgroundColor:demos.find(([k])=>k===key)?.[2]}:undefined}>{label}</button>)}</div></details></div>
-  <div className="hidden items-center justify-center gap-2 sm:flex"><span>View demo as:</span>{demos.map(([key,label])=><button type="button" key={key} onClick={()=>choose(key)} className={`rounded-lg border border-slate-200 px-3 py-1.5 transition-colors ${key===selected?"!text-white shadow-sm":"bg-slate-50 text-slate-700 hover:bg-slate-100"}`} style={key===selected?{backgroundColor:demos.find(([k])=>k===key)?.[2],borderColor:demos.find(([k])=>k===key)?.[2]}:undefined}>{label}</button>)}</div>
+ return <div className="bms-demo-selector print:hidden" aria-label="Choose demonstration industry">
+  <span className="bms-demo-selector-label">View demo as</span>
+  <div className="bms-demo-industry-scroll" role="group" aria-label="Demo industry">
+   {demos.map(([key,label])=><button type="button" key={key} onClick={()=>choose(key)} aria-pressed={key===selected} className="bms-demo-industry-button" style={key===selected?{"--demo-industry-accent":accent} as CSSProperties:undefined}>{label}</button>)}
+  </div>
  </div>;
 }
