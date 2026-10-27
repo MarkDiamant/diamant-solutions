@@ -14,6 +14,9 @@ export default function DemoOperationsPanel(){
  const [refreshKey,setRefreshKey]=useState(0);
  const [busy,setBusy]=useState(false),[customerName,setCustomerName]=useState(""),[area,setArea]=useState("48"),[waste,setWaste]=useState("10"),[selectedProduct,setSelectedProduct]=useState(""),[selectedCustomer,setSelectedCustomer]=useState(""),[selectedSupplier,setSelectedSupplier]=useState(""),[selectedJob,setSelectedJob]=useState(""),[quoteScope,setQuoteScope]=useState("Supply and fit flooring"),[quoteAmount,setQuoteAmount]=useState("888");
  const product=connected?.products?.find((p:any)=>p.id===selectedProduct)||connected?.products?.[0];
+ const customerId=selectedCustomer||connected?.customers?.[0]?.id;
+ const customerPrice=connected?.customer_prices?.find((p:any)=>p.product_id===product?.id&&p.customer_id===customerId);
+ const unitPrice=Number(customerPrice?.sell_net??product?.fixed_sell_net??0);
  const coverage=Number(product?.specifications?.coverage_m2_per_pack||product?.units_per_pack||0);
  const packs=Number(area)>0&&Number(waste)>=0&&Number(waste)<=100&&coverage>0?Math.ceil(Number(area)*(1+Number(waste)/100)/coverage):0;
  const run=async(action:string,extra:Record<string,unknown>={})=>{if(busy)return;setBusy(true);setMessage("");try{const r=await fetch("/api/bms-demo/flooring-actions",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,request_key:"flooring-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,12),...extra})});const data=await r.json();if(!r.ok)throw Error(data.error||"Demo action rejected");setMessage("Saved to isolated demo database: "+action.replaceAll("_"," "));setConnected(null);setRefreshKey(v=>v+1)}catch(e){setMessage("Action not saved: "+(e instanceof Error?e.message:"Unknown error"))}finally{setBusy(false)}};
@@ -41,7 +44,8 @@ export default function DemoOperationsPanel(){
     <BmsField>Supplier<BmsSelect value={selectedSupplier||connected?.suppliers?.[0]?.id||""} onChange={e=>setSelectedSupplier(e.target.value)}>{(connected?.suppliers||[]).map((p:any)=><option key={p.id} value={p.id}>{p.name}</option>)}</BmsSelect></BmsField>
     <BmsField>Job<BmsSelect value={selectedJob||connected?.jobs?.[0]?.id||""} onChange={e=>setSelectedJob(e.target.value)}>{(connected?.jobs||[]).map((p:any)=><option key={p.id} value={p.id}>{p.reference}</option>)}</BmsSelect></BmsField>
    </div>
-   <p className="mt-3 font-semibold">{packs?packs+" "+(product?.unit||"packs")+" required at "+coverage+" m² per unit":"Enter valid area, wastage and product coverage."}</p>
+   <p className="mt-3 font-semibold">{packs?packs+" "+(product?.unit||"packs")+" required at "+coverage+" m² per unit, "+money(unitPrice)+" per unit, "+money(packs*unitPrice)+" net":"Enter valid area, wastage and product coverage."}</p>
+   {customerPrice&&<p className="text-xs text-slate-600">Customer-specific price applied from the shared BMS price book.</p>}
    <div className="mt-3 flex flex-wrap gap-2">
     <BmsButton disabled={busy||!packs||!connected} onClick={()=>run("create_sales_order",{customer_id:selectedCustomer||connected?.customers?.[0]?.id,job_id:selectedJob||connected?.jobs?.[0]?.id,product_id:product?.id,quantity:packs,area_m2:Number(area),wastage_percent:Number(waste)})}>Create sales order</BmsButton>
     <BmsButton disabled={busy||!packs||!connected} variant="secondary" onClick={()=>run("create_purchase_order",{supplier_id:selectedSupplier||connected?.suppliers?.[0]?.id,job_id:selectedJob||connected?.jobs?.[0]?.id,product_id:product?.id,quantity:packs,unit_cost_net:Number(product?.cost_net||0)})}>Create purchase order</BmsButton>
