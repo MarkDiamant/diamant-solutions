@@ -9,6 +9,19 @@ const token = process.env.BMS_DEMO_MANAGER_ACCESS_TOKEN;
 const writeEnabled = process.env.BMS_DEMO_ALLOW_MUTATIONS === "true";
 const origin = new URL(process.env.BMS_TEST_BASE_URL || "https://bms.diamantsolutions.co.uk").origin;
 
+test("public flooring catalogue exposes fictional list prices without private customer or supplier data", async ({ request }) => {
+  const response = await request.get("/api/bms-demo/catalogue");
+  expect(response.status()).toBe(200);
+  const body = await response.json();
+  expect(body.fictional).toBe(true);
+  expect(body.currency).toBe("GBP");
+  expect(Array.isArray(body.products)).toBe(true);
+  expect(body.products.length).toBeGreaterThan(0);
+  for (const product of body.products) {
+    expect(Object.keys(product).sort()).toEqual(["category", "coverage_m2", "list_price_net", "name", "sku", "unit"].sort());
+  }
+});
+
 test("anonymous clients cannot mutate the flooring demo", async ({ request }) => {
   const response = await request.post("/api/bms-demo/flooring-actions", {
     headers: { origin },
