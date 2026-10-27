@@ -189,7 +189,7 @@ export async function POST(req:Request){
    const row=await owned("business_software_invoices",tenant,invoice,"id,job_id,provider,status");
    if(row.job_id!==job||row.provider!=="internal")return response("Internal invoice must belong to selected job",403);
    const paymentAmount=amount(d.amount),method=String(d.payment_method||"").trim(),paidAt=String(d.paid_at||"");
-   if(!Number.isFinite(paymentAmount)||paymentAmount<=0||!Number.isInteger(paymentAmount*100)||method.length<2||method.length>80||!paidAt||!Number.isFinite(Date.parse(paidAt)))return response("Valid payment amount, method and date required",400);
+   if(!Number.isFinite(paymentAmount)||paymentAmount<=0||Math.abs(paymentAmount*100-Math.round(paymentAmount*100))>0.000001||method.length<2||method.length>80||!paidAt||!Number.isFinite(Date.parse(paidAt)))return response("Valid payment amount, method and date required",400);
    result=await rpc("bms_record_internal_invoice_payment_once",{p_tenant:tenant,p_job:job,p_invoice:invoice,p_amount:paymentAmount,p_method:method,p_paid_at:paidAt,p_key:keyValue,p_actor:"Demo manager"});
   }else if(action==="issue_invoice"||action==="void_invoice"){
    const job=String(d.job_id||""),invoice=String(d.invoice_id||"");
