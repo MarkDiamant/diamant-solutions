@@ -114,6 +114,7 @@ export async function GET(req:Request){
    const csv=[headers,...values].map(row=>row.map(safeCsvCell).join(",")).join("\r\n")+"\r\n";
    return new Response(csv,{headers:{"Content-Type":"text/csv; charset=utf-8","Content-Disposition":"attachment; filename=\"bms-invoices-"+job+".csv\"","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"}});
   }
+  const googleStatus=await centralRest("business_software_integrations?tenant_id=eq."+tenant+"&provider=eq.google&status=eq.connected&select=id&limit=1",{cache:"no-store"});const googleRows=googleStatus.ok?await json(googleStatus):[];const gmailConnected=Array.isArray(googleRows)&&googleRows.length>0;
   return NextResponse.json({
    fictional:true,tenant:"flooring-showcase-demo",job_id:job,
    quotes,invoices:invoiceRows,allocations,credits,
@@ -127,6 +128,8 @@ export async function GET(req:Request){
     overdue_total:invoiceRows.filter((x:any)=>x.overdue).reduce((sum:number,x:any)=>sum+Number(x.amount_due||0),0),
     aging:agingBuckets(invoiceRows,new Date().toISOString().slice(0,10)),
    },
+   gmail_connected:gmailConnected,
+   gmail_test_recipient_configured:Boolean(String(process.env.BMS_DEMO_EMAIL_ALLOWLIST||"").trim()),
    accounting_provider_connected:false,
    external_sync_permitted:false
   },{headers:{"Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
