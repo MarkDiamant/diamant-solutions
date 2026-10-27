@@ -38,9 +38,9 @@ export async function GET(request:Request){
      rows("business_software_invoices?tenant_id=eq."+enc(tenantId)+"&select=job_id&limit=5000")]);
     const byRef=new Map<string,any[]>();for(const j of jobs){const ref=String(j.reference||"").toUpperCase().trim().replace(/[- ]/g,"");if(!ref)continue;byRef.set(ref,[...(byRef.get(ref)||[]),j]);}
     const linkedIds=new Set(links.map((x:any)=>String(x.external_transaction_id))),linkedPayments=new Set(links.map((x:any)=>String(x.payment_id))),invoiced=new Set(invoices.map((x:any)=>String(x.job_id)));
-    for(let page=1;page<=3;page++){
+    for(let page=1;page<=100;page++){
      const r=await fetch("https://api.xero.com/api.xro/2.0/BankTransactions?where="+enc('Type=="RECEIVE" AND IsReconciled==true')+"&page="+page,{headers:{Authorization:"Bearer "+creds.token,"xero-tenant-id":creds.organisation,Accept:"application/json"},cache:"no-store"});
-     if(r.status===429){errors.push("Xero rate limited");break;}if(!r.ok)throw new Error("Xero bank transaction lookup "+r.status);
+     if(r.status===429){const raw=Number(r.headers.get("retry-after")||60);errors.push("Xero rate limited for tenant "+tenantId+"; retry after "+(Number.isFinite(raw)&&raw>0?raw:60)+" seconds");failed++;break;}if(!r.ok)throw new Error("Xero bank transaction lookup "+r.status);
      const txs=(await r.json()).BankTransactions||[];if(!Array.isArray(txs))throw new Error("Invalid bank transaction response");
      for(const tx of txs){checked++;
       if(!tx.BankTransactionID||tx.Type!=="RECEIVE"||tx.IsReconciled!==true||tx.Status!=="AUTHORISED"||String(tx.CurrencyCode||"GBP")!=="GBP"||linkedIds.has(String(tx.BankTransactionID)))continue;
@@ -72,9 +72,13 @@ export async function GET(request:Request){
        if(!queued.ok)failed++;
        continue;
       }
-      const existing=candidates.length===1?String(candidates[0].id):null;
-      const result=await centralRest("rpc/bms_record_verified_bank_receipt",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_job:jobId,p_external:String(tx.BankTransactionID),p_amount:amount,p_paid_at:date.slice(0,10),p_existing_payment:existing})});
-      if(!result.ok){failed++;continue;}const outcome=await result.json().catch(()=>null);linkedIds.add(String(tx.BankTransactionID));if(existing)linkedPayments.add(existing);if(outcome==="imported")imported++;else linked++;
+      // Never mutate customer payment ledgers from a background discovery run.
+      // Even a matching job, amount and date is only a proposed match until a
+      // human has checked the Xero transaction, contact and allocation.
+      review++;
+      const queued=await centralRest("business_software_accounting_unmatched_receipts?on_conflict=tenant_id,provider,external_transaction_id",{method:"POST",headers:{Prefer:"resolution=ignore-duplicates,return=minimal"},body:JSON.stringify({tenant_id:tenantId,provider:"xero",external_transaction_id:String(tx.BankTransactionID),amount,paid_at:date.slice(0,10),reference:String(tx.Reference||"").slice(0,500),contact_name:String(tx.Contact?.Name||"").slice(0,200)})});
+      if(!queued.ok)failed++;
+
      }
      if(txs.length<100)break;
     }
