@@ -46,3 +46,9 @@ Baseline: commit `1501effb`. Current evidence snapshot: baseline `1f741ea5` plus
 - **Browser:** Protected Playwright workflow exists but was not executed with an authenticated manager. Demo tenant has no existing active manager membership, and no dedicated test credentials were available. Never fabricate login credentials or grant a test account access to live financial tenants. A Vercel sandbox provided HTTP checks, not Chromium browser acceptance.
 
 **Strict gates unchanged:** implemented **9/20 → 10/20 (45% → 50%)**, complete database/integration-tested **4/20 → 6/20 (20% → 30%)**, authenticated browser accepted **0/20 → 0/20 (0% → 0%)**. These remain unweighted complete-scope counts. New subfeature tests do not promote a partially completed top-level requirement.
+
+## Independent public-browser smoke gate (not authenticated E2E)
+
+- **6/6 public Playwright tests passed** in real headless Chromium against production on 27 October 2026. This separately measures public rendering, mobile responsive layout, catalogue privacy, keyboard navigation and denied unauthenticated writes. It is not one of the 20 full-requirement gates.
+- **3/3 routes free of hydration errors** after the shared header nested-anchor fix: root, Flooring Demo operations and BMS runtime. Earlier React #418 errors were reproduced and then resolved in production.
+- **Authenticated E2E: 0/20 accepted.** A dedicated demo-only Supabase Auth manager identity, protected CI credentials and execution of the opt-in write/reset browser suite are still missing. Do not substitute public browser smoke for authenticated permission/persistence acceptance.
