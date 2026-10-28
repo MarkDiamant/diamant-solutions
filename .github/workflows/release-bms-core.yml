@@ -18,6 +18,25 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
+      - name: Install dependencies and run shared BMS regressions before publishing
+        run: |
+          npm ci --ignore-scripts
+          node --test tests/worker-time.test.mjs tests/safe-csv.test.mjs tests/ruby-confirmation.test.mjs tests/bms-shared-primitives.test.mjs tests/bms-api-static-guards.test.mjs tests/finance-reconciliation.test.cjs tests/financial-pdf.test.cjs tests/fictional-gmail-finance.test.cjs tests/workforce-assignment-guards.test.cjs tests/purchasing-workspace-guards.test.cjs tests/bms-dashboard-xero-review.test.cjs tests/flooring-finance-guards.test.cjs tests/google-oauth-scopes.test.cjs tests/flooring-catalogue-privacy.test.cjs tests/customer-payment-ledger-summary.test.cjs tests/inventory-valuation-tenant-safety.test.cjs tests/job-items-loading-states.test.cjs tests/job-detail-redesign-regression.test.cjs tests/tenant-job-config-regression.test.cjs tests/job-items-append-tenant-regression.test.cjs tests/mobile-dashboard-collapse-regression.test.cjs tests/job-detail-activity-layout-regression.test.cjs
+        env:
+          TZ: Europe/London
+      - name: Reject unpublished shared-core changes under an existing immutable version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(node -p 'require("./business-software-core/package.json").version')"
+          tag="bms-core-v${version}"
+          git fetch --no-tags origin "refs/tags/${tag}:refs/tags/${tag}" 2>/dev/null || true
+          if git rev-parse "refs/tags/${tag}" >/dev/null 2>&1; then
+            if ! git diff --quiet "refs/tags/${tag}" HEAD -- business-software-core; then
+              echo "::error::Shared core changed since immutable ${tag}; bump package version before release."
+              exit 1
+            fi
+          fi
       - name: Verify package and create immutable release archive
         id: package
         shell: bash
