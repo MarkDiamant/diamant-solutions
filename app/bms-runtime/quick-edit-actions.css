@@ -74,3 +74,16 @@
 .bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"]:hover {
   background-color: #dce5f0 !important;
 }
+
+/* Consistent typography across every quick-edit action and its nested links. */
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex a,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > details > summary,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"],
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > button:last-child {
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.25rem !important;
+  letter-spacing: normal !important;
+}
