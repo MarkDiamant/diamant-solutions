@@ -300,6 +300,7 @@ function DashboardEnhancer() {
         const body = await response.json();
         const jobs = (body.jobs || []) as JobSummary[];
         applyRowHighlights(jobs);
+        applyLostJobValue(jobs);
         applyDueLines(jobs);
 
         const headings = Array.from(document.querySelectorAll<HTMLHeadingElement>("h2"));
