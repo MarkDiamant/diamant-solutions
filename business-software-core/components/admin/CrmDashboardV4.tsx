@@ -277,7 +277,7 @@ function DashboardEnhancer() {
         const headings = Array.from(document.querySelectorAll<HTMLHeadingElement>("h2"));
         for (const heading of headings) {
           const reference = heading.textContent?.trim() || "";
-          if (!/^MJ\d{3}$/.test(reference)) continue;
+          if (!reference || !/^[A-Za-z][A-Za-z0-9-]{1,31}$/.test(reference)) continue;
 
           const quickPanel = heading.closest<HTMLElement>(".border-t");
           if (!quickPanel) continue;
@@ -305,7 +305,7 @@ function DashboardEnhancer() {
     };
 
     void refresh();
-    const interval = window.setInterval(() => void refresh(), 1000);
+    const interval = window.setInterval(() => void refresh(), 20000);
     const onFocus = () => void refresh();
     window.addEventListener("focus", onFocus);
 
