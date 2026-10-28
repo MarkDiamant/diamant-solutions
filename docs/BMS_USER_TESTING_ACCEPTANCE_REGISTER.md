@@ -133,3 +133,16 @@ Shared BMS package `1.0.2` was released from commit `07bb39bb`, superseding `1.0
 ## User-confirmed mobile disclosure acceptance and 27 October refinement rollout
 
 User personally confirmed Money Overview and Recent Activity mobile collapse/expand controls work. This confirmation applies only to the disclosure interaction, not to all Dashboard requirements. New shared-core v1.0.17 refinements: Sync Xero moved inside expanded Money Overview; Open Pipeline and Recorded Receipts remain labelled in compact summary; redundant Activity Feed heading, activity count and system-activity explanation removed. Activity form now rejects blank/whitespace summaries while retaining failed-save entries. The new refinements and Activity behaviour remain AWAITING user testing. M&J rollout is via immutable shared core, no tenant-specific functional changes. No operational or financial records changed. Overall audited 20-requirement gates remain 10/20 implemented, 10/20 integration-tested, 0/20 full-requirement user accepted.
+
+
+## 28 October 2026: Historical M&J implementation preservation gate
+
+**DO NOT REMOVE OR REPLACE M&J's remaining local components until their behaviour has been reconciled with the canonical BMS core and authenticated user testing has passed.** Shared core v1.0.31 is deployed READY in both projects, but package parity alone is insufficient because M&J still imports local V4/V5 and other components.
+
+Audited M&J local admin components against canonical BMS counterparts. These are NOT byte-identical: CrmDashboardV4, CrmDashboardV5, AdminBrandBar, XeroInvoicePage, NewJobFormV2, JobWorkflowPanel. Other local components also remain and need import-by-import review. V3, JobDetail, QuotePrint and QuotePdfActions are compatibility re-exports from the immutable shared package.
+
+**V4 historical M&J behaviours to reconcile before consolidation:** lost-value summary, compact Money Overview, Recent Activity and activity history, subcontractor payment history, job status highlights, fetch throttling and generic job references. Canonical V4 has modernized 20-second refresh and generic references; M&J V4 still polls every second and matches MJ-only references. Check whether every user-visible feature has a canonical replacement; never copy M&J-only assumptions back into core.
+
+**V5 historical M&J behaviours to reconcile:** responsive Quick Edit styling, money-section mobile placement, lost/cancelled job-row highlighting. Canonical V5 replaces injected CSS and MutationObservers with native V3 rendering and TaskReminderBanner. Verify equivalent mobile and lost-row outcomes before switching M&J to canonical V5.
+
+**Release gate:** No destructive sync or deletion; maintain a rollback path. Compare historical M&J UI/API capabilities and test real authenticated workflows (Dashboard, Jobs, Quotes, Invoices, payments, Ruby, PDF, Xero) in each tenant, preserve tenant data, then migrate wrappers only after explicit acceptance. User has not accepted this migration.
