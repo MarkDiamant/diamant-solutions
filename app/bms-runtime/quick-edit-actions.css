@@ -1,4 +1,4 @@
-/* Quick-edit actions: tenant-neutral controls with the tenant accent reserved for Split order. */
+/* Quick-edit actions: tenant-neutral controls with the tenant accent reserved for Save changes. */
 .bms-shell div.flex.flex-col:has(> label input[maxlength="160"]) > div.flex.flex-wrap:has(a[href*="split=1"]) {
   justify-content: center;
   gap: 0.5rem;
@@ -34,4 +34,18 @@
 .bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > button:last-child {
   border-radius: 0.5rem;
   padding: 0.625rem 0.75rem;
+}
+
+/* Unified neutral secondary actions, including Split order. */
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"] {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #e2e8f0;
+  font-weight: 700;
+  text-decoration: none !important;
+}
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > button:last-child {
+  background: var(--bms-accent) !important;
+  color: #fff !important;
+  border: 1px solid transparent;
 }
