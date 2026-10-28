@@ -87,3 +87,19 @@
   line-height: 1.25rem !important;
   letter-spacing: normal !important;
 }
+
+/* Match all five button heights to the quote and invoice controls. */
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"],
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > details > summary,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > button:last-child {
+  box-sizing: border-box !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+}
