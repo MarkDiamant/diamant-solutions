@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import "./bms.css";
+import "./quick-edit-actions.css";
 import AdminBrandBar from "@/components/admin/AdminBrandBar";
 import DiamantCredit from "@/components/admin/DiamantCredit";
 import BmsRuntimeGuard from "@/components/BmsRuntimeGuard";
