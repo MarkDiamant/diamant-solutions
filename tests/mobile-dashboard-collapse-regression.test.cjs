@@ -5,3 +5,5 @@ test("mobile refinements keep Xero sync within expandable details and remove red
 test("mobile shaded summaries appear only when their sections are collapsed",()=>{assert.match(s,/moneyMobileExpanded\?"hidden":"block"/);assert.match(s,/activityMobileExpanded\?"hidden":"block"/);assert.match(s,/Latest:<\/strong>/);assert.match(s,/bg-slate-50 px-3 py-2 text-xs text-slate-700 md:hidden/);});
 
 test("collapsed Money summary uses bold labels on separate lines without dot separator",()=>{assert.match(s,/<strong className="font-bold">Open Pipeline:<\/strong>/);assert.match(s,/<p className="mt-1"><strong className="font-bold">Recorded Receipts:<\/strong>/);assert.doesNotMatch(s,/ · Recorded Receipts:/);});
+
+test("Dashboard invoice button matches actual Quick Edit quote pill hierarchy",()=>{assert.match(s,/inline-flex min-h-10 flex-wrap items-center gap-2 rounded-full border border-\[var\(--bms-accent\)\] bg-white/);assert.match(s,/rounded-full border border-\[var\(--bms-accent\)\] bg-white px-3\.5 py-2 text-xs font-black/);assert.doesNotMatch(s,/rounded-xl bg-white px-2\.5 py-1\.5 text-xs font-black underline underline-offset-2" >Open invoice/);});

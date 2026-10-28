@@ -287,7 +287,7 @@ function DashboardEnhancer() {
           ).find((node) =>
             node
               .querySelector("h3")
-              ?.textContent?.includes("Fabricators / installers / subcontractors"),
+              ?.textContent?.includes("Workforce"),
           );
           if (!section) continue;
 
