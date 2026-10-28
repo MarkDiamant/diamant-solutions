@@ -1,0 +1,78 @@
+import { NextRequest, NextResponse } from "next/server";
+import { requirePermission, supabaseRequest } from "@/lib/crm/supabase-server";
+import { DEFAULT_CRM_CONFIG, normaliseCrmConfig } from "@/lib/crm/config";
+import { resolveCentralTenant } from "@/lib/crm/product";
+import { signedTenantHandoff } from "@/lib/crm/tenant-handoff";
+
+const SETTINGS_PATH = "_crm/settings.json";
+const LOGO_PREFIX = "_crm/logo";
+
+async function readSettings(token: string) {
+  const encoded = SETTINGS_PATH.split("/").map(encodeURIComponent).join("/");
+  const response = await supabaseRequest(`/storage/v1/object/mj-job-files/${encoded}`, { method: "GET" }, token);
+  if (!response.ok) return DEFAULT_CRM_CONFIG;
+  const body = await response.json().catch(() => null);
+  return normaliseCrmConfig(body);
+}
+
+
+async function centralSettings(request:Request,email:string,appConfig?:unknown){
+  const origin=new URL(request.url).origin,{ts,sig}=signedTenantHandoff("mjmetal",origin,email.toLowerCase());
+  const url="https://diamantsolutions.co.uk/api/business-software/tenants/mjmetal/settings";
+  return fetch(url,{method:appConfig?"PUT":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({origin,email:email.toLowerCase(),ts,sig,...(appConfig?{appConfig}: {})}),cache:"no-store"});
+}
+
+async function writeSettings(token: string, settings: unknown) {
+  const encoded = SETTINGS_PATH.split("/").map(encodeURIComponent).join("/");
+  return supabaseRequest(`/storage/v1/object/mj-job-files/${encoded}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-upsert": "true" },
+    body: JSON.stringify(normaliseCrmConfig(settings as any)),
+  }, token);
+}
+
+export async function GET(request: NextRequest) {
+  const session = await requirePermission("view_jobs");
+  if (!session) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  const settings = await readSettings(session.token);
+  const centralTenant = await resolveCentralTenant({ slug: "mjmetal" });
+  return NextResponse.json({ settings, tenant: centralTenant });
+}
+
+export async function PUT(request: NextRequest) {
+  const session = await requirePermission("manage_business_settings");
+  if (!session) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  const requested = normaliseCrmConfig(await request.json().catch(() => ({})));
+  const current = await readSettings(session.token);
+  // Tenant identity and subscription state are controlled by Diamant Solutions, not editable business settings.
+  const settings = { ...requested, tenantKey: current.tenantKey, plan: current.plan, billing: current.billing, ai: { ...requested.ai, enabled: current.plan.aiIncluded ? requested.ai.enabled : false, textAssist: current.plan.aiIncluded ? requested.ai.textAssist : false, voiceAssist: current.plan.aiIncluded ? requested.ai.voiceAssist : false } };
+  const saved = await writeSettings(session.token, settings);
+  if (!saved.ok) return NextResponse.json({ error: "Could not save business settings" }, { status: 500 });
+  return NextResponse.json({ settings });
+}
+
+export async function POST(request: NextRequest) {
+  const session = await requirePermission("manage_business_settings");
+  if (!session) return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  const form = await request.formData();
+  const file = form.get("logo");
+  if (!(file instanceof File)) return NextResponse.json({ error: "Choose a logo" }, { status: 400 });
+  const allowedTypes = new Set(["image/png","image/jpeg","image/webp","image/svg+xml"]);
+  if (!allowedTypes.has(file.type)) return NextResponse.json({ error: "Logo must be a PNG, JPG, WebP or SVG image" }, { status: 400 });
+  if (file.size > 5 * 1024 * 1024) return NextResponse.json({ error: "Maximum logo size is 5 MB" }, { status: 400 });
+  const extByType:Record<string,string>={"image/png":"png","image/jpeg":"jpg","image/webp":"webp","image/svg+xml":"svg"};
+  const ext = extByType[file.type] || "png";
+  const path = `${LOGO_PREFIX}.${ext || "png"}`;
+  const encoded = path.split("/").map(encodeURIComponent).join("/");
+  const upload = await supabaseRequest(`/storage/v1/object/mj-job-files/${encoded}`, {
+    method: "POST",
+    headers: { "Content-Type": file.type, "x-upsert": "true" },
+    body: file,
+  }, session.token);
+  if (!upload.ok) return NextResponse.json({ error: "Could not upload logo" }, { status: 500 });
+  const current = await readSettings(session.token);
+  const settings = { ...current, logoUrl: "/api/admin/settings/logo" };
+  const saved = await writeSettings(session.token, settings);
+  if (!saved.ok) return NextResponse.json({ error: "Logo uploaded but settings could not be updated" }, { status: 500 });
+  return NextResponse.json({ settings });
+}
