@@ -53,12 +53,12 @@ jobs:
       - name: Automatically roll shared core into M&J consumer
         shell: bash
         env:
-          CROSS_REPO_TOKEN: ${{ secrets.BMS_CROSS_REPO_TOKEN }}
+          CROSS_REPO_TOKEN: ${{ secrets.BMS_TENANT_SYNC_TOKEN }}
           CORE_VERSION: ${{ steps.package.outputs.tag }}
         run: |
           set -euo pipefail
           if [[ -z "$CROSS_REPO_TOKEN" ]]; then
-            echo "::error::BMS_CROSS_REPO_TOKEN secret is required for automatic multi-tenant rollout"
+            echo "::error::BMS_TENANT_SYNC_TOKEN secret is required for automatic multi-tenant rollout"
             exit 1
           fi
           git clone "https://x-access-token:${CROSS_REPO_TOKEN}@github.com/MarkDiamant/mjmetal.git" "$RUNNER_TEMP/mjmetal"
