@@ -1,6 +1,6 @@
 {
   "name": "@markdiamant/business-software-core",
-  "version": "1.0.22",
+  "version": "1.0.23",
   "private": false,
   "description": "Canonical tenant-neutral BMS core, M&J workflow defaults",
   "license": "UNLICENSED",
