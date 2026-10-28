@@ -1,0 +1,412 @@
+[
+  {
+    "path": "app/layout.tsx",
+    "sha": "ab449c5403cffc42693543867ba5219b82af6c7b",
+    "size": 2168
+  },
+  {
+    "path": "app/manifest.ts",
+    "sha": "5738ade1ef8e1c8e0005c72bc6c62089e0697cb0",
+    "size": 646
+  },
+  {
+    "path": "app/not-found.tsx",
+    "sha": "4975f755909dfb7d18416ea938549771c534c713",
+    "size": 647
+  },
+  {
+    "path": "app/page.tsx",
+    "sha": "62bcc7be27c338d217efba3e56b62b64ba1f821e",
+    "size": 13495
+  },
+  {
+    "path": "app/robot.ts",
+    "sha": "db53514d213787ab93a2b471cffb17876409ad84",
+    "size": 228
+  },
+  {
+    "path": "app/sitemap.ts",
+    "sha": "65521a637dabc9db6ac3fc7c1b4a28b9fa624fff",
+    "size": 254
+  },
+  {
+    "path": "components/BmsDemoGuard.tsx",
+    "sha": "fe5bcf4cfe3d80e7cb5a541d78489dbc58a3b43e",
+    "size": 3427
+  },
+  {
+    "path": "components/QuoteForm.tsx",
+    "sha": "96068156639954dbbdbaade44257ab880c012ff5",
+    "size": 2647
+  },
+  {
+    "path": "components/admin/AdminBrandBar.tsx",
+    "sha": "c1624c2afbde136145b8b4642090c581a788d832",
+    "size": 4488
+  },
+  {
+    "path": "components/admin/AdminPrimaryNav.tsx",
+    "sha": "f12b62ad0360497d80781a0a069caec0b6bfe330",
+    "size": 69
+  },
+  {
+    "path": "components/admin/BillingAccessGate.tsx",
+    "sha": "b750189f122b24c77be8fb6172831e081f461a09",
+    "size": 3020
+  },
+  {
+    "path": "components/admin/BusinessDirectory.tsx",
+    "sha": "3e8cc724252597fda6bcd26a527f4bc486f15999",
+    "size": 21078
+  },
+  {
+    "path": "components/admin/CrmDashboard.tsx",
+    "sha": "36bf4d1233908e418071aec912c1a1a5ced7f797",
+    "size": 8389
+  },
+  {
+    "path": "components/admin/CrmDashboardV2.tsx",
+    "sha": "6683a46df024e8986ae7e7fe66f6770cbb298ea8",
+    "size": 28809
+  },
+  {
+    "path": "components/admin/CrmDashboardV3.tsx",
+    "sha": "6b179e88678b33f5dc79489b8574828014fe6bcc",
+    "size": 161
+  },
+  {
+    "path": "components/admin/CrmDashboardV4.tsx",
+    "sha": "2de870ed954958de1b11fbde25f7f3ebf0577897",
+    "size": 16627
+  },
+  {
+    "path": "components/admin/CrmDashboardV5.tsx",
+    "sha": "f0303bee87bb9a83acdd461079d729bf9b0031b1",
+    "size": 3922
+  },
+  {
+    "path": "components/admin/DiamantCredit.tsx",
+    "sha": "978b212b549ef1b11d3ecaee1dd4d10b9687392b",
+    "size": 590
+  },
+  {
+    "path": "components/admin/JobDetail.tsx",
+    "sha": "b209fd645971b06921c208479a5d7ef98d5b2c14",
+    "size": 156
+  },
+  {
+    "path": "components/admin/JobWorkflowPanel.tsx",
+    "sha": "e7f4c23aff311d3e7468a2acb38bc008fc9d9b4b",
+    "size": 13304
+  },
+  {
+    "path": "components/admin/NewJobForm.tsx",
+    "sha": "0ebbffe66b743bf80ebcecfd1d4b33d78f59007c",
+    "size": 8811
+  },
+  {
+    "path": "components/admin/NewJobFormV2.tsx",
+    "sha": "cd8310efb9753e917c1f234a5cba9f62ebe5228c",
+    "size": 16346
+  },
+  {
+    "path": "components/admin/QuotePdfActions.tsx",
+    "sha": "7932a39bd443772bfc44d8e82157f36bc62ccda0",
+    "size": 162
+  },
+  {
+    "path": "components/admin/QuotePrint.tsx",
+    "sha": "c3eb33e721ec46e3d4749b30133b0b388382c4ad",
+    "size": 157
+  },
+  {
+    "path": "components/admin/SetupRequired.tsx",
+    "sha": "08d9ac9ff1d5402364d5ad2e5fc8157ad5dfeae5",
+    "size": 1752
+  },
+  {
+    "path": "components/admin/XeroInvoicePage.tsx",
+    "sha": "074777948b910208f69cacf8f308f75056932633",
+    "size": 14986
+  },
+  {
+    "path": "docs/mj-crm-setup.md",
+    "sha": "c6bf55ce68937e10fe9f5db0ff748a36e2730d8a",
+    "size": 4109
+  },
+  {
+    "path": "eslint.config.mjs",
+    "sha": "05e726d1b4201bc8c7716d2b058279676582e8c0",
+    "size": 465
+  },
+  {
+    "path": "lib/billing/pricing.ts",
+    "sha": "0594846651bd0371663abb2455c3e997ca33678b",
+    "size": 811
+  },
+  {
+    "path": "lib/crm/config.ts",
+    "sha": "45904d6ceced46ce87f0e889d75b692ffe7b78a5",
+    "size": 7478
+  },
+  {
+    "path": "lib/crm/constants.ts",
+    "sha": "7bbe72b4d0236001c2e55c666af53fef686ce004",
+    "size": 2648
+  },
+  {
+    "path": "lib/crm/gmail.ts",
+    "sha": "320990990c308a6e9dacec81dcf475ce9b55d561",
+    "size": 6657
+  },
+  {
+    "path": "lib/crm/google-oauth-state.ts",
+    "sha": "3ce5579725ee5fc5eb5b520666c8b286d0db4f1c",
+    "size": 1272
+  },
+  {
+    "path": "lib/crm/permissions.ts",
+    "sha": "b24d7f3191a6d28103250c1844fcfb06b68f48f7",
+    "size": 2090
+  },
+  {
+    "path": "lib/crm/product.ts",
+    "sha": "8de5b571f6078ad909ca18c4d8e899213e33ebe9",
+    "size": 1617
+  },
+  {
+    "path": "lib/crm/ruby-quote.ts",
+    "sha": "857d3539d44caf202408c3848c3c3d09c0d3aed2",
+    "size": 68
+  },
+  {
+    "path": "lib/crm/simple-pdf.ts",
+    "sha": "22a9bf64ac8899bb09556b6e9d8716ed88380728",
+    "size": 67
+  },
+  {
+    "path": "lib/crm/supabase-server.ts",
+    "sha": "eb4ec65e400e43c3db09bf959e728589514123a1",
+    "size": 5885
+  },
+  {
+    "path": "lib/crm/tenant-handoff.ts",
+    "sha": "da24985ad0e0a92c4fa83650fc9719de2c8a73bb",
+    "size": 439
+  },
+  {
+    "path": "lib/crm/types.ts",
+    "sha": "dcfafc0bb6df32bb544f0279524d86b832510088",
+    "size": 2854
+  },
+  {
+    "path": "lib/crm/user-access.ts",
+    "sha": "ff1f070a6e8ac964057494016f4ee561d56af0b1",
+    "size": 1964
+  },
+  {
+    "path": "lib/crm/xero-invoices.ts",
+    "sha": "b4994fbdd5817e2c3b981acfa494fbc15e4287fe",
+    "size": 3868
+  },
+  {
+    "path": "lib/crm/xero.ts",
+    "sha": "ced80d14aa7141ee9af5423538e7a836dd9db2ad",
+    "size": 6596
+  },
+  {
+    "path": "middleware.ts",
+    "sha": "91e45977c2951caaafb2032ff2896529751bb68b",
+    "size": 1651
+  },
+  {
+    "path": "next.config.ts",
+    "sha": "cadafd17238561386844b3b4c20d2017ebed6076",
+    "size": 167
+  },
+  {
+    "path": "package-lock.json",
+    "sha": "123de0be0b7aa8ee27dfe3505af6655b98270094",
+    "size": 237067
+  },
+  {
+    "path": "package.json",
+    "sha": "48d28d43aec29943e844dd0fc1be16370906dced",
+    "size": 730
+  },
+  {
+    "path": "postcss.config.mjs",
+    "sha": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3",
+    "size": 94
+  },
+  {
+    "path": "public/diamant-solutions-logo-credit.svg",
+    "sha": "e04978373f187eacc837c7c2e0c20e10356dd257",
+    "size": 6354
+  },
+  {
+    "path": "public/diamant-solutions-logo.svg",
+    "sha": "534a71c7d2e78c383e5a2ce4926067eb1eb73c8e",
+    "size": 6351
+  },
+  {
+    "path": "public/favicon.png",
+    "sha": "c83fd74e573353dd4853bb47bdd55fa23c4f7953",
+    "size": 29781
+  },
+  {
+    "path": "public/favicon.svg",
+    "sha": "ee4d85e60b8d560034853440c532ef0b65a5dfd0",
+    "size": 210704
+  },
+  {
+    "path": "public/file.svg",
+    "sha": "004145cddf3f9db91b57b9cb596683c8eb420862",
+    "size": 391
+  },
+  {
+    "path": "public/globe.svg",
+    "sha": "567f17b0d7c7fb662c16d4357dd74830caf2dccb",
+    "size": 1035
+  },
+  {
+    "path": "public/images/bar-grille-door.jpeg",
+    "sha": "f718c276d79d06c50ba89ed21a4012ff2be67de9",
+    "size": 321368
+  },
+  {
+    "path": "public/images/bespoke-fabrication.jpeg",
+    "sha": "39f100aeea906b9992981a067b70a6d50854ace9",
+    "size": 339073
+  },
+  {
+    "path": "public/images/commercial.jpg",
+    "sha": "50ba0c896aefe40dec4fc424ae982983ae51ad10",
+    "size": 210214
+  },
+  {
+    "path": "public/images/driveway-gate.jpeg",
+    "sha": "880cfbfebd3649bf76a4cf322eaa902226f71b23",
+    "size": 339727
+  },
+  {
+    "path": "public/images/gate.jpeg",
+    "sha": "7843ad5d9c8d234fcdd34ade7ccd80b5adfa5c3c",
+    "size": 274064
+  },
+  {
+    "path": "public/images/hero-gate.png",
+    "sha": "0e3c7a3c4f5adddc6b8727071fbe179a6f8f6b6a",
+    "size": 2322908
+  },
+  {
+    "path": "public/images/high-quality-railing.jpeg",
+    "sha": "532fd950836dfa96e32a2399d8d50ee0e7a2d740",
+    "size": 246542
+  },
+  {
+    "path": "public/images/logo.png",
+    "sha": "b627ec6b470fe4b15380dcf5decf1329192a7234",
+    "size": 157867
+  },
+  {
+    "path": "public/images/retractable-security-gate.jpeg",
+    "sha": "04bf17b239f3c10dcab340054c8392eb4a8b61d4",
+    "size": 299112
+  },
+  {
+    "path": "public/images/security-gate.jpeg",
+    "sha": "b22c38ed89c806ce177c83976347616f542375dd",
+    "size": 377554
+  },
+  {
+    "path": "public/images/security-window-grille.jpeg",
+    "sha": "7d2237a9f7be9aa507ba5f0dd9a3a0d048b1c60c",
+    "size": 339517
+  },
+  {
+    "path": "public/images/side-passage.jpg",
+    "sha": "d19dc254f5767bfdac0a912d9f3421918ea6c619",
+    "size": 234616
+  },
+  {
+    "path": "public/images/team/jonathan.png",
+    "sha": "68fdca3760fc815b97e1eb15c89e02784421d5ec",
+    "size": 3101132
+  },
+  {
+    "path": "public/images/team/mark.png",
+    "sha": "2f9a4aa0e0739867f4827e11a88277208d7cfd78",
+    "size": 3368030
+  },
+  {
+    "path": "public/manifest.webmanifest",
+    "sha": "08925fa845b1914477b0c0a209f33a9ce84ad04d",
+    "size": 414
+  },
+  {
+    "path": "public/next.svg",
+    "sha": "5174b28c565c285e3e312ec5178be64fbeca8398",
+    "size": 1375
+  },
+  {
+    "path": "public/vercel.svg",
+    "sha": "77053960334e2e34dc584dea8019925c3b4ccca9",
+    "size": 128
+  },
+  {
+    "path": "public/window.svg",
+    "sha": "b2b2a44f6ebc70c450043c05a002e7a93ba5d651",
+    "size": 385
+  },
+  {
+    "path": "supabase/migrations/20260916_add_cancelled_job_status.sql",
+    "sha": "5c412a4f380b458b6fdef2a63edfe3fb22d0ab5f",
+    "size": 86
+  },
+  {
+    "path": "supabase/migrations/20260916_add_next_action_assignees.sql",
+    "sha": "8183d152ed4b27e1c93c3591a00a858032a9b1b3",
+    "size": 190
+  },
+  {
+    "path": "supabase/migrations/20260916_extend_mj_crm_v1.sql",
+    "sha": "9e0599b8c74e9a1f30de6c368889efc1d5c13e30",
+    "size": 2686
+  },
+  {
+    "path": "supabase/migrations/20260916_finish_mj_crm_v1_internal_fields.sql",
+    "sha": "2ea1281c3f2bf7d5cc31c36e080ad1393af452ac",
+    "size": 1420
+  },
+  {
+    "path": "supabase/migrations/20260916_finish_mj_crm_v1_specs_and_subcontractors.sql",
+    "sha": "89588928a8284d01aba90a7513348a32bc2f08b5",
+    "size": 1314
+  },
+  {
+    "path": "supabase/migrations/20260916_mj_crm.sql",
+    "sha": "4fc9f33ca82540a23e17c240f0cef33b22aa8294",
+    "size": 9169
+  },
+  {
+    "path": "supabase/migrations/20260916_mj_xero.sql",
+    "sha": "eec908c0bdbcf19af9672b84762d6d68e63a0d5d",
+    "size": 784
+  },
+  {
+    "path": "supabase/migrations/20260916_mj_xero_invoices.sql",
+    "sha": "17da46ffb6904fb3d5b2061760f6d0a524ecdb76",
+    "size": 1050
+  },
+  {
+    "path": "supabase/migrations/20260922_add_quote_vat_rate.sql",
+    "sha": "6fec4e3558427afde8a46eb75cca0be6ef33ad15",
+    "size": 187
+  },
+  {
+    "path": "tsconfig.json",
+    "sha": "3a13f90a773b0facb675bf5b1a8239c8f33d36f5",
+    "size": 666
+  }
+]

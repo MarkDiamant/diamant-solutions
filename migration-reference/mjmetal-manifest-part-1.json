@@ -1,0 +1,412 @@
+[
+  {
+    "path": ".gitignore",
+    "sha": "5ef6a520780202a1d6addd833d800ccb1ecac0bb",
+    "size": 480
+  },
+  {
+    "path": "AGENTS.md",
+    "sha": "87ba2c183787bff743cd0487d8512c21f06d3fa0",
+    "size": 1728
+  },
+  {
+    "path": "CLAUDE.md",
+    "sha": "43c994c2d3617f947bcb5adf1933e21dabe46bb5",
+    "size": 11
+  },
+  {
+    "path": "README.md",
+    "sha": "e215bc4ccf138bbc38ad58ad57e92135484b3c0f",
+    "size": 1450
+  },
+  {
+    "path": "app/admin/ai/page.tsx",
+    "sha": "17f5c40b17b200579883c0f148f23cd5f561cc70",
+    "size": 3937
+  },
+  {
+    "path": "app/admin/archive/page.tsx",
+    "sha": "d2ee1ddbd3cd2bb5af6d9d48184da3496cd2552a",
+    "size": 3043
+  },
+  {
+    "path": "app/admin/customers/[id]/page.tsx",
+    "sha": "2f202c6eb8f4b52c0faaa979d5b0fb4724fb0ce1",
+    "size": 5987
+  },
+  {
+    "path": "app/admin/customers/page.tsx",
+    "sha": "dd36eb008265757bf4fdb63edb2a5799cc4ee117",
+    "size": 148
+  },
+  {
+    "path": "app/admin/files/page.tsx",
+    "sha": "8b4e2f0abb016c0ad1b8f633de62449be4f15c78",
+    "size": 144
+  },
+  {
+    "path": "app/admin/integrations/page.tsx",
+    "sha": "ed7fbe694e281f7025bc50d59c3f718ac5edf859",
+    "size": 8824
+  },
+  {
+    "path": "app/admin/invoices/page.tsx",
+    "sha": "3d98d2051245d0a68de70ac35aabbf3b208be68d",
+    "size": 147
+  },
+  {
+    "path": "app/admin/jobs/[reference]/page.tsx",
+    "sha": "929bf224abf87e6c438cdcbf9cc98f5da8d4ea58",
+    "size": 283
+  },
+  {
+    "path": "app/admin/jobs/[reference]/quote-preview/page.tsx",
+    "sha": "15bcf61bac13cce7db90c9bf2c8ac119aa959bd3",
+    "size": 264
+  },
+  {
+    "path": "app/admin/jobs/[reference]/quote/[quoteId]/page.tsx",
+    "sha": "a415c37466452f4ccd84aef56e38a4c15a60a588",
+    "size": 443
+  },
+  {
+    "path": "app/admin/jobs/[reference]/subcontractors/page.tsx",
+    "sha": "2873907d62684269f3424eea233362e16db5c8d6",
+    "size": 6950
+  },
+  {
+    "path": "app/admin/jobs/[reference]/xero/page.tsx",
+    "sha": "fc6e6c007a35e5c4eb3dda798134b1bb75872f7f",
+    "size": 273
+  },
+  {
+    "path": "app/admin/jobs/new/page.tsx",
+    "sha": "87b9444121cecfbf487fa30496f2a4783096b27c",
+    "size": 129
+  },
+  {
+    "path": "app/admin/jobs/page.tsx",
+    "sha": "22a9a7d78a0f9075252bbc083fe2186e8e7984a6",
+    "size": 143
+  },
+  {
+    "path": "app/admin/layout.tsx",
+    "sha": "08ba184f335358987a42d69c4f530e578734475d",
+    "size": 1171
+  },
+  {
+    "path": "app/admin/login/page.tsx",
+    "sha": "0dc561987c3059f33c638c7063127c958b1c2b0b",
+    "size": 2497
+  },
+  {
+    "path": "app/admin/page.tsx",
+    "sha": "63fdcb8dbbbf98ce8d92fa003e52d95b0d501f36",
+    "size": 413
+  },
+  {
+    "path": "app/admin/payments/page.tsx",
+    "sha": "09e4a2bd72ae46db024a581bd0fc644aa9d3ada3",
+    "size": 147
+  },
+  {
+    "path": "app/admin/quotes/page.tsx",
+    "sha": "71a4aa28126ad2a81219c7799f27ab955a52925b",
+    "size": 145
+  },
+  {
+    "path": "app/admin/settings/page.tsx",
+    "sha": "5296e162203cf47b29b73980b25d15e249e83bc4",
+    "size": 18694
+  },
+  {
+    "path": "app/admin/team/page.tsx",
+    "sha": "a39a3a51cba3ff1ba077aff1938b80328cb2ecb5",
+    "size": 143
+  },
+  {
+    "path": "app/admin/users/page.tsx",
+    "sha": "30eb29542f26f6947c73c8a78f286d4877744988",
+    "size": 5617
+  },
+  {
+    "path": "app/api/admin/ai/route.ts",
+    "sha": "b8597dbb4e31419e6ae3eba42959c8fdd19e251c",
+    "size": 597
+  },
+  {
+    "path": "app/api/admin/auth/login/route.ts",
+    "sha": "0e909eff841c2ddc57c51c1834011c384a142cad",
+    "size": 1771
+  },
+  {
+    "path": "app/api/admin/auth/logout/route.ts",
+    "sha": "2ca2f10aeb9dfe66cb8658b25685d0891f427cb0",
+    "size": 893
+  },
+  {
+    "path": "app/api/admin/billing-access/route.ts",
+    "sha": "5fef50a4d4ec80eacc5c72a03682e683b48c5c12",
+    "size": 2678
+  },
+  {
+    "path": "app/api/admin/customers/[id]/route.ts",
+    "sha": "ce57effd1adc816a79ad11e4c418d6418739c665",
+    "size": 2672
+  },
+  {
+    "path": "app/api/admin/customers/route.ts",
+    "sha": "07a1ada901c6e3f01035410768c52d7c55295631",
+    "size": 1156
+  },
+  {
+    "path": "app/api/admin/dashboard/route.ts",
+    "sha": "8529f2de89ea4d241c332f35752fc5c98f8d3239",
+    "size": 1864
+  },
+  {
+    "path": "app/api/admin/invoices/historical/route.ts",
+    "sha": "7d4fdbafcad7c9b29f719f643731be0e8699f4e9",
+    "size": 1708
+  },
+  {
+    "path": "app/api/admin/job-types/route.ts",
+    "sha": "aa2a25580f3aa0480bb461501d6ccd363ff37a71",
+    "size": 2683
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/ai-quote/route.ts",
+    "sha": "a7e0125e594d60f579ed229fef6463fb10c75c22",
+    "size": 621
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/draft-quote/route.ts",
+    "sha": "25df791de90d9a1d77b5c7b0c2313d2b814775b0",
+    "size": 5534
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/files/route.ts",
+    "sha": "24f236834536c216e76539ce6d0b5cb5aae9d791",
+    "size": 6879
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/invoice-share/route.ts",
+    "sha": "533285c30d3058ef35e23656410f86e8e942773f",
+    "size": 6324
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/payments/[paymentId]/route.ts",
+    "sha": "cc8dc42f70b39156e73e93b4769eb6d99fb374e3",
+    "size": 5772
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/quotes/[quoteId]/pdf/route.ts",
+    "sha": "76cf7895e1a57c2fab2de612ce7730f1bd21d638",
+    "size": 737
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/route.ts",
+    "sha": "3027dc3f471c4ed951cedf4bca9de689ac2acb63",
+    "size": 24072
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/send-quote/route.ts",
+    "sha": "0c09bb4bd145648bb283cee075c3f559e50392a5",
+    "size": 12355
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/subcontractor-payments/route.ts",
+    "sha": "18cb366accd431856a773599c1accff4f6a55fd5",
+    "size": 2399
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/subcontractors/[assignmentId]/route.ts",
+    "sha": "cd778376728a99c6bc65dd3112b2f020bc8b5eb3",
+    "size": 7046
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/write-off/route.ts",
+    "sha": "31fc4128abc25fbf3e73ad5bd7caf872c6790386",
+    "size": 2673
+  },
+  {
+    "path": "app/api/admin/jobs/[reference]/xero/route.ts",
+    "sha": "05c91a720e6d4959c9ae8ebb60cbab945a585ec2",
+    "size": 8641
+  },
+  {
+    "path": "app/api/admin/jobs/route.ts",
+    "sha": "67d123babf67f61652105257444e3eec018bba1d",
+    "size": 21679
+  },
+  {
+    "path": "app/api/admin/settings/logo/route.ts",
+    "sha": "78777d8f84dbc33530f583845f5ee13782c9ec31",
+    "size": 848
+  },
+  {
+    "path": "app/api/admin/settings/route.ts",
+    "sha": "ec9fad21775b6843ccc2e49d1162150aa47d39f9",
+    "size": 4747
+  },
+  {
+    "path": "app/api/admin/team/route.ts",
+    "sha": "871b2d79a02f3f2bdf94e2aac6e06953587639ef",
+    "size": 2189
+  },
+  {
+    "path": "app/api/admin/users/route.ts",
+    "sha": "08e1cca4392d529fbbaf6198c334f4c72c561145",
+    "size": 6679
+  },
+  {
+    "path": "app/api/demo/[...path]/route.ts",
+    "sha": "af125a7d011f4d402623c5de7b062f687ca5fb0f",
+    "size": 15300
+  },
+  {
+    "path": "app/api/integrations/google/callback/route.ts",
+    "sha": "edf59f64330544fa096e43690803e83321d8bd29",
+    "size": 1969
+  },
+  {
+    "path": "app/api/integrations/google/connect/route.ts",
+    "sha": "a984ae201e5cf1408a804cb3d6bce2eaeee8d54a",
+    "size": 1112
+  },
+  {
+    "path": "app/api/integrations/google/status/route.ts",
+    "sha": "af51b7658ca3f194bc2ac4e5c8ee593e27d1cc26",
+    "size": 2130
+  },
+  {
+    "path": "app/api/integrations/xero/callback/route.ts",
+    "sha": "5f499628421c0d82b0aad333d51588ce88f39480",
+    "size": 1832
+  },
+  {
+    "path": "app/api/integrations/xero/connect/route.ts",
+    "sha": "8e7bfe171054b283e36a3f3d2cd0c7007cdea3ab",
+    "size": 838
+  },
+  {
+    "path": "app/api/integrations/xero/organisations/route.ts",
+    "sha": "ae1bd20fca105c93301d996cb2b78cbaf771abc9",
+    "size": 1566
+  },
+  {
+    "path": "app/api/integrations/xero/status/route.ts",
+    "sha": "e75ab4a40fcfa7e60aeb659b2593a0e23894b4d3",
+    "size": 1099
+  },
+  {
+    "path": "app/api/quote/route.ts",
+    "sha": "1eac74e1e60bf5c74e0cf4fb16ffcef0e049bcfc",
+    "size": 2211
+  },
+  {
+    "path": "app/demo/ai/page.tsx",
+    "sha": "da8dcaea9c24ca3af3552af413f1151bc24825fc",
+    "size": 45
+  },
+  {
+    "path": "app/demo/archive/page.tsx",
+    "sha": "af5c04781c616c91051ebb5728e2993f43db0333",
+    "size": 50
+  },
+  {
+    "path": "app/demo/customers/page.tsx",
+    "sha": "48a9bfb98dc437370ab0a4824c63ceb2febf6fc2",
+    "size": 52
+  },
+  {
+    "path": "app/demo/files/page.tsx",
+    "sha": "0a64bbc2d0d36d86464104a4f96dda54451363f1",
+    "size": 48
+  },
+  {
+    "path": "app/demo/integrations/page.tsx",
+    "sha": "96b475e92bcf6132065c464b1d24489b0440a79a",
+    "size": 55
+  },
+  {
+    "path": "app/demo/invoices/page.tsx",
+    "sha": "92db94415df3c710b2e877bfa46abdc041525398",
+    "size": 51
+  },
+  {
+    "path": "app/demo/jobs/[reference]/page.tsx",
+    "sha": "9a0b400456c65ce1a547b25e97a34c9e25460140",
+    "size": 59
+  },
+  {
+    "path": "app/demo/jobs/[reference]/subcontractors/page.tsx",
+    "sha": "564a92fb4c58aa5983aadcad6258f0b5436aa624",
+    "size": 74
+  },
+  {
+    "path": "app/demo/jobs/[reference]/xero/page.tsx",
+    "sha": "9df9d8cce37139cd93eb64464c40fb3a8aa5ce3b",
+    "size": 64
+  },
+  {
+    "path": "app/demo/jobs/new/page.tsx",
+    "sha": "aff0b4129c0315a7b1b6b75622e45a7bc72986b4",
+    "size": 51
+  },
+  {
+    "path": "app/demo/jobs/page.tsx",
+    "sha": "b3fc957bbca6055ac1f68118509211be6aa86072",
+    "size": 47
+  },
+  {
+    "path": "app/demo/layout.tsx",
+    "sha": "8506110a735e4deb85e9aee802e22c8b1a05d072",
+    "size": 1488
+  },
+  {
+    "path": "app/demo/page.tsx",
+    "sha": "30bff2080479d617234170807efd7860578aef00",
+    "size": 42
+  },
+  {
+    "path": "app/demo/payments/page.tsx",
+    "sha": "1b2c2d09e577f5bc4d73b800d66797c4eb737162",
+    "size": 51
+  },
+  {
+    "path": "app/demo/quotes/page.tsx",
+    "sha": "45d985193ecb4b5f2a003e9769d0999cc1b39ebe",
+    "size": 49
+  },
+  {
+    "path": "app/demo/settings/page.tsx",
+    "sha": "486417ca57eb466438d525150d6e6a915a58deec",
+    "size": 51
+  },
+  {
+    "path": "app/demo/team/page.tsx",
+    "sha": "c70ba1a3e35595311a5a407d94b0053a0fa8923c",
+    "size": 47
+  },
+  {
+    "path": "app/demo/users/page.tsx",
+    "sha": "c2a123c06c092504cc232dd68024f037412130c6",
+    "size": 48
+  },
+  {
+    "path": "app/favicon.ico",
+    "sha": "718d6fea4835ec2d246af9800eddb7ffb276240c",
+    "size": 25931
+  },
+  {
+    "path": "app/footer-credit.css",
+    "sha": "cb9fa8adb078f0d385b87cb4000a1dfdef9bcf29",
+    "size": 1105
+  },
+  {
+    "path": "app/globals.css",
+    "sha": "bcea52a8e748a9bcad124a5cba2687a8a2f350e7",
+    "size": 1022
+  }
+]
