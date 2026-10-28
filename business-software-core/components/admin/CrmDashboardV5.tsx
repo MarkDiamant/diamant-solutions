@@ -1,60 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+// Dashboard layout and lost-status row colours are rendered by V3 itself.
+// Avoid injecting global CSS or observing and rewriting the live DOM.
 import CrmDashboardV4 from "./CrmDashboardV4";
 import TaskReminderBanner from "./TaskReminderBanner";
 
-function MobileQuickEditFix() {
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.dataset.bmsMobileQuickEditFix = "1";
-    style.textContent = `
-      @media (max-width: 767px) {\n        main [data-bms-quick-actions] { justify-content: center !important; }\n        main [data-bms-quick-actions] > button:last-child { flex: 0 0 auto !important; width: auto !important; margin: 0 auto; }
-        body { overflow-x: hidden; }
-        main, main > div, main section, main form, main label, main input, main select, main textarea { min-width: 0; max-width: 100%; }
-        main input, main select, main textarea { box-sizing: border-box; }
-        main .overflow-hidden { max-width: 100%; }
-        main [data-mobile-money-overview] { margin-bottom: 0.75rem; }
-        main button.grid.w-full { grid-template-columns: minmax(0, 1fr) auto !important; column-gap: 0.75rem !important; row-gap: 0.65rem !important; align-items: center !important; }
-        main button.grid.w-full > * { min-width: 0; }
-        main button.grid.w-full > :nth-child(1), main button.grid.w-full > :nth-child(2), main button.grid.w-full > :nth-child(3), main button.grid.w-full > :nth-child(4) { grid-column: 1 / -1; }
-        main button.grid.w-full > :nth-child(4) { justify-self: start; white-space: normal !important; line-height: 1.15; }
-        main button.grid.w-full > :nth-child(5) { grid-column: 1; justify-self: start; }
-        main button.grid.w-full > :nth-child(6) { grid-column: 2; justify-self: end; text-align: right; }
-        main .border-t.border-\[\#e66a24\]\/20 { min-width: 0; max-width: 100%; overflow-x: hidden; padding-left: 0.75rem; padding-right: 0.75rem; }
-        main .border-t.border-\[\#e66a24\]\/20 > div, main .border-t.border-\[\#e66a24\]\/20 section, main .border-t.border-\[\#e66a24\]\/20 .grid, main .border-t.border-\[\#e66a24\]\/20 .flex { min-width: 0; max-width: 100%; }
-        main .border-t.border-\[\#e66a24\]\/20 [class*="grid-cols-["] { grid-template-columns: minmax(0, 1fr) !important; }
-        main .border-t.border-\[\#e66a24\]\/20 .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        main .border-t.border-\[\#e66a24\]\/20 button, main .border-t.border-\[\#e66a24\]\/20 a { max-width: 100%; }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {style.remove();};
-  }, []);
-  return null;
-}
-
-function LostRowHighlight() {
-  useEffect(() => {
-    const apply = () => {
-      const rows = Array.from(document.querySelectorAll<HTMLButtonElement>("button.grid.w-full"));
-      for (const row of rows) {
-        const statusText = Array.from(row.querySelectorAll("span")).map((node) => node.textContent?.trim()).find((text) => text === "Declined / lost" || text === "Cancelled");
-        if (!statusText) continue;
-        const card = row.parentElement as HTMLElement | null;
-        if (!card) continue;
-        card.style.backgroundColor = "#fee2e2";
-        card.style.borderColor = "#fca5a5";
-      }
-    };
-    apply();
-    const observer = new MutationObserver(apply);
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
-  return null;
-}
-
 export default function CrmDashboardV5() {
-  return <><TaskReminderBanner/><CrmDashboardV4/><MobileQuickEditFix/><LostRowHighlight/></>;
+  return <><TaskReminderBanner/><CrmDashboardV4/></>;
 }

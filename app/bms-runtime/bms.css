@@ -467,3 +467,22 @@
 @media(max-width:700px){.bms-shell .bms-dashboard [aria-label="Job summary filters"]>button{min-height:91px;padding:12px!important}.bms-shell .bms-dashboard [aria-label="Job summary filters"]>button p:nth-child(2){font-size:clamp(19px,5vw,27px)}.bms-shell .bms-dashboard .bms-money-tiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-shell .bms-dashboard .bms-money-tiles>button{min-height:85px!important;padding:11px!important}.bms-shell .bms-dashboard .bms-money-tiles>button>p:nth-child(2){font-size:clamp(14px,4vw,20px)!important}}
 @media(max-width:380px){.bms-shell .bms-dashboard .bms-money-tiles{grid-template-columns:minmax(0,1fr)!important}}
 @media(prefers-reduced-motion:reduce){.bms-shell .bms-dashboard button,.bms-shell .bms-dashboard aside section a.block{transition:none!important;transform:none!important}}
+
+/* Dashboard invoice action: preserve the same orange underlined link treatment as adjacent quote actions. */
+.bms-shell .bms-dashboard a[data-bms-invoice-action],
+.bms-shell .bms-dashboard a[data-bms-invoice-action]:link,
+.bms-shell .bms-dashboard a[data-bms-invoice-action]:visited,
+.bms-shell .bms-dashboard a[data-bms-invoice-action]:hover {
+ color:var(--bms-accent,#e66a24)!important;
+ text-decoration-line:underline!important;
+ text-decoration-color:var(--bms-accent,#e66a24)!important;
+ text-underline-offset:2px;
+ background-color:white;
+}
+@media(max-width:767px){
+ .bms-shell .bms-dashboard [data-bms-quick-actions]{justify-content:center;flex-wrap:wrap;min-width:0}
+ .bms-shell .bms-dashboard [data-bms-quick-actions]>button:last-child{flex:0 0 auto;width:auto;margin-inline:auto}
+ .bms-shell .bms-dashboard button.grid.w-full{grid-template-columns:minmax(0,1fr) auto;column-gap:.75rem;row-gap:.65rem;align-items:center}
+ .bms-shell .bms-dashboard button.grid.w-full>*{min-width:0}
+ .bms-shell .bms-dashboard :is(input,select,textarea,form,label){min-width:0;max-width:100%;box-sizing:border-box}
+}
