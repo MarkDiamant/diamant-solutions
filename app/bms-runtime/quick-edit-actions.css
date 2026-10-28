@@ -103,3 +103,23 @@
   justify-content: center !important;
   vertical-align: middle !important;
 }
+
+/* Match temporary quote/invoice checking placeholders to the finished buttons. */
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > span {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.5rem !important;
+  background: #e9eef5 !important;
+  color: #1e293b !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.25rem !important;
+  letter-spacing: normal !important;
+}
