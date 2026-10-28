@@ -49,3 +49,28 @@
   color: #fff !important;
   border: 1px solid transparent;
 }
+
+/* Keep secondary controls visibly clickable without adding accent colours. */
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > details > summary,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"] {
+  background-color: #e9eef5 !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"] {
+  -webkit-text-fill-color: #1e293b !important;
+}
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex a,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex a[data-bms-invoice-action="true"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #1e293b !important;
+  -webkit-text-fill-color: #1e293b !important;
+  box-shadow: none !important;
+}
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > div.inline-flex:hover,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > details > summary:hover,
+.bms-shell div.flex.flex-wrap:has(> a[href*="split=1"]) > a[href*="split=1"]:hover {
+  background-color: #dce5f0 !important;
+}
