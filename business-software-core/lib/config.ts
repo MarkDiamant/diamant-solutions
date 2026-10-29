@@ -3,6 +3,7 @@ export type CrmModuleKey = "photos" | "workforce" | "commission" | "payments" | 
 export type CrmConfig = {
   businessName: string;
   systemName: string;
+  workItemTerminology?: "jobs" | "orders";
   logoUrl: string;
   accentColour: string;
   workforceTitle: string;
@@ -30,7 +31,7 @@ export type CrmConfig = {
 };
 
 export const SHARED_BUSINESS_SOFTWARE_DEFAULTS: CrmConfig = {
-  businessName:"Your Business", systemName:"Business Management Software", logoUrl:"/Icon-512.png", accentColour:"#e66a24",
+  businessName:"Your Business", systemName:"Business Management Software", workItemTerminology:"jobs", logoUrl:"/Icon-512.png", accentColour:"#e66a24",
   workforceTitle:"Team", workforceSingular:"team member", workforceRoles:["Engineer","Technician","Contractor","Subcontractor","Surveyor","Project manager","Electrician","Plumber","Carpenter","Builder","Cleaner","Driver","Consultant","Salesperson","Other"],
   statusLabels:{fabrication:"Work underway",installation_scheduled:"Work scheduled",estimate_preparing:"Preparing estimate",awaiting_final_payment:"Completed - awaiting payment",completed:"Completed",quote_preparing:"Preparing quote",deposit_requested:"Payment requested",materials_ordered:"Resources ordered"}, statusOrder:[], nextActionOptions:["Contact customer","Request information","Schedule appointment","Prepare estimate","Send quote","Follow up","Confirm booking","Assign team","Start work","Check progress","Complete work","Send invoice","Follow up payment","Close job","No follow-up required"],
   managers:[{value:"M1",label:"Manager 1"}], workTypes:["Installation","Repair","Maintenance","Service","Survey","Consultation","Project","Other"], finishOptions:["Standard","Other"], materialOptions:[], colourOptions:[], enquirySources:["WhatsApp","Email","Website","Phone","Referral","Existing Customer","Other"], fileCategories:["Site Survey","Before","Drawing","Installation","After","Other"], quoteTemplate:"clean", quoteDefaultText:"", invoiceTemplate:"clean", tenantKey:"demo",
@@ -48,6 +49,7 @@ export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined)
     ...DEFAULT_CRM_CONFIG,
     ...(value || {}),
     tenantKey,
+    workItemTerminology:value?.workItemTerminology==="orders"?"orders":"jobs",
     quoteTemplate,
     quoteDefaultText: typeof value?.quoteDefaultText === "string" ? value.quoteDefaultText.slice(0,1200) : "",
     invoiceTemplate,
