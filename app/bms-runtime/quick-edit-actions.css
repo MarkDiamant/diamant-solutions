@@ -311,3 +311,6 @@
 
 /* Keep editing distinct from the collapsed row, but eliminate wasted vertical space. */
 @media(min-width:1024px){.bms-dashboard .bms-quick-masonry{column-gap:14px!important}.bms-dashboard .bms-quick-section textarea{min-height:56px!important;height:64px!important;resize:vertical!important}.bms-dashboard .bms-quick-section .mt-3{margin-top:7px!important}.bms-dashboard .bms-quick-section .mb-3{margin-bottom:6px!important}.bms-dashboard .bms-quick-section .gap-3{gap:7px!important}.bms-dashboard .bms-quick-section input,.bms-dashboard .bms-quick-section select{height:36px!important}.bms-dashboard .bms-quick-section .text-xs{line-height:1.2!important}}
+
+/* All dashboard job rows retain the same desktop typography and minimum height, regardless of status. */
+@media(min-width:1024px){.bms-dashboard button.grid[aria-label^="Open job"]{min-height:72px!important}.bms-dashboard .bms-quick-masonry{column-gap:12px!important}.bms-dashboard .bms-quick-section textarea{height:56px!important;min-height:56px!important}.bms-dashboard .bms-quick-section .grid.gap-3{gap:6px!important}.bms-dashboard .bms-quick-section p.text-xs{font-size:10px!important}}
