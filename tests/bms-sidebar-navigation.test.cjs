@@ -65,13 +65,14 @@ test("Ruby original portrait moves into scrolling mobile drawer while mobile hea
  assert.match(css,/\.bms-compact-toggle\{display:none!important/);
  assert.match(css,/\.bms-brand-details \.builtByCompact\{display:inline-flex!important/);
 });
-test("dashboard New Job menu preserves both quick and full job workflows",()=>{
+test("dashboard New Job or Order menu preserves both quick and full workflows",()=>{
  const dashboard=fs.readFileSync("business-software-core/components/admin/CrmDashboardV3.tsx","utf8");
  const menu=fs.readFileSync("business-software-core/components/admin/NewJobMenu.tsx","utf8");
  const form=fs.readFileSync("business-software-core/components/admin/NewJobFormV2.tsx","utf8");
  assert.match(dashboard,/NewJobMenu accent=\{crmConfig\.accentColour\}/);
  assert.doesNotMatch(dashboard,/\+ Quick add job/);
- assert.match(menu,/Quick Add Job/);assert.match(menu,/Full Job/);
+ assert.match(menu,/terminology==="orders"\?"Order":"Job"/);
+ assert.match(menu,/Quick Add \{noun\}/);assert.match(menu,/Full \{noun\}/);
  assert.match(menu,/jobs\/new\?quick=1/);
  assert.match(form,/startsWith\("\/bms-runtime"\)/);
 });
