@@ -186,3 +186,6 @@
 .bms-dashboard div.overflow-hidden.rounded-2xl:has(>button.grid):hover {border-left:2px solid var(--bms-accent)!important;border-top:2px solid var(--bms-accent)!important;border-right:2px solid var(--bms-accent)!important;border-bottom-color:transparent!important;box-shadow:none!important}
 /* Quick edit: open core sections by default, without separate accordion controls. */
 .bms-dashboard section[aria-label="Quick edit sections"] > div.grid > details:not(:has(summary + details)) > summary svg {display:none}
+
+.bms-dashboard .bms-quick-section > summary {pointer-events:none;cursor:default;border-bottom:1px solid #e2e8f0;padding-bottom:.65rem;margin-bottom:.75rem}
+.bms-dashboard .bms-quick-section > summary svg {display:none}
