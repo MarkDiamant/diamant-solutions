@@ -194,3 +194,7 @@
 .bms-dashboard section[aria-label="Job summary filters"] > button[aria-pressed="true"] {border-color:var(--bms-accent)!important;box-shadow:0 0 0 2px var(--bms-accent)!important}
 
 .bms-dashboard .bms-quick-toolbar button,.bms-dashboard .bms-quick-toolbar a,.bms-dashboard .bms-quick-toolbar details > summary {min-height:34px;border-radius:.65rem;font-weight:700}
+
+/* Quick-edit actions: common dimensions and typography across links and buttons. */
+.bms-dashboard .bms-quick-toolbar a,.bms-dashboard .bms-quick-toolbar button,.bms-dashboard .bms-quick-toolbar details > summary {font-size:12px;font-weight:800;min-height:36px;border-radius:10px}
+.bms-dashboard .bms-quick-toolbar a:hover,.bms-dashboard .bms-quick-toolbar button:hover {filter:brightness(.95)}
