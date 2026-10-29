@@ -156,3 +156,18 @@
     min-height: 2.5rem;
   }
 }
+
+/* Shorter KPI cards on narrow mobile screens; preserve equal label/value alignment. */
+@media (max-width: 639px) {
+  .bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button {
+    padding-top: 0.375rem !important;
+    padding-bottom: 0.375rem !important;
+  }
+  .bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:first-child {
+    min-height: 2.75rem;
+  }
+  .bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:nth-child(2) {
+    min-height: 2rem;
+    margin-top: 0.125rem;
+  }
+}
