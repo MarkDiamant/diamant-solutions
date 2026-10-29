@@ -252,3 +252,9 @@
 
 /* Final desktop filter overrides: move chevrons inward from right edge. */
 @media(min-width:1280px){.bms-shell .bms-dashboard .bms-manage-jobs-filters{grid-template-columns:108px minmax(170px,1.1fr) minmax(145px,.95fr) minmax(125px,.8fr) minmax(145px,.9fr) minmax(155px,1fr) auto!important}.bms-shell .bms-dashboard .bms-manage-jobs-filters select{background-position:right 16px center!important;padding-right:34px!important}}
+
+/* In-place job editing is only visible after the job is opened. */
+.bms-dashboard .bms-inline-field{min-width:0;width:100%;height:34px;border:1px solid #cbd5e1;border-radius:8px;background:white;padding:4px 8px;font-size:12px;color:#0f172a}
+.bms-dashboard .bms-inline-field:focus{outline:2px solid var(--bms-accent);outline-offset:1px}
+/* Keep every NEXT column aligned regardless of status text length. */
+@media(min-width:1024px){.bms-dashboard .bms-job-status-action{display:grid!important;grid-template-columns: minmax(215px,1fr) minmax(0,1.15fr)!important;align-items:center!important;gap:8px!important}.bms-dashboard .bms-job-status-action > .bms-status-pill{justify-self:start}.bms-dashboard .bms-job-status-action > .bms-job-next-action{margin:0!important}}
