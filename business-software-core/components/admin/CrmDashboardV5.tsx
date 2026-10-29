@@ -3,8 +3,7 @@
 // Dashboard layout and lost-status row colours are rendered by V3 itself.
 // Avoid injecting global CSS or observing and rewriting the live DOM.
 import CrmDashboardV4 from "./CrmDashboardV4";
-import TaskReminderBanner from "./TaskReminderBanner";
 
 export default function CrmDashboardV5() {
-  return <><TaskReminderBanner/><CrmDashboardV4/></>;
+  return <CrmDashboardV4/>;
 }
