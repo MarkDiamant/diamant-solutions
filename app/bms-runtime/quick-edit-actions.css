@@ -189,3 +189,6 @@
 
 .bms-dashboard .bms-quick-section > summary {pointer-events:none;cursor:default;border-bottom:1px solid #e2e8f0;padding-bottom:.65rem;margin-bottom:.75rem}
 .bms-dashboard .bms-quick-section > summary svg {display:none}
+
+.bms-dashboard .bms-quick-masonry > .bms-quick-section {display:inline-block;width:100%;break-inside:avoid;vertical-align:top;margin-bottom:.75rem}
+.bms-dashboard section[aria-label="Job summary filters"] > button[aria-pressed="true"] {border-color:var(--bms-accent)!important;box-shadow:0 0 0 2px var(--bms-accent)!important}
