@@ -198,3 +198,7 @@
 /* Quick-edit actions: common dimensions and typography across links and buttons. */
 .bms-dashboard .bms-quick-toolbar a,.bms-dashboard .bms-quick-toolbar button,.bms-dashboard .bms-quick-toolbar details > summary {font-size:12px;font-weight:800;min-height:36px;border-radius:10px}
 .bms-dashboard .bms-quick-toolbar a:hover,.bms-dashboard .bms-quick-toolbar button:hover {filter:brightness(.95)}
+
+/* Quick Edit toolbar: consistent secondary actions, with Save retaining emphasis. */
+.bms-dashboard .bms-quick-toolbar a,.bms-dashboard .bms-quick-toolbar button,.bms-dashboard .bms-quick-toolbar details > summary {font-size:12px!important;line-height:1.2!important;min-height:36px;border-radius:10px!important;font-weight:800!important}
+.bms-dashboard .bms-quick-toolbar a:focus-visible,.bms-dashboard .bms-quick-toolbar button:focus-visible {outline:2px solid var(--bms-accent);outline-offset:2px}
