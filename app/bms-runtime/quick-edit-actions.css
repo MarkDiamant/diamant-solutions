@@ -192,3 +192,5 @@
 
 .bms-dashboard .bms-quick-masonry > .bms-quick-section {display:inline-block;width:100%;break-inside:avoid;vertical-align:top;margin-bottom:.75rem}
 .bms-dashboard section[aria-label="Job summary filters"] > button[aria-pressed="true"] {border-color:var(--bms-accent)!important;box-shadow:0 0 0 2px var(--bms-accent)!important}
+
+.bms-dashboard .bms-quick-toolbar button,.bms-dashboard .bms-quick-toolbar a,.bms-dashboard .bms-quick-toolbar details > summary {min-height:34px;border-radius:.65rem;font-weight:700}
