@@ -241,3 +241,11 @@
 .bms-dashboard .bms-dot-red{background:#dc2626}.bms-dashboard .bms-dot-green{background:#16a34a}.bms-dashboard .bms-dot-amber{background:#d97706}.bms-dashboard .bms-dot-orange{background:#ea580c}.bms-dashboard .bms-dot-blue{background:#2563eb}
 /* Keep the Manage Jobs heading, search, filters and New Job on one desktop line. */
 @media(min-width:1280px){.bms-dashboard .bms-manage-jobs-filters{grid-template-columns:110px minmax(190px,1.6fr) minmax(105px,.8fr) minmax(105px,.8fr) 105px minmax(145px,1fr) auto!important;align-items:center!important;column-gap:8px!important}}
+
+/* Compact money overview tiles without shrinking the financial figures. */
+.bms-dashboard .bms-money-tiles{gap:7px!important}
+.bms-dashboard .bms-money-tiles > button{min-height:52px!important;padding-top:5px!important;padding-bottom:5px!important}
+.bms-dashboard .bms-money-tiles > button > p{line-height:1.15!important}
+/* Native select chevrons sit closer to their text and higher in the control. */
+.bms-dashboard .bms-manage-jobs-filters select{background-position:right 7px center!important;padding-right:22px!important;text-overflow:ellipsis}
+@media(min-width:1280px){.bms-dashboard .bms-manage-jobs-filters{grid-template-columns:108px minmax(240px,1.7fr) minmax(145px,1fr) minmax(135px,.85fr) 92px minmax(150px,1fr) auto!important;gap:7px!important}.bms-dashboard .bms-manage-jobs-filters > h2{white-space:nowrap!important;font-size:14px!important}}
