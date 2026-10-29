@@ -98,34 +98,6 @@ function DashboardEnhancer() {
       }
     };
 
-    // Preserve the historical M&J lost-job-value metric in the tenant-neutral core.
-    const applyLostJobValue = (jobs: JobSummary[]) => {
-      const heading = Array.from(document.querySelectorAll<HTMLHeadingElement>("h2")).find(
-        (node) => node.textContent?.trim().toLowerCase() === "money overview",
-      );
-      const grid = heading?.closest<HTMLElement>("section")?.querySelector<HTMLElement>(".mt-3.grid");
-      if (!grid) return;
-      const lostValue = jobs
-        .filter((job) => ["declined", "cancelled"].includes(String(job.status || "").toLowerCase()))
-        .reduce((sum, job) => sum + Number(job.agreedAmount ?? job.quotedAmount ?? job.preliminaryEstimate ?? 0), 0);
-      let card = grid.querySelector<HTMLElement>("[data-lost-job-value]");
-      if (!card) {
-        card = document.createElement("div");
-        card.dataset.lostJobValue = "1";
-        card.className = "flex min-h-[72px] flex-col items-center justify-center rounded-xl border border-black/8 bg-[#f7f7f4] px-3 py-2.5 text-center";
-        const label = document.createElement("p");
-        label.className = "text-[9px] font-black uppercase tracking-[0.07em] text-black/40";
-        label.textContent = "Lost job value";
-        const amount = document.createElement("p");
-        amount.dataset.lostJobValueAmount = "1";
-        amount.className = "mt-0.5 text-lg font-black text-red-700";
-        card.append(label, amount);
-        grid.appendChild(card);
-      }
-      const amount = card.querySelector<HTMLElement>("[data-lost-job-value-amount]");
-      if (amount) amount.textContent = money(lostValue);
-    };
-
     const applyDueLines = (jobs: JobSummary[]) => {
       const rowButtons = Array.from(
         document.querySelectorAll<HTMLButtonElement>("button.grid.w-full"),
@@ -300,7 +272,6 @@ function DashboardEnhancer() {
         const body = await response.json();
         const jobs = (body.jobs || []) as JobSummary[];
         applyRowHighlights(jobs);
-        applyLostJobValue(jobs);
         applyDueLines(jobs);
 
         const headings = Array.from(document.querySelectorAll<HTMLHeadingElement>("h2"));
