@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'business-software-core/**'
+      - 'business-software-core/package.json'
       - '.github/workflows/release-bms-core.yml'
   workflow_dispatch:
 permissions:
