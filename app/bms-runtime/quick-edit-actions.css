@@ -291,3 +291,8 @@
 .bms-dashboard .bms-quick-actions > button:not(:last-child){background:#e2e8f0!important;color:#334155!important}
 /* Neutral utility actions use the tenant accent, never black. */
 .bms-dashboard .bms-quick-section button.bg-black{background:var(--bms-accent)!important;color:white!important}
+
+/* Full job is a direct action; Archive is separated on the far right. */
+.bms-dashboard .bms-quick-actions{display:flex!important;align-items:center!important;width:100%!important;flex-wrap:wrap!important}
+.bms-dashboard .bms-quick-actions > .bms-open-full-job{background:#e2e8f0!important;color:#334155!important;border:1px solid #cbd5e1!important;font-family:inherit!important;font-size:12px!important;font-weight:700!important;min-height:32px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+.bms-dashboard .bms-quick-actions > .bms-archive-job{margin-left:auto!important;background:white!important;color:#b91c1c!important;border:1px solid #fecaca!important;font-family:inherit!important;font-size:12px!important;font-weight:700!important;min-height:32px!important}
