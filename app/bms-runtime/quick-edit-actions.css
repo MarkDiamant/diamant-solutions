@@ -223,3 +223,14 @@
 .bms-dashboard .bms-quick-masonry > .bms-quick-section{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;margin-bottom:18px!important}
 .bms-dashboard .bms-quick-section > summary{border-bottom:1px solid #cbd5e1!important;padding-bottom:6px!important;margin-bottom:12px!important}
 .bms-dashboard .bms-quick-toolbar{box-shadow:none!important}
+
+/* Desktop refinement: KPI breathing room and narrower Manage Jobs filters. */
+@media(min-width:640px){.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button{padding-top:6px!important;padding-bottom:6px!important}}
+@media(min-width:1280px){.bms-dashboard .bms-manage-jobs-filters{grid-template-columns:minmax(145px,1fr) 145px 130px 145px minmax(160px,auto) auto!important}}
+/* Give next-action content a cohesive, subtle tint instead of colouring only NEXT. */
+@media(min-width:1024px){.bms-dashboard .bms-job-next-action{background:color-mix(in srgb,var(--bms-accent) 8%,white);border-radius:10px;padding:6px 9px}}
+/* Move dashboard select arrows inwards. */
+.bms-shell .bms-dashboard select{background-position:right 1.05rem center!important;padding-right:2.65rem!important}
+/* Quote and invoice paired actions are centred as one control. */
+.bms-dashboard .bms-quick-actions > div{align-items:center!important;justify-content:center!important;gap:5px!important}
+.bms-dashboard .bms-quick-actions > div a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:24px!important}
