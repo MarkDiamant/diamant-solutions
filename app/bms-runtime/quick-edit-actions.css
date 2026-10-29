@@ -1,3 +1,4 @@
+/* Shared BMS stylesheet. Preserve cascade order: later tenant-neutral overrides intentionally take precedence. */
 /* Quick-edit actions: tenant-neutral controls with the tenant accent reserved for Save changes. */
 .bms-shell div.flex.flex-col:has(> label input[maxlength="160"]) > div.flex.flex-wrap:has(a[href*="split=1"]) {
   justify-content: center;
