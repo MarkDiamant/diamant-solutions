@@ -271,3 +271,13 @@
 .bms-dashboard .bms-quick-toolbar > div:nth-child(2){gap:0!important}
 .bms-dashboard .bms-quick-actions > button:not(:last-child){background:#e2e8f0!important;color:#334155!important}
 .bms-dashboard .bms-quick-actions > a{background:#e2e8f0!important;color:#334155!important}
+
+/* Inline edit: two compact rows, not a three-level stack. */
+@media(min-width:1024px){.bms-dashboard .bms-inline-job-editor{grid-template-columns:70px minmax(150px,1.2fr) minmax(150px,1fr) minmax(330px,2.15fr) minmax(150px,.9fr)!important;align-items:center!important}.bms-dashboard .bms-inline-job-editor > div{min-width:0}}
+/* Action toolbar floats on the Quick Edit canvas without an extra white card. */
+.bms-dashboard .bms-quick-toolbar{background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;margin:0 0 12px!important}
+.bms-dashboard .bms-quick-actions{justify-content:center!important;gap:7px!important}
+.bms-dashboard .bms-quick-actions > button,.bms-dashboard .bms-quick-actions > a,.bms-dashboard .bms-quick-actions > details > summary{min-height:31px!important;padding:5px 9px!important;font-size:12px!important;font-weight:800!important;line-height:1.2!important}
+.bms-dashboard .bms-quick-actions > button{font-family:inherit!important}
+/* Remove section heading rules. */
+.bms-dashboard .bms-quick-section > summary{border-bottom:0!important;padding-bottom:0!important;margin-bottom:12px!important}
