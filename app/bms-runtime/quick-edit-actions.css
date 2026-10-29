@@ -207,3 +207,8 @@
 @media (min-width:640px){.bms-dashboard section[aria-label="Job summary filters"] > button{border-color:#a8b1bf!important;box-shadow:0 1px 3px #0f172a12!important}.bms-dashboard section[aria-label="Job summary filters"] > button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--bms-accent)!important}}
 /* Quick edit: let independent cards flow without an additional enclosing panel. */
 .bms-dashboard section[aria-label="Quick edit sections"]{background:transparent!important;border:0!important;padding:0!important}
+
+/* Uniform Quick Edit action targets, without altering the More dropdown's inner menu. */
+.bms-dashboard .bms-quick-actions > a,.bms-dashboard .bms-quick-actions > button,.bms-dashboard .bms-quick-actions > details > summary,.bms-dashboard .bms-quick-actions > div{min-height:36px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 10px!important;border-radius:10px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap}
+.bms-dashboard .bms-quick-actions > details > summary{display:flex}
+.bms-dashboard .bms-quick-actions > button:last-child{background:#141414!important;color:white!important}
