@@ -123,3 +123,36 @@
   line-height: 1.25rem !important;
   letter-spacing: normal !important;
 }
+
+/* Dashboard summary cards: keep all five labels and values aligned on mobile. */
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3.25rem;
+  margin: 0;
+  text-align: center;
+  line-height: 1.2;
+}
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:nth-child(2) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 2.5rem;
+  margin-top: 0.25rem;
+  text-align: center;
+}
+@media (min-width: 640px) {
+  .bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:first-child {
+    min-height: 2.5rem;
+  }
+}
