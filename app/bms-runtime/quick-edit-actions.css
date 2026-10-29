@@ -212,3 +212,14 @@
 .bms-dashboard .bms-quick-actions > a,.bms-dashboard .bms-quick-actions > button,.bms-dashboard .bms-quick-actions > details > summary,.bms-dashboard .bms-quick-actions > div{min-height:36px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 10px!important;border-radius:10px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap}
 .bms-dashboard .bms-quick-actions > details > summary{display:flex}
 .bms-dashboard .bms-quick-actions > button:last-child{background:#141414!important;color:white!important}
+
+/* Compact desktop KPI counters: override older forced minimum label and value heights. */
+@media (min-width:640px){
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button{padding:3px 10px!important;min-height:0!important}
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:first-child{min-height:0!important;line-height:1.1!important;font-size:12px!important}
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:nth-child(2){min-height:0!important;margin-top:2px!important;line-height:1!important;font-size:24px!important}
+}
+/* Quick Edit uses one continuous canvas with spacing, not individual boxed panels. */
+.bms-dashboard .bms-quick-masonry > .bms-quick-section{border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;margin-bottom:18px!important}
+.bms-dashboard .bms-quick-section > summary{border-bottom:1px solid #cbd5e1!important;padding-bottom:6px!important;margin-bottom:12px!important}
+.bms-dashboard .bms-quick-toolbar{box-shadow:none!important}
