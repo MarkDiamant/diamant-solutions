@@ -258,3 +258,16 @@
 .bms-dashboard .bms-inline-field:focus{outline:2px solid var(--bms-accent);outline-offset:1px}
 /* Keep every NEXT column aligned regardless of status text length. */
 @media(min-width:1024px){.bms-dashboard .bms-job-status-action{display:grid!important;grid-template-columns: minmax(215px,1fr) minmax(0,1.15fr)!important;align-items:center!important;gap:8px!important}.bms-dashboard .bms-job-status-action > .bms-status-pill{justify-self:start}.bms-dashboard .bms-job-status-action > .bms-job-next-action{margin:0!important}}
+
+/* Money tiles: previous minimum-height override was defeated by dashboard styling. */
+.bms-shell .bms-dashboard .bms-money-tiles > button{height:58px!important;max-height:58px!important;min-height:0!important;box-sizing:border-box!important;padding:4px 12px!important;gap:0!important;overflow:hidden}
+.bms-shell .bms-dashboard .bms-money-tiles > button > p{min-height:0!important;margin-top:2px!important;line-height:1.15!important}
+/* Status and Next Action use identical fixed-size surfaces on the collapsed row. */
+@media(min-width:1024px){.bms-dashboard .bms-job-status-action{grid-template-columns: minmax(230px,1fr) minmax(0,1.15fr)!important}.bms-dashboard .bms-job-status-action > .bms-status-pill,.bms-dashboard .bms-job-status-action > .bms-job-next-action{height:38px!important;min-height:38px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;max-width:100%!important}}
+/* With the row editable, do not repeat status and job title in the toolbar. */
+.bms-dashboard .bms-quick-toolbar{display:block!important}
+.bms-dashboard .bms-quick-toolbar > div:first-child{display:none!important}
+.bms-dashboard .bms-quick-toolbar > div:nth-child(2) > label:first-child{display:none!important}
+.bms-dashboard .bms-quick-toolbar > div:nth-child(2){gap:0!important}
+.bms-dashboard .bms-quick-actions > button:not(:last-child){background:#e2e8f0!important;color:#334155!important}
+.bms-dashboard .bms-quick-actions > a{background:#e2e8f0!important;color:#334155!important}
