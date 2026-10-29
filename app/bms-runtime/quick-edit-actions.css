@@ -171,3 +171,9 @@
     margin-top: 0.125rem;
   }
 }
+
+/* Give dashboard filter chevrons breathing room on desktop and mobile. */
+.bms-shell .bms-dashboard select {
+  padding-right: 2.25rem !important;
+  background-position: right 0.75rem center;
+}
