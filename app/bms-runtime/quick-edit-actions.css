@@ -180,3 +180,9 @@
 
 /* Consistent accent outline for dashboard job rows on hover. */
 .bms-dashboard section button.grid:hover { outline: 2px solid var(--bms-accent); outline-offset: -2px; }
+
+/* Job hover: one continuous tenant-colour line on left, top and right only. */
+.bms-dashboard section button.grid:hover {outline:0!important;border-radius:0!important;box-shadow:none!important}
+.bms-dashboard div.overflow-hidden.rounded-2xl:has(>button.grid):hover {border-left:2px solid var(--bms-accent)!important;border-top:2px solid var(--bms-accent)!important;border-right:2px solid var(--bms-accent)!important;border-bottom-color:transparent!important;box-shadow:none!important}
+/* Quick edit: open core sections by default, without separate accordion controls. */
+.bms-dashboard section[aria-label="Quick edit sections"] > div.grid > details:not(:has(summary + details)) > summary svg {display:none}
