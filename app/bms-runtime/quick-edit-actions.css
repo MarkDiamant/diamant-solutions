@@ -304,3 +304,7 @@
 .bms-dashboard .bms-quick-actions>button,.bms-dashboard .bms-quick-actions>a,.bms-dashboard .bms-quick-actions>div{min-height:32px!important;border-radius:9px!important;font-family:inherit!important;font-size:12px!important;font-weight:700!important;line-height:1.2!important}
 .bms-dashboard .bms-quick-actions>button,.bms-dashboard .bms-quick-actions>a{border:1px solid #cbd5e1!important;padding:6px 10px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
 .bms-dashboard .bms-quick-actions>button.bms-archive-job{margin-left:auto!important}
+
+/* Continuous desktop editor: compact paired rows, actions aligned left, no redundant section titles. */
+@media(min-width:1024px){.bms-dashboard .bms-inline-job-editor{grid-template-columns:58px minmax(150px,1.2fr) minmax(145px,1fr) minmax(260px,1.7fr) minmax(160px,1fr) minmax(135px,.8fr)!important;gap:7px!important;padding:9px 12px!important;align-items:center!important}.bms-dashboard .bms-quick-toolbar{margin:0!important;padding:0!important}.bms-dashboard .bms-quick-actions{justify-content:flex-start!important}.bms-dashboard .bms-quick-section>summary{display:none!important}.bms-dashboard .bms-quick-section{padding:3px 0!important;margin-bottom:8px!important}}
+.bms-dashboard .bms-inline-job-editor .bms-inline-field{height:31px!important;padding-top:3px!important;padding-bottom:3px!important}
