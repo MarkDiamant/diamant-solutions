@@ -234,3 +234,10 @@
 /* Quote and invoice paired actions are centred as one control. */
 .bms-dashboard .bms-quick-actions > div{align-items:center!important;justify-content:center!important;gap:5px!important}
 .bms-dashboard .bms-quick-actions > div a{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:24px!important}
+
+/* Statuses share one calm surface; only the stage dot changes colour. */
+.bms-dashboard .bms-status-pill{background:#f1f5f9!important;color:#1e293b!important}
+.bms-dashboard .bms-status-dot{display:inline-block;flex:none;width:9px;height:9px;border-radius:50%;background:#64748b}
+.bms-dashboard .bms-dot-red{background:#dc2626}.bms-dashboard .bms-dot-green{background:#16a34a}.bms-dashboard .bms-dot-amber{background:#d97706}.bms-dashboard .bms-dot-orange{background:#ea580c}.bms-dashboard .bms-dot-blue{background:#2563eb}
+/* Keep the Manage Jobs heading, search, filters and New Job on one desktop line. */
+@media(min-width:1280px){.bms-dashboard .bms-manage-jobs-filters{grid-template-columns:110px minmax(190px,1.6fr) minmax(105px,.8fr) minmax(105px,.8fr) 105px minmax(145px,1fr) auto!important;align-items:center!important;column-gap:8px!important}}
