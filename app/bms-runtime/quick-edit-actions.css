@@ -249,3 +249,6 @@
 /* Native select chevrons sit closer to their text and higher in the control. */
 .bms-dashboard .bms-manage-jobs-filters select{background-position:right 7px center!important;padding-right:22px!important;text-overflow:ellipsis}
 @media(min-width:1280px){.bms-dashboard .bms-manage-jobs-filters{grid-template-columns:108px minmax(240px,1.7fr) minmax(145px,1fr) minmax(135px,.85fr) 92px minmax(150px,1fr) auto!important;gap:7px!important}.bms-dashboard .bms-manage-jobs-filters > h2{white-space:nowrap!important;font-size:14px!important}}
+
+/* Final desktop filter overrides: move chevrons inward from right edge. */
+@media(min-width:1280px){.bms-shell .bms-dashboard .bms-manage-jobs-filters{grid-template-columns:108px minmax(170px,1.1fr) minmax(145px,.95fr) minmax(125px,.8fr) minmax(145px,.9fr) minmax(155px,1fr) auto!important}.bms-shell .bms-dashboard .bms-manage-jobs-filters select{background-position:right 16px center!important;padding-right:34px!important}}
