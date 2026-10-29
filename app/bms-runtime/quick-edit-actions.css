@@ -177,3 +177,6 @@
   padding-right: 2.25rem !important;
   background-position: right 0.75rem center;
 }
+
+/* Consistent accent outline for dashboard job rows on hover. */
+.bms-dashboard section button.grid:hover { outline: 2px solid var(--bms-accent); outline-offset: -2px; }
