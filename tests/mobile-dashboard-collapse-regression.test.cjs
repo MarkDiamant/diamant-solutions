@@ -10,3 +10,5 @@ test("Dashboard invoice button matches actual Quick Edit quote pill hierarchy",(
 
 test("Invoice action explicitly matches quote inline orange underline and has a scoped specificity rule",()=>{const css=fs.readFileSync("app/bms-runtime/bms.css","utf8");assert.match(s,/data-bms-invoice-action="true" style=\{\{color:crmConfig.accentColour,textDecoration:"underline",textUnderlineOffset:"2px"/);assert.match(css,/a\[data-bms-invoice-action\]:visited/);assert.match(css,/text-decoration-line:underline!important/);});
 test("V5 does not inject mobile CSS or mutate DOM after render",()=>{const v5=fs.readFileSync("business-software-core/components/admin/CrmDashboardV5.tsx","utf8");assert.doesNotMatch(v5,/MutationObserver|document\.createElement|setInterval|\.style\./);assert.match(s,/TaskReminderBanner/);});
+
+test("activity reference resolves from secure dashboard job relation for all tenants",()=>{const api=fs.readFileSync("app/api/bms-live/[...path]/route.ts","utf8");assert.match(s,/a\.job\?\.reference/);assert.match(s,/activityReference\(a\)/);assert.match(api,/job_reference:a\.job_reference\|\|a\.mj_jobs\?\.reference\|\|a\.job\?\.reference/);});
