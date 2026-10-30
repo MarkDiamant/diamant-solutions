@@ -10,7 +10,7 @@ const wrapper=read("components/admin/CrmDashboardV5.tsx");
 const checks=[
  ["Demo admin API uses isolated demo handlers",middleware.includes('if(isDemo&&path.startsWith("/api/admin/"))')&&middleware.includes('url.pathname="/api/bms-demo/"+path.slice("/api/admin/".length)')],
  ["Demo ledger uses fictional handler",middleware.includes('if(isDemo&&path==="/api/bms-live/payments/customer-ledger-summary")')],
- ["Live tenant API routing remains independent",middleware.includes('if(tenantHost&&path.startsWith("/api/admin/"))')],
+ ["Live tenant API routing remains independent",middleware.includes('if(tenantHost){')&&middleware.includes('if(path.startsWith("/api/admin/"))')],
  ["Demo has jobs/dashboard/job types/settings",['if(p==="jobs")','if(p==="dashboard")','if(p==="job-types")','if(p==="settings")'].every(s=>demo.includes(s))],
  ["Demo has archive and restore support",demo.includes('archivedAt:Object.prototype.hasOwnProperty.call(patch,"archived_at")')&&demo.includes('get("archived")==="1"')],
  ["Demo has customer ledger response",demo.includes('if(p==="payments/customer-ledger-summary")')],
