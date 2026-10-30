@@ -444,3 +444,47 @@
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){padding-left:73px!important;gap:8px!important}
 .bms-dashboard .bms-quick-bottom-actions{margin-top:0!important;padding-top:0!important}
 }
+
+/* Match the lower Quick Edit fields to the two summary rows. */
+.bms-dashboard .bms-quick-contact-work>.bms-field,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field{
+display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+height:43px!important;min-height:43px!important;max-height:43px!important;
+padding:2px 6px!important;gap:1px!important;
+border:1px solid #dce2e9!important;border-radius:8px!important;background:#fff!important;
+box-sizing:border-box!important;min-width:0!important
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field>span:first-child,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field>span:first-child{
+font-size:9px!important;line-height:11px!important;font-weight:650!important;
+color:#64748b!important;letter-spacing:.01em!important;margin:0!important;padding:0!important
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field input,
+.bms-dashboard .bms-quick-contact-work>.bms-field select,
+.bms-dashboard .bms-quick-contact-work>.bms-field textarea,
+.bms-dashboard .bms-quick-contact-work>.bms-field button[aria-expanded],
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field input,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field select{
+height:22px!important;min-height:22px!important;max-height:22px!important;
+font-size:12px!important;line-height:20px!important;border:0!important;
+border-radius:0!important;box-shadow:none!important;background-color:#fff!important;
+padding-top:0!important;padding-bottom:0!important;margin:0!important
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field>div,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field>div{min-width:0!important}
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+display:flex!important;flex-wrap:nowrap!important;align-items:center!important;
+gap:10px!important;padding-left:73px!important
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;flex:0 1 68%!important;min-width:0!important;max-width:none!important;
+grid-template-columns:minmax(0,.9fr) minmax(0,.75fr) minmax(0,1.1fr) auto!important;
+align-items:center!important;gap:6px!important;margin:0!important
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>.bms-payment-totals{
+display:flex!important;flex:1 0 auto!important;align-items:center!important;
+gap:14px!important;margin:0!important;padding:0!important;white-space:nowrap!important
+}
+.bms-dashboard .bms-add-payment{height:43px!important;min-height:43px!important}
+}
