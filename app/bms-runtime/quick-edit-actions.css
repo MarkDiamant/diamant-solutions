@@ -1061,3 +1061,27 @@ font-size:12px!important;border:0!important;background:transparent!important;
 margin-left:44px!important;
 }
 }
+
+/* Compact status text, preserving the existing status colours and surfaces. */
+.bms-dashboard .bms-job-status-action>.bms-status-pill{
+font-size:12px!important;line-height:16px!important;letter-spacing:-.1px!important;
+}
+/* Currency: render £ and value as one left-aligned inline group below the mini label. */
+.bms-dashboard .bms-quick-money .bms-money-control,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
+justify-content:flex-start!important;align-items:center!important;gap:0!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
+align-self:center!important;position:static!important;display:block!important;
+height:20px!important;line-height:20px!important;vertical-align:middle!important;
+margin:0 3px 0 7px!important;padding:0!important;transform:none!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+align-self:center!important;display:block!important;text-align:left!important;
+width:calc(100% - 22px)!important;max-width:calc(100% - 22px)!important;
+padding:0!important;margin:0!important;text-indent:0!important;
+height:20px!important;min-height:20px!important;max-height:20px!important;
+line-height:20px!important;vertical-align:middle!important;transform:none!important;
+}
