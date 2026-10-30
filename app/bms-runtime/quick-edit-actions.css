@@ -996,3 +996,42 @@ top:50%!important;transform:translateY(-50%)!important;line-height:20px!importan
 height:25px!important;min-height:25px!important;line-height:25px!important;
 padding-top:0!important;padding-bottom:0!important;padding-left:17px!important;
 }
+
+/* Quick Edit alignment: match the six upper grid tracks, including the inset. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{
+grid-template-columns:65px repeat(6,minmax(0,1fr))!important;
+column-gap:6px!important;
+}
+.bms-dashboard .bms-quick-contact-work{
+padding-left:73px!important;padding-right:0!important;
+grid-template-columns:repeat(6,minmax(0,1fr))!important;
+column-gap:6px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+padding-left:73px!important;padding-right:0!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+grid-template-columns:repeat(6,minmax(0,1fr))!important;
+column-gap:6px!important;
+}
+}
+/* Align pound symbols with entered digits, not the input's outer label. */
+.bms-dashboard .bms-quick-money .bms-money-control,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
+position:relative!important;display:flex!important;align-items:center!important;
+height:24px!important;min-height:24px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
+position:absolute!important;left:6px!important;top:0!important;bottom:0!important;
+height:24px!important;line-height:24px!important;transform:none!important;
+margin:0!important;padding:0!important;font-size:12px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+box-sizing:border-box!important;display:block!important;height:24px!important;
+min-height:24px!important;max-height:24px!important;line-height:24px!important;
+padding:0 4px 0 18px!important;margin:0!important;
+font-size:12px!important;transform:none!important;
+}
