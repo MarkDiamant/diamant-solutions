@@ -882,3 +882,29 @@ box-sizing:border-box!important;
 display:inline-flex!important;align-items:center!important;justify-content:center!important;
 box-shadow:none!important;opacity:1!important;
 }
+
+/* One grid contract for the first three columns in all four Quick Edit rows.
+   Header: reference 65px + gap 6px + left padding 10px.
+   Lower section: left padding 8px, hence 73px inset to the same origin. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{
+grid-template-columns:65px minmax(0,1fr) minmax(0,.91fr) minmax(0,2.08fr) minmax(0,.79fr) 190px!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-quick-contact-work{
+padding-left:73px!important;
+grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,2.08fr) minmax(0,.79fr) minmax(0,.79fr) minmax(0,1.18fr)!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+padding-left:73px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,2.08fr) max-content max-content!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field,
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment) form>.bms-field{
+min-width:0!important;width:100%!important;box-sizing:border-box!important;
+}
+}
