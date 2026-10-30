@@ -963,3 +963,31 @@ padding-left:15px!important;padding-top:0!important;padding-bottom:0!important;
 line-height:26px!important;height:26px!important;min-height:26px!important;
 font-size:12px!important;
 }
+
+/* Payment summary: compact and adjacent to Add payment, without changing the grid. */
+.bms-dashboard .bms-payment-totals{
+display:flex!important;grid-template-columns:none!important;
+align-items:center!important;justify-content:flex-start!important;
+gap:12px!important;margin:0!important;padding:0!important;
+width:max-content!important;max-width:100%!important;
+}
+.bms-dashboard .bms-payment-totals>div{min-width:0!important;white-space:nowrap!important}
+.bms-dashboard .bms-payment-totals span{font-size:10px!important;line-height:12px!important}
+.bms-dashboard .bms-payment-totals b{font-size:12px!important;line-height:16px!important}
+/* One common baseline for the three currency inputs: Cost, Price, Amount. */
+.bms-dashboard .bms-quick-money .bms-money-control,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
+height:26px!important;min-height:26px!important;position:relative!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
+position:absolute!important;top:50%!important;bottom:auto!important;left:7px!important;
+transform:translateY(-50%)!important;margin:0!important;padding:0!important;
+height:20px!important;line-height:20px!important;font-size:12px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+height:26px!important;min-height:26px!important;max-height:26px!important;
+line-height:22px!important;padding:0 3px 2px 16px!important;
+font-size:12px!important;box-sizing:border-box!important;
+}
