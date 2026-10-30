@@ -631,3 +631,61 @@ background:transparent!important;
 .bms-dashboard .bms-quick-money .bms-money-control>input{padding-left:18px!important;line-height:22px!important;vertical-align:middle!important}
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{padding-left:18px!important;line-height:22px!important}
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{left:4px!important;font-size:12px!important;font-weight:400!important;color:#64748b!important}
+
+/* Consistent selected/hover stroke and clipped rounded white corners. */
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor),
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor):hover,
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor):focus-within{
+border-left:2px solid var(--bms-accent)!important;
+border-top:2px solid var(--bms-accent)!important;
+border-right:2px solid var(--bms-accent)!important;
+border-bottom:0!important;
+box-shadow:none!important;
+border-radius:16px!important;
+background:#fff!important;
+}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)::after{display:none!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>.bms-quick-bottom-actions{
+border-radius:0 0 14px 14px!important;
+background:#fff!important;
+overflow:hidden!important;
+}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>.bms-inline-job-editor{
+border-radius:14px 14px 0 0!important;
+}
+.bms-dashboard .bms-bottom-save{background:var(--bms-accent)!important;color:#fff!important}
+.bms-dashboard .bms-quick-bottom-actions>.bms-quick-actions>.bms-close-bottom{background:#f1f5f9!important;color:#334155!important}
+.bms-dashboard .bms-quick-money .bms-money-control{
+height:22px!important;display:flex!important;align-items:center!important;position:relative!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span{
+left:5px!important;top:50%!important;transform:translateY(-50%)!important;
+font-size:12px!important;line-height:18px!important;height:18px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input{
+padding-left:16px!important;padding-top:0!important;padding-bottom:2px!important;
+height:22px!important;line-height:18px!important;min-height:22px!important;
+font-size:12px!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea) textarea{
+resize:vertical!important;min-height:22px!important;max-height:none!important;
+overflow:auto!important;
+}
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-contact-work{
+display:grid!important;
+grid-template-columns:minmax(0,1.02fr) minmax(0,.94fr) minmax(0,1.03fr) minmax(0,.52fr) minmax(0,.52fr) minmax(0,1.45fr)!important;
+gap:6px!important;
+padding-left:73px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;
+grid-template-columns:minmax(0,230px) minmax(0,210px) minmax(0,230px) auto max-content!important;
+width:100%!important;flex:1 1 auto!important;
+gap:6px!important;justify-content:start!important;align-items:center!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals{
+margin:0!important;padding:0!important;display:flex!important;align-items:center!important;gap:12px!important;
+}
+.bms-dashboard .bms-quick-bottom-actions>.bms-quick-actions{padding-left:30px!important}
+}
