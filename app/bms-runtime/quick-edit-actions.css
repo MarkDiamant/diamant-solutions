@@ -393,3 +393,26 @@
 .bms-dashboard .bms-quick-masonry>.bms-quick-section .bms-field textarea{height:25px!important;min-height:25px!important}
 .bms-dashboard .bms-quick-masonry>.bms-quick-section .bms-field:has(textarea){min-height:43px!important}
 }
+
+/* October 30 compact editor alignment: single contact/work/notes row. */
+.bms-dashboard .bms-quick-contact-work{display:grid!important;min-width:0!important;gap:5px!important;align-items:start!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field{min-width:0!important;width:100%!important;overflow:visible!important}
+.bms-dashboard .bms-quick-contact-work .bms-field>div.relative{min-width:0!important}
+.bms-dashboard .bms-quick-contact-work .bms-field button[aria-expanded]{min-width:0!important;width:100%!important;display:flex!important;align-items:center!important}
+.bms-dashboard .bms-quick-contact-work .bms-field button[aria-expanded]>.truncate{min-width:0!important;flex:1!important}
+.bms-dashboard .bms-inline-price-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-template-rows:repeat(2,43px)!important;gap:4px!important}
+.bms-dashboard .bms-inline-price-actions>.bms-top-labeled{height:43px!important}
+.bms-dashboard .bms-inline-price-actions>.bms-save-row,.bms-dashboard .bms-inline-price-actions>.bms-close-row{height:43px!important;min-height:43px!important}
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a[href*="split=1"]{height:32px!important;min-height:32px!important;max-height:32px!important;padding:0 9px!important;line-height:1!important;box-sizing:border-box!important;align-self:center!important}
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a,.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>button,.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>div{height:32px!important;min-height:32px!important;max-height:32px!important;box-sizing:border-box!important;align-self:center!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){grid-column:1/-1!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,.75fr) minmax(0,1.05fr) auto!important;gap:6px!important;align-items:end!important;max-width:760px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>.bms-payment-totals{display:inline-flex!important;gap:18px!important;vertical-align:middle!important;margin-left:10px!important}
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{grid-template-columns:65px minmax(135px,1fr) minmax(125px,.85fr) minmax(310px,1.7fr) 175px!important}
+.bms-dashboard .bms-quick-contact-work{grid-template-columns:minmax(0,.75fr) minmax(0,1fr) minmax(0,.75fr) minmax(0,1.35fr) minmax(0,1.1fr) minmax(0,1.45fr)!important;padding-left:73px!important;padding-right:0!important}
+.bms-dashboard .bms-quick-masonry{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>div.border-t{border-top:0!important}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment){display:flex!important;align-items:center!important;gap:12px!important;flex-wrap:wrap!important}
+}
+@media(max-width:900px){.bms-dashboard .bms-quick-contact-work{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
