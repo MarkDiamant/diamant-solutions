@@ -14,6 +14,8 @@ const checks=[
  ["Demo has jobs/dashboard/job types/settings",['if(p==="jobs")','if(p==="dashboard")','if(p==="job-types")','if(p==="settings")'].every(s=>demo.includes(s))],
  ["Demo has archive and restore support",demo.includes('archivedAt:Object.prototype.hasOwnProperty.call(patch,"archived_at")')&&demo.includes('get("archived")==="1"')],
  ["Demo has customer ledger response",demo.includes('if(p==="payments/customer-ledger-summary")')],
+ ["Quick Edit never injects tenant-specific workforce panels",!dashboard.includes('Workforce costs')],
+ ["Quick Edit never expands with data-dependent payment history",!dashboard.includes('j.customerPayments?.length>0&&<div className="mt-3 overflow-hidden')],
  ["Shared dashboard makes standard admin API calls",['/api/admin/jobs','/api/admin/dashboard','/api/admin/job-types','/api/admin/settings'].every(s=>dashboard.includes(s))],
  ["Demo and live use shared dashboard component",runtime.includes("CrmDashboardV5")&&wrapper.includes('business-software-core/components/admin/CrmDashboardV5')],
  ["Demo and live load same Quick Edit stylesheet",layout.includes('import "./quick-edit-actions.css"')]
