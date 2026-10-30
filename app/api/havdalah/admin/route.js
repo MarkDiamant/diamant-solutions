@@ -108,7 +108,7 @@ export async function POST(req){
   const remaining=minutes<60?minutes+' minute'+(minutes===1?'':'s'):Math.floor(minutes/60)+' hour'+(Math.floor(minutes/60)===1?'':'s')+(minutes%60?' and '+minutes%60+' minute'+(minutes%60===1?'':'s'):'');
   return Response.json({date:fmt({day:'numeric',month:'long'}),time:fmt({hour:'numeric',minute:'2-digit',hour12:true}),remaining,minutes:String(minutes),day:occasionForSlot(next,{})},{headers:{'Cache-Control':'no-store'}});
  }
- if(body?.action==='preview_voice'&&typeof body.text==='string'&&/\{(date|time|remaining|minutes|when|day)\}/.test(body.text)){
+ if(body?.action==='preview_voice'&&typeof body.text==='string'&&/\{(date|time|remaining|minutes|when|day|first_name|host_first_name)\}/.test(body.text)){
   const now=new Date();
   let slots=null;
   try{slots=await getManagedSlots(now);}catch(e){console.error('HAVDALAH_PREVIEW_SLOTS',e);}
@@ -121,8 +121,8 @@ export async function POST(req){
   const m=Math.max(0,Math.ceil((next.time-now)/60000)),h=Math.floor(m/60),rem=m%60;
   const remaining=h?h+' hour'+(h===1?'':'s')+(rem?' and '+rem+' minute'+(rem===1?'':'s'):''):m+' minute'+(m===1?'':'s');
   const date=fmt({day:'numeric',month:'long'}),time=fmt({hour:'numeric',minute:'2-digit',hour12:true});
-  const vars={date,time,remaining,minutes:String(m),day:occasionForSlot(next,{}),when:key(next.time)===key(now)?'tonight':'on '+date};
-  body.text=body.text.replace(/\{(date|time|remaining|minutes|when|day)\}/g,(_,name)=>String(vars[name]));
+  const vars={date,time,remaining,minutes:String(m),day:occasionForSlot(next,{}),when:key(next.time)===key(now)?'tonight':'on '+date,first_name:'Binyomin',host_first_name:'Binyomin'};
+  body.text=body.text.replace(/\{(date|time|remaining|minutes|when|day|first_name|host_first_name)\}/g,(_,name)=>String(vars[name]));
  }
  if(body?.action==='preview_voice'){
   const allowed=['en-GB-Chirp3-HD-Callirrhoe','en-GB-Chirp3-HD-Algenib','en-GB-Chirp3-HD-Leda','en-GB-Chirp3-HD-Sadaltager'];
