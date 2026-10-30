@@ -616,3 +616,18 @@ background:transparent!important;
 background:transparent!important;
 }
 .bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>button:first-child{border-radius:14px 14px 0 0!important}
+
+/* Phone and Email now occupy the two top-right fields. Single bottom Save/Close pair. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions{grid-column:6!important;grid-row:1!important;display:grid!important;grid-template-columns:1fr!important;grid-template-rows:43px 43px!important;gap:4px!important}
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions>.bms-field{min-width:0!important;height:43px!important;min-height:43px!important;padding:2px 6px!important;display:flex!important;flex-direction:column!important;gap:1px!important;border:1px solid #dce2e9!important;border-radius:8px!important;background:#fff!important}
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions>.bms-field>span:first-child{font-size:9px!important;line-height:11px!important;font-weight:650!important;color:#64748b!important;text-transform:none!important;letter-spacing:0!important;margin:0!important}
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions>.bms-field>input{height:22px!important;min-height:22px!important;max-height:22px!important;border:0!important;padding:0!important;font-size:12px!important;background:transparent!important;box-shadow:none!important}
+.bms-dashboard .bms-quick-contact-work{grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) minmax(0,1.1fr) minmax(0,.65fr) minmax(0,.65fr) minmax(0,2.1fr)!important;padding-left:73px!important;gap:6px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{grid-template-columns:135px 110px 175px auto max-content!important;display:grid!important;justify-content:start!important;flex:0 0 auto!important;width:auto!important;gap:6px!important}
+.bms-dashboard .bms-quick-bottom-actions>.bms-quick-actions>.bms-close-bottom{height:32px!important;min-height:32px!important;max-height:32px!important;margin-left:0!important;padding:0 12px!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span{left:4px!important;top:50%!important;transform:translateY(-50%)!important;font-size:12px!important;font-weight:400!important;color:#64748b!important}
+.bms-dashboard .bms-quick-money .bms-money-control>input{padding-left:18px!important;line-height:22px!important;vertical-align:middle!important}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{padding-left:18px!important;line-height:22px!important}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{left:4px!important;font-size:12px!important;font-weight:400!important;color:#64748b!important}
