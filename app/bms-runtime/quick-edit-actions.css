@@ -360,3 +360,29 @@
 .bms-dashboard .bms-quick-section button[aria-expanded]{min-width:0!important}
 .bms-dashboard .bms-quick-section button[aria-expanded]>.truncate{flex:1!important;min-width:0!important}
 @media(min-width:1024px){.bms-dashboard .bms-quick-masonry{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 14px!important}.bms-dashboard .bms-inline-job-editor{gap:5px!important;padding:8px 10px!important}.bms-dashboard .bms-inline-job-editor>div{gap:4px!important}.bms-dashboard .bms-quick-section{padding:3px 0!important;margin:0!important}}
+
+/* Compact in-field labels, matching the main editable job row. */
+.bms-dashboard .bms-quick-section .bms-field{display:flex!important;flex-direction:column!important;gap:1px!important;min-width:0!important;min-height:43px!important;border:1px solid #dce2e9!important;border-radius:8px!important;background:#fff!important;padding:2px 6px!important}
+.bms-dashboard .bms-quick-section .bms-field>span:first-child{display:block!important;font-size:9px!important;line-height:11px!important;font-weight:650!important;letter-spacing:.01em!important;color:#64748b!important;margin:0!important}
+.bms-dashboard .bms-quick-section .bms-field>input,.bms-dashboard .bms-quick-section .bms-field>select,.bms-dashboard .bms-quick-section .bms-field>textarea,.bms-dashboard .bms-quick-section .bms-field>div>input,.bms-dashboard .bms-quick-section .bms-field>div>select,.bms-dashboard .bms-quick-section .bms-field>div>button{height:25px!important;min-height:25px!important;width:100%!important;border:0!important;border-radius:0!important;background-color:#fff!important;box-shadow:none!important;padding-top:0!important;padding-bottom:0!important;font-size:12px!important}
+.bms-dashboard .bms-quick-section .bms-field>div.relative{min-width:0!important}
+.bms-dashboard .bms-quick-section .bms-field>div.relative>button{padding-left:3px!important}
+.bms-dashboard .bms-quick-section .bms-field>div.relative>div.absolute{z-index:100!important}
+.bms-dashboard .bms-quick-section .bms-field>div.relative>div.absolute.max-h-64{max-height:min(330px,55vh)!important;overflow-y:auto!important}
+.bms-dashboard .bms-quick-section .bms-field textarea{height:32px!important;min-height:32px!important;resize:vertical!important}
+.bms-dashboard .bms-quick-section .bms-field>div>span.absolute{top:50%!important}
+.bms-dashboard .bms-quick-section .bms-field>div>input.pl-7,.bms-dashboard .bms-quick-section .bms-field>div>input.pl-9{padding-left:24px!important}
+.bms-dashboard .bms-quick-section .bms-field>div>button[aria-expanded]{justify-content:space-between!important}
+.bms-dashboard .bms-quick-section .bms-field:has(textarea){min-height:43px!important}
+.bms-dashboard .bms-inline-price-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important}
+.bms-dashboard .bms-inline-price-actions .bms-top-cost>div{min-width:0!important}
+.bms-dashboard .bms-inline-price-actions .bms-top-cost input{height:22px!important;min-height:22px!important;border:0!important;padding-top:0!important;padding-bottom:0!important;font-size:12px!important}
+.bms-dashboard .bms-inline-price-actions .bms-save-row,.bms-dashboard .bms-inline-price-actions .bms-close-row{width:100%!important;min-width:0!important;min-height:30px!important;grid-column:auto!important}
+.bms-dashboard .bms-quick-section>summary{display:none!important}
+.bms-dashboard .bms-quick-section{border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;background:#fff!important;overflow:visible!important}
+.bms-dashboard .bms-quick-section>div{margin-top:0!important}
+.bms-dashboard .bms-quick-masonry{align-items:start!important}
+.bms-dashboard .bms-payment-totals{border:0!important;margin-top:4px!important;padding:0 3px!important}
+.bms-dashboard .bms-add-payment{height:36px!important;white-space:nowrap!important}
+.bms-dashboard .bms-quick-bottom-actions{border-top:0!important;padding-top:2px!important;margin-top:3px!important}
+@media(min-width:1024px){.bms-dashboard .bms-quick-masonry{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px 14px!important}.bms-dashboard .bms-quick-section .bms-field{min-height:43px!important}}
