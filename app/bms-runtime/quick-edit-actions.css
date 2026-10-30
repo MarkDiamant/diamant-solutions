@@ -689,3 +689,54 @@ margin:0!important;padding:0!important;display:flex!important;align-items:center
 }
 .bms-dashboard .bms-quick-bottom-actions>.bms-quick-actions{padding-left:30px!important}
 }
+
+/* Shared tenant Quick Edit alignment: lower fields follow the exact upper column grid. */
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-contact-work{
+grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.7fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)!important;
+padding-left:73px!important;
+padding-right:0!important;
+column-gap:6px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.7fr) max-content max-content!important;
+padding-left:0!important;
+width:100%!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+padding-left:73px!important;
+padding-right:0!important;
+}
+}
+/* Native textarea resize must not be suppressed by compact field height rules. */
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea){
+height:auto!important;
+min-height:43px!important;
+max-height:none!important;
+overflow:visible!important;
+align-self:start!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea) textarea{
+display:block!important;
+resize:vertical!important;
+height:23px!important;
+min-height:23px!important;
+max-height:none!important;
+overflow:auto!important;
+padding:2px 8px!important;
+line-height:18px!important;
+}
+/* Selected cards keep rounded bottom corners without an unwanted bottom stroke. */
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor){
+border-radius:16px!important;
+background:transparent!important;
+}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>.bms-quick-bottom-actions{
+border-bottom-left-radius:14px!important;
+border-bottom-right-radius:14px!important;
+background:#fff!important;
+}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>div:last-child{
+border-bottom-left-radius:14px!important;
+border-bottom-right-radius:14px!important;
+}
