@@ -921,3 +921,30 @@ grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1fr) minmax(0,1fr)!import
 grid-template-columns:repeat(3,minmax(0,1fr)) max-content max-content!important;
 }
 }
+
+/* Single six-column track system for all four Quick Edit rows.
+   The reference occupies its own fixed column only in the header. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{
+grid-template-columns:65px repeat(4,minmax(0,1fr)) repeat(2,minmax(0,.9fr))!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-quick-contact-work{
+padding-left:73px!important;
+grid-template-columns:repeat(4,minmax(0,1fr)) repeat(2,minmax(0,.9fr))!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+padding-left:73px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;width:100%!important;
+grid-template-columns:repeat(4,minmax(0,1fr)) repeat(2,minmax(0,.9fr))!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-inline-job-editor>div,
+.bms-dashboard .bms-quick-contact-work>.bms-field,
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>*{
+min-width:0!important;box-sizing:border-box!important;
+}
+}
