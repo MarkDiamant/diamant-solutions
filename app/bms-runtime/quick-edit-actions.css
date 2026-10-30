@@ -386,3 +386,10 @@
 .bms-dashboard .bms-add-payment{height:36px!important;white-space:nowrap!important}
 .bms-dashboard .bms-quick-bottom-actions{border-top:0!important;padding-top:2px!important;margin-top:3px!important}
 @media(min-width:1024px){.bms-dashboard .bms-quick-masonry{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px 14px!important}.bms-dashboard .bms-quick-section .bms-field{min-height:43px!important}}
+
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-masonry{grid-template-columns:minmax(0,1fr)!important;gap:5px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section{grid-column:1/-1!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section .bms-field textarea{height:25px!important;min-height:25px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section .bms-field:has(textarea){min-height:43px!important}
+}
