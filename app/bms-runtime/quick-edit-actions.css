@@ -719,7 +719,7 @@ align-self:start!important;
 .bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea) textarea{
 display:block!important;
 resize:vertical!important;
-height:23px!important;
+height:23px;
 min-height:23px!important;
 max-height:none!important;
 overflow:auto!important;
