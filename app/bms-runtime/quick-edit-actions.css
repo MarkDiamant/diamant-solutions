@@ -845,13 +845,13 @@ resize:vertical!important;
 .bms-dashboard .bms-inline-job-editor+section[aria-label="Quick edit sections"]{margin:0!important;padding-top:0!important;padding-bottom:0!important}
 .bms-dashboard .bms-quick-masonry{row-gap:4px!important;gap:4px!important}
 .bms-dashboard .bms-quick-contact-work{
-padding-left:75px!important;
+padding-left:69px!important;
 padding-right:0!important;
 grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,1.04fr) minmax(0,.52fr) minmax(0,.52fr) minmax(0,1.8fr)!important;
 column-gap:6px!important;row-gap:4px!important;
 }
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
-padding-left:75px!important;padding-right:0!important;margin-top:0!important;
+padding-left:69px!important;padding-right:0!important;margin-top:0!important;
 }
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
 display:grid!important;width:100%!important;max-width:100%!important;flex:1 1 auto!important;
