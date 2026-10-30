@@ -835,3 +835,6 @@ resize:vertical!important;
 }
 /* Distinct, neutral pre-quote dot rather than amber or declined red. */
 .bms-dashboard .bms-dot-slate{background:#64748b!important}
+
+/* Close uses precisely the same neutral surface and text as Quick Edit toolbar actions. */
+.bms-dashboard .bms-quick-bottom-actions .bms-close-bottom{background:#e2e8f0!important;border:1px solid #cbd5e1!important;color:#334155!important;box-shadow:none!important;opacity:1!important}
