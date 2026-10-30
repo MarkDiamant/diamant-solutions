@@ -891,19 +891,19 @@ grid-template-columns:65px repeat(6,minmax(0,1fr))!important;
 column-gap:6px!important;row-gap:4px!important;
 }
 .bms-dashboard .bms-quick-contact-work{
-padding-left:75px!important;padding-right:4px!important;
+padding-left:71px!important;padding-right:4px!important;
 grid-template-columns:repeat(6,minmax(0,1fr))!important;
 column-gap:6px!important;row-gap:4px!important;
 }
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
-padding-left:75px!important;padding-right:4px!important;margin-top:0!important;
+padding-left:71px!important;padding-right:4px!important;margin-top:0!important;
 }
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
 display:grid!important;width:100%!important;max-width:none!important;
 grid-template-columns:repeat(6,minmax(0,1fr))!important;
 column-gap:6px!important;row-gap:4px!important;align-items:center!important;
 }
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-add-payment{grid-column:4!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-add-payment{grid-column:4!important;width:calc(50% - 3px)!important;justify-self:start!important}
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals{
 grid-column:5 / span 2!important;margin-top:0!important;align-self:center!important;
 }
