@@ -883,155 +883,53 @@ display:inline-flex!important;align-items:center!important;justify-content:cente
 box-shadow:none!important;opacity:1!important;
 }
 
-/* One grid contract for the first three columns in all four Quick Edit rows.
-   Header: reference 65px + gap 6px + left padding 10px.
-   Lower section: left padding 8px, hence 73px inset to the same origin. */
-@media(min-width:1024px){
-.bms-dashboard .bms-inline-job-editor{
-grid-template-columns:65px minmax(0,1fr) minmax(0,.91fr) minmax(0,2.08fr) minmax(0,.79fr) 190px!important;
-column-gap:6px!important;row-gap:4px!important;
-}
-.bms-dashboard .bms-quick-contact-work{
-padding-left:73px!important;
-grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,2.08fr) minmax(0,.79fr) minmax(0,.79fr) minmax(0,1.18fr)!important;
-column-gap:6px!important;row-gap:4px!important;
-}
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
-padding-left:73px!important;
-}
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
-grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,2.08fr) max-content max-content!important;
-column-gap:6px!important;row-gap:4px!important;
-}
-.bms-dashboard .bms-quick-contact-work>.bms-field,
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment) form>.bms-field{
-min-width:0!important;width:100%!important;box-sizing:border-box!important;
-}
-}
 
-/* Four equal-width field columns across the header and lower Quick Edit rows. */
-@media(min-width:1024px){
-.bms-dashboard .bms-inline-job-editor{
-grid-template-columns:65px repeat(4,minmax(0,1fr)) minmax(0,1fr)!important;
-}
-.bms-dashboard .bms-quick-contact-work{
-grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1fr) minmax(0,1fr)!important;
-}
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
-grid-template-columns:repeat(3,minmax(0,1fr)) max-content max-content!important;
-}
-}
-
-/* Single six-column track system for all four Quick Edit rows.
-   The reference occupies its own fixed column only in the header. */
-@media(min-width:1024px){
-.bms-dashboard .bms-inline-job-editor{
-grid-template-columns:65px repeat(4,minmax(0,1fr)) repeat(2,minmax(0,.9fr))!important;
-column-gap:6px!important;row-gap:4px!important;
-}
-.bms-dashboard .bms-quick-contact-work{
-padding-left:73px!important;
-grid-template-columns:repeat(4,minmax(0,1fr)) repeat(2,minmax(0,.9fr))!important;
-column-gap:6px!important;row-gap:4px!important;
-}
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
-padding-left:73px!important;
-}
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
-display:grid!important;width:100%!important;
-grid-template-columns:repeat(4,minmax(0,1fr)) repeat(2,minmax(0,.9fr))!important;
-column-gap:6px!important;row-gap:4px!important;
-}
-.bms-dashboard .bms-inline-job-editor>div,
-.bms-dashboard .bms-quick-contact-work>.bms-field,
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>*{
-min-width:0!important;box-sizing:border-box!important;
-}
-}
-
-/* Full name, address, phone, manager/title, status/action and due date:
-   six independent equal tracks, repeated below with matching inset. */
+/* Canonical desktop Quick Edit grid: one track definition, no conflicting tail overrides. */
 @media(min-width:1024px){
 .bms-dashboard .bms-inline-job-editor{
 grid-template-columns:65px repeat(6,minmax(0,1fr))!important;
-column-gap:6px!important;
+column-gap:6px!important;row-gap:4px!important;
 }
 .bms-dashboard .bms-quick-contact-work{
+padding-left:75px!important;padding-right:4px!important;
 grid-template-columns:repeat(6,minmax(0,1fr))!important;
-column-gap:6px!important;
-}
-.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
-grid-template-columns:repeat(6,minmax(0,1fr))!important;
-column-gap:6px!important;
-}
-}
-
-/* Phone and email occupy column four, immediately before Manager/Job title. */
-@media(min-width:1024px){
-.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions{
-grid-column:4!important;grid-row:1!important;
-grid-template-columns:minmax(0,1fr)!important;
-grid-template-rows:repeat(2,minmax(0,1fr))!important;
-}
-}
-/* Centre the currency symbol and its amount on one text baseline. */
-.bms-dashboard .bms-quick-money .bms-money-control{
-display:flex!important;align-items:center!important;height:25px!important;
-}
-.bms-dashboard .bms-quick-money .bms-money-control>span{
-position:absolute!important;top:50%!important;transform:translateY(-50%)!important;
-height:auto!important;line-height:20px!important;left:6px!important;
-}
-.bms-dashboard .bms-quick-money .bms-money-control>input{
-height:25px!important;min-height:25px!important;line-height:25px!important;
-padding:0 4px 0 17px!important;vertical-align:middle!important;
-}
-.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
-display:flex!important;align-items:center!important;height:25px!important;
-}
-.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
-top:50%!important;transform:translateY(-50%)!important;line-height:20px!important;height:auto!important;
-}
-.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
-height:25px!important;min-height:25px!important;line-height:25px!important;
-padding-top:0!important;padding-bottom:0!important;padding-left:17px!important;
-}
-
-/* Quick Edit alignment: match the six upper grid tracks, including the inset. */
-@media(min-width:1024px){
-.bms-dashboard .bms-inline-job-editor{
-grid-template-columns:65px repeat(6,minmax(0,1fr))!important;
-column-gap:6px!important;
-}
-.bms-dashboard .bms-quick-contact-work{
-padding-left:73px!important;padding-right:0!important;
-grid-template-columns:repeat(6,minmax(0,1fr))!important;
-column-gap:6px!important;
+column-gap:6px!important;row-gap:4px!important;
 }
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
-padding-left:73px!important;padding-right:0!important;
+padding-left:75px!important;padding-right:4px!important;margin-top:0!important;
 }
 .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;width:100%!important;max-width:none!important;
 grid-template-columns:repeat(6,minmax(0,1fr))!important;
-column-gap:6px!important;
+column-gap:6px!important;row-gap:4px!important;align-items:center!important;
 }
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-add-payment{grid-column:4!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals{
+grid-column:5 / span 2!important;margin-top:0!important;align-self:center!important;
 }
-/* Align pound symbols with entered digits, not the input's outer label. */
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions{grid-column:auto!important;grid-row:auto!important}
+}
 .bms-dashboard .bms-quick-money .bms-money-control,
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
 position:relative!important;display:flex!important;align-items:center!important;
-height:24px!important;min-height:24px!important;
+height:26px!important;min-height:26px!important;
 }
 .bms-dashboard .bms-quick-money .bms-money-control>span,
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
-position:absolute!important;left:6px!important;top:0!important;bottom:0!important;
-height:24px!important;line-height:24px!important;transform:none!important;
-margin:0!important;padding:0!important;font-size:12px!important;
+position:absolute!important;top:50%!important;bottom:auto!important;
+left:7px!important;transform:translateY(-50%)!important;
+height:20px!important;line-height:20px!important;margin:0!important;padding:0!important;
+font-size:12px!important;
 }
 .bms-dashboard .bms-quick-money .bms-money-control>input,
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
-box-sizing:border-box!important;display:block!important;height:24px!important;
-min-height:24px!important;max-height:24px!important;line-height:24px!important;
-padding:0 4px 0 18px!important;margin:0!important;
-font-size:12px!important;transform:none!important;
+height:26px!important;min-height:26px!important;max-height:26px!important;
+line-height:26px!important;padding:0 4px 0 19px!important;
+margin:0!important;font-size:12px!important;box-sizing:border-box!important;
+}
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>.bms-open-full-job{
+height:34px!important;min-height:34px!important;max-height:34px!important;
+padding:0 10px!important;display:inline-flex!important;align-items:center!important;
+background:#e2e8f0!important;border:1px solid #cbd5e1!important;
+color:#334155!important;font-size:12px!important;font-weight:700!important;
 }
