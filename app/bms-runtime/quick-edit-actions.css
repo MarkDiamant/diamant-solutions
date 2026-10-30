@@ -948,3 +948,20 @@ column-gap:6px!important;row-gap:4px!important;
 min-width:0!important;box-sizing:border-box!important;
 }
 }
+
+/* Full name, address, phone, manager/title, status/action and due date:
+   six independent equal tracks, repeated below with matching inset. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{
+grid-template-columns:65px repeat(6,minmax(0,1fr))!important;
+column-gap:6px!important;
+}
+.bms-dashboard .bms-quick-contact-work{
+grid-template-columns:repeat(6,minmax(0,1fr))!important;
+column-gap:6px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+grid-template-columns:repeat(6,minmax(0,1fr))!important;
+column-gap:6px!important;
+}
+}
