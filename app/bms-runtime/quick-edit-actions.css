@@ -908,3 +908,16 @@ column-gap:6px!important;row-gap:4px!important;
 min-width:0!important;width:100%!important;box-sizing:border-box!important;
 }
 }
+
+/* Four equal-width field columns across the header and lower Quick Edit rows. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{
+grid-template-columns:65px repeat(4,minmax(0,1fr)) minmax(0,1fr)!important;
+}
+.bms-dashboard .bms-quick-contact-work{
+grid-template-columns:repeat(4,minmax(0,1fr)) minmax(0,1fr) minmax(0,1fr)!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+grid-template-columns:repeat(3,minmax(0,1fr)) max-content max-content!important;
+}
+}
