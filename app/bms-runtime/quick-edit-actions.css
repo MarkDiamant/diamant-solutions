@@ -488,3 +488,29 @@ gap:14px!important;margin:0!important;padding:0!important;white-space:nowrap!imp
 }
 .bms-dashboard .bms-add-payment{height:43px!important;min-height:43px!important}
 }
+
+/* Final Quick Edit row polish. */
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor){border-radius:16px!important;overflow:visible!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>.bms-quick-bottom-actions{border-radius:0 0 16px 16px!important;overflow:hidden!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor):hover{background:#fffaf6!important;border-color:var(--bms-accent)!important;box-shadow:inset 3px 0 0 var(--bms-accent),0 2px 9px #0000000a!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor){box-shadow:inset 3px 0 0 var(--bms-accent)!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field>span:first-child,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field>span:first-child{text-transform:none!important;font-variant:normal!important;letter-spacing:0!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea){overflow:visible!important;position:relative!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field textarea{resize:both!important;overflow:auto!important;min-width:100%!important;max-width:none!important;min-height:22px!important;max-height:none!important;position:relative!important;z-index:2!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea):focus-within{z-index:20!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(select) select,
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(button[aria-expanded]) button[aria-expanded]{height:22px!important;min-height:22px!important;max-height:22px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals{display:flex!important;flex-direction:row!important;align-items:center!important;gap:16px!important;min-width:max-content!important;margin:0!important;padding:0!important;border:0!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals>div{white-space:nowrap!important}
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{margin-bottom:0!important}
+.bms-dashboard .bms-inline-job-editor+section[aria-label="Quick edit sections"]{margin-top:0!important;padding-top:0!important}
+.bms-dashboard .bms-quick-contact-work{margin-top:0!important;padding-top:0!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;grid-template-columns:minmax(0,.9fr) minmax(0,.75fr) minmax(0,1.05fr) auto max-content!important;
+flex:1 1 auto!important;width:100%!important;max-width:none!important;align-items:center!important;gap:6px!important
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){display:block!important;width:100%!important}
+.bms-dashboard .bms-quick-contact-work>.bms-field{height:43px!important}
+}
