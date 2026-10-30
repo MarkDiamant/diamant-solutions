@@ -1017,3 +1017,20 @@ line-height:22px!important;transform:translateY(-2px)!important;
 justify-self:start!important;transform:translateX(-4px)!important;gap:9px!important;
 }
 }
+
+/* Manage Jobs search: match adjacent filter height, with a little more width. */
+@media(min-width:1280px){
+.bms-shell .bms-dashboard .bms-manage-jobs-filters{
+grid-template-columns:120px minmax(160px,1.02fr) minmax(145px,.95fr) minmax(125px,.8fr) minmax(145px,.9fr) minmax(155px,1fr) auto!important;
+}
+.bms-shell .bms-dashboard .bms-manage-jobs-filters>input{
+height:40px!important;min-height:40px!important;max-height:40px!important;
+box-sizing:border-box!important;
+}
+}
+/* Start the four left-hand job actions under the Payment type field. */
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-bottom-actions>.bms-quick-actions{
+padding-left:58px!important;
+}
+}
