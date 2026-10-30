@@ -752,3 +752,54 @@ border-bottom-right-radius:14px!important;
 .bms-dashboard .bms-quick-money .bms-money-control>input{padding:0 4px 0 17px!important;height:24px!important;min-height:24px!important;line-height:24px!important}
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{top:50%!important;transform:translateY(-50%)!important;left:5px!important}
 .bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{padding:0 4px 0 17px!important;line-height:24px!important;height:24px!important}
+
+/* Final shared Quick Edit alignment. Same stylesheet for demo and every tenant. */
+@media (min-width:1024px){
+.bms-dashboard .bms-quick-contact-work{
+padding-left:71px!important;
+padding-right:0!important;
+grid-template-columns:minmax(0,1.12fr) minmax(0,1fr) minmax(0,1.12fr) minmax(0,.56fr) minmax(0,.56fr) minmax(0,1.65fr)!important;
+gap:6px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+padding-left:71px!important;
+padding-right:0!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;
+grid-template-columns:minmax(0,1.12fr) minmax(0,1fr) minmax(0,1.12fr) max-content max-content!important;
+gap:6px!important;
+align-items:center!important;
+width:100%!important;
+}
+}
+/* Close is the same neutral grey as the other secondary toolbar actions. */
+.bms-dashboard .bms-quick-bottom-actions .bms-close-bottom{
+background:#e2e8f0!important;
+border-color:#cbd5e1!important;
+color:#0f172a!important;
+}
+/* Avoid split-colour background in the selected job header. */
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>.bms-inline-job-editor,
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>.bms-inline-job-editor>div{
+background:#fff!important;
+}
+/* Money symbol and typed figure share the same baseline with a single space of separation. */
+.bms-dashboard .bms-quick-money .bms-money-control{
+display:flex!important;align-items:center!important;
+position:relative!important;height:24px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span{
+top:50%!important;transform:translateY(-50%)!important;
+left:6px!important;line-height:18px!important;height:18px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input{
+height:24px!important;min-height:24px!important;
+padding:0 4px 0 17px!important;
+line-height:24px!important;
+}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+padding-left:17px!important;
+padding-top:0!important;padding-bottom:0!important;
+height:24px!important;line-height:24px!important;
+}
