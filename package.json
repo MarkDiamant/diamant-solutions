@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "npm run check:bms-parity && next build",
+    "start": "next start",
+    "check:bms-parity": "node scripts/check-bms-demo-parity.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
