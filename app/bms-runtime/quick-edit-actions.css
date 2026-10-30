@@ -1000,3 +1000,20 @@ grid-template-columns:120px minmax(145px,.92fr) minmax(145px,.95fr) minmax(125px
 .bms-shell .bms-dashboard .bms-manage-jobs-filters>div:first-child{min-width:0!important}
 .bms-shell .bms-dashboard .bms-manage-jobs-filters>div:first-child h2{white-space:nowrap!important;font-size:14px!important}
 }
+
+/* Currency baseline correction for Cost, Price and Amount only. */
+.bms-dashboard .bms-quick-money .bms-money-control>span,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
+top:17px!important;transform:translateY(-50%)!important;left:7px!important;
+height:16px!important;line-height:16px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+padding-left:15px!important;padding-top:0!important;padding-bottom:0!important;
+line-height:22px!important;transform:translateY(-2px)!important;
+}
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals{
+justify-self:start!important;transform:translateX(-4px)!important;gap:9px!important;
+}
+}
