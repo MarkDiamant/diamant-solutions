@@ -838,3 +838,47 @@ resize:vertical!important;
 
 /* Close uses precisely the same neutral surface and text as Quick Edit toolbar actions. */
 .bms-dashboard .bms-quick-bottom-actions .bms-close-bottom{background:#e2e8f0!important;border:1px solid #cbd5e1!important;color:#334155!important;box-shadow:none!important;opacity:1!important}
+
+/* Shared four-row editor: identical left origin, column tracks and compact vertical rhythm. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{row-gap:4px!important}
+.bms-dashboard .bms-inline-job-editor+section[aria-label="Quick edit sections"]{margin:0!important;padding-top:0!important;padding-bottom:0!important}
+.bms-dashboard .bms-quick-masonry{row-gap:4px!important;gap:4px!important}
+.bms-dashboard .bms-quick-contact-work{
+padding-left:75px!important;
+padding-right:0!important;
+grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,1.04fr) minmax(0,.52fr) minmax(0,.52fr) minmax(0,1.8fr)!important;
+column-gap:6px!important;row-gap:4px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){
+padding-left:75px!important;padding-right:0!important;margin-top:0!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+display:grid!important;width:100%!important;max-width:100%!important;flex:1 1 auto!important;
+grid-template-columns:minmax(0,1fr) minmax(0,.91fr) minmax(0,1.04fr) max-content minmax(0,1.8fr)!important;
+column-gap:6px!important;row-gap:4px!important;
+align-items:center!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field{
+height:40px!important;min-height:40px!important;max-height:40px!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea){max-height:none!important}
+}
+/* Toolbar controls have one consistent neutral shade and identical dimensions. */
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a,
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a.bms-open-full-job,
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a[href*="split"],
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>button.bms-close-bottom{
+background-color:#e2e8f0!important;
+color:#334155!important;
+border:1px solid #cbd5e1!important;
+border-radius:9px!important;
+height:32px!important;min-height:32px!important;max-height:32px!important;
+padding:0 9px!important;
+font-size:12px!important;line-height:30px!important;
+font-weight:700!important;
+box-sizing:border-box!important;
+display:inline-flex!important;align-items:center!important;justify-content:center!important;
+box-shadow:none!important;opacity:1!important;
+}
