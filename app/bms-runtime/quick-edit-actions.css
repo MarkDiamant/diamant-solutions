@@ -965,3 +965,34 @@ grid-template-columns:repeat(6,minmax(0,1fr))!important;
 column-gap:6px!important;
 }
 }
+
+/* Phone and email occupy column four, immediately before Manager/Job title. */
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions{
+grid-column:4!important;grid-row:1!important;
+grid-template-columns:minmax(0,1fr)!important;
+grid-template-rows:repeat(2,minmax(0,1fr))!important;
+}
+}
+/* Centre the currency symbol and its amount on one text baseline. */
+.bms-dashboard .bms-quick-money .bms-money-control{
+display:flex!important;align-items:center!important;height:25px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span{
+position:absolute!important;top:50%!important;transform:translateY(-50%)!important;
+height:auto!important;line-height:20px!important;left:6px!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input{
+height:25px!important;min-height:25px!important;line-height:25px!important;
+padding:0 4px 0 17px!important;vertical-align:middle!important;
+}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
+display:flex!important;align-items:center!important;height:25px!important;
+}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
+top:50%!important;transform:translateY(-50%)!important;line-height:20px!important;height:auto!important;
+}
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+height:25px!important;min-height:25px!important;line-height:25px!important;
+padding-top:0!important;padding-bottom:0!important;padding-left:17px!important;
+}
