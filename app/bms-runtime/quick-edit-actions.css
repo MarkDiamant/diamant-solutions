@@ -803,3 +803,35 @@ padding-left:17px!important;
 padding-top:0!important;padding-bottom:0!important;
 height:24px!important;line-height:24px!important;
 }
+
+/* Final desktop grid follows the same two-row header start and field proportions. */
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-contact-work{
+padding-left:69px!important;
+grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.15fr) minmax(0,.57fr) minmax(0,.57fr) minmax(0,1.68fr)!important;
+align-items:start!important;
+gap:6px!important;
+}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){padding-left:69px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form{
+grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1.15fr) max-content max-content!important;
+gap:6px!important;
+}
+}
+/* All four rows use the same compact control height and label typography. */
+.bms-dashboard .bms-quick-contact-work>.bms-field,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field{
+min-height:40px!important;height:40px!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field>div,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) form>.bms-field>div{
+min-height:0!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea){
+height:auto!important;min-height:40px!important;
+}
+.bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea) textarea{
+resize:vertical!important;
+}
+/* Distinct, neutral pre-quote dot rather than amber or declined red. */
+.bms-dashboard .bms-dot-slate{background:#64748b!important}
