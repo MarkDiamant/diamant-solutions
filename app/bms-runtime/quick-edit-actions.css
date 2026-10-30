@@ -315,3 +315,24 @@
 
 /* All dashboard job rows retain the same desktop typography and minimum height, regardless of status. */
 @media(min-width:1024px){.bms-dashboard button.grid[aria-label^="Open job"]{min-height:72px!important}.bms-dashboard .bms-quick-masonry{column-gap:12px!important}.bms-dashboard .bms-quick-section textarea{height:56px!important;min-height:56px!important}.bms-dashboard .bms-quick-section .grid.gap-3{gap:6px!important}.bms-dashboard .bms-quick-section p.text-xs{font-size:10px!important}}
+
+/* Dashboard compact layout and dropdown overlay, October 2026. */
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor){overflow:visible!important;position:relative;z-index:5}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor):focus-within{z-index:30}
+.bms-dashboard .bms-quick-masonry{display:grid!important;columns:auto!important;overflow:visible!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section{min-width:0;overflow:visible!important;break-inside:auto!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has([aria-label="Sort work types"]){position:relative;z-index:40}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has([aria-label="Remove finish"]){position:relative;z-index:39}
+.bms-dashboard .bms-quick-masonry .relative:has(>button)>.absolute{z-index:80!important}
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:6px!important}
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a,.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>button{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:32px!important;height:32px!important;padding:5px 9px!important;border-radius:9px!important;font-size:12px!important;font-weight:700!important;line-height:1!important}
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>div{min-height:32px!important;padding:3px 5px!important}
+.bms-dashboard .bms-inline-price-actions .bms-save-row{white-space:nowrap!important;min-width:100px!important}
+.bms-dashboard .bms-inline-price-actions input{min-width:0!important}
+.bms-dashboard .bms-quick-section .bms-payment-totals{border-top:1px solid #e2e8f0;padding-top:9px}
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-masonry{grid-template-columns:repeat(2,minmax(0,1fr))!important;column-gap:12px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:nth-child(5),.bms-dashboard .bms-quick-masonry>.bms-quick-section:nth-child(6){display:none!important}
+.bms-dashboard .bms-inline-job-editor{grid-template-columns:58px minmax(150px,1.2fr) minmax(145px,1fr) minmax(260px,1.7fr) minmax(160px,1fr) minmax(155px,1fr)!important}
+}
+@media(max-width:767px){.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>div{padding:2px 3px!important}.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>div a{font-size:10px!important}}
