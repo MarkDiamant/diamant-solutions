@@ -435,3 +435,12 @@
 .bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea) textarea{resize:none!important;overflow:hidden!important}
 .bms-dashboard .bms-quick-contact-work>.bms-field:has(textarea){overflow:hidden!important}
 .bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>a[href*="split=1"]{display:inline-flex!important;align-items:center!important;justify-content:center!important;height:32px!important;min-height:32px!important;max-height:32px!important;padding:0 9px!important;font-size:12px!important;font-weight:700!important;line-height:1!important;border-radius:9px!important}
+
+@media(min-width:1024px){
+.bms-dashboard .bms-inline-job-editor{grid-template-columns:65px minmax(0,1fr) minmax(0,.9fr) minmax(0,2fr) minmax(0,.9fr) 180px!important;gap:6px!important}
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions{grid-column:6!important;grid-row:1!important;grid-template-columns:minmax(0,.65fr) minmax(0,1.35fr)!important;grid-template-rows:43px 43px!important;gap:4px!important}
+.bms-dashboard .bms-inline-job-editor>.bms-inline-price-actions>.bms-close-row{grid-column:auto!important}
+.bms-dashboard .bms-quick-contact-work{padding-left:73px!important;gap:6px!important}
+.bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment){padding-left:73px!important;gap:8px!important}
+.bms-dashboard .bms-quick-bottom-actions{margin-top:0!important;padding-top:0!important}
+}
