@@ -1034,3 +1034,30 @@ box-sizing:border-box!important;
 padding-left:58px!important;
 }
 }
+
+/* Explicit currency glyph and number flow. Prevent absolute-position rules hiding £. */
+.bms-dashboard .bms-quick-money .bms-money-control,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative{
+display:flex!important;flex-direction:row!important;align-items:center!important;
+height:25px!important;min-height:25px!important;overflow:visible!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>span,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) label:has(input[name="amount"]) .relative>span{
+position:static!important;display:inline-block!important;visibility:visible!important;opacity:1!important;
+flex:0 0 auto!important;transform:none!important;top:auto!important;left:auto!important;
+width:auto!important;height:18px!important;line-height:18px!important;
+margin:0 2px 0 7px!important;padding:0!important;color:#64748b!important;
+font-size:12px!important;z-index:2!important;
+}
+.bms-dashboard .bms-quick-money .bms-money-control>input,
+.bms-dashboard .bms-quick-section:has(.bms-add-payment) input[name="amount"]{
+position:static!important;transform:none!important;flex:1 1 auto!important;min-width:0!important;
+height:25px!important;min-height:25px!important;max-height:25px!important;
+margin:0!important;padding:0 3px 0 0!important;line-height:25px!important;
+font-size:12px!important;border:0!important;background:transparent!important;
+}
+@media(min-width:1024px){
+.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>:first-child{
+margin-left:44px!important;
+}
+}
