@@ -336,3 +336,27 @@
 .bms-dashboard .bms-inline-job-editor{grid-template-columns:58px minmax(150px,1.2fr) minmax(145px,1fr) minmax(260px,1.7fr) minmax(160px,1fr) minmax(155px,1fr)!important}
 }
 @media(max-width:767px){.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>div{padding:2px 3px!important}.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>div a{font-size:10px!important}}
+
+/* Single-surface Quick Edit: top labels and compact continuation fields. */
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor){background:#fff!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>div.border-t{background:#fff!important;border-top:1px solid #e2e8f0!important;padding:8px 12px!important}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor) section[aria-label="Quick edit sections"]{background:#fff!important;border:0!important;border-radius:0!important;box-shadow:none!important;margin-top:4px!important;padding:0!important}
+.bms-dashboard .bms-top-labeled{display:flex!important;flex-direction:column!important;min-width:0!important;gap:1px!important;border:1px solid #dce2e9!important;border-radius:8px!important;background:#fff!important;padding:2px 6px!important;overflow:hidden!important}
+.bms-dashboard .bms-top-labeled>span:first-child{display:block!important;font-size:9px!important;line-height:11px!important;letter-spacing:.01em!important;font-weight:650!important;color:#64748b!important;white-space:nowrap!important}
+.bms-dashboard .bms-top-labeled>.bms-inline-field{border:0!important;box-shadow:none!important;outline-offset:0!important;padding:0 2px!important;height:22px!important;min-height:22px!important;font-size:12px!important;width:100%!important;background-color:#fff!important;border-radius:0!important}
+.bms-dashboard .bms-top-labeled>select.bms-inline-field{padding-right:17px!important}
+.bms-dashboard .bms-inline-price-actions .bms-top-labeled>.bms-inline-field{padding-left:17px!important}
+.bms-dashboard .bms-inline-price-actions .bms-top-labeled>span[aria-hidden="true"]{bottom:7px!important;left:7px!important}
+.bms-dashboard .bms-inline-price-actions{grid-template-columns:minmax(0,1fr) minmax(94px,1.1fr)!important}
+.bms-dashboard .bms-quick-section{font-size:12px!important}
+.bms-dashboard .bms-quick-section>summary{font-size:12px!important}
+.bms-dashboard .bms-quick-section label>span:first-child{font-size:10px!important;letter-spacing:.01em!important;margin-bottom:3px!important}
+.bms-dashboard .bms-quick-section input,.bms-dashboard .bms-quick-section select,.bms-dashboard .bms-quick-section textarea,.bms-dashboard .bms-quick-section button{font-size:12px!important}
+.bms-dashboard .bms-quick-section input,.bms-dashboard .bms-quick-section select{height:33px!important}
+.bms-dashboard .bms-quick-section .grid.gap-3{gap:7px!important}
+.bms-dashboard .bms-quick-section .text-xs{font-size:10px!important}
+.bms-dashboard .bms-quick-section .bms-payment-totals{display:flex!important;gap:20px!important}
+.bms-dashboard .bms-inline-job-editor select.bms-inline-field,.bms-dashboard .bms-quick-section select{appearance:none!important;-webkit-appearance:none!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;background-position:right 7px center!important;background-repeat:no-repeat!important;padding-right:25px!important}
+.bms-dashboard .bms-quick-section button[aria-expanded]{min-width:0!important}
+.bms-dashboard .bms-quick-section button[aria-expanded]>.truncate{flex:1!important;min-width:0!important}
+@media(min-width:1024px){.bms-dashboard .bms-quick-masonry{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px 14px!important}.bms-dashboard .bms-inline-job-editor{gap:5px!important;padding:8px 10px!important}.bms-dashboard .bms-inline-job-editor>div{gap:4px!important}.bms-dashboard .bms-quick-section{padding:3px 0!important;margin:0!important}}
