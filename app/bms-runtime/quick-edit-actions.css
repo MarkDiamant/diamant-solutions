@@ -587,3 +587,32 @@ padding-left:73px!important;gap:6px!important;margin-top:0!important;
 .bms-dashboard .bms-inline-job-editor+section[aria-label="Quick edit sections"]{margin-top:0!important;padding-top:0!important}
 .bms-dashboard .bms-quick-masonry{gap:4px!important}
 }
+
+/* Consistent three-sided tenant hover outline without square white corners. */
+@media (hover:hover) and (pointer:fine){
+.bms-dashboard .bms-job-row:not(:has(.bms-inline-job-editor)):hover{
+border-top:2px solid var(--bms-accent)!important;
+border-left:2px solid var(--bms-accent)!important;
+border-right:2px solid var(--bms-accent)!important;
+border-bottom:1px solid transparent!important;
+border-radius:16px!important;
+box-shadow:none!important;
+background:transparent!important;
+}
+.bms-dashboard .bms-job-row:not(:has(.bms-inline-job-editor)):hover>button:first-child{
+border-radius:14px!important;
+background:transparent!important;
+}
+}
+.bms-dashboard .bms-job-row:not(:has(.bms-inline-job-editor)){
+border-radius:16px!important;
+overflow:hidden!important;
+}
+.bms-dashboard .bms-job-row:not(:has(.bms-inline-job-editor))>button:first-child{
+border-radius:inherit!important;
+background:transparent!important;
+}
+.bms-dashboard .bms-job-row:not(:has(.bms-inline-job-editor))>button:first-child:hover{
+background:transparent!important;
+}
+.bms-dashboard .bms-job-row:has(.bms-inline-job-editor)>button:first-child{border-radius:14px 14px 0 0!important}
