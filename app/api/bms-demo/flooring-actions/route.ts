@@ -179,6 +179,7 @@ export async function POST(req:Request){
    if(!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(to))return response("Valid test recipient required",400);
    const allowlist=String(process.env.BMS_DEMO_EMAIL_ALLOWLIST||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
    if(!allowlist.includes(to))return response("Recipient is not an authorised fictional-tenant test address",403);
+   if(action==="draft_financial_email")return NextResponse.json({ok:true,prepared:true,fictional:true,to,subject:"Fictional Flooring "+(kind==="quote"?"quotation":"invoice"),body:"Fictional BMS acceptance test only. Please find the demonstration document attached."},{headers:{"Cache-Control":"private, no-store"}});
    const send=action==="send_financial_email",mode=send?"send":"draft";
    const reserved=await centralRest("business_software_financial_email_attempts",{method:"POST",headers:{Prefer:"return=representation"},body:JSON.stringify({tenant_id:tenant,request_key:keyValue,job_id:job,document_id:documentId,kind,recipient:to,mode,status:"reserved"})});
    if(!reserved.ok){if(reserved.status===409)return response("Email request key already used. Check the prior result before retrying.",409);return response("Unable to reserve email request",503)}
