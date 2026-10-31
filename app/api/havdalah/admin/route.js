@@ -52,6 +52,25 @@ export async function GET(req){
   }
   return Response.json({calls:details},{headers:{'Cache-Control':'no-store'}});
  }
+ if(query.get('repeat_summary')==='1'){
+  const {data:rows,error:err}=await a.db.from('havdalah_call_events').select('conference_name,call_sid,participant_label,event_type').eq('event_type','participant-join').like('participant_label','listener-%').order('occurred_at',{ascending:false}).limit(250);
+  if(err)return Response.json({error:err.message},{status:500});
+  const calls=[...new Map((rows||[]).filter(x=>x.call_sid).map(x=>[x.call_sid,x])).values()];
+  const sid=process.env.TWILIO_ACCOUNT_SID,key=process.env.TWILIO_API_KEY_SID,secret=process.env.TWILIO_API_KEY_SECRET;
+  if(!sid||!key||!secret)return Response.json({error:'Twilio lookup unavailable'},{status:503});
+  const auth='Basic '+Buffer.from(key+':'+secret).toString('base64');
+  const found=[];
+  for(let i=0;i<calls.length;i+=12){
+   const batch=await Promise.all(calls.slice(i,i+12).map(async x=>{
+    try{const response=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+encodeURIComponent(sid)+'/Calls/'+encodeURIComponent(x.call_sid)+'.json',{headers:{Authorization:auth},signal:AbortSignal.timeout(4500),cache:'no-store'});
+     if(!response.ok)return {...x,number:null};
+     const j=await response.json();return {...x,number:j.from||null};
+    }catch{return {...x,number:null};}
+   }));found.push(...batch);
+  }
+  const summary={};for(const x of found){if(!summary[x.conference_name])summary[x.conference_name]={counts:{},unknown:0};const v=summary[x.conference_name];if(x.number)v.counts[x.number]=(v.counts[x.number]||0)+1;else v.unknown++;}
+  return Response.json({sessions:Object.fromEntries(Object.entries(summary).map(([name,v])=>[name,{repeatCalls:Object.values(v.counts).reduce((n,count)=>n+Math.max(0,count-1),0),distinctNumbers:Object.keys(v.counts).length,unknown:v.unknown}]))},{headers:{'Cache-Control':'no-store'}});
+ }
  const result={};
  const {error:expiryError}=await a.db.from('havdalah_test_sessions').update({enabled:false}).eq('enabled',true).lt('scheduled_at',new Date(Date.now()-5*60000).toISOString());if(expiryError)console.error('HAVDALAH_TEST_EXPIRY',expiryError.message);
  const {data:tests}=await a.db.from('havdalah_test_sessions').select('id,scheduled_at,enabled').eq('enabled',true).gte('scheduled_at',new Date(Date.now()-5*60000).toISOString()).order('scheduled_at');
