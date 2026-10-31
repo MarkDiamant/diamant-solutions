@@ -5,7 +5,7 @@ import { verifyTenantHandoff } from "../../../../../../lib/business-software/han
 import { tenantFromSlug } from "../../../../../../lib/business-software/tenants";
 
 const GOOGLE_AUTH="https://accounts.google.com/o/oauth2/v2/auth";
-const GOOGLE_SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send","https://www.googleapis.com/auth/gmail.compose"];
+const GOOGLE_SCOPES=["openid","email","https://www.googleapis.com/auth/gmail.send"];
 const XERO_AUTH="https://login.xero.com/identity/connect/authorize";
 const XERO_SCOPES=["openid","profile","email","offline_access","accounting.transactions","accounting.contacts","accounting.settings"];
 

@@ -61,7 +61,7 @@ export async function GET(req:Request){
    const tx=await centralRest("business_software_oauth_transactions",{method:"POST",body:JSON.stringify({tenant_id:tenant,provider:"google",state_hash:crypto.createHash("sha256").update(state).digest("hex"),return_origin:origin+"/bms-demo/flooring/finance",expires_at:new Date(Date.now()+600000).toISOString()})});
    if(!tx.ok)return response("Unable to initiate fictional tenant Gmail connection",503);
    const callback=origin+"/api/business-software/oauth/google/callback",google=new URL("https://accounts.google.com/o/oauth2/v2/auth");
-   for(const [name,value] of Object.entries({client_id:process.env.GOOGLE_CLIENT_ID,redirect_uri:callback,response_type:"code",scope:"openid email profile https://www.googleapis.com/auth/gmail.send https://www.googleapis.com/auth/gmail.compose",access_type:"offline",prompt:"consent",state}))google.searchParams.set(name,value);
+   for(const [name,value] of Object.entries({client_id:process.env.GOOGLE_CLIENT_ID,redirect_uri:callback,response_type:"code",scope:"openid email profile https://www.googleapis.com/auth/gmail.send",access_type:"offline",prompt:"consent",state}))google.searchParams.set(name,value);
    return NextResponse.redirect(google);
   }
   if(params.get("list_jobs")==="true"){
