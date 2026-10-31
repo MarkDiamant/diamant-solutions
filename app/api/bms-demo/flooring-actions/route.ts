@@ -174,7 +174,7 @@ export async function POST(req:Request){
    const table=kind==="quote"?"business_software_quotes":"business_software_invoices";
    const doc=await owned(table,tenant,documentId,kind==="quote"?"id,job_id,version,status,amount,vat_rate,scope_text":"id,job_id,invoice_number,status,total,amount_paid,amount_credited,amount_due,source_quote_id,provider");
    if(doc.job_id!==job||(kind==="invoice"&&doc.provider!=="internal"))return response("Financial document does not belong to selected fictional job",403);
-   if(kind==="quote"&&doc.status!=="approved")return response("Approve the quotation before preparing email",409);
+   if(kind==="quote"&&["rejected","cancelled","void","voided"].includes(String(doc.status||"").toLowerCase()))return response("A rejected or cancelled quotation cannot be emailed",409);
    if(kind==="invoice"&&!["issued","part_paid","paid","settled"].includes(doc.status))return response("Issue the invoice before preparing email",409);
    if(!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(to))return response("Valid test recipient required",400);
    const allowlist=String(process.env.BMS_DEMO_EMAIL_ALLOWLIST||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
