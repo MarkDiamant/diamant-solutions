@@ -21,9 +21,9 @@ test("shared API URL parsing cannot shadow the global URL constructor",()=>{
 });
 test("Gmail send and draft routes expose only supported Next route exports",()=>{
  const send=source("app/api/business-software/tenants/[slug]/gmail/send/route.js");
- const draft=source("app/api/business-software/tenants/[slug]/gmail/draft/route.js");
+
  assert.match(send,/export async function POST/);
- assert.match(draft,/export async function POST/);
+ assert.doesNotMatch(source("lib/business-software/gmail-send.js"),/gmail\/v1\/users\/me\/drafts/);
  assert.doesNotMatch(send,/export async function createGmailMessage/);
  assert.match(source("lib/business-software/gmail-send.js"),/export async function createGmailMessage/);
 });
