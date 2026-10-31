@@ -30,7 +30,8 @@ export async function POST(request){
  const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-5000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
-  const vars={day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),when:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ),remaining:left(assigned.time,now)};
+  const matchedHost=assigned.hosts.find(h=>phone(h.phone)===phone(form.get('From')));const firstName=String(matchedHost?.name||'').trim().split(/\s+/)[0]||'host';
+  const vars={day:occasionForSlot(assigned,settings),date:date(assigned.time,assigned.location?.timezone||TZ),when:date(assigned.time,assigned.location?.timezone||TZ),time:time(assigned.time,assigned.location?.timezone||TZ),remaining:left(assigned.time,now),first_name:firstName,host_first_name:firstName};
   return xml(sayOrPlay(spoken(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars),settings),settings.voice)+(early?'<Hangup/>':`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}&amp;last=${Math.floor((assigned.time.getTime()-now.getTime())/60000)}&amp;initial=${Math.floor((assigned.time.getTime()-now.getTime())/60000)}&amp;started=${Date.now()}</Redirect>`));
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
