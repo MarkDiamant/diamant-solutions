@@ -22,10 +22,15 @@ async function access(req){
 }
 export async function GET(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
- const requestedConference=new URL(req.url).searchParams.get('conference_sid');
- if(requestedConference){
-  if(!/^CF[a-fA-F0-9]{32}$/.test(requestedConference))return Response.json({error:'Invalid conference'},{status:400});
-  const {data:events,error:eventError}=await a.db.from('havdalah_call_events').select('call_sid,participant_label,event_type,occurred_at').eq('conference_sid',requestedConference).order('occurred_at',{ascending:true}).limit(1000);
+ const query=new URL(req.url).searchParams;
+ const requestedConference=query.get('conference_sid');
+ const requestedName=query.get('conference_name');
+ if(requestedConference||requestedName){
+  if(requestedName&&!/^havdalah-[a-zA-Z0-9-]{1,130}$/.test(requestedName))return Response.json({error:'Invalid session name'},{status:400});
+  if(requestedConference&&!/^CF[a-fA-F0-9]{32}$/.test(requestedConference))return Response.json({error:'Invalid conference'},{status:400});
+  let eventQuery=a.db.from('havdalah_call_events').select('call_sid,participant_label,event_type,occurred_at');
+  eventQuery=requestedName?eventQuery.eq('conference_name',requestedName):eventQuery.eq('conference_sid',requestedConference);
+  const {data:events,error:eventError}=await eventQuery.order('occurred_at',{ascending:true}).limit(1000);
   if(eventError)return Response.json({error:eventError.message},{status:500});
   const joined=(events||[]).filter(e=>e.event_type==='participant-join'&&e.call_sid);
   const calls=[...new Map(joined.map(e=>[e.call_sid,e])).values()];
