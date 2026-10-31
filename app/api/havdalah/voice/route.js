@@ -35,7 +35,8 @@ export async function POST(request){
   return xml(sayOrPlay(spoken(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars),settings),settings.voice)+(early?'<Hangup/>':`<Redirect method="POST">/api/havdalah/host/wait?slot=${assigned.slot}&amp;id=${assigned.slotId}&amp;last=${Math.floor((assigned.time.getTime()-now.getTime())/60000)}&amp;initial=${Math.floor((assigned.time.getTime()-now.getTime())/60000)}&amp;started=${Date.now()}</Redirect>`));
  }
  if(host(form.get('From'))) return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
- let next=activeSlots?.find(s=>s.time.getTime()>=now.getTime()-5000);
+ const recent=activeSlots?.filter(s=>s.time.getTime()<=now.getTime()&&s.time.getTime()>=now.getTime()-60*60000).at(-1);
+ let next=recent||activeSlots?.find(s=>s.time.getTime()>now.getTime());
  if(managed===null){console.error('HAVDALAH_MANAGED_UNAVAILABLE_NO_FALLBACK');return xml(sayOrPlay(spoken('The hotline is temporarily unavailable. Please call back shortly.',settings),settings.voice)+'<Hangup/>');}
  console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
  if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+settings.no_more_sessions_text,settings),settings.voice)+'<Hangup/>');
