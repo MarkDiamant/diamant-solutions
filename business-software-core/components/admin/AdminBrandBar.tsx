@@ -80,7 +80,7 @@ export default function AdminBrandBar(){
   const safe=/^#[0-9a-fA-F]{6}$/.test(brand)?brand:"#365b85";
   const rgb=[1,3,5].map(i=>parseInt(safe.slice(i,i+2),16)/255);
   const luminance=rgb.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0);
-  shell.style.setProperty("--bms-on-accent",luminance>.179?"#101828":"#ffffff");
+  shell.style.setProperty("--bms-on-accent","#ffffff");
   shell.style.setProperty("--bms-accent",safe);
   shell.style.setProperty("--nav-accent",safe);
   return()=>{shell.style.removeProperty("--bms-on-accent");shell.style.removeProperty("--bms-accent");shell.style.removeProperty("--nav-accent")};
@@ -99,7 +99,7 @@ export default function AdminBrandBar(){
    <div className="bms-header-actions">
     <Link href={go("/ai")} onClick={navigate} aria-label="Ask Ruby" className="bms-ruby-link bms-header-ruby" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
     {(permissions===null?Boolean(demo):permissions.includes("edit_jobs"))&&<div className="bms-new-job bms-header-new-job">
-     <button type="button" onClick={()=>setJobOpen(v=>!v)} aria-expanded={jobOpen} aria-haspopup="true" className="bms-new-job-button" style={{backgroundColor:brand}}>+ New Job</button>
+     <button type="button" onClick={()=>setJobOpen(v=>!v)} aria-expanded={jobOpen} aria-haspopup="true" className="bms-new-job-button" style={{backgroundColor:brand,color:"#ffffff"}}>+ New Job</button>
      {jobOpen&&<div className="bms-job-popover"><Link href={go("/jobs/new?quick=1")} onClick={navigate}>Quick add job</Link><Link href={go("/jobs/new")} onClick={navigate}>Full new job</Link></div>}
     </div>}
    </div>
