@@ -1349,3 +1349,28 @@ transform:none!important;
   z-index:2!important;
 }
 }
+
+/* Mobile dashboard KPI cards: override the old 2.75rem label and 2rem value
+   minimum heights, which kept the cards tall despite smaller JSX padding. */
+@media(max-width:639px){
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button{
+  min-height:0!important;
+  padding-top:3px!important;
+  padding-bottom:3px!important;
+  gap:1px!important;
+}
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:first-child{
+  min-height:0!important;
+  height:auto!important;
+  line-height:1.12!important;
+  padding:0!important;
+  margin:0!important;
+}
+.bms-shell .bms-dashboard section[aria-label="Job summary filters"] > button > p:nth-child(2){
+  min-height:0!important;
+  height:auto!important;
+  margin:0!important;
+  padding:0!important;
+  line-height:1!important;
+}
+}
