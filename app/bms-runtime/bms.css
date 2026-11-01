@@ -535,3 +535,7 @@
 .bms-shell :is(button,a,input[type="submit"])[class~="bg-slate-900"]{
  color:#fff!important;
 }
+
+/* Tenant-brand primary actions: direct component classes and integration links. */
+.bms-shell .bms-primary-button,.bms-shell .bms-new-job-button,.bms-shell a[href*="/connect"].bg-\[var\(--bms-accent\)\]{background-color:var(--bms-accent)!important;color:#fff!important}
+.bms-shell .bms-primary-button :is(span,svg),.bms-shell .bms-new-job-button :is(span,svg){color:inherit}
