@@ -238,4 +238,4 @@
 .bms-shell .bms-materials :is(.bms-materials-summary,.bms-materials-actions,.bms-materials-line-total){background:var(--bms-accent-soft,#f6f8fb)!important}
 .bms-shell .bms-materials :is(.bms-primary,.bms-materials-history-toggle){background:var(--bms-accent)!important;border-color:var(--bms-accent)!important;color:var(--bms-on-accent,#fff)!important}
 .bms-shell .bms-materials button:not(.bms-primary):not(.bms-confirm):not(.bms-danger):not(.bms-materials-history-toggle){color:var(--bms-text,#172334);border-color:var(--bms-border,#e2e8f0);background:#fff}
-.bms-shell .bms-materials button:not(.bms-primary):not(.bms-confirm):not(.bms-danger):hover{border-color:var(--bms-accent-border);background:var(--bms-accent-soft)}
+.bms-shell .bms-materials button:not(.bms-primary):not(.bms-confirm):not(.bms-danger):not(.bms-materials-history-toggle):hover{border-color:var(--bms-accent-border);background:var(--bms-accent-soft)}
