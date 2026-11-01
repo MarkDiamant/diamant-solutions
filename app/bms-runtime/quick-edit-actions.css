@@ -1260,3 +1260,11 @@ transform:none!important;
   text-indent:0!important;font-size:12px!important;line-height:22px!important;
   color:#182338!important;overflow:visible!important;
 }
+
+/* Compact dated payment evidence, without altering the Quick Edit grid. */
+.bms-shell .bms-dashboard .bms-quick-masonry>.bms-quick-section:has(.bms-add-payment)>form>.bms-payment-totals.bms-payment-breakdown{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;min-width:0!important;width:100%!important;max-width:100%!important;gap:6px!important;overflow:hidden!important;white-space:nowrap!important;margin:0!important;padding:0!important;transform:none!important}
+.bms-shell .bms-dashboard .bms-payment-breakdown>div{flex:0 1 auto!important;min-width:0!important;white-space:nowrap!important}
+.bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-entry{display:flex!important;flex-direction:column!important;gap:0!important;min-width:0!important}
+.bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-entry span{font-size:9px!important;line-height:11px!important;color:#64748b!important}
+.bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-entry b{font-size:11px!important;line-height:14px!important}
+.bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-outstanding{margin-left:auto!important}
