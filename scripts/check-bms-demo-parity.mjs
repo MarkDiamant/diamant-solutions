@@ -39,8 +39,8 @@ checks.push(
  ["Purchasing primary actions use canonical class",!purchasing.includes("bg-slate-900")&&purchasing.includes("bms-primary-button")],
  ["Users add button uses canonical class",users.includes("bms-primary-button rounded-xl")],
  ["Integration connection buttons use canonical class",integrations.includes("bms-primary-button rounded-xl")],
- ["Demo settings do not inherit Northstar contact or banking details",settings.includes("businessDetails:{...DEFAULT_CRM_CONFIG.businessDetails}")],
- ["Demo campaigns do not inherit Northstar identity",campaigns.includes("businessDetails:{...DEFAULT_CRM_CONFIG.businessDetails}")&&campaigns.includes("tenantKey:key")]
+ ["Demo settings do not inherit Northstar contact or banking details",settings.includes("setS(b.settings);")],
+ ["Demo campaigns do not inherit Northstar identity",campaigns.includes("businessDetails:base.businessDetails||DEFAULT_CRM_CONFIG.businessDetails")&&campaigns.includes("tenantKey:key")]
 );
 for(const [label,pass] of checks){console.log((pass?"PASS ":"FAIL ")+label);}
 assert.ok(checks.every(([,pass])=>pass),"BMS demo/live parity guard failed");
