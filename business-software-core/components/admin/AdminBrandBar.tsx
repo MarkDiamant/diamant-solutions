@@ -48,6 +48,7 @@ const iconPaths:Record<string,string[]>={
 function NavIcon({name}:{name:string}){return <svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">{(iconPaths[name]||iconPaths.overview).map((d,i)=><path key={i} d={d}/>)}</svg>}
 
 const demoKeys=["northstar","electrical","insurance","studio","consultancy","distribution","flooring"];
+const demoAccent:Record<string,string>={northstar:"#17385f",electrical:"#d27832",insurance:"#377d68",studio:"#7656a6",consultancy:"#536f91",distribution:"#6c7f45",flooring:"#9a6744"};
 const storeKey="bms-sidebar-collapsed";
 const sectionsKey="bms-sidebar-sections";
 const NAV_EVENT="bms-nav-start";
@@ -71,7 +72,7 @@ export default function AdminBrandBar(){
  const toggleSection=(name:string)=>setOpenSections(old=>{const next={...old,[name]:!(old[name]??true)};try{localStorage.setItem(sectionsKey,JSON.stringify(next))}catch{}return next});
  const toggleCompact=()=>setCompact(old=>{try{localStorage.setItem(storeKey,old?"0":"1")}catch{}return !old});
  async function logout(){await fetch("/api/admin/auth/logout",{method:"POST"});router.replace("/login");router.refresh()}
- const brand=config?.accentColour||"#365b85";
+ const brand=demo?demoAccent[demo]:(config?.accentColour||"#365b85");
  useEffect(()=>{
   const shell=document.querySelector<HTMLElement>(".bms-shell");
   if(!shell)return;
