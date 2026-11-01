@@ -1204,3 +1204,33 @@ transform:none!important;
   color:#182338!important;opacity:1!important;visibility:visible!important;
   font-size:12px!important;line-height:24px!important;overflow:visible!important;
 }
+
+/* Quick Edit currency: restore a single input box with an overlaid £ glyph.
+   This affects only the three .bms-currency-fixed controls; never their parent
+   field widths, positions, heights or the surrounding dashboard grid. */
+.bms-shell .bms-dashboard :is(#bms-currency-position-fix,.bms-currency-fixed){
+  position:relative!important;display:block!important;grid-template-columns:none!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  height:26px!important;min-height:26px!important;max-height:26px!important;
+  margin:0!important;padding:0!important;overflow:visible!important;
+  box-sizing:border-box!important;
+}
+.bms-shell .bms-dashboard :is(#bms-currency-position-fix,.bms-currency-fixed)>span{
+  position:absolute!important;left:5px!important;top:50%!important;
+  right:auto!important;bottom:auto!important;inset-block-start:50%!important;
+  transform:translateY(-50%)!important;display:block!important;
+  width:auto!important;min-width:0!important;max-width:none!important;
+  height:auto!important;min-height:0!important;line-height:14px!important;
+  margin:0!important;padding:0!important;z-index:2!important;
+  color:#64748b!important;white-space:nowrap!important;pointer-events:none!important;
+}
+.bms-shell .bms-dashboard :is(#bms-currency-position-fix,.bms-currency-fixed)>input{
+  position:relative!important;left:auto!important;top:auto!important;
+  display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;
+  height:26px!important;min-height:26px!important;max-height:26px!important;
+  margin:0!important;padding:0 3px 0 18px!important;
+  transform:none!important;box-sizing:border-box!important;
+  text-align:left!important;direction:ltr!important;text-indent:0!important;
+  color:#182338!important;opacity:1!important;visibility:visible!important;
+  font-size:12px!important;line-height:26px!important;
+}
