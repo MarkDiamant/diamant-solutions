@@ -1,4 +1,4 @@
-import {syncXeroJobInvoices} from "@/app/api/business-software/xero/reconcile/route";
+import {syncXeroJobInvoices} from "@/lib/business-software/xero-job-sync";
 import {invoiceEmailBody} from "@/business-software-core/lib/invoice-email";
 import {NextResponse} from "next/server";
 import crypto from "crypto";
