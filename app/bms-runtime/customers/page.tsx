@@ -1,2 +1,3 @@
-import BusinessDirectory from "@/components/admin/BusinessDirectory";
-export default function Page(){return <BusinessDirectory view="customers"/>;}
+import CustomerAccounts from "@/components/admin/CustomerAccounts";
+export const dynamic="force-dynamic";
+export default function Page(){return <CustomerAccounts/>;}
