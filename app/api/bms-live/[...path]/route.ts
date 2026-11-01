@@ -86,7 +86,7 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
    if(!contactId)throw new Error("Xero did not return a customer contact ID.");
   }
   if(contactId!==customer.xero_contact_id)await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+customer.id,{method:"PATCH",body:JSON.stringify({xero_contact_id:contactId})});
-  if(customer.billing_address_line_1){await xeroRequest(tenantId,"Contacts","POST",{Contacts:[{ContactID:contactId,Addresses:[{AddressType:"POBOX",AddressLine1:customer.billing_address_line_1,AddressLine2:customer.billing_address_line_2||"",City:customer.billing_city||"",PostalCode:customer.billing_postcode||""}]}]});}
+  if(customer.billing_address_line_1||customer.address_line_1){await xeroRequest(tenantId,"Contacts","POST",{Contacts:[{ContactID:contactId,Addresses:[{AddressType:"POBOX",AddressLine1:customer.billing_address_line_1||customer.address_line_1,AddressLine2:customer.billing_address_line_2||"",City:customer.billing_city||"",PostalCode:customer.billing_postcode||""}]}]});}
   const accounts=await xeroRequest(tenantId,"Accounts?where="+encodeURIComponent('Type=="REVENUE"'));
   const active=(accounts.Accounts||[]).filter((a:any)=>a.Status==="ACTIVE"&&a.Code);
   const account=active.find((a:any)=>a.Code==="200")||active[0];
