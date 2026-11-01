@@ -58,7 +58,7 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
  const existing=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&provider=eq.xero&select=external_invoice_id,invoice_number,status&limit=1");
  const prev=(await existing.json().catch(()=>[]))[0];
  if(prev?.external_invoice_id)return {already_exists:true,invoice:prev};
- const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=id,first_name,last_name,email,address_line_1,billing_address_line_1,billing_address_line_2,billing_city,billing_postcode,xero_contact_id&limit=1");
+ const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+job.customer_id+"&select=id,first_name,last_name,email,address_line_1,address_line_2,city,postcode,billing_address_line_1,billing_address_line_2,billing_city,billing_postcode,xero_contact_id&limit=1");
  const customer=(await cr.json().catch(()=>[]))[0];
  if(!customer)throw new Error("Customer not found.");
  const qr=await centralRest("business_software_quotes?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&select=scope_text,amount,vat_rate,status,created_at&order=created_at.desc&limit=1");
@@ -86,7 +86,7 @@ async function createXeroDraftInvoice(tenantId:string,reference:string,actor:str
    if(!contactId)throw new Error("Xero did not return a customer contact ID.");
   }
   if(contactId!==customer.xero_contact_id)await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+customer.id,{method:"PATCH",body:JSON.stringify({xero_contact_id:contactId})});
-  if(customer.billing_address_line_1||customer.address_line_1){await xeroRequest(tenantId,"Contacts","POST",{Contacts:[{ContactID:contactId,Addresses:[{AddressType:"POBOX",AddressLine1:customer.billing_address_line_1||customer.address_line_1,AddressLine2:customer.billing_address_line_2||"",City:customer.billing_city||"",PostalCode:customer.billing_postcode||""}]}]});}
+  if(customer.billing_address_line_1||customer.address_line_1){await xeroRequest(tenantId,"Contacts","POST",{Contacts:[{ContactID:contactId,Addresses:[{AddressType:"POBOX",AddressLine1:customer.billing_address_line_1||customer.address_line_1,AddressLine2:customer.billing_address_line_1?customer.billing_address_line_2||"":customer.address_line_2||"",City:customer.billing_address_line_1?customer.billing_city||"":customer.city||"",PostalCode:customer.billing_address_line_1?customer.billing_postcode||"":customer.postcode||""}]}]});}
   const accounts=await xeroRequest(tenantId,"Accounts?where="+encodeURIComponent('Type=="REVENUE"'));
   const active=(accounts.Accounts||[]).filter((a:any)=>a.Status==="ACTIVE"&&a.Code);
   const account=active.find((a:any)=>a.Code==="200")||active[0];
