@@ -544,3 +544,15 @@
 .bms-shell :is(.bms-primary-button,.bms-new-job-button,button.bg-\[var\(--bms-accent\)\],a.bg-\[var\(--bms-accent\)\]){background-color:var(--bms-accent)!important;color:#fff!important}
 .bms-shell :is(.bms-primary-button,.bms-new-job-button) :is(span,svg){color:inherit!important}
 .bms-shell :is(button,a)[class~="bg-[#17385f]"],.bms-shell :is(button,a)[class~="bg-[#e66a24]"]{background-color:var(--bms-accent)!important;color:#fff!important}
+
+/* Job detail redesign: override legacy site-wide header styles only inside this module. */
+.bms-shell .bms-job-detail{background:#f5f6f8!important;min-width:0}
+.bms-shell .bms-job-detail .bms-job-detail-content{max-width:none!important;margin-left:0!important;margin-right:0!important}
+.bms-shell .bms-job-detail .bms-job-titlebar{background:transparent!important;border:0!important;box-shadow:none!important;padding-left:0!important;padding-right:0!important;text-align:left!important;justify-content:space-between!important}
+.bms-shell .bms-job-detail .bms-job-titlebar h1{text-align:left!important;margin-left:0!important;max-width:none!important;letter-spacing:-.025em}
+.bms-shell .bms-job-detail .bms-job-form{align-items:start}
+.bms-shell .bms-job-detail .bms-job-form :is(input:not([type="checkbox"]),select,textarea){min-width:0;width:100%;max-width:100%}
+.bms-shell .bms-job-detail .bms-job-form :is(input:not([type="checkbox"]),select){min-height:40px;height:40px}
+.bms-shell .bms-job-detail .bms-job-form textarea{min-height:90px}
+.bms-shell .bms-job-detail .bms-job-form details>summary{padding:2px 0 12px}
+@media(min-width:1280px){.bms-shell .bms-job-detail .bms-job-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:22px;row-gap:26px}}
