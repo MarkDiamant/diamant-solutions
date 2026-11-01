@@ -1304,3 +1304,14 @@ transform:none!important;
   grid-column:1 / -1!important;grid-row:auto!important;flex-wrap:wrap!important;
  }
 }
+
+/* Keep the payment summary immediately beside Add payment.
+   Preserve all form column widths and the existing money controls. */
+.bms-shell .bms-dashboard .bms-quick-masonry > .bms-quick-section:has(.bms-add-payment) > form > .bms-payment-totals.bms-payment-breakdown{
+  justify-self:start!important;justify-content:flex-start!important;
+  margin-left:0!important;margin-right:0!important;
+  gap:12px!important;max-width:100%!important;
+}
+.bms-shell .bms-dashboard .bms-payment-breakdown > .bms-payment-outstanding{
+  margin-left:0!important;margin-right:0!important;
+}
