@@ -67,7 +67,8 @@ export default function CrmDashboardV3() {
   const [editingRef,setEditingRef]=useState<string|null>(null), [draft,setDraft]=useState<QuickDraft|null>(null), [savingRef,setSavingRef]=useState<string|null>(null), [customType,setCustomType]=useState("");
   const [editUpdatedAt,setEditUpdatedAt]=useState<string|null>(null), [remoteChanged,setRemoteChanged]=useState(false), [remoteChangedBy,setRemoteChangedBy]=useState<string|null>(null);
   const [assigningRef,setAssigningRef]=useState<string|null>(null), [removingAssignment,setRemovingAssignment]=useState<string|null>(null);
-  const [xeroPaymentEvidence,setXeroPaymentEvidence]=useState<{reference:string;payments:{id:string;amount:number;date:string}[];complete:boolean}|null>(null);\n  const [quickFull,setQuickFull]=useState<any>(null), [quoteOpen,setQuoteOpen]=useState(false), [quoteBusy,setQuoteBusy]=useState(false), [invoiceBusy,setInvoiceBusy]=useState(false), [fileBusy,setFileBusy]=useState(false);
+  const [xeroPaymentEvidence,setXeroPaymentEvidence]=useState<{reference:string;payments:{id:string;amount:number;date:string}[];complete:boolean}|null>(null);
+  const [quickFull,setQuickFull]=useState<any>(null), [quoteOpen,setQuoteOpen]=useState(false), [quoteBusy,setQuoteBusy]=useState(false), [invoiceBusy,setInvoiceBusy]=useState(false), [fileBusy,setFileBusy]=useState(false);
   const [quoteScope,setQuoteScope]=useState(""), [quoteExclusions,setQuoteExclusions]=useState("");
 
   const load = useCallback(async()=>{
