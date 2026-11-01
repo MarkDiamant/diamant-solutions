@@ -25,9 +25,10 @@ test('searchable multiselect retains selections while filtering and supports job
  assert.match(job,/checked=\{selected\.includes\(x\)\}/);
  assert.match(job,/Manage tenant-wide work types in Settings/);
 });
-test('quick edit remains open when save fails and advanced Job Options are grouped',()=>{
- assert.match(job,/if\(ok\)setQuickOpen\(false\)/);
- assert.match(job,/Job Options: site, scheduling and remedial work/);
+test('job overview opens site planning by default and keeps editing in one form',()=>{
+ assert.match(job,/<details open className=/);
+ assert.match(job,/Site, scheduling & remedial work/);
+ assert.doesNotMatch(job,/\{quickEditor\}<form/);
 });
 test('trusted service role can read and revise tenant-verified job items',()=>{
  assert.match(grant,/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public\.business_software_job_items TO service_role/);
@@ -55,7 +56,7 @@ test("work type multiselect rejects accidental zero selections rather than resto
 
 test("failed full job load preserves core job and exposes retry rather than infinite skeleton",()=>{assert.match(job,/const \[fullError,setFullError\]=useState\(""/);assert.match(job,/setFullError\(body\.error\|\|"Could not load complete job details"\)/);assert.match(job,/Retry full job details/);assert.match(job,/!data\._full&&!fullError&&<section/);});
 
-test("mobile save dock has bottom clearance and work type selections do not overflow",()=>{assert.match(job,/pb-28 pt-5 sm:px-5 sm:pb-32/);assert.match(job,/fixed bottom-3 left-3 right-3/);assert.match(job,/min-w-0 truncate/);});
+test("mobile save dock has bottom clearance and work type selections do not overflow",()=>{assert.match(job,/pb-28 pt-5 sm:px-6 sm:pb-32/);assert.match(job,/fixed bottom-3 left-3 right-3/);assert.match(job,/min-w-0 truncate/);});
 
 test("activity form prevents duplicate saves and indicates pending state",()=>{assert.match(job,/if\(submitting\)return/);assert.match(job,/finally\{setSubmitting\(false\);\}/);assert.match(job,/disabled=\{submitting\}>\{submitting\?"Saving activity\.\.\.":"Log activity"\}/);});
 
