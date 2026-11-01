@@ -1268,3 +1268,26 @@ transform:none!important;
 .bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-entry span{font-size:9px!important;line-height:11px!important;color:#64748b!important}
 .bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-entry b{font-size:11px!important;line-height:14px!important}
 .bms-shell .bms-dashboard .bms-payment-breakdown .bms-payment-outstanding{margin-left:auto!important}
+
+/* Keep payment summary directly beside Add payment without changing input columns. */
+.bms-shell .bms-dashboard form:has(> .bms-add-payment) > .bms-payment-totals.bms-payment-breakdown{
+  grid-column:1 / -1!important;display:flex!important;flex-wrap:wrap!important;
+  align-items:center!important;justify-content:flex-start!important;gap:4px 12px!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;
+  overflow:visible!important;margin:-4px 0 0!important;padding:0!important;
+}
+.bms-shell .bms-dashboard .bms-payment-breakdown > .bms-payment-outstanding{
+  margin-left:0!important;
+}
+.bms-shell .bms-dashboard .bms-payment-breakdown > div > span{
+  display:block!important;font-size:10px!important;line-height:13px!important;
+  color:#64748b!important;
+}
+.bms-shell .bms-dashboard .bms-payment-breakdown > div > b{
+  display:block!important;font-size:12px!important;line-height:15px!important;
+}
+.bms-shell .bms-dashboard .bms-quick-actions > a.bms-split-order-button{
+  height:36px!important;min-height:36px!important;max-height:36px!important;
+  box-sizing:border-box!important;flex:0 0 auto!important;
+  align-self:center!important;line-height:1!important;
+}
