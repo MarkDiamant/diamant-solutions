@@ -26,8 +26,8 @@ test('searchable multiselect retains selections while filtering and supports job
  assert.match(job,/Manage tenant-wide work types in Settings/);
 });
 test('job overview opens site planning by default and keeps editing in one form',()=>{
- assert.match(job,/<details open className=/);
- assert.match(job,/Site, scheduling & remedial work/);
+ assert.match(job,/<h2 className="text-base font-black">Site, scheduling & remedial work<\/h2>/);
+ assert.match(job,/Finish: \{\(j.finishes\|\|\[\]\)/);
  assert.doesNotMatch(job,/\{quickEditor\}<form/);
 });
 test('trusted service role can read and revise tenant-verified job items',()=>{
