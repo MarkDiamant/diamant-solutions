@@ -510,3 +510,28 @@
  background-color:color-mix(in srgb,var(--bms-accent,#365b85) 12%,white)!important;
  border-color:var(--bms-accent,#365b85)!important;
 }
+
+/* Primary-action colour contract: all tenant/demo primary buttons use the active theme,
+   including legacy utilities and inline navy/orange styles. Semantic destructive,
+   disabled, secondary and status actions remain distinct. */
+.bms-shell :is(button,a,input[type="submit"]):is(
+ [class~="bg-slate-800"],[class~="bg-slate-700"],[class~="bg-slate-950"],
+ [class~="bg-blue-500"],[class~="bg-blue-800"],[class~="bg-blue-900"],
+ [class~="bg-indigo-500"],[class~="bg-indigo-800"],[class~="bg-indigo-900"],
+ [class~="bg-orange-500"],[class~="bg-orange-600"],[class~="bg-orange-700"],
+ [class~="bg-amber-600"],[class~="bg-[#365b85]"],[class~="bg-[#e66a24]"]
+):not([disabled]):not([aria-disabled="true"]):not([data-bms-keep-colour]){
+ background-color:var(--bms-accent,#365b85)!important;
+ color:#fff!important;
+}
+.bms-shell :is(button,a,input[type="submit"])[style*="background-color"]:is(.text-white,.font-black,.font-bold,.font-semibold):not([data-bms-keep-colour]):not([disabled]){
+ color:#fff!important;
+}
+.bms-shell :is(button,a,input[type="submit"])[style*="backgroundColor"]:not([data-bms-keep-colour]):not([disabled]){
+ color:#fff!important;
+}
+.bms-shell :is(button,a,input[type="submit"])[class~="bg-blue-600"],
+.bms-shell :is(button,a,input[type="submit"])[class~="bg-blue-700"],
+.bms-shell :is(button,a,input[type="submit"])[class~="bg-slate-900"]{
+ color:#fff!important;
+}
