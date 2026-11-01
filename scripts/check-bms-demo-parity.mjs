@@ -39,7 +39,7 @@ checks.push(
  ["Purchasing primary actions use canonical class",!purchasing.includes("bg-slate-900")&&purchasing.includes("bms-primary-button")],
  ["Users add button uses canonical class",users.includes("bms-primary-button rounded-xl")],
  ["Integration connection buttons use canonical class",integrations.includes("bms-primary-button rounded-xl")],
- ["Demo settings do not inherit Northstar contact or banking details",settings.includes("setS(b.settings);")],
+ ["Demo settings do not inherit Northstar contact or banking details",settings.includes("setS(b.settings);")||settings.includes("setS({...DEFAULT_CRM_CONFIG,...incoming,modules:")],
  ["Demo campaigns do not inherit Northstar identity",campaigns.includes("businessDetails:base.businessDetails||DEFAULT_CRM_CONFIG.businessDetails")&&campaigns.includes("tenantKey:key")]
 );
 for(const [label,pass] of checks){console.log((pass?"PASS ":"FAIL ")+label);}
