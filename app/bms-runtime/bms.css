@@ -539,3 +539,8 @@
 /* Tenant-brand primary actions: direct component classes and integration links. */
 .bms-shell .bms-primary-button,.bms-shell .bms-new-job-button,.bms-shell a[href*="/connect"].bg-\[var\(--bms-accent\)\]{background-color:var(--bms-accent)!important;color:#fff!important}
 .bms-shell .bms-primary-button :is(span,svg),.bms-shell .bms-new-job-button :is(span,svg){color:inherit}
+
+/* Unified branded primary controls across legacy and migrated modules. */
+.bms-shell :is(.bms-primary-button,.bms-new-job-button,button.bg-\[var\(--bms-accent\)\],a.bg-\[var\(--bms-accent\)\]){background-color:var(--bms-accent)!important;color:#fff!important}
+.bms-shell :is(.bms-primary-button,.bms-new-job-button) :is(span,svg){color:inherit!important}
+.bms-shell :is(button,a)[class~="bg-[#17385f]"],.bms-shell :is(button,a)[class~="bg-[#e66a24]"]{background-color:var(--bms-accent)!important;color:#fff!important}
