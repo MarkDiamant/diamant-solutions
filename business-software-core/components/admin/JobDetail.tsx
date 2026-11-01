@@ -95,7 +95,7 @@ export default function JobDetail({reference}:{reference:string}){
   const jobTypes=Array.isArray(j.job_types)&&j.job_types.length?j.job_types:[j.job_type].filter(Boolean);
   const permissions:string[]=Array.isArray(data.permissions)?data.permissions:[];
   const canPricing=permissions.includes("view_pricing"), canPayments=permissions.includes("view_payments_invoices"), canCosts=permissions.includes("view_costs_profit"), canFiles=permissions.includes("view_files"), canWorkforce=permissions.includes("view_workforce"), canHistory=permissions.includes("view_history");
-  const visibleTabs=tabs.filter(x=>x!=="Activity"||canHistory).filter(x=>x!=="Quote"||(crmConfig.modules.quotes&&canPricing)).filter(x=>x!=="Invoice"||canPayments).filter(x=>x!=="Costs & Payments"||((crmConfig.modules.costs&&canCosts)||(crmConfig.modules.payments&&canPayments))).filter(x=>x!=="Files"||(crmConfig.modules.photos&&canFiles)).filter(x=>x!=="Workforce"||(crmConfig.modules.workforce&&canWorkforce)).filter(x=>x!=="Split Job/Order"||canPricing);
+  const visibleTabs=tabs.filter(x=>x!=="Activity"||canHistory).filter(x=>x!=="Quote"||(crmConfig.modules.quotes&&canPricing)).filter(x=>x!=="Invoice"||canPayments).filter(x=>x!=="Finances"||((crmConfig.modules.costs&&canCosts)||(crmConfig.modules.payments&&canPayments))).filter(x=>x!=="Files"||(crmConfig.modules.photos&&canFiles)).filter(x=>x!=="Workforce"||(crmConfig.modules.workforce&&canWorkforce)).filter(x=>x!=="Split Job/Order"||canPricing);
 
   const activeTab:Tab=visibleTabs.includes(tab)?tab:"Overview";
   return <main className="bms-job-detail min-h-screen bg-[#f5f5f2] text-[#141414]">
