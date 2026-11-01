@@ -13,6 +13,7 @@ test('append job item requires explicit confirmation, job permission and tenant-
 test('existing item revisions remain independent from append flow',()=>{
  assert.match(editor,/endpoint\+"\/append"/);
  assert.match(editor,/Add work item/);
+ assert.doesNotMatch(editor,/No separate work items recorded/);
  assert.match(editor,/Existing items, revisions and financial documents will remain unchanged/);
  assert.match(editor,/endpoint\+"\/revise"/);
 });
