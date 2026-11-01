@@ -1234,3 +1234,29 @@ transform:none!important;
   color:#182338!important;opacity:1!important;visibility:visible!important;
   font-size:12px!important;line-height:26px!important;
 }
+
+/* Final isolated alignment: the currency glyph is painted by the wrapper, not
+   positioned as a flex/grid child. Keep the existing field dimensions intact. */
+.bms-shell .bms-dashboard :is(#bms-currency-paint-fix,.bms-currency-fixed){
+  position:relative!important;display:block!important;height:22px!important;
+  min-height:22px!important;max-height:22px!important;padding:0!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  box-sizing:border-box!important;overflow:visible!important;
+}
+.bms-shell .bms-dashboard :is(#bms-currency-paint-fix,.bms-currency-fixed)>span{
+  display:none!important;
+}
+.bms-shell .bms-dashboard :is(#bms-currency-paint-fix,.bms-currency-fixed)::before{
+  content:"£";position:absolute;left:4px;top:50%;transform:translateY(-50%);
+  font:400 12px/1 Arial,sans-serif;color:#64748b;pointer-events:none;z-index:3;
+}
+.bms-shell .bms-dashboard :is(#bms-currency-paint-fix,.bms-currency-fixed)>input{
+  display:block!important;position:static!important;transform:none!important;
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  height:22px!important;min-height:22px!important;max-height:22px!important;
+  margin:0!important;padding:0 2px 0 13px!important;
+  border:0!important;box-shadow:none!important;background:transparent!important;
+  box-sizing:border-box!important;text-align:left!important;direction:ltr!important;
+  text-indent:0!important;font-size:12px!important;line-height:22px!important;
+  color:#182338!important;overflow:visible!important;
+}
