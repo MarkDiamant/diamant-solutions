@@ -5,7 +5,7 @@ export type PermissionKey =
   | "view_stock" | "manage_stock" | "manage_purchasing" | "view_sales_orders" | "edit_sales_orders" | "manage_deliveries" | "manage_fitting"
   | "view_workforce" | "manage_workforce" | "manage_users" | "manage_business_settings" | "manage_subscription";
 
-export type UserRole = "owner" | "admin" | "manager" | "office" | "sales" | "field" | "custom";
+export type UserRole = "owner" | "admin" | "manager" | "office" | "sales" | "field" | "worker" | "custom";
 
 export const PERMISSION_LABELS: Record<PermissionKey,string> = {
  view_jobs:"View jobs", edit_jobs:"Edit jobs", view_completed_jobs:"View completed / closed jobs",
@@ -27,7 +27,8 @@ export const ROLE_PERMISSIONS: Record<UserRole,PermissionKey[]> = {
  office: ["view_sales_orders","view_stock","view_jobs","edit_jobs","view_completed_jobs","view_history","view_customer_details","view_pricing","view_money_overview","view_payments_invoices","view_files","view_workforce"],
  sales: ["view_sales_orders","edit_sales_orders","view_stock","view_jobs","edit_jobs","view_completed_jobs","view_history","view_customer_details","view_pricing","view_files"],
  field: ["view_stock","view_jobs","edit_jobs","view_customer_details","view_files","view_workforce"],
+ worker: [],
  custom: [],
 };
-export const ROLE_LABELS:Record<UserRole,string>={owner:"Owner",admin:"Admin",manager:"Manager",office:"Office",sales:"Sales",field:"Field / engineer",custom:"Custom"};
+export const ROLE_LABELS:Record<UserRole,string>={owner:"Owner",admin:"Admin",manager:"Manager",office:"Office",sales:"Sales",field:"Field / engineer",worker:"Worker (own schedule only)",custom:"Custom"};
 
