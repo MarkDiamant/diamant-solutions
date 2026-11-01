@@ -26,7 +26,7 @@ test('searchable multiselect retains selections while filtering and supports job
  assert.match(job,/Manage tenant-wide work types in Settings/);
 });
 test('job overview opens site planning by default and keeps editing in one form',()=>{
- assert.match(job,/<h2 className="text-base font-black">Site, scheduling & remedial work<\/h2>/);
+ assert.match(job,/<Card title="Site">/);
  assert.match(job,/Finish: \{\(j.finishes\|\|\[\]\)/);
  assert.doesNotMatch(job,/\{quickEditor\}<form/);
 });
