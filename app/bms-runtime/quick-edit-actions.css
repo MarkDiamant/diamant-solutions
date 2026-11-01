@@ -1291,3 +1291,16 @@ transform:none!important;
   box-sizing:border-box!important;flex:0 0 auto!important;
   align-self:center!important;line-height:1!important;
 }
+
+/* Payment totals occupy the existing fifth grid column beside Add payment. */
+.bms-shell .bms-dashboard .bms-quick-masonry > .bms-quick-section:has(.bms-add-payment) > form > .bms-payment-totals.bms-payment-breakdown{
+  grid-column:5!important;grid-row:1!important;align-self:center!important;
+  display:flex!important;flex-wrap:nowrap!important;gap:8px!important;
+  width:auto!important;max-width:none!important;min-width:0!important;
+  margin:0!important;padding:0!important;overflow:visible!important;
+}
+@media(max-width:900px){
+ .bms-shell .bms-dashboard .bms-quick-masonry > .bms-quick-section:has(.bms-add-payment) > form > .bms-payment-totals.bms-payment-breakdown{
+  grid-column:1 / -1!important;grid-row:auto!important;flex-wrap:wrap!important;
+ }
+}
