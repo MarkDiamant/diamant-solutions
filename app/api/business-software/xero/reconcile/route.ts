@@ -26,25 +26,6 @@ async function access(tenantId:string){
  }
  return {token,organisation:String(row.external_tenant_id)};
 }
-export async function syncXeroJobInvoices(tenantId:string,jobId:string){
- const invoices=await rows("business_software_invoices?tenant_id=eq."+enc(tenantId)+"&job_id=eq."+enc(jobId)+"&provider=eq.xero&external_invoice_id=not.is.null&select=id,external_invoice_id,status&limit=50");
- if(!invoices.length)return {checked:0,updated:0,message:"No linked Xero invoices on this job"};
- const credentials=await access(tenantId);let updated=0;
- for(const invoice of invoices){
-  const response=await fetch("https://api.xero.com/api.xro/2.0/Invoices/"+enc(String(invoice.external_invoice_id)),{headers:{Authorization:"Bearer "+credentials.token,"xero-tenant-id":credentials.organisation,Accept:"application/json"},cache:"no-store"});
-  assertXeroResponse(response,"Xero invoice lookup");
-  const x=(await response.json()).Invoices?.[0];
-  if(!x||x.Type!=="ACCREC"||String(x.InvoiceID).toLowerCase()!==String(invoice.external_invoice_id).toLowerCase())throw new Error("Xero sales invoice identity mismatch");
-  const total=Number(x.Total),due=Number(x.AmountDue),paid=Number(x.AmountPaid),credited=Number(x.AmountCredited||0);
-  if(![total,due,paid,credited].every(Number.isFinite)||Math.min(total,due,paid,credited)<0||Math.abs(total-due-paid-credited)>0.02)throw new Error("Xero invoice amounts failed reconciliation");
-  const status=String(x.Status||invoice.status);
-  if(status.toUpperCase()==="PAID"&&due>0.01)throw new Error("Xero invoice status and balance disagree");
-  const save=await centralRest("business_software_invoices?id=eq."+enc(String(invoice.id))+"&tenant_id=eq."+enc(tenantId)+"&job_id=eq."+enc(jobId)+"&provider=eq.xero&external_invoice_id=eq."+enc(String(invoice.external_invoice_id)),{method:"PATCH",body:JSON.stringify({status,invoice_number:x.InvoiceNumber||null,total,amount_due:due,amount_paid:paid,currency_code:x.CurrencyCode||"GBP",synced_at:new Date().toISOString()})});
-  if(!save.ok)throw new Error("Could not save Xero invoice payments");
-  updated++;
- }
- return {checked:invoices.length,updated};
-}
 export async function GET(request:Request){
  if(!process.env.CRON_SECRET||request.headers.get("authorization")!=="Bearer "+process.env.CRON_SECRET)return NextResponse.json({error:"Unauthorised"},{status:401});
  try{
