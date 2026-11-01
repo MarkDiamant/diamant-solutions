@@ -127,7 +127,7 @@ export default function CrmDashboardV3() {
       (summaryFilter==="Completed jobs"||summaryFilter==="Completed orders")&&j.status==="completed"||
       summaryFilter==="Didn't proceed"&&["declined","cancelled"].includes(j.status)||
       summaryFilter==="Won job value"&&wonStatuses.has(j.status)||
-      summaryFilter==="Payments received"&&Number(j.amountPaid||0)>0||
+      summaryFilter==="Payments received"&&(Number(j.amountPaid||0)>0||j.status==="completed")||
       summaryFilter==="Gross profit"&&wonStatuses.has(j.status)&&(j.agreedAmount!=null||j.quotedAmount!=null||j.preliminaryEstimate!=null)&&j.finalCost!=null||
       summaryFilter==="Outstanding payments"&&wonStatuses.has(j.status)&&j.status!=="completed"&&Math.max(0,Number(j.agreedAmount??j.quotedAmount??j.preliminaryEstimate??0)-Number(j.amountPaid||0))>0||
       summaryFilter==="Open pipeline"&&pendingStatuses.has(j.status)||
