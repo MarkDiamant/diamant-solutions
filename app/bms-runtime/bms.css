@@ -486,3 +486,27 @@
  .bms-shell .bms-dashboard button.grid.w-full>*{min-width:0}
  .bms-shell .bms-dashboard :is(input,select,textarea,form,label){min-width:0;max-width:100%;box-sizing:border-box}
 }
+
+/* Tenant-wide primary actions. Use the same brand token in every industry demo and live tenant.
+   Only solid primary button utilities are mapped; neutral, warning, destructive and status
+   controls retain their semantic colours. */
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-blue-600"],
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-blue-700"],
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-indigo-600"],
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-indigo-700"],
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-slate-900"],
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-navy-900"],
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-[#17385f]"]{
+ background-color:var(--bms-accent,#365b85)!important;
+ color:var(--bms-on-accent,#fff)!important;
+}
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-blue-600"]:hover,
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-blue-700"]:hover,
+.bms-shell :is(button,input[type="submit"],a)[class~="bg-slate-900"]:hover{
+ filter:brightness(.94);
+}
+.bms-shell :is(button,a)[aria-selected="true"][class~="bg-blue-50"],
+.bms-shell :is(button,a)[aria-pressed="true"][class~="bg-blue-50"]{
+ background-color:color-mix(in srgb,var(--bms-accent,#365b85) 12%,white)!important;
+ border-color:var(--bms-accent,#365b85)!important;
+}
