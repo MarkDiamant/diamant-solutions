@@ -2,7 +2,6 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import Link from "next/link";
 import {useSearchParams} from "next/navigation";
-import ProductCsvImport from "./ProductCsvImport";
 import {BmsPage,BmsPageHeader,BmsPageTitle,BmsCard,BmsInput,BmsSelect,BmsField,BmsTable,BmsState} from "./BmsUI";
 
 type Product={id:string;name:string;sku?:string;unit?:string;category?:string;active:boolean;fixed_sell_net?:number;cost_net?:number;units_per_pack?:number;specifications?:{coverage_m2_per_pack?:number|string;waste_percent_default?:number|string}};
@@ -49,7 +48,6 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
   <BmsPageHeader className="text-left"><BmsPageTitle className="text-2xl font-bold">Orders &amp; Deliveries</BmsPageTitle><p className="mt-1 text-sm text-slate-600">Manage customer orders, stock picking and deliveries.</p></BmsPageHeader>
   {notice&&<p role="status" className="rounded-lg bg-white p-3 text-sm">{notice}</p>}
   {loading?<p className="rounded-xl bg-white p-6">Loading operations...</p>:<>
-  {catalog.permissions.manage_stock&&<ProductCsvImport onImported={refresh}/>}
   <div className="grid gap-4 lg:grid-cols-2">
    {catalog.permissions.create_sales&&<BmsCard className="p-5"><h2 className="bms-section-title text-lg font-bold">Create sales order</h2><p className="mb-4 text-sm text-slate-500">Agreed unit prices are calculated and saved by the server.</p>
     <form className="space-y-3" onSubmit={e=>{e.preventDefault();const payload={customer_id:customer,reference:reference||null,lines:[{product_id:product,quantity:Number(qty),...(useFloorCalc?{area_m2:Number(floorArea),wastage_percent:Number(floorWaste)}:{})}]};const fingerprint="sales-orders:"+JSON.stringify(payload);void submit(()=>post("sales-orders",{...payload,request_key:operationKey("sales-orders",payload)}),"Sales order created.",fingerprint);}}>
