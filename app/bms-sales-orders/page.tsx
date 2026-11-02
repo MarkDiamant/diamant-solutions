@@ -1,11 +1,11 @@
 "use client";
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 type RecordRow=Record<string,any>;
 const key=()=>crypto.randomUUID();
-export default function SalesOrders(){const [data,setData]=useState<RecordRow>({orders:[],lines:[],deliveries:[],deliveryLines:[],customers:[],products:[],locations:[],jobs:[]}),[busy,setBusy]=useState(false),[error,setError]=useState(""),[customer,setCustomer]=useState(""),[job,setJob]=useState(""),[reference,setReference]=useState(""),[product,setProduct]=useState(""),[quantity,setQuantity]=useState("1"),[selected,setSelected]=useState(""),[location,setLocation]=useState(""),[stockQty,setStockQty]=useState("1"),[address,setAddress]=useState(""),[notes,setNotes]=useState("");
+export default function SalesOrders(){const pending=useRef<{signature:string;key:string}|null>(null);const [data,setData]=useState<RecordRow>({orders:[],lines:[],deliveries:[],deliveryLines:[],customers:[],products:[],locations:[],jobs:[]}),[busy,setBusy]=useState(false),[error,setError]=useState(""),[customer,setCustomer]=useState(""),[job,setJob]=useState(""),[reference,setReference]=useState(""),[product,setProduct]=useState(""),[quantity,setQuantity]=useState("1"),[selected,setSelected]=useState(""),[location,setLocation]=useState(""),[stockQty,setStockQty]=useState("1"),[address,setAddress]=useState(""),[notes,setNotes]=useState("");
 const load=async()=>{const r=await fetch("/api/bms-sales-orders",{cache:"no-store"});const x=await r.json();if(!r.ok)throw Error(x.error||"Unable to load sales orders");setData(x)};
 useEffect(()=>{void load().catch(e=>setError(String(e)))},[]);
-const send=async(body:RecordRow)=>{setBusy(true);setError("");try{const r=await fetch("/api/bms-sales-orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,key:key()})});const x=await r.json();if(!r.ok)throw Error(x.error||"Operation failed");await load()}catch(e){setError(e instanceof Error?e.message:String(e))}finally{setBusy(false)}};
+const send=async(body:RecordRow)=>{if(busy)return;const signature=JSON.stringify(body);if(pending.current?.signature!==signature)pending.current={signature,key:key()};const requestKey=pending.current.key;setBusy(true);setError("");try{const r=await fetch("/api/bms-sales-orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...body,key:requestKey})});const x=await r.json();if(!r.ok)throw Error(x.error||"Operation failed");pending.current=null;await load()}catch(e){setError(e instanceof Error?e.message:String(e))}finally{setBusy(false)}};
 const customerName=(id:string)=>{const c=data.customers.find((x:RecordRow)=>x.id===id);return c?[c.first_name,c.last_name].filter(Boolean).join(" "):id};
 const productName=(id:string)=>data.products.find((x:RecordRow)=>x.id===id)?.name||id;
 const order=data.orders.find((x:RecordRow)=>x.id===selected);
