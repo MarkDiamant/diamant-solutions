@@ -19,7 +19,7 @@ export async function GET(req:Request){
  locations:"business_software_stock_locations?tenant_id=eq."+id+"&select=id,name&limit=100",
  jobs:"business_software_jobs?tenant_id=eq."+id+"&select=id,reference,job_title&limit=200",
  balances:"business_software_stock_balances?tenant_id=eq."+id+"&select=product_id,on_hand,reserved&limit=500",
- returns:"business_software_customer_returns?tenant_id=eq."+id+"&select=id,sales_order_id,sales_order_line_id,quantity,reason,created_at&limit=200"
+ returns:"business_software_customer_returns?tenant_id=eq."+id+"&select=id,sales_order_line_id,quantity,reason,created_at&limit=200"
  };
  const entries=await Promise.all(Object.entries(paths).map(async([key,path])=>{const r=await centralRest(path);if(!r.ok)throw Error("Demo data unavailable: "+key);return [key,await r.json()]}));
  return NextResponse.json({...Object.fromEntries(entries),showValues:false,demo:true},{headers:{"Cache-Control":"no-store"}});
