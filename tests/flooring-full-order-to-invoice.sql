@@ -28,6 +28,7 @@ BEGIN
  PERFORM bms_pick_sales_order_line(t,sl,l,12,'test-full-workflow-pick');
  delivery:=(bms_plan_delivery_once(t,so,'Fictional site, London','test-full-workflow-delivery')->>'id')::uuid;
  PERFORM bms_confirm_delivery(t,delivery,'test-full-workflow-delivery-confirm','Acceptance test');
+ PERFORM bms_approve_quote_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'Fictional acceptance manager','test-full-workflow-quote-approval');
  PERFORM bms_create_internal_draft_invoice_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'test-full-workflow-invoice','FLI');
  IF NOT EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j AND status='draft') THEN RAISE EXCEPTION 'Invoice missing'; END IF;
  SELECT count(*) INTO live_after FROM business_software_jobs WHERE tenant_id<>t;
