@@ -9,7 +9,7 @@ type Group={name:string;icon:string;entries:Entry[]};
 const groups:Group[]=[
  {name:"Overview",icon:"overview",entries:[{href:"/",label:"Dashboard",icon:"overview"},{href:"/tasks",label:"Tasks",icon:"tasks",module:"tasks"},{href:"/workforce",label:"Scheduling",icon:"scheduling",permission:"view_workforce",module:"workforce"}]},
  {name:"Sales & Customers",icon:"sales",entries:[{href:"/prospects",label:"Prospects",icon:"prospects",module:"prospects"},{href:"/customers",label:"Customers",icon:"customers",permission:"view_customer_details"},{href:"/quotes",label:"Quotes",icon:"quotes",module:"quotes"},{href:"/jobs",label:"Jobs",icon:"jobs",permission:"view_jobs"},{href:"/campaigns",label:"Campaigns",icon:"campaigns",module:"campaigns"}]},
- {name:"Products & Operations",icon:"products",entries:[{href:"/price-book",label:"Price Book",icon:"price",module:"priceBook",permission:"view_pricing"},{href:"/materials",label:"Purchasing",icon:"materials",permission:"view_stock"},{href:"/stock",label:"Stock",icon:"materials",permission:"view_stock"},{href:"/operations",label:"Orders & Deliveries",icon:"operations",permission:"view_sales_orders"}]},
+ {name:"Products & Operations",icon:"products",entries:[{href:"/price-book",label:"Price Book",icon:"price",module:"priceBook",permission:"view_pricing"},{href:"/materials",label:"Purchasing",icon:"purchasing",permission:"view_stock"},{href:"/stock",label:"Stock",icon:"materials",permission:"view_stock"},{href:"/operations",label:"Orders & Deliveries",icon:"operations",permission:"view_sales_orders"}]},
  {name:"Finance",icon:"finance",entries:[{href:"/invoices",label:"Invoices",icon:"invoices",module:"invoices",permission:"view_payments_invoices"},{href:"/payments",label:"Payments & Money",icon:"payments",module:"payments",permission:"view_money_overview"},{href:"/labour",label:"Labour Costing",icon:"labour",module:"workforce",permission:"view_costs_profit"}]},
  {name:"Workforce",icon:"workforce",entries:[{href:"/team",label:"Workers & Team",icon:"team",module:"workforce",permission:"view_workforce"},{href:"/worker",label:"My Work & Timesheets",icon:"worker",module:"workforce"}]},
  {name:"Documents",icon:"documents",entries:[{href:"/files",label:"Files",icon:"files",module:"files",permission:"view_files"}]},
@@ -29,6 +29,7 @@ const iconPaths:Record<string,string[]>={
  products:["M3 7h7v7H3z","M14 7h7v7h-7z","M8 17h8v5H8z"],
  price:["M4 19.5A2.5 2.5 0 0 1 6.5 17H20","M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2"],
  materials:["M3 7l9-5 9 5v10l-9 5-9-5z","M3 7l9 5 9-5","M12 12v10"],
+ purchasing:["M3 5h14v14H3z","M7 9h6","M7 13h6","M18 7l3 3-3 3","M21 10h-9"],
  operations:["M1 5h14v12H1z","M15 9h4l4 4v4h-8","M5 19a2 2 0 1 0 4 0 2 2 0 0 0-4 0","M17 19a2 2 0 1 0 4 0 2 2 0 0 0-4 0"],
  finance:["M3 6h18v14H3z","M3 10h18","M7 15h4"],
  invoices:["M5 2h14v20l-3-2-4 2-4-2-3 2z","M9 8h6","M9 12h6","M9 16h4"],
