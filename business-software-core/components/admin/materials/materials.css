@@ -452,3 +452,12 @@
 .bms-stock-pagination button:disabled{opacity:.4;cursor:default;}
 
 .bms-stock-bulk-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) auto;gap:10px;align-items:end;padding:12px 0;border-bottom:1px solid #e5e7eb}.bms-stock-bulk-row label{min-width:0;font-size:12px;font-weight:650}.bms-stock-bulk-row label>*{width:100%;margin-top:5px}.bms-stock-bulk-row small{grid-column:1/-1;color:#64748b}.bms-stock-bulk-actions{display:flex;gap:12px;margin-top:14px}.bms-stock-toggle{border:1px solid #cbd5e1;border-radius:9px;padding:8px 12px;margin:8px 0;font-weight:650}.bms-materials:has(.bms-stock-tabs) .bms-stock-fields{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}.bms-materials:has(.bms-stock-tabs) .bms-stock-fields label{min-width:0}@media(max-width:1100px){.bms-stock-bulk-row,.bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.bms-stock-bulk-row,.bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:1fr}}
+
+/* Stock navigation and actions match the shared Price Book / Purchasing button system. */
+.bms-shell .bms-materials .bms-stock-tabs button{border:1px solid #192a42!important;border-radius:12px!important;background:#fff!important;color:#14283f!important;min-height:38px!important;padding:8px 16px!important;font-size:13px!important;font-weight:800!important;box-shadow:none!important}
+.bms-shell .bms-materials .bms-stock-tabs button.active,.bms-shell .bms-materials .bms-stock-tabs button[aria-current="page"]{background:var(--bms-accent,#365b85)!important;color:#fff!important;border-color:var(--bms-accent,#365b85)!important}
+.bms-shell .bms-materials:has(.bms-stock-tabs) button:not(.bms-primary):not(.active):not([aria-current="page"]){border:1px solid #192a42;border-radius:10px;background:#fff;color:#14283f;padding:8px 12px;font-weight:700}
+.bms-shell .bms-materials:has(.bms-stock-tabs) button.bms-primary{border:1px solid var(--bms-accent,#365b85);border-radius:10px}
+.bms-shell .bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media(max-width:1100px){.bms-shell .bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.bms-shell .bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:1fr}}
