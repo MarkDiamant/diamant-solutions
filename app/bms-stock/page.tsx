@@ -27,7 +27,7 @@ const paginatedRows=rows.slice((page-1)*pageSize,page*pageSize);const pages=Math
 const jobLabel=(j:Job)=>[j.reference,j.job_title,j.site_address_line_1,j.site_city,j.site_postcode].filter(Boolean).join(" · ");
 const currentAt=(p:string,l:string)=>data.balances.find(b=>b.product_id===p&&b.location_id===l);
 const total=data.balances.reduce((n,b)=>n+Number(b.on_hand||0),0),reserved=data.balances.reduce((n,b)=>n+Number(b.reserved||0),0);
-return <BmsPage className="bms-materials"><header className="bms-materials-header"><div><h1>Stock & Inventory</h1><p className="bms-materials-subtitle">Manage stock by location, move inventory and review the movement audit trail.</p></div></header>
+return <BmsPage className="bms-materials"><div className="flex flex-wrap gap-3 text-sm"><a className="rounded border px-3 py-2" href="/bms-sales-orders">Orders &amp; Deliveries</a><a className="rounded border px-3 py-2" href="/materials">Purchasing</a><a className="rounded border px-3 py-2" href="/bms-stock">Stock &amp; Inventory</a></div><header className="bms-materials-header"><div><h1>Stock & Inventory</h1><p className="bms-materials-subtitle">Manage stock by location, move inventory and review the movement audit trail.</p></div></header>
 <nav className="bms-stock-tabs" aria-label="Stock sections">{([["inventory","Inventory"],["jobs","Job allocations"],["movements","Stock movements"],["locations","Locations"]] as const).map(([id,label])=><button key={id} type="button" className={tab===id?"active":""} aria-current={tab===id?"page":undefined} onClick={()=>setTab(id)}>{label}</button>)}</nav>
 {error&&<p role="alert" className="bms-materials-status">{error}</p>}
 {loading?<p>Loading inventory…</p>:<>
