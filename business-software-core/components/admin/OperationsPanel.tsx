@@ -46,7 +46,7 @@ export default function OperationsPanel(){const selectedCustomer=useSearchParams
  function operationKey(kind:string,payload:unknown){const fingerprint=kind+":"+JSON.stringify(payload);return retryKeys.current[fingerprint]||(retryKeys.current[fingerprint]=crypto.randomUUID());}
  async function submit(task:()=>Promise<unknown>,success:string,retryFingerprint?:string){if(busy)return;setBusy(true);setNotice("");try{await task();await refresh();if(retryFingerprint)delete retryKeys.current[retryFingerprint];setNotice(success);}catch(e){setNotice(e instanceof Error?e.message:"Unable to save. Retry the same operation safely.");}finally{setBusy(false);}}
  return <BmsPage className="max-w-7xl text-slate-900">
-  <BmsPageHeader className="bms-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><BmsPageTitle className="text-2xl font-bold">Sales and stock operations</BmsPageTitle><p className="mt-1 text-sm text-slate-600">Shared BMS catalogue, customer pricing, sales orders and goods receipts.</p></div><Link href="/" className="rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold">Dashboard</Link></div></BmsPageHeader>
+  <BmsPageHeader className="text-left"><BmsPageTitle className="text-2xl font-bold">Orders &amp; Deliveries</BmsPageTitle><p className="mt-1 text-sm text-slate-600">Manage customer orders, stock picking and deliveries.</p></BmsPageHeader>
   {notice&&<p role="status" className="rounded-lg bg-white p-3 text-sm">{notice}</p>}
   {loading?<p className="rounded-xl bg-white p-6">Loading operations...</p>:<>
   {catalog.permissions.manage_stock&&<ProductCsvImport onImported={refresh}/>}
