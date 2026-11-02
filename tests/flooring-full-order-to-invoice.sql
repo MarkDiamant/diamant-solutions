@@ -28,6 +28,8 @@ BEGIN
  PERFORM bms_pick_sales_order_line(t,sl,l,12,'test-full-workflow-pick');
  delivery:=(bms_plan_delivery_once(t,so,'Fictional site, London','test-full-workflow-delivery')->>'id')::uuid;
  PERFORM bms_confirm_delivery(t,delivery,'test-full-workflow-delivery-confirm','Acceptance test');
+ PERFORM bms_record_customer_return(t,sl,l,2,true,'Fictional customer returned unopened packs','test-full-workflow-customer-return');
+ IF NOT EXISTS(SELECT 1 FROM business_software_customer_returns WHERE tenant_id=t AND sales_order_line_id=sl AND quantity=2 AND financial_status='credit_review_required') THEN RAISE EXCEPTION 'Customer return financial review missing';END IF;
  PERFORM bms_approve_quote_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'Fictional acceptance manager','test-full-workflow-quote-approval');
  PERFORM bms_create_internal_draft_invoice_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'test-full-workflow-invoice','FLI');
  IF NOT EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j AND status='draft') THEN RAISE EXCEPTION 'Invoice missing'; END IF;
