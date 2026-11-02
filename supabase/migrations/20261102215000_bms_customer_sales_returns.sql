@@ -16,7 +16,7 @@ create table if not exists public.business_software_customer_returns (
 create index if not exists bms_customer_returns_line_idx on public.business_software_customer_returns(tenant_id,sales_order_line_id);
 alter table public.business_software_customer_returns enable row level security;
 revoke all on public.business_software_customer_returns from public,anon,authenticated;
-grant select on public.business_software_customer_returns to service_role;
+grant select,insert,update,delete on public.business_software_customer_returns to service_role;
 create or replace function public.bms_record_customer_return(p_tenant uuid,p_line uuid,p_location uuid,p_qty numeric,p_restock boolean,p_reason text,p_key text)
 returns jsonb language plpgsql set search_path to 'public' as $$
 declare ln record;v_prev record;v_total numeric;v_id uuid;v_credit numeric;v_restock boolean;
