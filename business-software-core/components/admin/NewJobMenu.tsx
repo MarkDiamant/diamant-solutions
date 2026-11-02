@@ -5,7 +5,7 @@ import {useEffect,useRef,useState,type KeyboardEvent} from "react";
 export default function NewJobMenu({accent="var(--bms-accent)",className="",basePath,terminology="jobs"}:{accent?:string;className?:string;basePath?:string;terminology?:"jobs"|"orders"}){
  const [open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null),buttonRef=useRef<HTMLButtonElement>(null),menuRef=useRef<HTMLDivElement>(null),pathname=usePathname();
  const noun=terminology==="orders"?"Order":"Job";
- const prefix="/bms-runtime";
+ const prefix=basePath&&basePath!=="/bms-runtime"?basePath:"";
  useEffect(()=>{if(!open)return;const close=(e:PointerEvent)=>{if(root.current&&!root.current.contains(e.target as Node))setOpen(false)};const key=(e:globalThis.KeyboardEvent)=>{if(e.key==="Escape"){setOpen(false);buttonRef.current?.focus()}};document.addEventListener("pointerdown",close);document.addEventListener("keydown",key);return()=>{document.removeEventListener("pointerdown",close);document.removeEventListener("keydown",key)}},[open]);
  useEffect(()=>setOpen(false),[pathname]);
  useEffect(()=>{if(!open)return;const first=menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]');first?.focus()},[open]);
