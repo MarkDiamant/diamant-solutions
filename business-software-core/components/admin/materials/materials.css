@@ -422,3 +422,21 @@
 .bms-shell .bms-materials .bms-stock-table th{color:#52647a;font-weight:800}
 @media(max-width:850px){.bms-shell .bms-materials .bms-stock-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.bms-shell .bms-materials .bms-stock-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:550px){.bms-shell .bms-materials .bms-stock-fields{grid-template-columns:1fr}.bms-shell .bms-materials .bms-materials-summary{flex-wrap:wrap;max-width:100%!important}.bms-shell .bms-materials .bms-materials-top-actions{align-items:stretch}.bms-shell .bms-materials .bms-materials-tabs{flex-wrap:wrap}}
+
+
+/* Match Price Book header and tab rhythm */
+.bms-shell .bms-materials{padding-top:14px!important}
+.bms-shell .bms-materials .bms-materials-header{margin-bottom:10px!important}
+.bms-shell .bms-materials .bms-materials-header h1{font-size:29px!important;line-height:1.15!important}
+.bms-shell .bms-materials .bms-materials-subtitle{margin:5px 0 0!important;font-size:13px!important}
+.bms-shell .bms-materials .bms-materials-top-actions{margin:0 0 12px!important;gap:12px!important}
+.bms-shell .bms-materials .bms-materials-tabs button{padding:8px 16px!important;min-height:38px!important;border:1px solid #192a42!important;border-radius:12px!important;font-size:13px!important;font-weight:800!important}
+.bms-shell .bms-materials .bms-materials-tabs button[aria-current="page"]{border-color:var(--bms-accent,#365b85)!important;background:var(--bms-accent,#365b85)!important;color:#fff!important}
+.bms-shell .bms-materials .bms-materials-new-order{font-size:12px!important;padding:8px 13px!important;border-radius:11px!important;min-height:36px!important}
+.bms-shell .bms-materials .bms-materials-ruby-inline summary{display:flex;align-items:center;gap:7px;padding:5px 11px!important;min-height:37px;font-size:12px!important}
+.bms-shell .bms-materials .bms-purchase-ruby-avatar{width:23px;height:23px;object-fit:cover;border-radius:50%;flex:none}
+.bms-shell .bms-materials .bms-materials-workspace{margin-top:0!important}
+.bms-shell .bms-materials .bms-materials-summary{display:grid!important;grid-template-columns:auto auto auto!important;align-items:center!important;gap:16px!important;max-width:max-content!important;min-height:39px!important}
+.bms-shell .bms-materials .bms-materials-summary>div,.bms-shell .bms-materials .bms-materials-summary>strong{display:flex!important;align-items:center!important;line-height:20px!important;white-space:nowrap!important;font-size:12px!important}
+.bms-shell .bms-materials .bms-materials-summary>strong{font-size:13px!important}
+@media(max-width:600px){.bms-shell .bms-materials .bms-materials-summary{gap:8px!important;grid-template-columns:repeat(3,max-content)!important;max-width:100%!important;font-size:11px!important}.bms-shell .bms-materials .bms-materials-summary>strong{font-size:12px!important}}
