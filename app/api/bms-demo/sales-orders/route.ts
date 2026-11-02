@@ -1,7 +1,9 @@
 import {NextResponse} from "next/server";
 import {centralRest} from "@/lib/business-software/db";
 export const dynamic="force-dynamic";
-export async function GET(){
+export async function GET(req:Request){
+ const sample=new URL(req.url).searchParams.get("sample")||"northstar";
+ if(sample!=="flooring")return NextResponse.json({orders:[],lines:[],deliveries:[],deliveryLines:[],customers:[],products:[],locations:[],jobs:[],balances:[],returns:[],showValues:false,demo:true},{headers:{"Cache-Control":"no-store"}});
  try{
  const t=await centralRest("business_software_tenants?slug=eq.flooring-showcase-demo&select=id&limit=1");
  if(!t.ok)return NextResponse.json({error:"Demo unavailable"},{status:503});
