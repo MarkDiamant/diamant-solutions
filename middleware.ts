@@ -3,7 +3,7 @@ import {NextRequest,NextResponse} from "next/server";
 const DEMO_HOST="bms.diamantsolutions.co.uk";
 function hostname(value:string|null|undefined){return String(value||"").trim().toLowerCase().replace(/^https?:\/\//,"").split("/")[0].split(":")[0];}
 
-export function middleware(request:NextRequest){
+export async function middleware(request:NextRequest){
  const requestHost=hostname(request.nextUrl.hostname),hostHeader=hostname(request.headers.get("host")),forwardedHost=hostname(request.headers.get("x-forwarded-host"));
  const hosts=[requestHost,hostHeader,forwardedHost],host=hosts.includes(DEMO_HOST)?DEMO_HOST:(requestHost||hostHeader),path=request.nextUrl.pathname;
  if(host==="sites.diamantsolutions.co.uk"){return NextResponse.redirect(new URL("https://diamantsolutions.co.uk/websites#work"),308);}
@@ -22,6 +22,14 @@ export function middleware(request:NextRequest){
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
      const hasSession=Boolean(request.cookies.get("bms_access_token")?.value||request.cookies.get("bms_refresh_token")?.value);
      if(!hasSession){const url=request.nextUrl.clone();url.pathname="/login";return NextResponse.redirect(url);}
+     // Verify the server-issued membership on every tenant page request. A worker may only open My Jobs.
+     const sessionUrl=new URL("/api/admin/session",request.url);
+     let sessionResponse:Response;
+     try{sessionResponse=await fetch(sessionUrl,{headers:{cookie:request.headers.get("cookie")||""},cache:"no-store"});}catch{return NextResponse.json({error:"Session verification unavailable"},{status:503});}
+     if(!sessionResponse.ok){const url=request.nextUrl.clone();url.pathname="/login";return NextResponse.redirect(url);}
+     const session=await sessionResponse.json().catch(()=>null);
+     if(!session?.admin?.role){return NextResponse.json({error:"Membership verification unavailable"},{status:503});}
+     if(String(session.admin.role).toLowerCase()==="worker"&&path!=="/worker"){const url=request.nextUrl.clone();url.pathname="/worker";return NextResponse.redirect(url);}
      const url=request.nextUrl.clone();const clean=path;url.pathname=clean==="/"?"/bms-runtime":`/bms-runtime${clean}`;return NextResponse.rewrite(url);
    }
    return NextResponse.next();
