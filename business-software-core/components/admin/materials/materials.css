@@ -252,3 +252,31 @@
 .bms-materials-anchor{scroll-margin-top:80px}
 .bms-shell .bms-materials button.bms-primary,.bms-shell .bms-materials button.bms-primary:hover:not(:disabled){color:#fff!important;background:var(--bms-accent,#e9681c)!important;border-color:var(--bms-accent,#e9681c)!important}
 @media(max-width:580px){.bms-shell .bms-materials .bms-materials-header{flex-wrap:wrap!important}.bms-materials .bms-materials-new-order{width:100%}}
+
+/* Compact purchasing workspace, desktop-first density with accessible mobile fallback. */
+.bms-shell .bms-materials{padding-top:18px!important}
+.bms-shell .bms-materials .bms-materials-header{margin-bottom:12px!important}
+.bms-materials-tabs{align-items:center;gap:7px;margin-bottom:12px}
+.bms-materials-tabs a,.bms-materials-ruby-inline>summary{padding:8px 12px;font-size:12px;border:1px solid var(--bms-border,#ddd);border-radius:9px;background:white;color:var(--bms-text,#172334);font-weight:750;cursor:pointer;list-style:none}
+.bms-materials-ruby-inline{position:relative}
+.bms-materials-ruby-inline>summary::-webkit-details-marker{display:none}
+.bms-materials-ruby-inline>summary{color:var(--bms-accent,#e9681c)}
+.bms-materials-ruby-popover{position:absolute;right:0;top:calc(100% + 7px);z-index:25;width:min(360px,85vw);padding:16px;border:1px solid var(--bms-border,#ddd);border-radius:12px;background:white;box-shadow:0 10px 30px #0002}
+.bms-materials-ruby-popover .bms-primary{margin-top:10px}
+.bms-shell .bms-materials .bms-materials-workspace{margin:8px 0 14px!important;padding:16px 18px!important}
+.bms-materials-workspace-heading{margin-bottom:3px}
+.bms-materials-section-heading{font-size:18px}
+.bms-materials-section-description{margin-bottom:9px}
+.bms-shell .bms-materials .bms-materials-actions{display:flex!important;align-items:center!important;gap:8px!important;padding:10px!important;margin-bottom:12px!important}
+.bms-materials-actions>button{flex:0 1 auto!important;width:auto!important;min-height:38px!important;padding:8px 12px!important}
+.bms-materials-actions>input{flex:1 1 170px!important;grid-column:auto!important;min-width:130px!important;min-height:38px!important;margin:0!important}
+.bms-materials-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-bottom:10px}
+.bms-materials-order{padding:12px 14px!important;margin-bottom:10px!important}
+.bms-materials-order-head{padding-bottom:8px;margin-bottom:8px}
+.bms-materials-fields{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:9px!important;margin-top:9px}
+.bms-materials-fields label{font-size:12px!important}
+.bms-materials-fields input{min-height:36px!important;padding:7px 9px!important;margin-top:3px!important}
+.bms-materials-summary{margin-top:10px;padding:12px 16px}
+@media(max-width:1100px){.bms-materials-fields{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:700px){.bms-materials-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-shell .bms-materials .bms-materials-actions{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))}.bms-materials-actions>input{grid-column:1/-1!important;width:100%!important}.bms-materials-actions>button{width:100%!important}.bms-materials-ruby-popover{left:0;right:auto}}
+@media(max-width:390px){.bms-materials-fields{grid-template-columns:1fr!important}}
