@@ -461,3 +461,5 @@
 .bms-shell .bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:repeat(5,minmax(0,1fr))}
 @media(max-width:1100px){.bms-shell .bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.bms-shell .bms-materials:has(.bms-stock-tabs) .bms-stock-fields{grid-template-columns:1fr}}
+
+.bms-stock-bulk-simple{display:grid;grid-template-columns:minmax(180px,2fr) minmax(100px,1fr) minmax(170px,1.5fr) auto;gap:8px;align-items:end;padding:5px 0;border-bottom:1px solid #e5e7eb}.bms-stock-bulk-simple label{font-size:12px;font-weight:700;min-width:0}.bms-stock-bulk-simple label>*{width:100%;margin-top:3px}.bms-stock-bulk-simple span{font-size:12px;color:#64748b;align-self:center}.bms-stock-bulk-simple button{align-self:end}.bms-stock-bulk-actions{margin-top:10px}.bms-shell .bms-materials .bms-stock-tabs button.active{background:var(--bms-accent,#365b85)!important;color:#fff!important;border-color:var(--bms-accent,#365b85)!important}@media(max-width:700px){.bms-stock-bulk-simple{grid-template-columns:1fr 1fr}.bms-stock-bulk-simple span{grid-column:1/-1}}
