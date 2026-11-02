@@ -556,3 +556,8 @@
 .bms-shell .bms-job-detail .bms-job-form textarea{min-height:90px}
 .bms-shell .bms-job-detail .bms-job-form details>summary{padding:2px 0 12px}
 @media(min-width:1280px){.bms-shell .bms-job-detail .bms-job-form{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:22px;row-gap:26px}}
+
+/* Shared tenant-aware sidebar section selection. */
+.bms-shell #bms-sidebar .bms-nav-heading-active,.bms-shell #bms-sidebar .bms-nav-heading-active .bms-side-icon{color:var(--nav-accent,var(--bms-accent,#365b85))!important}
+.bms-shell #bms-sidebar .bms-side-active{background:color-mix(in srgb,var(--nav-accent,var(--bms-accent,#365b85)) 11%,white)!important;color:var(--nav-accent,var(--bms-accent,#365b85))!important}
+.bms-shell #bms-sidebar .bms-side-active .bms-side-icon{color:var(--nav-accent,var(--bms-accent,#365b85))!important}
