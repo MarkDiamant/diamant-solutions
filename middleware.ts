@@ -15,6 +15,12 @@ export async function middleware(request:NextRequest){
    if(path==="/favicon.ico"){const url=request.nextUrl.clone();url.pathname="/api/business-software/icon";const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path==="/manifest.webmanifest"){const url=request.nextUrl.clone();url.pathname="/api/business-software/manifest";return NextResponse.rewrite(url);}
    if(path.startsWith("/api/bms-demo"))return NextResponse.json({error:"Demo API is disabled on live BMS tenants."},{status:404});
+   // Workers cannot use any other tenant API, including direct endpoints outside the admin router.
+   if(path.startsWith("/api/")&&!path.startsWith("/api/admin/auth/")&&path!=="/api/admin/session"&&!path.startsWith("/api/admin/worker/")&&request.cookies.get("bms_access_token")?.value){
+     let role:string|null=null;
+     try{const r=await fetch(new URL("/api/admin/session",request.url),{headers:{cookie:request.headers.get("cookie")||""},cache:"no-store"});if(r.ok){const x=await r.json();role=String(x?.admin?.role||"").toLowerCase();}}catch{}
+     if(role==="worker")return NextResponse.json({error:"Worker access is limited to My Jobs"},{status:403});
+   }
    if(path.startsWith("/api/admin/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/"+path.slice("/api/admin/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path==="/api/jobs"||path.startsWith("/api/jobs/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/jobs"+path.slice("/api/jobs".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path.startsWith("/api/integrations/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/integrations/"+path.slice("/api/integrations/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
