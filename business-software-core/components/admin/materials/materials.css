@@ -326,3 +326,17 @@
 @media(max-width:1350px){.bms-materials-order-inline{grid-template-columns:minmax(150px,2fr) minmax(70px,.7fr) minmax(95px,1fr) 65px 80px 50px 95px 110px}.bms-materials-order-inline>.bms-materials-cell:nth-child(4){display:none}}
 @media(max-width:900px){.bms-materials-order-inline{grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.bms-materials-name{grid-column:span 2}.bms-materials-row-actions{grid-column:span 2;justify-content:flex-start}.bms-materials-order-inline>.bms-materials-cell:nth-child(4){display:flex}}
 @media(max-width:550px){.bms-materials-order-inline{grid-template-columns:repeat(2,minmax(0,1fr))}.bms-materials-name{grid-column:1/-1}}
+
+/* Purchasing compact layout and row-action overflow corrections */
+.bms-shell .bms-materials .bms-materials-actions{background:transparent!important;border:0!important;padding:0!important;flex-wrap:wrap!important}
+.bms-materials-actions>input{flex:0 1 185px!important;max-width:220px!important}
+.bms-materials-order-inline{grid-template-columns:minmax(130px,2fr) minmax(50px,.6fr) minmax(85px,1fr) minmax(85px,1fr) 60px 70px 42px 82px minmax(120px,1fr)!important;gap:7px!important}
+.bms-materials-row-actions{min-width:0!important;flex-wrap:nowrap!important;justify-content:flex-end!important}
+.bms-materials-row-actions a{white-space:nowrap!important}
+.bms-materials-row-actions button{min-width:64px!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;padding:6px 8px!important}
+.bms-materials-toolbar{display:grid!important;grid-template-columns:minmax(170px,1fr) minmax(170px,1fr) minmax(190px,1fr)!important;align-items:end}
+.bms-materials-copy-strip{margin:0!important;padding:0!important;border:0!important;min-width:0!important}
+.bms-materials-copy-strip label{min-width:0!important;flex:1!important}
+.bms-materials-copy-strip span{display:none!important}
+@media(max-width:1150px){.bms-materials-order-inline{grid-template-columns:repeat(4,minmax(0,1fr))!important}.bms-materials-name{grid-column:span 2}.bms-materials-row-actions{grid-column:span 2;justify-content:flex-start!important}.bms-materials-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-materials-copy-strip{grid-column:1/-1}}
+@media(max-width:550px){.bms-materials-order-inline,.bms-materials-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-materials-name{grid-column:1/-1}}
