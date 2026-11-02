@@ -440,3 +440,13 @@
 .bms-shell .bms-materials .bms-materials-summary>div,.bms-shell .bms-materials .bms-materials-summary>strong{display:flex!important;align-items:center!important;line-height:20px!important;white-space:nowrap!important;font-size:12px!important}
 .bms-shell .bms-materials .bms-materials-summary>strong{font-size:13px!important}
 @media(max-width:600px){.bms-shell .bms-materials .bms-materials-summary{gap:8px!important;grid-template-columns:repeat(3,max-content)!important;max-width:100%!important;font-size:11px!important}.bms-shell .bms-materials .bms-materials-summary>strong{font-size:12px!important}}
+
+/* Stock page: compact header, Price Book-style tabs and inventory pagination */
+.bms-shell .bms-materials:has(.bms-stock-tabs){padding-top:8px!important;}
+.bms-shell .bms-materials:has(.bms-stock-tabs) .bms-materials-header{margin-bottom:10px!important;padding-bottom:0!important;min-height:0!important;}
+.bms-stock-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px!important;padding:0!important;}
+.bms-stock-tabs button{border:1px solid var(--bms-border,#d8dee7);border-radius:12px;padding:9px 16px;font-size:14px;font-weight:750;background:transparent;color:inherit;cursor:pointer;}
+.bms-stock-tabs button.active{background:var(--bms-accent,#365b85);color:white;border-color:var(--bms-accent,#365b85);}
+.bms-stock-pagination{display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:13px;}
+.bms-stock-pagination button{border:1px solid #cdd5df;border-radius:9px;background:transparent;padding:7px 12px;cursor:pointer;}
+.bms-stock-pagination button:disabled{opacity:.4;cursor:default;}
