@@ -340,3 +340,18 @@
 .bms-materials-copy-strip span{display:none!important}
 @media(max-width:1150px){.bms-materials-order-inline{grid-template-columns:repeat(4,minmax(0,1fr))!important}.bms-materials-name{grid-column:span 2}.bms-materials-row-actions{grid-column:span 2;justify-content:flex-start!important}.bms-materials-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-materials-copy-strip{grid-column:1/-1}}
 @media(max-width:550px){.bms-materials-order-inline,.bms-materials-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-materials-name{grid-column:1/-1}}
+
+/* Purchase-order workflow: compact single-row desktop controls */
+.bms-shell .bms-materials .bms-purchase-flow{display:grid!important;grid-template-columns:minmax(190px,2fr) minmax(115px,.85fr) auto minmax(165px,1.4fr) auto minmax(185px,1.7fr);align-items:end;gap:8px;margin:12px 0 6px}
+.bms-purchase-flow label{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:11px;font-weight:700}
+.bms-purchase-flow input,.bms-purchase-flow select{box-sizing:border-box;width:100%!important;min-width:0!important;max-width:none!important;height:37px!important;min-height:37px!important;padding:7px 9px!important;border-radius:7px!important;font-size:12px!important}
+.bms-purchase-flow button{height:37px!important;white-space:nowrap;padding:6px 11px!important;border-radius:7px}
+.bms-flow-search{min-width:0;position:relative}.bms-flow-search label{width:100%}
+.bms-flow-search .bms-materials-suggestions{position:absolute;z-index:20;top:100%;left:0;right:0;max-height:280px;overflow:auto;background:white;border:1px solid #cbd5e1;box-shadow:0 8px 20px #0002}
+.bms-flow-search .bms-materials-suggestions button{display:block;width:100%;height:auto!important;text-align:left;white-space:normal}
+.bms-flow-utility{display:flex;gap:10px;justify-content:flex-end;align-items:center;margin:6px 0 10px}
+.bms-flow-utility button{border:1px solid #cbd5e1;border-radius:7px;padding:7px 10px;background:transparent;font-size:11px}
+.bms-flow-confirm{display:flex;align-items:center;justify-content:flex-end;gap:14px;padding:12px 0 2px;font-size:12px}
+.bms-flow-confirm button{padding:10px 15px!important}
+@media(max-width:1150px){.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:650px){.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(2,minmax(0,1fr))}.bms-flow-existing,.bms-flow-search{grid-column:1/-1}}
