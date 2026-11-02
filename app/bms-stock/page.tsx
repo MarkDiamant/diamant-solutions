@@ -13,6 +13,7 @@ export default function StockPage(){
 const [data,setData]=useState<Data>({locations:[],products:[],balances:[],movements:[],reservations:[],jobs:[],consumptions:[],returns:[]}),[busy,setBusy]=useState(false),[error,setError]=useState(""),[loading,setLoading]=useState(true);
 const [search,setSearch]=useState(""),[filter,setFilter]=useState(""),[name,setName]=useState("");
 const [tab,setTab]=useState<"inventory"|"locations"|"movements"|"jobs">("inventory"),[pageSize,setPageSize]=useState(25),[page,setPage]=useState(1);
+const [bulk,setBulk]=useState(false),[bulkRows,setBulkRows]=useState<{product_id:string;location_id:string;to_location_id:string;quantity:string;kind:string;reason:string}[]>([{product_id:"",location_id:"",to_location_id:"",quantity:"",kind:"transfer",reason:""}]);
 const [returnConsumption,setReturnConsumption]=useState(""),[returnLocation,setReturnLocation]=useState(""),[returnQty,setReturnQty]=useState("");
 const [reserveJob,setReserveJob]=useState(""),[reserveProduct,setReserveProduct]=useState(""),[reserveLocation,setReserveLocation]=useState(""),[reserveQty,setReserveQty]=useState(""),[reserveMode,setReserveMode]=useState("reserve");
 const [product,setProduct]=useState(""),[location,setLocation]=useState(""),[destination,setDestination]=useState(""),[quantity,setQuantity]=useState(""),[reason,setReason]=useState(""),[job,setJob]=useState(""),[kind,setKind]=useState("transfer");
