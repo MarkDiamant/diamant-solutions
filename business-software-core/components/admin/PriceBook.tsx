@@ -1,6 +1,7 @@
 "use client";
 import { friendlyError } from "../../lib/friendly-error";
 import {BmsPage,BmsInput,BmsSelect,BmsField} from "./BmsUI";
+import ProductCsvImport from "./ProductCsvImport";
 import {useEffect,useMemo,useState} from "react";
 import {usePathname} from "next/navigation";
 type Row={specifications?:{product_url?:string;[key:string]:unknown};image_urls?:string[];id?:string;name:string;category?:string;description?:string;sku?:string;supplier_id?:string|null;default_length_m?:number|null;notes?:string;unit:string;cost_net?:number|null;cost_rate?:number|null;cost_vat_rate?:number;pricing_method?:string;markup_percent?:number|null;margin_percent?:number|null;fixed_sell_net?:number|null;fixed_sell_rate?:number|null;person_id?:string|null;person_name?:string|null;active?:boolean};
@@ -29,6 +30,7 @@ export default function PriceBook(){
  async function saveDefaults(){setSaving(true);const r=await fetch("/api/admin/price-book/settings",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data.pricing)}),b=await r.json().catch(()=>({}));setSaving(false);if(!r.ok){setMsg(friendlyError(b.error)||"Could not save pricing defaults");return}setData((x:any)=>({...x,pricing:b.pricing}));setMsg("Pricing defaults saved")}
  const cost=editType==="item"?Number(edit?.cost_net||0):Number(edit?.cost_rate||0);
  return <BmsPage className="max-w-[1500px]">
+  <details className="mb-4 rounded-xl border bg-white p-4"><summary className="cursor-pointer font-bold">Import products from CSV</summary><p className="mt-2 text-sm text-slate-600">Review duplicates and validation results before confirming. Existing products are preserved.</p><div className="mt-3"><ProductCsvImport onImported={load}/></div></details>
   <div className="flex flex-wrap items-end justify-between gap-3"><div><h1 className="bms-page-title text-3xl font-black">Price Book</h1><p className="mt-0.5 max-w-3xl text-sm text-black/55">Set standard item and labour prices. Customer-specific prices override these defaults. Prices exclude VAT.</p></div>{tab==="items"&&<button onClick={()=>{setSpecOpen(false);setEditType("item");setEdit(defaultRow("item"))}} className="rounded-xl px-4 py-2.5 text-sm font-black text-white" style={{backgroundColor:'var(--bms-accent, #365b85)'}}>+ Add item</button>}</div>
   <div className="mt-3 flex flex-wrap gap-2">{[["items","Items"],["labour","Labour"],["defaults","Pricing defaults"]].map(([k,l])=><button key={k} onClick={()=>setTab(k as any)} className={"rounded-xl border px-4 py-2 text-sm font-black "+(tab===k?"text-white":"bg-white")} style={tab===k?{backgroundColor:'var(--bms-accent, #365b85)',borderColor:'var(--bms-accent, #365b85)'}:undefined}>{l}</button>)}</div>
   {tab==="items"&&<div className="mt-2 flex flex-wrap gap-3 text-xs font-semibold"><button type="button" onClick={()=>{setManager("categories");setManagerOld("");setManagerName("")}} className="underline">Manage categories</button><button type="button" onClick={()=>{setManager("suppliers");setManagerOld("");setManagerName("")}} className="underline">Manage suppliers</button></div>}
