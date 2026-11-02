@@ -379,3 +379,7 @@
 .bms-purchase-history-empty{padding:12px 0 2px;margin:0;color:#64748b;font-size:13px}
 .bms-flow-existing>span[role="status"]{font-size:11px;color:var(--bms-accent,#365b85);font-weight:700}
 @media(max-width:650px){.bms-purchase-history-heading{align-items:stretch;flex-direction:column}.bms-purchase-history-heading input{width:100%!important;max-width:none!important}}
+
+.bms-materials-tabs button{border:1px solid var(--bms-accent,#243c5b);border-radius:7px;background:transparent;color:inherit;padding:8px 13px;font-weight:700;font-size:12px;cursor:pointer}
+.bms-materials-tabs button[aria-current="page"]{background:var(--bms-accent,#243c5b);color:white}
+.bms-materials-panel h2{font-size:17px;font-weight:800;margin:0 0 12px}
