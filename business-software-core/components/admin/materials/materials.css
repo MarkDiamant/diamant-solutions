@@ -371,3 +371,11 @@
 .bms-purchase-history-row:hover{background:rgba(125,125,125,.06)}
 @media(max-width:1250px){.bms-shell .bms-materials .bms-materials-order-inline{grid-template-columns:repeat(5,minmax(0,1fr))!important}.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media(max-width:650px){.bms-shell .bms-materials .bms-materials-order-inline,.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-purchase-history-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.bms-purchase-history{padding:16px!important}
+.bms-purchase-history-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:12px}
+.bms-purchase-history-heading h2{margin:0!important;font-size:16px!important}
+.bms-purchase-history-heading input{width:300px!important;max-width:45%!important;margin:0!important;height:37px!important}
+.bms-purchase-history-empty{padding:12px 0 2px;margin:0;color:#64748b;font-size:13px}
+.bms-flow-existing>span[role="status"]{font-size:11px;color:var(--bms-accent,#365b85);font-weight:700}
+@media(max-width:650px){.bms-purchase-history-heading{align-items:stretch;flex-direction:column}.bms-purchase-history-heading input{width:100%!important;max-width:none!important}}
