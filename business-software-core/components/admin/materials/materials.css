@@ -355,3 +355,19 @@
 .bms-flow-confirm button{padding:10px 15px!important}
 @media(max-width:1150px){.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(2,minmax(0,1fr))}.bms-flow-existing,.bms-flow-search{grid-column:1/-1}}
+
+/* Purchasing refinement: consistent controls, product stock and searchable order history */
+.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:minmax(130px,1fr) minmax(115px,.85fr) 100px minmax(155px,1.35fr) 65px minmax(280px,2.4fr)!important;align-items:end!important}
+.bms-purchase-flow>button,.bms-flow-utility button{box-sizing:border-box!important;height:37px!important;min-height:37px!important;line-height:1.1!important;padding:7px 11px!important}
+.bms-flow-utility .bms-materials-add-product{height:37px!important;box-sizing:border-box!important}
+.bms-shell .bms-materials .bms-materials-order-inline{grid-template-columns:minmax(185px,2.2fr) 75px minmax(100px,1fr) minmax(100px,1fr) 100px 75px 46px 90px 100px minmax(200px,1.5fr)!important;gap:9px!important}
+.bms-materials-order-inline .bms-materials-cell{overflow-wrap:normal!important;word-break:normal!important}
+.bms-materials-row-actions{gap:10px!important}
+.bms-materials-row-actions a{white-space:normal!important}
+.bms-purchase-history{margin-top:15px!important}
+.bms-purchase-history h2{font-size:17px;font-weight:800;margin-bottom:6px}
+.bms-purchase-history>input{max-width:380px;width:100%;margin:10px 0}
+.bms-purchase-history-row{display:grid;width:100%;grid-template-columns:1fr 1fr .7fr .7fr auto;gap:12px;align-items:center;padding:12px!important;border:1px solid #dce4ee;border-radius:9px;margin-top:7px;text-align:left;background:white;color:inherit}
+.bms-purchase-history-row:hover{background:rgba(125,125,125,.06)}
+@media(max-width:1250px){.bms-shell .bms-materials .bms-materials-order-inline{grid-template-columns:repeat(5,minmax(0,1fr))!important}.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:650px){.bms-shell .bms-materials .bms-materials-order-inline,.bms-shell .bms-materials .bms-purchase-flow{grid-template-columns:repeat(2,minmax(0,1fr))!important}.bms-purchase-history-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
