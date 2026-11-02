@@ -239,3 +239,16 @@
 .bms-shell .bms-materials :is(.bms-primary,.bms-materials-history-toggle){background:var(--bms-accent)!important;border-color:var(--bms-accent)!important;color:var(--bms-on-accent,#fff)!important}
 .bms-shell .bms-materials button:not(.bms-primary):not(.bms-confirm):not(.bms-danger):not(.bms-materials-history-toggle){color:var(--bms-text,#172334);border-color:var(--bms-border,#e2e8f0);background:#fff}
 .bms-shell .bms-materials button:not(.bms-primary):not(.bms-confirm):not(.bms-danger):not(.bms-materials-history-toggle):hover{border-color:var(--bms-accent-border);background:var(--bms-accent-soft)}
+
+/* Actual tenant Purchasing page: match the clean Price Book header, not a boxed hero. */
+.bms-shell .bms-materials{max-width:none!important;padding:clamp(16px,2vw,30px)!important}
+.bms-shell .bms-materials .bms-materials-header{background:transparent!important;border:0!important;border-left:0!important;box-shadow:none!important;padding:0!important;min-height:0!important;margin:0 0 22px!important;align-items:center!important}
+.bms-shell .bms-materials .bms-materials-header h1{font-size:clamp(26px,2.2vw,32px)!important;font-weight:850!important;margin:0 0 4px!important}
+.bms-shell .bms-materials .bms-materials-header .bms-materials-subtitle{font-size:14px!important}
+.bms-materials .bms-materials-new-order{display:inline-flex;align-items:center;justify-content:center;padding:12px 17px;border-radius:11px;background:var(--bms-accent,#e9681c);color:#fff!important;font-weight:800;font-size:13px;text-decoration:none;white-space:nowrap}
+.bms-materials-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.bms-materials-tabs a{border:1px solid var(--bms-border,#dce4ed);background:#fff;border-radius:11px;padding:10px 14px;text-decoration:none;font-size:13px;font-weight:750;color:var(--bms-text,#172334)!important}
+.bms-materials-tabs a:hover{border-color:var(--bms-accent,#e9681c)}
+.bms-materials-anchor{scroll-margin-top:80px}
+.bms-shell .bms-materials button.bms-primary,.bms-shell .bms-materials button.bms-primary:hover:not(:disabled){color:#fff!important;background:var(--bms-accent,#e9681c)!important;border-color:var(--bms-accent,#e9681c)!important}
+@media(max-width:580px){.bms-shell .bms-materials .bms-materials-header{flex-wrap:wrap!important}.bms-materials .bms-materials-new-order{width:100%}}
