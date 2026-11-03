@@ -163,3 +163,99 @@ CREATE OR REPLACE FUNCTION public.bms_attach_money_decision_payment(p_tenant uui
  SET search_path TO 'public'
 AS $function$declare d public.business_software_money_decisions%rowtype;p public.business_software_payments%rowtype;old_state jsonb;begin select * into d from public.business_software_money_decisions where tenant_id=p_tenant and provider='xero' and external_transaction_id=p_external for update;if d.id is null then raise exception 'Reconciliation decision missing';end if;select * into p from public.business_software_payments where tenant_id=p_tenant and id=p_payment;if p.id is null or abs(p.amount-d.amount)>0.005 or (d.direction='in' and p.direction<>'customer_in') or (d.direction='out' and p.direction<>'subcontractor_out') then raise exception 'Payment tenant, amount or direction mismatch';end if;if d.linked_payment_id is distinct from p_payment then old_state:=to_jsonb(d);update public.business_software_money_decisions set linked_payment_id=p_payment,actor_id=p_actor,updated_at=now() where id=d.id returning * into d;insert into public.business_software_money_decision_history(decision_id,tenant_id,actor_id,previous_state,new_state) values(d.id,p_tenant,p_actor,old_state,to_jsonb(d));end if;return to_jsonb(d);end$function$
 
+
+-- Outgoing bank spends enter the ledger only after explicit duplicate confirmation.
+alter table public.business_software_money_decisions add column if not exists source_kind text not null default 'invoice_payment';
+alter table public.business_software_money_decisions add constraint bms_money_source_kind_check check(source_kind in ('invoice_payment','bank_receipt','bank_spend'));
+CREATE OR REPLACE FUNCTION public.bms_record_money_decision_v3(p_tenant uuid, p_provider text, p_external text, p_direction text, p_status text, p_job uuid, p_invoice uuid, p_assignment uuid, p_actor uuid, p_reason text, p_amount numeric, p_payment uuid, p_kind text, p_confirm_unlinked boolean)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SET search_path TO 'public'
+AS $function$declare result jsonb;old_state jsonb;begin if p_kind not in ('invoice_payment','bank_receipt','bank_spend') then raise exception 'Invalid source kind';end if;if p_kind='bank_spend' and p_direction<>'out' or p_kind='bank_receipt' and p_direction<>'in' then raise exception 'Bank direction mismatch';end if;if p_kind='bank_spend' and p_status='verified' and p_payment is null and p_confirm_unlinked is distinct from true then raise exception 'Confirm this bank spend is not already recorded in BMS';end if;result:=public.bms_record_money_decision_v2(p_tenant,p_provider,p_external,p_direction,p_status,p_job,p_invoice,p_assignment,p_actor,p_reason,p_amount,p_payment);select to_jsonb(d) into old_state from public.business_software_money_decisions d where d.tenant_id=p_tenant and d.provider=p_provider and d.external_transaction_id=p_external for update;if old_state->>'source_kind' is distinct from p_kind then update public.business_software_money_decisions set source_kind=p_kind where tenant_id=p_tenant and provider=p_provider and external_transaction_id=p_external returning to_jsonb(business_software_money_decisions) into result;insert into public.business_software_money_decision_history(decision_id,tenant_id,actor_id,previous_state,new_state) values((result->>'id')::uuid,p_tenant,p_actor,old_state,result);end if;return result;end$function$
+
+revoke all on function public.bms_record_money_decision_v3(uuid,text,text,text,text,uuid,uuid,uuid,uuid,text,numeric,uuid,text,boolean) from public,anon,authenticated;
+grant execute on function public.bms_record_money_decision_v3(uuid,text,text,text,text,uuid,uuid,uuid,uuid,text,numeric,uuid,text,boolean) to service_role;
+create or replace view public.business_software_effective_money_ledger with (security_invoker=true) as  SELECT p.tenant_id,
+    p.id::text AS source_id,
+    p.id AS payment_id,
+        CASE
+            WHEN d.status = ANY (ARRAY['non_job'::text, 'excluded'::text, 'review'::text]) THEN NULL::uuid
+            ELSE COALESCE(d.job_id, p.job_id)
+        END AS job_id,
+    p.direction,
+    p.amount,
+    p.paid_at,
+    p.payment_type,
+    COALESCE(d.status,
+        CASE
+            WHEN l.verified_at IS NOT NULL THEN 'verified'::text
+            ELSE 'recorded'::text
+        END) AS reconciliation_status,
+    l.external_transaction_id,
+    d.subcontractor_assignment_id,
+    d.invoice_id,
+    'bms'::text AS origin
+   FROM business_software_payments p
+     LEFT JOIN LATERAL ( SELECT l_1.external_transaction_id,
+            l_1.verified_at
+           FROM business_software_payment_external_links l_1
+          WHERE l_1.tenant_id = p.tenant_id AND l_1.payment_id = p.id AND l_1.provider = 'xero'::text
+          ORDER BY l_1.verified_at DESC NULLS LAST
+         LIMIT 1) l ON true
+     LEFT JOIN LATERAL ( SELECT d1.id,
+            d1.tenant_id,
+            d1.provider,
+            d1.external_transaction_id,
+            d1.direction,
+            d1.status,
+            d1.job_id,
+            d1.invoice_id,
+            d1.subcontractor_assignment_id,
+            d1.actor_id,
+            d1.reason,
+            d1.amount,
+            d1.updated_at,
+            d1.linked_payment_id
+           FROM business_software_money_decisions d1
+          WHERE d1.tenant_id = p.tenant_id AND d1.provider = 'xero'::text AND (d1.linked_payment_id = p.id OR d1.linked_payment_id IS NULL AND d1.external_transaction_id = l.external_transaction_id)
+          ORDER BY (d1.linked_payment_id IS NOT NULL) DESC
+         LIMIT 1) d ON true
+UNION ALL
+ SELECT d.tenant_id,
+    d.external_transaction_id AS source_id,
+    NULL::uuid AS payment_id,
+    d.job_id,
+    'customer_in'::text AS direction,
+    d.amount,
+    COALESCE(u.paid_at::timestamp with time zone, d.updated_at) AS paid_at,
+    'verified_xero_unlinked'::text AS payment_type,
+    d.status AS reconciliation_status,
+    d.external_transaction_id,
+    d.subcontractor_assignment_id,
+    d.invoice_id,
+    'xero_unlinked'::text AS origin
+   FROM business_software_money_decisions d
+     JOIN business_software_accounting_unmatched_receipts u ON u.tenant_id = d.tenant_id AND u.provider = d.provider AND u.external_transaction_id = d.external_transaction_id
+  WHERE (d.status = 'verified'::text OR d.status = 'assigned'::text AND (EXISTS ( SELECT 1
+           FROM business_software_money_decision_history h
+          WHERE h.decision_id = d.id AND (h.new_state ->> 'status'::text) = 'verified'::text))) AND d.direction = 'in'::text AND d.job_id IS NOT NULL AND d.invoice_id IS NULL AND d.linked_payment_id IS NULL AND NOT (EXISTS ( SELECT 1
+           FROM business_software_payment_external_links l
+          WHERE l.tenant_id = d.tenant_id AND l.provider = d.provider AND l.external_transaction_id = d.external_transaction_id))
+UNION ALL
+ SELECT d.tenant_id,
+    d.external_transaction_id AS source_id,
+    NULL::uuid AS payment_id,
+    d.job_id,
+    'subcontractor_out'::text AS direction,
+    d.amount,
+    d.updated_at AS paid_at,
+    'verified_xero_bank_spend'::text AS payment_type,
+    d.status AS reconciliation_status,
+    d.external_transaction_id,
+    d.subcontractor_assignment_id,
+    d.invoice_id,
+    'xero_unlinked'::text AS origin
+   FROM business_software_money_decisions d
+  WHERE d.status = 'verified'::text AND d.source_kind = 'bank_spend'::text AND d.direction = 'out'::text AND d.job_id IS NOT NULL AND d.linked_payment_id IS NULL AND NOT (EXISTS ( SELECT 1
+           FROM business_software_payment_external_links l
+          WHERE l.tenant_id = d.tenant_id AND l.provider = d.provider AND l.external_transaction_id = d.external_transaction_id));
