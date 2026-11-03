@@ -63,7 +63,7 @@ export default function CrmDashboardV3() {
   const [summaryFilter,setSummaryFilter]=useState<string|null>("Total enquiries");
   const [xeroSyncing,setXeroSyncing]=useState(false),[xeroSyncNotice,setXeroSyncNotice]=useState("");
   const [xeroReviewCount,setXeroReviewCount]=useState<number|null>(null);
-  const [customerLedger,setCustomerLedger]=useState<{recorded_total:number;verified_xero_total:number;historical_unverified_total:number;undated_count:number;unlinked_count:number;complete:boolean}|null>(null);
+  const [customerLedger,setCustomerLedger]=useState<{recorded_total:number;verified_xero_total:number;historical_unverified_total:number;undated_count:number;unlinked_count:number;complete:boolean;job_totals?:{job_id:string;received:number;paid_out:number}[];effective_received_total?:number}|null>(null);
   useEffect(()=>{let active=true;fetch("/api/admin/integrations/xero/unmatched",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(x=>{if(active&&Array.isArray(x?.receipts))setXeroReviewCount(x.receipts.length)}).catch(()=>{});return()=>{active=false}},[]);
   const [pageSize,setPageSize]=useState(25), [page,setPage]=useState(1);
   const [editingRef,setEditingRef]=useState<string|null>(null), [draft,setDraft]=useState<QuickDraft|null>(null), [savingRef,setSavingRef]=useState<string|null>(null), [customType,setCustomType]=useState("");
@@ -100,11 +100,13 @@ export default function CrmDashboardV3() {
     const wonJobs=realJobs.filter(j=>won.has(j.status));
     const pipelineJobs=realJobs.filter(j=>pending.has(j.status));
     const finalProfit=(j:any)=>j.finalCost!=null&&(j.agreedAmount!=null||j.quotedAmount!=null||j.preliminaryEstimate!=null)?value(j)-Number(j.finalCost):0;
-    const amountOutstanding=(j:any)=>won.has(j.status)&&j.status!=="completed"?Math.max(0,value(j)-Math.max(0,Number(j.amountPaid||0))):0;
+    const paidByJob=new Map((customerLedger?.job_totals||[]).map(v=>[String(v.job_id),Number(v.received||0)]));
+    const paid=(j:any)=>customerLedger?.complete&&Array.isArray(customerLedger.job_totals)?(paidByJob.get(String(j.id))||0):Number(j.amountPaid||0);
+    const amountOutstanding=(j:any)=>won.has(j.status)?Math.max(0,value(j)-Math.max(0,paid(j))):0;
     return {
       wonValue: wonJobs.reduce((s,j)=>s+value(j),0),
-      received: realJobs.reduce((s,j)=>s+Number(j.amountPaid||0),0),
-      completedPaidValue:realJobs.filter(j=>j.status==="completed").reduce((sum,j)=>sum+value(j),0),
+      received: customerLedger?.complete&&Array.isArray(customerLedger.job_totals)?Number(customerLedger.effective_received_total||0):realJobs.reduce((s,j)=>s+Number(j.amountPaid||0),0),
+      completedPaidValue:realJobs.filter(j=>j.status==="completed").reduce((sum,j)=>sum+paid(j),0),
       historicalUnverified: realJobs.reduce((sum,j)=>sum+(Array.isArray(j.customerPayments)?j.customerPayments:[]).filter((p:any)=>p.payment_type==="historical_xero_paid").reduce((n:number,p:any)=>n+Number(p.amount||0),0),0),
       outstanding: realJobs.reduce((s,j)=>s+amountOutstanding(j),0),
       pipeline: pipelineJobs.reduce((s,j)=>s+value(j),0),
@@ -115,7 +117,7 @@ export default function CrmDashboardV3() {
       declinedValue:realJobs.filter(j=>j.status==="declined").reduce((sum,j)=>sum+value(j),0),
       cancelledValue:realJobs.filter(j=>j.status==="cancelled").reduce((sum,j)=>sum+value(j),0),
     };
-  },[realJobs]);
+  },[realJobs,customerLedger]);
   const activityReference=(a:any)=>{const id=String(a.job_id||a.jobId||a.job?.id||a.mj_jobs?.id||"");return a.mj_jobs?.reference||a.job?.reference||a.job_reference||a.jobReference||a.reference||jobs.find((j:any)=>String(j.id||j.job_id||"")===id)?.reference||"";};
   const filtered=useMemo(()=>{
     const pendingStatuses=new Set(["new_enquiry","awaiting_information","site_visit_required","site_visit_booked","estimate_preparing","estimate_sent","quote_preparing","quote_sent","awaiting_customer","interested_not_ready","customer_unsure"]);
