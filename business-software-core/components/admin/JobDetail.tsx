@@ -89,7 +89,8 @@ export default function JobDetail({reference}:{reference:string}){
   const balance=balanceActive?Math.max(0,invoicedTotal-received):0;
   const actualCosts=(data.costs||[]).reduce((s:number,x:any)=>s+Number(x.actual_amount??x.estimated_amount??0),0);
   const subcontractCosts=(data.assignments||[]).reduce((s:number,x:any)=>s+Number(x.agreed_cost||0),0);
-  const grossProfit=agreed-actualCosts-subcontractCosts;
+  const xeroExpenseCosts=Number(data.xeroExpenseCosts?.materials||0)+Number(data.xeroExpenseCosts?.workforce||0)+Number(data.xeroExpenseCosts?.other||0);
+  const grossProfit=agreed-actualCosts-subcontractCosts-xeroExpenseCosts;
   const recordedActualCosts=(data.costs||[]).reduce((sum:number,x:any)=>sum+Number(x.actual_amount||0),0);
   const estimatedOnlyCosts=(data.costs||[]).reduce((sum:number,x:any)=>sum+(x.actual_amount==null?Number(x.estimated_amount||0):0),0);
   const fullName=[c.first_name,c.last_name].filter(Boolean).join(" ")||"Customer";
