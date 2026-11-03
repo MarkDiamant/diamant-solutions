@@ -264,3 +264,91 @@ UNION ALL
 grant select,insert,update on public.business_software_money_decisions to service_role;
 grant select,insert on public.business_software_money_decision_history to service_role;
 grant select on public.business_software_effective_money_ledger to service_role;
+
+-- Corrected: include verified Xero invoice receipts even when absent from unmatched receipt snapshots.
+-- Only add unlinked transactions; BMS-linked payments remain in the original ledger arm.
+create or replace view public.business_software_effective_money_ledger with (security_invoker=true) as  SELECT p.tenant_id,
+    p.id::text AS source_id,
+    p.id AS payment_id,
+        CASE
+            WHEN d.status = ANY (ARRAY['non_job'::text, 'excluded'::text, 'review'::text]) THEN NULL::uuid
+            ELSE COALESCE(d.job_id, p.job_id)
+        END AS job_id,
+    p.direction,
+    p.amount,
+    p.paid_at,
+    p.payment_type,
+    COALESCE(d.status,
+        CASE
+            WHEN l.verified_at IS NOT NULL THEN 'verified'::text
+            ELSE 'recorded'::text
+        END) AS reconciliation_status,
+    l.external_transaction_id,
+    d.subcontractor_assignment_id,
+    d.invoice_id,
+    'bms'::text AS origin
+   FROM business_software_payments p
+     LEFT JOIN LATERAL ( SELECT l_1.external_transaction_id,
+            l_1.verified_at
+           FROM business_software_payment_external_links l_1
+          WHERE l_1.tenant_id = p.tenant_id AND l_1.payment_id = p.id AND l_1.provider = 'xero'::text
+          ORDER BY l_1.verified_at DESC NULLS LAST
+         LIMIT 1) l ON true
+     LEFT JOIN LATERAL ( SELECT d1.id,
+            d1.tenant_id,
+            d1.provider,
+            d1.external_transaction_id,
+            d1.direction,
+            d1.status,
+            d1.job_id,
+            d1.invoice_id,
+            d1.subcontractor_assignment_id,
+            d1.actor_id,
+            d1.reason,
+            d1.amount,
+            d1.updated_at,
+            d1.linked_payment_id
+           FROM business_software_money_decisions d1
+          WHERE d1.tenant_id = p.tenant_id AND d1.provider = 'xero'::text AND (d1.linked_payment_id = p.id OR d1.linked_payment_id IS NULL AND d1.external_transaction_id = l.external_transaction_id)
+          ORDER BY (d1.linked_payment_id IS NOT NULL) DESC
+         LIMIT 1) d ON true
+UNION ALL
+ SELECT d.tenant_id,
+    d.external_transaction_id AS source_id,
+    NULL::uuid AS payment_id,
+    d.job_id,
+    'customer_in'::text AS direction,
+    d.amount,
+    COALESCE(u.paid_at::timestamp with time zone, d.updated_at) AS paid_at,
+    'verified_xero_unlinked'::text AS payment_type,
+    d.status AS reconciliation_status,
+    d.external_transaction_id,
+    d.subcontractor_assignment_id,
+    d.invoice_id,
+    'xero_unlinked'::text AS origin
+   FROM business_software_money_decisions d
+     LEFT JOIN business_software_accounting_unmatched_receipts u ON u.tenant_id = d.tenant_id AND u.provider = d.provider AND u.external_transaction_id = d.external_transaction_id
+  WHERE (d.status = 'verified'::text OR d.status = 'assigned'::text AND (EXISTS ( SELECT 1
+           FROM business_software_money_decision_history h
+          WHERE h.decision_id = d.id AND (h.new_state ->> 'status'::text) = 'verified'::text))) AND d.direction = 'in'::text AND d.job_id IS NOT NULL AND d.linked_payment_id IS NULL AND NOT (EXISTS ( SELECT 1
+           FROM business_software_payment_external_links l
+          WHERE l.tenant_id = d.tenant_id AND l.provider = d.provider AND l.external_transaction_id = d.external_transaction_id))
+UNION ALL
+ SELECT d.tenant_id,
+    d.external_transaction_id AS source_id,
+    NULL::uuid AS payment_id,
+    d.job_id,
+    'subcontractor_out'::text AS direction,
+    d.amount,
+    d.updated_at AS paid_at,
+    'verified_xero_bank_spend'::text AS payment_type,
+    d.status AS reconciliation_status,
+    d.external_transaction_id,
+    d.subcontractor_assignment_id,
+    d.invoice_id,
+    'xero_unlinked'::text AS origin
+   FROM business_software_money_decisions d
+  WHERE d.status = 'verified'::text AND d.source_kind = 'bank_spend'::text AND d.direction = 'out'::text AND d.job_id IS NOT NULL AND d.linked_payment_id IS NULL AND NOT (EXISTS ( SELECT 1
+           FROM business_software_payment_external_links l
+          WHERE l.tenant_id = d.tenant_id AND l.provider = d.provider AND l.external_transaction_id = d.external_transaction_id));
+
