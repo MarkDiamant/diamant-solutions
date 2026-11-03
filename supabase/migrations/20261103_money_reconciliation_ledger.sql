@@ -259,3 +259,8 @@ UNION ALL
   WHERE d.status = 'verified'::text AND d.source_kind = 'bank_spend'::text AND d.direction = 'out'::text AND d.job_id IS NOT NULL AND d.linked_payment_id IS NULL AND NOT (EXISTS ( SELECT 1
            FROM business_software_payment_external_links l
           WHERE l.tenant_id = d.tenant_id AND l.provider = d.provider AND l.external_transaction_id = d.external_transaction_id));
+
+-- Internal tenant-checked API uses service_role; preserve RLS and prohibit direct client writes.
+grant select,insert,update on public.business_software_money_decisions to service_role;
+grant select,insert on public.business_software_money_decision_history to service_role;
+grant select on public.business_software_effective_money_ledger to service_role;
