@@ -155,3 +155,11 @@ UNION ALL
           WHERE h.decision_id = d.id AND (h.new_state ->> 'status'::text) = 'verified'::text))) AND d.direction = 'in'::text AND d.job_id IS NOT NULL AND d.invoice_id IS NULL AND d.linked_payment_id IS NULL AND NOT (EXISTS ( SELECT 1
            FROM business_software_payment_external_links l
           WHERE l.tenant_id = d.tenant_id AND l.provider = d.provider AND l.external_transaction_id = d.external_transaction_id));
+
+-- Preserve exact previous state for linked-payment corrections.
+CREATE OR REPLACE FUNCTION public.bms_attach_money_decision_payment(p_tenant uuid, p_external text, p_payment uuid, p_actor uuid)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SET search_path TO 'public'
+AS $function$declare d public.business_software_money_decisions%rowtype;p public.business_software_payments%rowtype;old_state jsonb;begin select * into d from public.business_software_money_decisions where tenant_id=p_tenant and provider='xero' and external_transaction_id=p_external for update;if d.id is null then raise exception 'Reconciliation decision missing';end if;select * into p from public.business_software_payments where tenant_id=p_tenant and id=p_payment;if p.id is null or abs(p.amount-d.amount)>0.005 or (d.direction='in' and p.direction<>'customer_in') or (d.direction='out' and p.direction<>'subcontractor_out') then raise exception 'Payment tenant, amount or direction mismatch';end if;if d.linked_payment_id is distinct from p_payment then old_state:=to_jsonb(d);update public.business_software_money_decisions set linked_payment_id=p_payment,actor_id=p_actor,updated_at=now() where id=d.id returning * into d;insert into public.business_software_money_decision_history(decision_id,tenant_id,actor_id,previous_state,new_state) values(d.id,p_tenant,p_actor,old_state,to_jsonb(d));end if;return to_jsonb(d);end$function$
+
