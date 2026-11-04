@@ -74,11 +74,20 @@ export default function CrmDashboardV3() {
   const [quoteScope,setQuoteScope]=useState(""), [quoteExclusions,setQuoteExclusions]=useState("");
 
   const load = useCallback(async()=>{
-    const [jr,dr,tr,sr,lr]=await Promise.all([fetch("/api/admin/jobs",{cache:"no-store"}),fetch("/api/admin/dashboard",{cache:"no-store"}),fetch("/api/admin/job-types",{cache:"no-store"}),fetch("/api/admin/settings",{cache:"no-store"}),fetch("/api/bms-live/payments/customer-ledger-summary",{cache:"no-store"})]);
-    if(jr.status===401){router.replace("/admin/login");return;}
-    const jb=await jr.json().catch(()=>({})), db=await dr.json().catch(()=>({})), tb=await tr.json().catch(()=>({}));
-    if(!jr.ok){setError(jb.error||"Unable to load CRM");setLoading(false);return;}
-    if(sr.ok){const sb=await sr.json().catch(()=>({}));if(sb.settings)setCrmConfig(sb.settings);}setCustomerLedger(lr.ok?await lr.json().catch(()=>null):null);setJobs(jb.jobs||[]);setPeople(jb.people||[]);setActivities(db.activities||[]);setAdmin(jb.admin||db.admin||null);setPermissions(jb.permissions||[]);setJobTypeOptions(tb.options||[]);setLoading(false);
+    try {
+      // Jobs are the critical first paint. Do not wait for ledger, settings or dashboard summaries.
+      const jr=await fetch("/api/admin/jobs",{cache:"no-store"});
+      if(jr.status===401){router.replace("/admin/login");return;}
+      const jb=await jr.json().catch(()=>({}));
+      if(!jr.ok){setError(jb.error||"Unable to load jobs");setLoading(false);return;}
+      setJobs(jb.jobs||[]);setPeople(jb.people||[]);setAdmin(jb.admin||null);setPermissions(jb.permissions||[]);setLoading(false);
+      void Promise.allSettled([
+        fetch("/api/admin/dashboard",{cache:"no-store"}).then(async r=>{if(r.ok){const db=await r.json();setActivities(db.activities||[]);}}),
+        fetch("/api/admin/job-types",{cache:"no-store"}).then(async r=>{if(r.ok){const tb=await r.json();setJobTypeOptions(tb.options||[]);}}),
+        fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const sb=await r.json();if(sb.settings)setCrmConfig(sb.settings);}}),
+        fetch("/api/bms-live/payments/customer-ledger-summary",{cache:"no-store"}).then(async r=>{if(r.ok)setCustomerLedger(await r.json());})
+      ]);
+    }catch(e){setError(e instanceof Error?e.message:"Unable to load jobs");setLoading(false);}
   },[router]);
   const syncXero=useCallback(async()=>{if(xeroSyncing)return;setXeroSyncing(true);setXeroSyncNotice("");try{const response=await fetch("/api/admin/integrations/xero/sync",{method:"POST",headers:{"Content-Type":"application/json"},body:"{}",cache:"no-store"});const result=await response.json().catch(()=>({}));if(!response.ok)throw new Error(result.error||"Xero sync failed");await load();setXeroSyncNotice(result.warning||"Xero sync completed. Financial figures refreshed.");}catch(error){setXeroSyncNotice(error instanceof Error?error.message:"Xero sync failed");}finally{setXeroSyncing(false);}},[load,xeroSyncing]);
   useEffect(()=>{void load();},[load]);
