@@ -3,12 +3,15 @@ import assert from "node:assert/strict";
 const read=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const middleware=read("middleware.ts");
 const demo=read("app/api/bms-demo/[...path]/route.ts");
+const demoStock=read("app/api/bms-demo/stock/route.ts");
 const dashboard=read("business-software-core/components/admin/CrmDashboardV3.tsx");
 const runtime=read("app/bms-runtime/page.tsx");
 const layout=read("app/bms-runtime/layout.tsx");
 const wrapper=read("components/admin/CrmDashboardV5.tsx");
 const checks=[
  ["Demo admin API uses isolated demo handlers",middleware.includes('if(isDemo&&path.startsWith("/api/admin/"))')&&middleware.includes('url.pathname="/api/bms-demo/"+path.slice("/api/admin/".length)')],
+ ["Demo campaigns cannot access real sending APIs",middleware.includes('if(isDemo&&path==="/api/business-software/campaigns")')&&demo.includes('if(p==="campaigns")')],
+ ["Demo stock respects browser cookie limits",demoStock.includes('encoded.length>3600')],
  ["Demo ledger uses fictional handler",middleware.includes('if(isDemo&&path==="/api/bms-live/payments/customer-ledger-summary")')],
  ["Live tenant API routing remains independent",middleware.includes('if(tenantHost){')&&middleware.includes('if(path.startsWith("/api/admin/"))')],
  ["Demo has jobs/dashboard/job types/settings",['if(p==="jobs")','if(p==="dashboard")','if(p==="job-types")','if(p==="settings")'].every(s=>demo.includes(s))],
