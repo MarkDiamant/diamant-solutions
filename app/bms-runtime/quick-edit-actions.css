@@ -1422,3 +1422,5 @@ transform:none!important;
   .bms-dashboard .bms-quick-bottom-actions .bms-quick-actions > .bms-bottom-save {grid-column:7/span 3!important;grid-row:2!important;order:0!important;background:var(--bms-accent)!important;color:#fff!important;-webkit-text-fill-color:#fff!important}
   .bms-dashboard .bms-quick-bottom-actions .bms-quick-actions > .bms-archive-job {grid-column:10/span 3!important;grid-row:2!important;order:0!important;background:#e2e8f0!important;border:1px solid #cbd5e1!important;color:#334155!important;-webkit-text-fill-color:#334155!important}
 }
+
+@media(max-width:639px){.bms-dashboard .bms-quick-bottom-actions .bms-quick-actions>.bms-split-order-button{height:38px!important;min-height:38px!important;max-height:38px!important;line-height:1.1!important;align-self:stretch!important;padding:4px 2px!important}}
