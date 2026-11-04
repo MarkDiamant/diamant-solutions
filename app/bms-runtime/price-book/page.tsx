@@ -1,1 +1,2 @@
-import PriceBook from "@/components/admin/PriceBook";export default function Page(){return <PriceBook/>}
+import DemoGate from "@/business-software-core/components/admin/DemoShowcase";
+import PriceBook from "@/components/admin/PriceBook";export default function Page(){return <DemoGate section="price-book"><PriceBook/></DemoGate>}
