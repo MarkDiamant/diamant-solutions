@@ -79,7 +79,7 @@ export default function AdminBrandBar(){
  const demoNames:Record<string,string>={northstar:"Northstar Property & Projects",electrical:"Electrical Services Demo",insurance:"Insurance Brokerage Demo",studio:"Creative Agency Demo",consultancy:"Consultancy Demo",distribution:"Distribution Demo",flooring:"Flooring & Tiles Demo"};
  useEffect(()=>{
   const shell=document.querySelector<HTMLElement>(".bms-shell");
-  if(!shell)return;
+  if(!shell||(!demo&&!config))return;
   const safe=/^#[0-9a-fA-F]{6}$/.test(brand)?brand:"#365b85";
   const rgb=[1,3,5].map(i=>parseInt(safe.slice(i,i+2),16)/255);
   const luminance=rgb.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)).reduce((sum,v,i)=>sum+v*[.2126,.7152,.0722][i],0); const onAccent=luminance>.179?"#101828":"#ffffff";
