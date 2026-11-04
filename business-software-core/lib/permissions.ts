@@ -8,14 +8,14 @@ export type PermissionKey =
 export type UserRole = "owner" | "admin" | "manager" | "office" | "sales" | "field" | "worker" | "custom";
 
 export const PERMISSION_LABELS: Record<PermissionKey,string> = {
- view_jobs:"View jobs", edit_jobs:"Edit jobs", view_completed_jobs:"View completed / closed jobs",
- view_history:"View job history & activity", view_customer_details:"View customer contact details",
- view_pricing:"View quotes & customer pricing", view_costs_profit:"View costs & profit",
- view_money_overview:"View money overview", view_payments_invoices:"View payments & invoices",
- view_files:"View photos & files",
- view_stock:"View inventory and availability",manage_stock:"Receive, reserve, pick and adjust stock",manage_purchasing:"Create and manage supplier purchase orders",view_sales_orders:"View sales orders",edit_sales_orders:"Create and edit sales orders",manage_deliveries:"Plan and update deliveries",manage_fitting:"Schedule and manage fitting jobs", view_workforce:"View assigned team / contractors", manage_workforce:"Add & remove team / contractors",
- manage_users:"Add users & change permissions", manage_business_settings:"Change business & BMS settings",
- manage_subscription:"Manage subscription & billing", view_own_work:"My Work (own assigned jobs and schedule)",
+ view_jobs:"Jobs: view job details (not financial data)", edit_jobs:"Jobs: edit job details and progress", view_completed_jobs:"Jobs: view completed and closed jobs",
+ view_history:"Jobs: view activity and history", view_customer_details:"Customers: view contact information",
+ view_pricing:"Quotes: view prices and customer quotations", view_costs_profit:"Finance: job costs, margins and profit tab",
+ view_money_overview:"Finance: Money Overview and financial dashboard", view_payments_invoices:"Finance: payments, invoices and job invoice tab",
+ view_files:"Files: job photos, documents and File Library",
+ view_stock:"Stock: view inventory and availability",manage_stock:"Stock: receive, reserve, pick, return and adjust",manage_purchasing:"Purchasing: supplier purchase orders and goods received",view_sales_orders:"Sales: view customer orders",edit_sales_orders:"Sales: create and edit customer orders",manage_deliveries:"Deliveries: plan and update delivery schedules",manage_fitting:"Scheduling: manage fitting jobs", view_workforce:"Workforce: view team, contractors and schedules", manage_workforce:"Workforce: manage team, contractors and planning",
+ manage_users:"Administration: invite users and manage permissions", manage_business_settings:"Administration: business settings and integrations",
+ manage_subscription:"Administration: subscription and billing", view_own_work:"My Work: own assignments, timesheets and schedule",
 };
 
 export const ALL_PERMISSIONS=Object.keys(PERMISSION_LABELS) as PermissionKey[];
