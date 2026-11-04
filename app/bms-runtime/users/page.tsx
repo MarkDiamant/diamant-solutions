@@ -2,7 +2,7 @@
 import { useEffect,useState } from "react";
 import {BmsPage,BmsCard,BmsInput,BmsSelect} from "@/business-software-core/components/admin/BmsUI";
 import { PERMISSION_LABELS,ROLE_LABELS,ROLE_PERMISSIONS,type PermissionKey,type UserRole } from "@/lib/crm/permissions";
-export default function UsersPage(){const [data,setData]=useState<any>(null),[role,setRole]=useState<UserRole>("field"),[permissions,setPermissions]=useState<PermissionKey[]>(ROLE_PERMISSIONS.field),[msg,setMsg]=useState("");
+export default function UsersPage(){const [data,setData]=useState<any>(null),[role,setRole]=useState<UserRole>("field"),[permissions,setPermissions]=useState<PermissionKey[]>(ROLE_PERMISSIONS.field),[msg,setMsg]=useState(""),[editing,setEditing]=useState<Record<string,PermissionKey[]>>({}),[saving,setSaving]=useState<string|null>(null);
 useEffect(()=>{fetch("/api/admin/users",{cache:"no-store"}).then(r=>r.json()).then(setData)},[]);
 function chooseRole(v:UserRole){setRole(v);setPermissions(ROLE_PERMISSIONS[v]);}
 async function updateUser(u:any,nextRole:UserRole,nextPermissions:PermissionKey[],status=u.status||"active"){setSaving(u.id);const r=await fetch("/api/admin/users",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id:u.id,role:nextRole,permissions:nextPermissions,status})});const b=await r.json().catch(()=>({}));if(!r.ok){setMsg(b.error||"Unable to update user");setSaving(null);return;}setMsg("User access updated");const fresh=await fetch("/api/admin/users",{cache:"no-store"});setData(await fresh.json());setEditing(v=>{const next={...v};delete next[u.id];return next});setSaving(null);}
