@@ -1,1 +1,2 @@
-import CampaignsPanel from "@/components/admin/CampaignsPanel"; export const dynamic="force-dynamic"; export default function Page(){return <CampaignsPanel/>;}
+import DemoGate from "@/business-software-core/components/admin/DemoShowcase";
+import CampaignsPanel from "@/components/admin/CampaignsPanel"; export const dynamic="force-dynamic"; export default function Page(){return <DemoGate section="campaigns"><CampaignsPanel/></DemoGate>;}
