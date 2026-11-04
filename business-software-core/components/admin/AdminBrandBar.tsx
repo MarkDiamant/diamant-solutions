@@ -12,7 +12,7 @@ const groups:Group[]=[
  {name:"Products & Stock",icon:"products",entries:[{href:"/price-book",label:"Price Book",icon:"price",module:"priceBook",permission:"view_pricing"},{href:"/materials",label:"Purchasing",icon:"purchasing",permission:"view_stock"},{href:"/stock",label:"Stock",icon:"materials",permission:"view_stock"}]},
  {name:"Finance",icon:"finance",entries:[{href:"/invoices",label:"Invoices",icon:"invoices",module:"invoices",permission:"view_payments_invoices"},{href:"/payments",label:"Payments & Money",icon:"payments",module:"payments",permission:"view_money_overview"},{href:"/labour",label:"Labour Costing",icon:"labour",module:"workforce",permission:"view_costs_profit"}]},
  {name:"People & Work",icon:"workforce",entries:[{href:"/team",label:"Workforce",icon:"team",module:"workforce",permission:"view_workforce"},{href:"/worker",label:"My Work",icon:"worker",module:"workforce"}]},
- {name:"Documents",icon:"documents",entries:[{href:"/files",label:"Files",icon:"files",module:"files",permission:"view_files"}]},
+ {name:"Files & Photos",icon:"documents",entries:[{href:"/files",label:"File Library",icon:"files",module:"files",permission:"view_files"}]},
  {name:"Administration",icon:"admin",entries:[{href:"/users",label:"Users",icon:"users",permission:"manage_users"},{href:"/integrations",label:"Integrations",icon:"integrations",module:"integrations",permission:"manage_business_settings"},{href:"/settings",label:"Settings",icon:"settings",permission:"manage_business_settings"},{href:"/archive",label:"Archive",icon:"archive",permission:"view_history"}]}
 ];
 
