@@ -3,7 +3,7 @@ export type CrmModuleKey = "photos" | "workforce" | "commission" | "payments" | 
 export type CrmConfig = {
   businessName: string;
   systemName: string;
-  workItemTerminology?: "jobs" | "orders";
+  workItemTerminology?: string;
   logoUrl: string;
   accentColour: string;
   workforceTitle: string;
@@ -49,7 +49,7 @@ export function normaliseCrmConfig(value: Partial<CrmConfig> | null | undefined)
     ...DEFAULT_CRM_CONFIG,
     ...(value || {}),
     tenantKey,
-    workItemTerminology:value?.workItemTerminology==="orders"?"orders":"jobs",
+    workItemTerminology:typeof value?.workItemTerminology==="string"&&value.workItemTerminology.trim()?value.workItemTerminology.trim().slice(0,40):"jobs",
     quoteTemplate,
     quoteDefaultText: typeof value?.quoteDefaultText === "string" ? value.quoteDefaultText.slice(0,1200) : "",
     invoiceTemplate,
