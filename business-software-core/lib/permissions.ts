@@ -3,7 +3,7 @@ export type PermissionKey =
   | "view_customer_details" | "view_pricing" | "view_costs_profit"
   | "view_money_overview" | "view_payments_invoices" | "view_files"
   | "view_stock" | "manage_stock" | "manage_purchasing" | "view_sales_orders" | "edit_sales_orders" | "manage_deliveries" | "manage_fitting"
-  | "view_workforce" | "manage_workforce" | "manage_users" | "manage_business_settings" | "manage_subscription";
+  | "view_workforce" | "manage_workforce" | "manage_users" | "manage_business_settings" | "manage_subscription" | "view_own_work";
 
 export type UserRole = "owner" | "admin" | "manager" | "office" | "sales" | "field" | "worker" | "custom";
 
@@ -14,8 +14,8 @@ export const PERMISSION_LABELS: Record<PermissionKey,string> = {
  view_money_overview:"View money overview", view_payments_invoices:"View payments & invoices",
  view_files:"View photos & files",
  view_stock:"View inventory and availability",manage_stock:"Receive, reserve, pick and adjust stock",manage_purchasing:"Create and manage supplier purchase orders",view_sales_orders:"View sales orders",edit_sales_orders:"Create and edit sales orders",manage_deliveries:"Plan and update deliveries",manage_fitting:"Schedule and manage fitting jobs", view_workforce:"View assigned team / contractors", manage_workforce:"Add & remove team / contractors",
- manage_users:"Add users & change permissions", manage_business_settings:"Change business & CRM settings",
- manage_subscription:"Manage subscription & billing",
+ manage_users:"Add users & change permissions", manage_business_settings:"Change business & BMS settings",
+ manage_subscription:"Manage subscription & billing", view_own_work:"My Work (own assigned jobs and schedule)",
 };
 
 export const ALL_PERMISSIONS=Object.keys(PERMISSION_LABELS) as PermissionKey[];
@@ -27,7 +27,7 @@ export const ROLE_PERMISSIONS: Record<UserRole,PermissionKey[]> = {
  office: ["view_sales_orders","view_stock","view_jobs","edit_jobs","view_completed_jobs","view_history","view_customer_details","view_pricing","view_money_overview","view_payments_invoices","view_files","view_workforce"],
  sales: ["view_sales_orders","edit_sales_orders","view_stock","view_jobs","edit_jobs","view_completed_jobs","view_history","view_customer_details","view_pricing","view_files"],
  field: ["view_stock","view_jobs","edit_jobs","view_customer_details","view_files","view_workforce"],
- worker: [],
+ worker: ["view_own_work"],
  custom: [],
 };
 export const ROLE_LABELS:Record<UserRole,string>={owner:"Owner",admin:"Admin",manager:"Manager",office:"Office",sales:"Sales",field:"Field / engineer",worker:"Worker (own schedule only)",custom:"Custom"};
