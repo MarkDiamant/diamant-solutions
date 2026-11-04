@@ -63,13 +63,14 @@ export default function AdminBrandBar(){
  const [mobileOpen,setMobileOpen]=useState(false),[compact,setCompact]=useState(false);
  const [openSections,setOpenSections]=useState<Record<string,boolean>>({});
  const [jobOpen,setJobOpen]=useState(false);
+ const [pendingHref,setPendingHref]=useState<string|null>(null);
  useEffect(()=>{try{setConfig(demo?null:JSON.parse(sessionStorage.getItem("bms-tenant-config")||"null"));setCompact(localStorage.getItem(storeKey)==="1");setOpenSections(JSON.parse(localStorage.getItem(sectionsKey)||"{}"));}catch{}},[]);
- useEffect(()=>{let live=true;fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(live&&d.settings){setConfig(demo?null:d.settings);if(!demo)sessionStorage.setItem("bms-tenant-config",JSON.stringify(d.settings));}}}).catch(()=>{});fetch("/api/admin/session",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(live){if(Array.isArray(d.admin?.permissions))setPermissions(d.admin.permissions);setIsWorker(String(d.admin?.role||"").toLowerCase()==="worker");}}}).catch(()=>{});return()=>{live=false}},[]);
- useEffect(()=>{setMobileOpen(false);setJobOpen(false)},[pathname]);
+ useEffect(()=>{let live=true;fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(live&&d.settings){setConfig(demo?null:d.settings);if(!demo)sessionStorage.setItem("bms-tenant-config",JSON.stringify(d.settings));}}}).catch(()=>{});fetch("/api/admin/session",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(live){if(Array.isArray(d.admin?.permissions))setPermissions(d.admin.permissions);else if(["owner","admin"].includes(String(d.admin?.role||"").toLowerCase()))setPermissions(groups.flatMap(g=>g.entries.map(e=>e.permission).filter((v):v is string=>Boolean(v))));setIsWorker(String(d.admin?.role||"").toLowerCase()==="worker");}}}).catch(()=>{});return()=>{live=false}},[]);
+ useEffect(()=>{setMobileOpen(false);setJobOpen(false);setPendingHref(null)},[pathname]);
  useEffect(()=>{if(!mobileOpen)return;const prior=document.body.style.overflow;document.body.style.overflow="hidden";const key=(e:KeyboardEvent)=>{if(e.key==="Escape")setMobileOpen(false)};document.addEventListener("keydown",key);return()=>{document.removeEventListener("keydown",key);document.body.style.overflow=prior}},[mobileOpen]);
  const available=useMemo(()=>isWorker?[{name:"My Jobs",icon:"jobs",entries:[{href:"/worker",label:"My Jobs",icon:"jobs"}]}]:permissions===null&&!demo?[]:groups.map(group=>({...group,entries:group.entries.filter(e=>config?.modules?.[e.module||""]!==false&&(!e.permission||(permissions===null?true:permissions.includes(e.permission)))).map(e=>e.href==="/jobs"&&config?.workItemTerminology==="orders"?{...e,label:"Orders"}:e)})).filter(group=>group.entries.length),[config,permissions,demo,isWorker]);
  const active=(href:string)=>href==="/"?local==="/":local===href||local.startsWith(href+"/");
- const navigate=()=>{setJobOpen(false)};
+ const navigate=(href?:string)=>{setJobOpen(false);if(href&&href!==pathname)setPendingHref(href)};
  useEffect(()=>{setMobileOpen(false);window.dispatchEvent(new Event(NAV_EVENT));},[pathname]);
  const toggleSection=(name:string)=>setOpenSections(old=>{const next={...old,[name]:!(old[name]??true)};try{localStorage.setItem(sectionsKey,JSON.stringify(next))}catch{}return next});
  const toggleCompact=()=>setCompact(old=>{try{localStorage.setItem(storeKey,old?"0":"1")}catch{}return !old});
@@ -89,7 +90,7 @@ export default function AdminBrandBar(){
  },[brand]);
  if(local==="/login")return null;
 
- const link=(e:Entry)=> <Link key={e.href} href={go(e.href)} prefetch={true} onMouseEnter={()=>router.prefetch(go(e.href))} onFocus={()=>router.prefetch(go(e.href))} onClick={navigate} title={compact?e.label:undefined} aria-current={active(e.href)?"page":undefined} className={"bms-side-link "+(active(e.href)?"bms-side-active":"")} style={active(e.href)?{"--nav-accent":brand} as React.CSSProperties:undefined}><span className="bms-side-icon" aria-hidden="true"><NavIcon name={e.icon}/></span><span className="bms-side-label">{e.label}</span></Link>;
+ const link=(e:Entry)=> <Link key={e.href} href={go(e.href)} prefetch={true} onMouseEnter={()=>router.prefetch(go(e.href))} onFocus={()=>router.prefetch(go(e.href))} onClick={()=>navigate(go(e.href))} title={compact?e.label:undefined} aria-current={active(e.href)?"page":undefined} aria-busy={pendingHref===go(e.href)} className={"bms-side-link "+((pendingHref===go(e.href)||active(e.href))?"bms-side-active":"")} style={active(e.href)?{"--nav-accent":brand} as React.CSSProperties:undefined}><span className="bms-side-icon" aria-hidden="true"><NavIcon name={e.icon}/></span><span className="bms-side-label">{e.label}{pendingHref===go(e.href)?" · Loading…":""}</span></Link>;
  return <>
  <header className="bms-app-header print:hidden">
   <div className="bms-app-header-inner">
