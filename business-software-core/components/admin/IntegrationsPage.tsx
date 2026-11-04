@@ -54,7 +54,7 @@ export default function IntegrationsPage() {
           
         </div>
 
-<div className="mt-6 grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">        <section className="min-w-0 space-y-3"><h2 className="text-sm font-black uppercase tracking-wide text-slate-600">Accounting & bookkeeping</h2><BmsCard className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+<div className="mt-6 grid grid-cols-1 items-start gap-3 md:grid-cols-2 xl:grid-cols-4">        <section className="min-w-0 space-y-3"><h2 className="text-sm font-black uppercase tracking-wide text-slate-600">Accounting & bookkeeping</h2><BmsCard className="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div><h2 className="text-lg font-bold tracking-tight text-slate-900">Xero</h2><p className="mt-1 text-sm leading-6 text-slate-600">Create and track customer invoices from your jobs.</p></div>
             {loading ? <span className="text-sm font-bold text-black/45">Checking...</span> : connected ? <span className="rounded-full bg-green-50 px-3 py-1.5 text-sm font-black text-green-700">Connected</span> : <span className="rounded-full bg-orange-50 px-3 py-1.5 text-sm font-black text-orange-700">Not connected</span>}
