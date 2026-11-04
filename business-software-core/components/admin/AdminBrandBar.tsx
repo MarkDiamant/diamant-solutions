@@ -86,7 +86,7 @@ export default function AdminBrandBar(){
   shell.style.setProperty("--bms-on-accent",onAccent);
   shell.style.setProperty("--bms-accent",safe);
   shell.style.setProperty("--nav-accent",safe);
-  return()=>{shell.style.removeProperty("--bms-on-accent");shell.style.removeProperty("--bms-accent");shell.style.removeProperty("--nav-accent")};
+  // Retain tenant colours between client-side route changes to prevent a navy flash.
  },[brand]);
  if(local==="/login")return null;
 
