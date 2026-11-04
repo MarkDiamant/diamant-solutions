@@ -69,7 +69,8 @@ export default function AdminBrandBar(){
  useEffect(()=>{if(!mobileOpen)return;const prior=document.body.style.overflow;document.body.style.overflow="hidden";const key=(e:KeyboardEvent)=>{if(e.key==="Escape")setMobileOpen(false)};document.addEventListener("keydown",key);return()=>{document.removeEventListener("keydown",key);document.body.style.overflow=prior}},[mobileOpen]);
  const available=useMemo(()=>isWorker?[{name:"My Jobs",icon:"jobs",entries:[{href:"/worker",label:"My Jobs",icon:"jobs"}]}]:permissions===null&&!demo?[]:groups.map(group=>({...group,entries:group.entries.filter(e=>config?.modules?.[e.module||""]!==false&&(!e.permission||(permissions===null?true:permissions.includes(e.permission)))).map(e=>e.href==="/jobs"&&config?.workItemTerminology==="orders"?{...e,label:"Orders"}:e)})).filter(group=>group.entries.length),[config,permissions,demo,isWorker]);
  const active=(href:string)=>href==="/"?local==="/":local===href||local.startsWith(href+"/");
- const navigate=()=>{window.dispatchEvent(new Event(NAV_EVENT));setMobileOpen(false);setJobOpen(false)};
+ const navigate=()=>{setJobOpen(false)};
+ useEffect(()=>{setMobileOpen(false);window.dispatchEvent(new Event(NAV_EVENT));},[pathname]);
  const toggleSection=(name:string)=>setOpenSections(old=>{const next={...old,[name]:!(old[name]??true)};try{localStorage.setItem(sectionsKey,JSON.stringify(next))}catch{}return next});
  const toggleCompact=()=>setCompact(old=>{try{localStorage.setItem(storeKey,old?"0":"1")}catch{}return !old});
  async function logout(){await fetch("/api/admin/auth/logout",{method:"POST"});router.replace("/login");router.refresh()}
@@ -88,7 +89,7 @@ export default function AdminBrandBar(){
  },[brand]);
  if(local==="/login")return null;
 
- const link=(e:Entry)=> <Link key={e.href} href={go(e.href)} onClick={navigate} title={compact?e.label:undefined} aria-current={active(e.href)?"page":undefined} className={"bms-side-link "+(active(e.href)?"bms-side-active":"")} style={active(e.href)?{"--nav-accent":brand} as React.CSSProperties:undefined}><span className="bms-side-icon" aria-hidden="true"><NavIcon name={e.icon}/></span><span className="bms-side-label">{e.label}</span></Link>;
+ const link=(e:Entry)=> <Link key={e.href} href={go(e.href)} prefetch={true} onMouseEnter={()=>router.prefetch(go(e.href))} onFocus={()=>router.prefetch(go(e.href))} onClick={navigate} title={compact?e.label:undefined} aria-current={active(e.href)?"page":undefined} className={"bms-side-link "+(active(e.href)?"bms-side-active":"")} style={active(e.href)?{"--nav-accent":brand} as React.CSSProperties:undefined}><span className="bms-side-icon" aria-hidden="true"><NavIcon name={e.icon}/></span><span className="bms-side-label">{e.label}</span></Link>;
  return <>
  <header className="bms-app-header print:hidden">
   <div className="bms-app-header-inner">
