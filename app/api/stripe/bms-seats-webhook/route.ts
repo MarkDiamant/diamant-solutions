@@ -31,6 +31,13 @@ export async function POST(req:Request){
  if(sub.metadata?.product!=="bms_seats")return json({received:true,ignored:true});
  const seatItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===priceId);const baseItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===basePriceId);
  if(!seatItem&&!baseItem)return json({error:"Subscription does not contain a configured BMS licence product"},409);
+ const tenantId=String(sub.metadata?.tenant_id||"");
+ if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId))return json({error:"Missing verified tenant mapping"},409);
+ const customerId=typeof sub.customer==="string"?sub.customer:sub.customer?.id;
+ if(!customerId)return json({error:"Subscription customer missing"},409);
+ const interval=(seatItem||baseItem).price?.recurring?.interval==="year"?"annual":"monthly";
+ const quantity=Number(seatItem?.quantity||0)+Number(baseItem?1:0);
+ if(!Number.isSafeInteger(quantity)||quantity<0||quantity>10000)return json({error:"Invalid subscription quantity"},409);
  // A paid event must be verified against the actual paid invoice, not only the
  // current subscription (which may already contain an unpaid seat upgrade).
  if(type==="invoice.paid"){
@@ -50,13 +57,7 @@ export async function POST(req:Request){
   const invoicedSeats=licenceLines.reduce((n:number,line:any)=>n+(line.price?.id===basePriceId||line.pricing?.price_details?.price===basePriceId?1:Number(line.quantity||0)),0);
   if(!Number.isSafeInteger(invoicedSeats)||invoicedSeats<quantity)return json({received:true,ignored:true,reason:"Current subscription has seats not yet covered by this invoice"});
  }
- const tenantId=String(sub.metadata?.tenant_id||"");
- if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId))return json({error:"Missing verified tenant mapping"},409);
- const customerId=typeof sub.customer==="string"?sub.customer:sub.customer?.id;
- if(!customerId)return json({error:"Subscription customer missing"},409);
- const interval=(seatItem||baseItem).price?.recurring?.interval==="year"?"annual":"monthly";
- const quantity=Number(seatItem?.quantity||0)+Number(baseItem?1:0);
- if(!Number.isSafeInteger(quantity)||quantity<0||quantity>10000)return json({error:"Invalid subscription quantity"},409);
+
  const rpc=await fetch(supabase.replace(/\/$/,"")+"/rest/v1/rpc/bms_apply_verified_seat_billing_event",{
   method:"POST",headers:{apikey:serviceKey,Authorization:"Bearer "+serviceKey,"Content-Type":"application/json"},
   body:JSON.stringify({p_event_id:String(event.id),p_tenant:tenantId,p_subscription:subId,p_customer:customerId,p_type:type,p_status:String(sub.status||"unknown"),p_seats:quantity,p_interval:interval,p_period_end:sub.current_period_end?new Date(Number(sub.current_period_end)*1000).toISOString():null,p_created:new Date(Number(event.created)*1000).toISOString()}),cache:"no-store"
