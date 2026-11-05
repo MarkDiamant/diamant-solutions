@@ -15,11 +15,34 @@ async function admin(req:Request){
 }
 async function rest(path:string,options:RequestInit={}){return fetch(base+"/rest/v1/"+path,{...options,headers:{...headers(),...options.headers},cache:"no-store"})}
 const uuid=(x:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x||"");
+async function activationEmail(tenantId:string){
+ const review=await rest("business_software_onboarding_reviews?tenant_id=eq."+tenantId+"&approved_at=not.is.null&select=applied_bms_tenant_id,activation_email_sent_at&limit=1");
+ if(!review.ok)throw Error("Unable to verify approved setup");
+ const approved=(await review.json())[0];
+ if(!approved?.applied_bms_tenant_id)throw Error("Setup is not approved");
+ if(approved.activation_email_sent_at)return {sent:true,alreadySent:true};
+ const [tenant,checkout]=await Promise.all([
+ rest("business_software_tenants?id=eq."+encodeURIComponent(approved.applied_bms_tenant_id)+"&status=eq.active&select=canonical_host,business_name&limit=1"),
+ rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=customer_email&limit=1")
+ ]);
+ if(!tenant.ok||!checkout.ok)throw Error("Unable to verify activation recipient");
+ const business=(await tenant.json())[0],order=(await checkout.json())[0];
+ if(!business||!order?.customer_email)throw Error("Activation recipient or business unavailable");
+ const host=String(business.canonical_host||"");
+ if(!/^[a-z0-9-]+\\.diamantsolutions\\.co\\.uk$/i.test(host))throw Error("Unverified business domain");
+ if(!process.env.RESEND_API_KEY)throw Error("Activation email service unavailable");
+ const url="https://"+host+"/login";
+ const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+process.env.RESEND_API_KEY,"Content-Type":"application/json","Idempotency-Key":"ds-bms-approved-"+tenantId},body:JSON.stringify({from:"Diamant Solutions <info@diamantsolutions.co.uk>",to:[order.customer_email],subject:"Your Business Management Software is ready",html:"<p>Your business setup has been approved.</p><p><a href=\\\""+url+"\\\">Sign in to your Business Management Software</a></p><p>Use the email address associated with your purchase to sign in securely.</p>",text:"Your business setup has been approved. Sign in: "+url+"\\nUse the email address associated with your purchase."}),cache:"no-store"});
+ if(!r.ok)throw Error("Activation email delivery failed: "+r.status);
+ const saved=await rest("rpc/bms_mark_activation_email",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_sent:true})});
+ if(!saved.ok)throw Error("Activation email sent but delivery record could not be saved");
+ return {sent:true};
+}
 export async function GET(req){
  if(!await admin(req))return reply({error:"Internal administrator access required"},403);
  const r=await rest("onboarding?service_type=eq.business_software&select=tenant_id,status,progress,answers,proposed_config,submitted_at,updated_at,tenants(name,slug)&order=updated_at.desc&limit=200");
  if(!r.ok)return reply({error:"Unable to load onboarding queue"},502);
- const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
+ const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id,activation_email_sent_at,activation_email_error&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
 }
 export async function PATCH(req){
  const user=await admin(req);if(!user)return reply({error:"Internal administrator access required"},403);
@@ -43,6 +66,10 @@ export async function PATCH(req){
   if(!result.ok){const detail=await result.json().catch(()=>({}));return reply({error:detail.message||"Tenant preparation failed"},409)}
   return reply({ok:true,bmsTenantId:await result.json()});
  }
+ if(body.action==="send_activation"){
+  if(row.status!=="ready")return reply({error:"Setup has not been approved"},409);
+  try{return reply({ok:true,...await activationEmail(tenantId)})}catch(e:any){await rest("rpc/bms_mark_activation_email",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_sent:false,p_error:String(e.message||e)})}).catch(()=>{});return reply({error:String(e.message||e)},503)}
+ }
  const allowed=["submitted","awaiting_clarification","being_configured"];
  const status=String(body.status||row.status);
  if(!allowed.includes(status)&&status!=="ready")return reply({error:"Invalid review status"},400);
@@ -51,7 +78,10 @@ export async function PATCH(req){
   if(!uuid(bmsTenantId))return reply({error:"Select the verified BMS tenant ID before approving"},400);
   const applied=await rest("rpc/bms_approve_onboarding_configuration",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_bms_tenant:bmsTenantId,p_reviewer:user.id})});
   if(!applied.ok){const detail=await applied.json().catch(()=>({}));return reply({error:detail.message||"Verification or configuration approval failed"},409)}
-  return reply({ok:true,result:await applied.json()});
+  const result=await applied.json();
+  try{return reply({ok:true,result,activationEmail:await activationEmail(tenantId)})}
+  catch(e:any){await rest("rpc/bms_mark_activation_email",{method:"POST",body:JSON.stringify({p_tenant:tenantId,p_sent:false,p_error:String(e.message||e)})}).catch(()=>{});return reply({ok:true,result,activationEmail:{sent:false,error:"Setup approved but activation email needs retry"}})}
+
  }
  if(!["submitted","awaiting_clarification","being_configured"].includes(row.status))return reply({error:"This onboarding cannot be reviewed yet"},409);
  const update=await rest("onboarding?tenant_id=eq."+tenantId+"&status=eq."+encodeURIComponent(row.status),{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status})});
