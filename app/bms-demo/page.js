@@ -1,5 +1,8 @@
 'use client';
-import {useEffect,useState} from 'react';
-const samples=[['northstar','Property & Projects'],['electrical','Electrical'],['insurance','Insurance'],['studio','Creative Studio'],['consultancy','Consultancy'],['distribution','Distribution']];
-export default function BmsDemoPage(){const [sample,setSample]=useState('northstar');useEffect(()=>{const q=new URLSearchParams(window.location.search).get('sample');if(samples.some(([k])=>k===q))setSample(q);},[]);function choose(key){setSample(key);const u=new URL(window.location.href);u.searchParams.set('sample',key);history.replaceState(null,'',u.pathname+u.search);}
-return <main style={{margin:0,minHeight:'100vh',background:'#f5f5f2'}}><div style={{display:'flex',alignItems:'center',gap:8,overflowX:'auto',padding:'10px 14px',background:'#17385f',color:'#fff',fontFamily:'Arial, sans-serif'}}><strong style={{whiteSpace:'nowrap',marginRight:6}}>Demo business:</strong>{samples.map(([key,label])=><button key={key} type="button" onClick={()=>choose(key)} style={{whiteSpace:'nowrap',padding:'7px 10px',borderRadius:8,border:sample===key?'2px solid #e66a24':'2px solid transparent',background:'#fff',color:'#17385f',fontSize:12,fontWeight:800,cursor:'pointer'}}>{label}</button>)}</div><iframe key={sample} src={`/bms-runtime?sample=${encodeURIComponent(sample)}`} title="Diamant Solutions Business Management Software demo" style={{display:'block',width:'100%',height:'calc(100vh - 52px)',border:0}}/></main>}
+/** Website preview uses the BMS's own View demo as selector and DEMO MODE banner.
+ * The runtime stays fictional and isolated; standalone BMS navigation is unchanged. */
+export default function BmsDemoPage(){
+ return <main style={{margin:0,minHeight:'100vh',background:'#f5f5f2'}}>
+  <iframe src="/bms-runtime?sample=northstar" title="Diamant Solutions Business Management Software demo" style={{display:'block',width:'100%',height:'100vh',border:0}}/>
+ </main>;
+}
