@@ -12,7 +12,7 @@ export async function POST(req:Request){
  if(!secret||!url||!key)return NextResponse.json({error:"Webhook not configured"},{status:503});
  const raw=await req.text(),sig=req.headers.get("stripe-signature")||"";if(!verify(raw,sig,secret))return NextResponse.json({error:"Invalid signature"},{status:400});
  const event=JSON.parse(raw),obj=event?.data?.object||{};
- if(String(event.type||"").startsWith("customer.subscription.")){
+ if(String(event.type||"").startsWith("customer.subscription.")&&String(obj?.metadata?.product||"")==="ruby_ai"){
   const tenantId=String(obj?.metadata?.tenant_id||"");if(tenantId){
    const active=["active","trialing"].includes(String(obj.status||""));const item=obj?.items?.data?.[0],interval=item?.price?.recurring?.interval||null;
    const body={tenant_id:tenantId,plan_code:"bms",billing_status:String(obj.status||"unknown"),billing_interval:interval,ai_enabled:active,stripe_customer_id:typeof obj.customer==="string"?obj.customer:null,stripe_subscription_id:String(obj.id||""),current_period_end:obj.current_period_end?new Date(Number(obj.current_period_end)*1000).toISOString():null,updated_at:new Date().toISOString()};
