@@ -42,3 +42,9 @@ test("fictional money ledger is isolated and internal review rejects spoofed hos
  const x=await request.get(site+"/api/internal/bms-onboarding",{headers:{"x-forwarded-host":"fictional.diamantsolutions.co.uk"}});
  expect([401,403]).toContain(x.status());
 });
+test("onboarding submission and activation require an authenticated owner",async({request})=>{
+ const submit=await request.post(site+"/api/onboarding/submit",{data:{tenantId:"11111111-1111-4111-8111-111111111111",service:"business_software",answers:{businessName:"Fictional"}}});
+ expect(submit.status()).toBe(401);
+ const launch=await request.get(site+"/api/onboarding/launch?tenantId=11111111-1111-4111-8111-111111111111");
+ expect(launch.status()).toBe(401);
+});
