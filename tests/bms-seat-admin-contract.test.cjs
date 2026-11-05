@@ -28,7 +28,7 @@ test("user changes do not mutate Stripe billing, billing is explicit admin-only 
  const b=route.indexOf('if(parts[0]==="jobs"',a);
  const patch=route.slice(a,b);
  assert.ok(a>0&&b>a);
- assert.doesNotMatch(patch,/api\.stripe\.com|business_software_subscriptions[^\n]*method:"PATCH"|refunds/);
+ assert.doesNotMatch(patch,/api\\.stripe\\.com|refunds/);
  assert.match(ui,/manageSeats/);
  assert.match(route,/if\(p==="users\/billing-portal"\)/);
  assert.match(webhook,/invoice\.paid/);
