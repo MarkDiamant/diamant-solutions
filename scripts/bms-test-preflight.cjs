@@ -6,6 +6,7 @@ function preflight(env=process.env){
  const get=(k)=>String(env[k]||"").trim();
  const required=["DS_SUPABASE_URL","DS_SUPABASE_SERVICE_ROLE_KEY","NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY","STRIPE_SECRET_KEY","STRIPE_BMS_SEATS_WEBHOOK_SECRET","BMS_STRIPE_BASE_PRICE_ID","BMS_STRIPE_SEAT_PRICE_ID","BMS_TEST_OWNER_EMAIL","BMS_TEST_OWNER_PASSWORD","BMS_TEST_TENANT_SLUG"];
  for(const k of required)if(!get(k))errors.push(k+": missing");
+ for(const k of ["BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_AI_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_BASE_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_EXTRA_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_AI_PRICE_ID"])if(!get(k)||!get(k).startsWith("price_"))errors.push(k+": missing test-mode price ID");
  for(const k of ["DS_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_URL"]){
   if(!get(k))continue;
   try{const u=new URL(get(k));if(u.protocol!=="https:"||!u.hostname.endsWith(".supabase.co"))errors.push(k+": must be HTTPS Supabase project URL");}catch{errors.push(k+": invalid URL")}
