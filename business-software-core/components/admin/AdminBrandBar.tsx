@@ -80,9 +80,9 @@ export default function AdminBrandBar({fictionalDemo=false}:{fictionalDemo?:bool
  const moduleOn=(key?:string)=>!key||!approved||config?.modules?.[key]!==false;
  return groups.map(group=>({...group,entries:group.entries
  .filter(e=>moduleOn(e.module)&&(!e.permission||permissions===null||permissions.includes(e.permission)))
- .map(e=>e.href==="/jobs"&&config?.workItemTerminology==="orders"?{...e,label:"Orders"}:e)}))
+ .map(e=>e.href==="/jobs"&&(config?.workItemTerminology==="orders"||demo==="flooring")?{...e,label:"Orders"}:e)}))
  .filter(g=>g.entries.length>0);
-},[config,isWorker,permissions]);
+},[config,isWorker,permissions,demo]);
  const active=(href:string)=>href==="/"?local==="/":local===href||local.startsWith(href+"/");
  const navigate=(href?:string)=>{setJobOpen(false);if(href&&href!==pathname)setPendingHref(href)};
  useEffect(()=>{setMobileOpen(false);window.dispatchEvent(new Event(NAV_EVENT));},[pathname]);
