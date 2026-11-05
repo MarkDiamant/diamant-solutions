@@ -17,7 +17,7 @@ const checks=[
  ["Authenticated checkout claim and autosave",files.setup.includes("claim_paid_onboarding")&&files.setup.includes("onAuthStateChange")&&files.setup.includes("saveQueue")],
  ["Conditional module questionnaire",files.setup.includes("moduleGroups")&&files.setup.includes("optionalModules")&&files.setup.includes("useMemo")],
  ["Paid submission verified against purchaser",files.submit.includes("payment_status=eq.paid")&&files.submit.includes("contact email must match")],
- ["Internal approval and explicit preparation",files.review.includes('body.action==="prepare"')&&files.review.includes('body.action==="approve"')],
+ ["Internal approval and explicit preparation",files.review.includes('body.action==="prepare"')&&files.review.includes('if(status==="ready")')],
  ["Stripe verification before tenant preparation",files.review.includes("api.stripe.com/v1/subscriptions/")&&files.review.includes("bms_prepare_paid_onboarding_tenant")],
  ["Approved tenant first-login gated by owner",files.launch.includes("approved_at=not.is.null")&&files.launch.includes("auth_user_id=eq.")],
  ["Activation email retries and verified owner",files.review.includes('body.action==="send_activation"')&&files.review.includes("activation_email_sent_at")&&files.review.includes("Verified owner account")],
