@@ -31,6 +31,25 @@ export async function POST(req:Request){
  if(sub.metadata?.product!=="bms_seats")return json({received:true,ignored:true});
  const seatItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===priceId);const baseItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===basePriceId);
  if(!seatItem&&!baseItem)return json({error:"Subscription does not contain a configured BMS licence product"},409);
+ // A paid event must be verified against the actual paid invoice, not only the
+ // current subscription (which may already contain an unpaid seat upgrade).
+ if(type==="invoice.paid"){
+  const invoiceId=String(obj.id||"");
+  if(!invoiceId.startsWith("in_"))return json({error:"Invalid paid invoice"},409);
+  const ir=await fetch("https://api.stripe.com/v1/invoices/"+encodeURIComponent(invoiceId),{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
+  if(!ir.ok)return json({error:"Unable to verify paid invoice"},503);
+  const invoice:any=await ir.json();
+  const invoiceSub=typeof invoice.subscription==="string"?invoice.subscription:invoice.parent?.subscription_details?.subscription;
+  if(invoice.status!=="paid"||invoice.paid!==true||invoiceSub!==subId)return json({error:"Invoice is not verified as paid for this subscription"},409);
+  const lines=await fetch("https://api.stripe.com/v1/invoices/"+encodeURIComponent(invoiceId)+"/lines?limit=100",{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
+  if(!lines.ok)return json({error:"Unable to verify invoice line items"},503);
+  const invoiceLines:any=await lines.json();
+  const licenceLines=(invoiceLines.data||[]).filter((line:any)=>[priceId,basePriceId].includes(line.price?.id||line.pricing?.price_details?.price));
+  if(invoiceLines.has_more)return json({error:"Invoice has additional unverified lines"},503);
+  if(!licenceLines.length)return json({received:true,ignored:true});
+  const invoicedSeats=licenceLines.reduce((n:number,line:any)=>n+(line.price?.id===basePriceId||line.pricing?.price_details?.price===basePriceId?1:Number(line.quantity||0)),0);
+  if(!Number.isSafeInteger(invoicedSeats)||invoicedSeats<quantity)return json({received:true,ignored:true,reason:"Current subscription has seats not yet covered by this invoice"});
+ }
  const tenantId=String(sub.metadata?.tenant_id||"");
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId))return json({error:"Missing verified tenant mapping"},409);
  const customerId=typeof sub.customer==="string"?sub.customer:sub.customer?.id;
