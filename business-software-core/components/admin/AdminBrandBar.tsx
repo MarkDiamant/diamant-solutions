@@ -104,10 +104,13 @@ export default function AdminBrandBar(){
  <header className="bms-app-header print:hidden">
   <div className="bms-app-header-inner">
    <button className="bms-menu-trigger" type="button" aria-label={mobileOpen?"Close navigation":"Open navigation"} aria-expanded={mobileOpen} aria-controls="bms-sidebar" onClick={()=>{if(!mobileOpen)setOpenSections(Object.fromEntries(groups.map(g=>[g.name,true])));setMobileOpen(v=>!v)}}>{mobileOpen?<span aria-hidden="true">×</span>:<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>}</button>
-   <Link href={go("/")} onClick={()=>navigate()} className="bms-brand-link">
-    {!demo&&config?.logoUrl?<img src={config.logoUrl} alt={config.businessName||"Business"} className="bms-brand-logo"/>:<span className="bms-brand-placeholder">BMS</span>}
-    <span className="bms-brand-details"><strong style={{color:brand}}>{demo?demoNames[demo]:(config?.businessName||"Business Management")}</strong><DiamantCredit compact linked={false}/></span>
-   </Link>
+   <div className="bms-brand-link">
+    <Link href={go("/")} onClick={()=>navigate()} style={{display:"inline-flex",alignItems:"center",gap:8,textDecoration:"none"}}>
+     {!demo&&config?.logoUrl?<img src={config.logoUrl} alt={config.businessName||"Business"} className="bms-brand-logo"/>:<span className="bms-brand-placeholder">BMS</span>}
+     <strong style={{color:brand}}>{demo?demoNames[demo]:(config?.businessName||"Business Management")}</strong>
+    </Link>
+    <span className="bms-brand-details"><DiamantCredit compact/></span>
+   </div>
    <div className="bms-header-actions">
     <Link href={go("/ai")} onClick={()=>navigate()} aria-label="Ask Ruby" className="bms-ruby-link bms-header-ruby" style={{borderColor:brand,color:brand}}><img className="bms-ruby-avatar" src="https://res.cloudinary.com/ds3zepqin/image/upload/v1791154904/ruby-ai-business-assistant.webp" alt=""/> <span>Ask Ruby</span></Link>
     {(permissions===null?Boolean(demo):permissions.includes("edit_jobs"))&&<div className="bms-new-job bms-header-new-job">
