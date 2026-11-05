@@ -9,7 +9,7 @@
     "check:bms-parity": "node scripts/check-bms-demo-parity.mjs",
     "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs",
     "test:stripe-signed": "node --test tests/bms-stripe-signed-fixtures.test.cjs",
-    "test:onboarding": "node --test tests/bms-onboarding-first-login.test.cjs"
+    "test:onboarding": "node --test tests/bms-onboarding-first-login.test.cjs tests/bms-onboarding-submit.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
