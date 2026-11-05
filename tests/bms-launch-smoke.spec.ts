@@ -25,6 +25,15 @@ test("Fictional Xero sync-history cannot report real connection",async({request}
  expect((await history.json()).simulation).toBe(true);
  expect((await status.json()).connected).toBe(false);
 });
+test("Fictional financial integrity API is read-only and tenant isolated",async({request})=>{
+ const r=await request.get(base+"/api/admin/finance/integrity",{headers:{"x-bms-demo-sample":"flooring"}});
+ expect(r.ok()).toBeTruthy();
+ const j=await r.json();
+ expect(j.simulation).toBe(true);
+ expect(j.readOnly).toBe(true);
+ expect(j.tenantScoped).toBe(true);
+ expect(j.invalidAllocations).toBe(0);
+});
 test("Fictional demo blocks live mutation APIs",async({request})=>{
  const r=await request.post(base+"/api/business-software/provision",{data:{tenantId:"00000000-0000-0000-0000-000000000000"}});
  expect(r.status()).toBe(403);
