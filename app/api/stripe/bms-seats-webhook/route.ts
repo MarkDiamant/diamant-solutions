@@ -13,7 +13,7 @@ function verified(body:string,header:string,secret:string){
 export async function POST(req:Request){
  const secret=process.env.STRIPE_BMS_SEATS_WEBHOOK_SECRET;
  const stripeKey=process.env.STRIPE_SECRET_KEY;
- const priceId=process.env.BMS_STRIPE_SEAT_PRICE_ID;
+ const priceId=process.env.BMS_STRIPE_SEAT_PRICE_ID;const basePriceId=process.env.BMS_STRIPE_BASE_PRICE_ID;
  const supabase=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
  const serviceKey=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
  if(!secret||!stripeKey||!priceId||!supabase||!serviceKey)return json({error:"Seat billing webhook not configured"},503);
@@ -29,14 +29,14 @@ export async function POST(req:Request){
  if(!sr.ok)return json({error:"Unable to verify subscription with Stripe"},503);
  const sub:any=await sr.json();
  if(sub.metadata?.product!=="bms_seats")return json({received:true,ignored:true});
- const seatItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===priceId);
- if(!seatItem)return json({error:"Subscription does not contain the configured seat product"},409);
+ const seatItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===priceId);const baseItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===basePriceId);
+ if(!seatItem&&!baseItem)return json({error:"Subscription does not contain a configured BMS licence product"},409);
  const tenantId=String(sub.metadata?.tenant_id||"");
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId))return json({error:"Missing verified tenant mapping"},409);
  const customerId=typeof sub.customer==="string"?sub.customer:sub.customer?.id;
  if(!customerId)return json({error:"Subscription customer missing"},409);
- const interval=seatItem.price?.recurring?.interval==="year"?"annual":"monthly";
- const quantity=Number(seatItem.quantity||0);
+ const interval=(seatItem||baseItem).price?.recurring?.interval==="year"?"annual":"monthly";
+ const quantity=Number(seatItem?.quantity||0)+Number(baseItem?1:0);
  if(!Number.isSafeInteger(quantity)||quantity<0||quantity>10000)return json({error:"Invalid subscription quantity"},409);
  const rpc=await fetch(supabase.replace(/\/$/,"")+"/rest/v1/rpc/bms_apply_verified_seat_billing_event",{
   method:"POST",headers:{apikey:serviceKey,Authorization:"Bearer "+serviceKey,"Content-Type":"application/json"},
