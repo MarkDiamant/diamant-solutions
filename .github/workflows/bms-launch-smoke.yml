@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tests/bms-launch-smoke.spec.ts'
+      - 'playwright.config.ts'
       - '.github/workflows/bms-launch-smoke.yml'
 permissions:
   contents: read
