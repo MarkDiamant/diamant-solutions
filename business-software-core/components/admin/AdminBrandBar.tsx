@@ -8,8 +8,8 @@ type Entry={href:string;label:string;icon:string;permission?:string;module?:stri
 type Group={name:string;icon:string;entries:Entry[]};
 const groups:Group[]=[
  {name:"Overview",icon:"overview",entries:[{href:"/",label:"Dashboard",icon:"overview"},{href:"/tasks",label:"Tasks",icon:"tasks",module:"tasks"},{href:"/workforce",label:"Scheduling",icon:"scheduling",permission:"view_workforce",module:"workforce"}]},
- {name:"Sales & Customers",icon:"sales",entries:[{href:"/prospects",label:"Prospects",icon:"prospects",module:"prospects"},{href:"/customers",label:"Customers",icon:"customers",permission:"view_customer_details"},{href:"/quotes",label:"Quotes",icon:"quotes",module:"quotes"},{href:"/jobs",label:"Jobs",icon:"jobs",permission:"view_jobs"},{href:"/operations",label:"Orders & Deliveries",icon:"operations",permission:"view_sales_orders"},{href:"/campaigns",label:"Campaigns",icon:"campaigns",module:"campaigns"}]},
- {name:"Products & Stock",icon:"products",entries:[{href:"/price-book",label:"Price Book",icon:"price",module:"priceBook",permission:"view_pricing"},{href:"/materials",label:"Purchasing",icon:"purchasing",permission:"view_stock"},{href:"/stock",label:"Stock",icon:"materials",permission:"view_stock"}]},
+ {name:"Sales & Customers",icon:"sales",entries:[{href:"/prospects",label:"Prospects",icon:"prospects",module:"prospects"},{href:"/customers",label:"Customers",icon:"customers",permission:"view_customer_details"},{href:"/quotes",label:"Quotes",icon:"quotes",module:"quotes"},{href:"/jobs",label:"Jobs",icon:"jobs",permission:"view_jobs"},{href:"/operations",label:"Orders & Deliveries",icon:"operations",permission:"view_sales_orders",module:"salesOrders"},{href:"/campaigns",label:"Campaigns",icon:"campaigns",module:"campaigns"}]},
+ {name:"Products & Stock",icon:"products",entries:[{href:"/price-book",label:"Price Book",icon:"price",module:"priceBook",permission:"view_pricing"},{href:"/materials",label:"Purchasing",icon:"purchasing",permission:"view_stock",module:"purchasing"},{href:"/stock",label:"Stock",icon:"materials",permission:"view_stock",module:"inventory"}]},
  {name:"Finance",icon:"finance",entries:[{href:"/invoices",label:"Invoices",icon:"invoices",module:"invoices",permission:"view_payments_invoices"},{href:"/payments",label:"Payments & Money",icon:"payments",module:"payments",permission:"view_money_overview"},{href:"/labour",label:"Labour Costing",icon:"labour",module:"workforce",permission:"view_costs_profit"}]},
  {name:"People & Work",icon:"workforce",entries:[{href:"/team",label:"Workforce",icon:"team",module:"workforce",permission:"view_workforce"},{href:"/worker",label:"My Work",icon:"worker",module:"workforce"}]},
  {name:"Files & Photos",icon:"documents",entries:[{href:"/files",label:"File Library",icon:"files",module:"files",permission:"view_files"}]},
@@ -66,9 +66,17 @@ export default function AdminBrandBar(){
  const [pendingHref,setPendingHref]=useState<string|null>(null);
  useEffect(()=>{try{setConfig(demo?null:JSON.parse(sessionStorage.getItem("bms-tenant-config")||"null"));setCompact(localStorage.getItem(storeKey)==="1");setOpenSections(JSON.parse(localStorage.getItem(sectionsKey)||"{}"));}catch{}},[]);
  useEffect(()=>{let live=true;fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(live&&d.settings){setConfig(demo?null:d.settings);if(!demo)sessionStorage.setItem("bms-tenant-config",JSON.stringify(d.settings));}}}).catch(()=>{});fetch("/api/admin/session",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(live){const role=String(d.admin?.role||"").toLowerCase();const privileged=["owner","admin","super_admin","superadmin","director"].includes(role)||d.admin?.protectedOwner===true||d.admin?.is_owner===true;if(privileged)setPermissions(groups.flatMap(g=>g.entries.map(e=>e.permission).filter((v):v is string=>Boolean(v))));else if(Array.isArray(d.admin?.permissions))setPermissions(d.admin.permissions);setIsWorker(String(d.admin?.role||"").toLowerCase()==="worker");}}}).catch(()=>{});return()=>{live=false}},[]);
- useEffect(()=>{setMobileOpen(false);setJobOpen(false);setPendingHref(null)},[pathname]);
+ useEffect(()=>{if(demo)return;let cancelled=false;fetch("/api/admin/settings",{cache:"no-store"}).then(async r=>{if(r.ok){const d=await r.json();if(!cancelled&&d.settings){setConfig(d.settings);sessionStorage.setItem("bms-tenant-config",JSON.stringify(d.settings));}}}).catch(()=>{});return()=>{cancelled=true}},[pathname,demo]);useEffect(()=>{setMobileOpen(false);setJobOpen(false);setPendingHref(null)},[pathname]);
  useEffect(()=>{if(!mobileOpen)return;const prior=document.body.style.overflow;document.body.style.overflow="hidden";const key=(e:KeyboardEvent)=>{if(e.key==="Escape")setMobileOpen(false)};document.addEventListener("keydown",key);return()=>{document.removeEventListener("keydown",key);document.body.style.overflow=prior}},[mobileOpen]);
- const available=useMemo(()=>isWorker?[{name:"My Jobs",icon:"jobs",entries:[{href:"/worker",label:"My Jobs",icon:"jobs"}]}]:groups.map(group=>({...group,entries:group.entries.map(e=>e.href==="/jobs"&&config?.workItemTerminology==="orders"?{...e,label:"Orders"}:e)})),[config,isWorker]);
+ const available=useMemo(()=>{
+ if(isWorker)return [{name:"My Jobs",icon:"jobs",entries:[{href:"/worker",label:"My Jobs",icon:"jobs"}]}];
+ const approved=config?.onboarding?.approved===true;
+ const moduleOn=(key?:string)=>!key||!approved||config?.modules?.[key]!==false;
+ return groups.map(group=>({...group,entries:group.entries
+ .filter(e=>moduleOn(e.module)&&(!e.permission||permissions===null||permissions.includes(e.permission)))
+ .map(e=>e.href==="/jobs"&&config?.workItemTerminology==="orders"?{...e,label:"Orders"}:e)}))
+ .filter(g=>g.entries.length>0);
+},[config,isWorker,permissions]);
  const active=(href:string)=>href==="/"?local==="/":local===href||local.startsWith(href+"/");
  const navigate=(href?:string)=>{setJobOpen(false);if(href&&href!==pathname)setPendingHref(href)};
  useEffect(()=>{setMobileOpen(false);window.dispatchEvent(new Event(NAV_EVENT));},[pathname]);
