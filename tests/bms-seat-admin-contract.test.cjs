@@ -37,3 +37,9 @@ test("each request revalidates active membership rather than trusting cached JWT
  assert.match(route,/bms_login_membership/);
  assert.match(route,/if\(!member\)return NextResponse\.json\(\{error:"Unauthorised"\}/);
 });
+
+test("fictional Flooring client guard selects flooring, never Northstar, for every shared API",()=>{
+ const guard=fs.readFileSync(path.join(__dirname,"../components/BmsRuntimeGuard.tsx"),"utf8");
+ assert.match(guard,/const KEYS=\[[^\]]*"flooring"\]/);
+ assert.match(guard,/u\.searchParams\.set\("sample",sample\)/);
+});
