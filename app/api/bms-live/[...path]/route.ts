@@ -516,7 +516,7 @@ export async function POST(req:Request,{params}:{params:Promise<{path?:string[]}
  if(!token)return NextResponse.json({error:"QuickBooks token unavailable"},{status:409});
  const entity=request.kind==="customer"?"Customer":"Invoice";
  const table=request.kind==="customer"?"business_software_customers":"business_software_invoices";
- const select=request.kind==="customer"?"id,first_name,last_name,email":"id,invoice_number,total,invoice_date,due_date,status,provider,external_invoice_id";
+ const select=request.kind==="customer"?"id,first_name,last_name,email":"id,job_id,invoice_number,total,invoice_date,due_date,status,provider,external_invoice_id";
  const lr=await centralRest(table+"?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(id)+"&select="+select+"&limit=1",{cache:"no-store"});
  if(!lr.ok)return NextResponse.json({error:"Unable to verify local record"},{status:503});
  const local=(await lr.json().catch(()=>[]))[0];
@@ -535,7 +535,8 @@ export async function POST(req:Request,{params}:{params:Promise<{path?:string[]}
   if(existing.length)return NextResponse.json({already_exists:true,provider:"quickbooks",external_id:String(existing[0].Id),record_id:id},{headers:{"Cache-Control":"no-store"}});
   if(entity==="Invoice"){
    // A local invoice is posted only with its actual tenant customer, explicit VAT and a verified provider customer.
-   const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(String(request.job_id||""))+"&select=id,customer_id&limit=1",{cache:"no-store"});
+   if(!local.job_id)return NextResponse.json({error:"Invoice is not linked to a tenant job"},{status:409});
+   const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(String(local.job_id))+"&select=id,customer_id&limit=1",{cache:"no-store"});
    if(!jr.ok)return NextResponse.json({error:"Unable to verify invoice job"},{status:503});
    const job=(await jr.json().catch(()=>[]))[0];
    if(!job?.customer_id)return NextResponse.json({error:"A valid tenant job and customer are required"},{status:409});
