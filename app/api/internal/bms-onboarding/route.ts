@@ -1,9 +1,9 @@
 import {NextResponse} from "next/server";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
-const reply=(body,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
+const reply=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
 const headers=()=>({apikey:key,Authorization:"Bearer "+key,"Content-Type":"application/json"});
-async function admin(req){
+async function admin(req:Request){
  const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/,"");
  if(!token||!base||!key)return null;
  const r=await fetch(base+"/auth/v1/user",{headers:{apikey:key,Authorization:"Bearer "+token},cache:"no-store"});
@@ -12,13 +12,13 @@ async function admin(req){
  const allowed=String(process.env.DS_INTERNAL_ADMIN_EMAILS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
  return allowed.includes(String(u.email||"").toLowerCase())?u:null;
 }
-async function rest(path,options={}){return fetch(base+"/rest/v1/"+path,{...options,headers:{...headers(),...options.headers},cache:"no-store"})}
-const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x||"");
+async function rest(path:string,options:RequestInit={}){return fetch(base+"/rest/v1/"+path,{...options,headers:{...headers(),...options.headers},cache:"no-store"})}
+const uuid=(x:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x||"");
 export async function GET(req){
  if(!await admin(req))return reply({error:"Internal administrator access required"},403);
  const r=await rest("onboarding?service_type=eq.business_software&select=tenant_id,status,progress,answers,proposed_config,submitted_at,updated_at,tenants(name,slug)&order=updated_at.desc&limit=200");
  if(!r.ok)return reply({error:"Unable to load onboarding queue"},502);
- const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map(x=>[x.tenant_id,x]));return reply({items:items.map(x=>({...x,review:byId.get(x.tenant_id)||null}))});
+ const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
 }
 export async function PATCH(req){
  const user=await admin(req);if(!user)return reply({error:"Internal administrator access required"},403);
