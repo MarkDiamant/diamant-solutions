@@ -33,6 +33,10 @@ const checks=[
  ["Tenant financial integrity API is permission gated and read only",files.live.includes('if(p==="finance/integrity")')&&files.live.includes("bms_financial_integrity_check")],
  ["Fictional finance audit remains isolated",files.demo.includes('if(p==="finance/integrity")return ok({tenantScoped:true,simulation:true')],
  ["Xero incomplete pages cannot be presented as totals",files.live.includes("Xero reconciliation exceeded the verified pagination limit")],
+ ["QuickBooks sandbox POST cannot run in production mode",files.live.includes('if(p==="integrations/quickbooks/sandbox-payment")')&&files.live.includes('if(p==="integrations/quickbooks/sandbox-sync")')&&files.live.split('process.env.QBO_ENVIRONMENT!=="sandbox"').length>=3],
+ ["QuickBooks customer invoice payment writes use idempotency claims",files.live.includes('claimQboSandboxWrite(tenantId,"customer",id)')&&files.live.includes('claimQboSandboxWrite(tenantId,"invoice",id)')&&files.live.includes('claimQboSandboxWrite(tenantId,"payment",paymentId)')],
+ ["QuickBooks VAT mapping verified with provider rate",files.live.includes('providerRate.RateValue')&&files.live.includes('QuickBooks VAT rate does not match')],
+ ["QuickBooks payment posting validates provider invoice balance",files.live.includes('remoteInvoice.Balance')&&files.live.includes('PaymentRefNum:paymentKey')],
  ["Demo APIs cannot route to live tenant handlers",files.middleware.includes('if(isDemo&&path.startsWith("/api/admin/"))')&&files.middleware.includes('if(tenantHost){')]
 ];
 for(const [label,ok] of checks)console.log((ok?"PASS ":"FAIL ")+label);
