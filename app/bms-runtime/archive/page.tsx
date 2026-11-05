@@ -20,7 +20,7 @@ export default function ArchivePage() {
     const body = await response.json().catch(() => ({}));
     if (!response.ok) setError(body.error || "Unable to load archive"); else { setJobs(body.jobs || []); setError(""); }
     const productResponse=await fetch("/api/admin/price-book/archived",{cache:"no-store"}).catch(()=>null);
-    if(productResponse?.ok){const result=await productResponse.json().catch(()=>({}));setProducts(result.products||[]);setProductError("");const checks=await Promise.all((result.products||[]).map(async(p:any)=>{try{const rr=await fetch("/api/admin/price-book/archive-status?id="+encodeURIComponent(p.id),{cache:"no-store"});return [p.id,rr.ok?await rr.json():{ok:false,error:"Reference check unavailable"}]}catch{return [p.id,{ok:false,error:"Reference check unavailable"}]}}));setReferenceChecks(Object.fromEntries(checks));}else setProductError("Archived products are unavailable for this account.");
+    if(productResponse?.ok){const result=await productResponse.json().catch(()=>({}));setProducts(result.products||[]);setProductError("");const checkResponse=await fetch("/api/admin/price-book/archive-status",{cache:"no-store"}).catch(()=>null);const checks=checkResponse?.ok?(await checkResponse.json().catch(()=>({}))).checks||{}:{};setReferenceChecks(checks);}else setProductError("Archived products are unavailable for this account.");
     setLoading(false);
   }
   useEffect(() => { void load(); }, []);
