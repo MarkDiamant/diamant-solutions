@@ -70,6 +70,7 @@ export default function AdminBrandBar(){
  useEffect(()=>{if(!mobileOpen)return;const prior=document.body.style.overflow;document.body.style.overflow="hidden";const key=(e:KeyboardEvent)=>{if(e.key==="Escape")setMobileOpen(false)};document.addEventListener("keydown",key);return()=>{document.removeEventListener("keydown",key);document.body.style.overflow=prior}},[mobileOpen]);
  const available=useMemo(()=>{
  if(isWorker)return [{name:"My Jobs",icon:"jobs",entries:[{href:"/worker",label:"My Jobs",icon:"jobs"}]}];
+ if(permissions===null&&!demo)return [];
  const approved=config?.onboarding?.approved===true;
  const moduleOn=(key?:string)=>!key||!approved||config?.modules?.[key]!==false;
  return groups.map(group=>({...group,entries:group.entries
