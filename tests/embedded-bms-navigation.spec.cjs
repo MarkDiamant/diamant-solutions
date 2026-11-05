@@ -29,4 +29,9 @@ test("embedded mobile navigation opens with real links",async({page})=>{
  const runtime=page.frameLocator('iframe[src="/bms-demo"]').frameLocator('iframe[title="Diamant Solutions Business Management Software demo"]');
  await runtime.getByRole("button",{name:"Open navigation"}).click();
  await expect(runtime.locator('nav[aria-label="Main navigation"]').getByRole("link",{name:"Dashboard"})).toBeVisible();
+ await expect(runtime.getByText("DEMO MODE")).toBeVisible();
+ await expect(runtime.getByText("View demo as")).toBeVisible();
+ await runtime.getByRole("button",{name:"Electrical",exact:true}).click();
+ await expect(runtime.locator(".bms-brand-link strong")).toContainText(/Electrical/i);
+ await expect(runtime.locator('nav[aria-label="Main navigation"]').getByRole("link",{name:"Dashboard"})).toBeVisible();
 });
