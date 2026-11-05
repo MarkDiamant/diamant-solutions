@@ -4,15 +4,15 @@ import './work-carousel.css';
 
 const sites=[
  {name:'Starlight Decor',url:'https://www.starlightdecor.co.uk/'},
- {name:'Certifire UK',url:'https://www.certifireuk.co.uk'},
+ {name:'Certifire UK',url:'https://certifireuk.co.uk'},
  {name:'M&J Metal',url:'https://mjmetal.co.uk'},
  {name:'Poll & See',url:'https://www.pollandsee.com'},
- {name:'Luton Circumcision',url:'https://luton-circumcision.vercel.app',previewUrl:'https://luton-circumcision.vercel.app'},
+ {name:'Luton Circumcision',url:'https://lutonexpertcirc.co.uk',previewUrl:'https://lutonexpertcirc.co.uk'},
  {name:'Sam Certs',url:'https://www.samcerts.co.uk'},
  {name:'Edible Print',url:'https://edibleprint.uk',image:'/Pink Poppy Flowers.avif'},
  {name:'Would Use Again',url:'https://www.woulduseagain.com'},
  {name:'TYH Consulting',url:'https://tyhconsultants.com'},
- {name:'Zehavah Handler Therapy',url:'https://zehavah.sites.diamantsolutions.co.uk'}
+ {name:'Zehavah Handler Therapy',url:'https://zehavahhandlertherapy.com'}
 ];
 
 function card(site){
@@ -30,16 +30,16 @@ export default function WorkCarousel(){
   const pool=sites.map(site=>{const el=card(site);grid.appendChild(el);return el});
   const slots=[document.createElement('div'),document.createElement('div')];slots.forEach(slot=>{slot.className='portfolioSlot';grid.appendChild(slot)});
   const place=(el,slot)=>{const r=slot.getBoundingClientRect(),g=grid.getBoundingClientRect();el.style.setProperty('--slot-x',`${r.left-g.left}px`);el.style.setProperty('--slot-y',`${r.top-g.top}px`)};
-  const showNow=(el,slot)=>{place(el,slot);el.classList.remove('portfolioPooled');el.style.opacity='1';el.style.zIndex='4';el.style.pointerEvents='auto'};
+  const showNow=(el,slot)=>{place(el,slot);el.classList.remove('portfolioPooled');el.classList.add('portfolioPlaying');el.style.opacity='1';el.style.zIndex='4';el.style.pointerEvents='auto'};
   showNow(pool[0],slots[0]);showNow(pool[1],slots[1]);
   const current=[pool[0],pool[1]];let next=2,slotIndex=0;
   const change=()=>{
    const slot=slots[slotIndex],old=current[slotIndex],incoming=pool[next];place(incoming,slot);
-   incoming.classList.remove('portfolioPooled');incoming.style.opacity='0';incoming.style.zIndex='5';incoming.style.pointerEvents='none';
+   incoming.classList.remove('portfolioPooled');incoming.classList.add('portfolioPlaying');incoming.style.opacity='0';incoming.style.zIndex='5';incoming.style.pointerEvents='none';
    const fadeIn=incoming.animate([{opacity:0},{opacity:1}],{duration:850,easing:'ease-in-out',fill:'forwards'});
    const fadeOut=old.animate([{opacity:1},{opacity:0}],{duration:850,easing:'ease-in-out',fill:'forwards'});
    fadeIn.onfinish=()=>{incoming.style.opacity='1';incoming.style.zIndex='4';incoming.style.pointerEvents='auto';fadeIn.cancel()};
-   fadeOut.onfinish=()=>{old.style.opacity='0';old.style.zIndex='0';old.style.pointerEvents='none';old.classList.add('portfolioPooled');fadeOut.cancel()};
+   fadeOut.onfinish=()=>{old.style.opacity='0';old.style.zIndex='0';old.style.pointerEvents='none';old.classList.remove('portfolioPlaying');old.classList.add('portfolioPooled');fadeOut.cancel()};
    current[slotIndex]=incoming;next=(next+1)%sites.length;slotIndex=1-slotIndex;
   };
   const timer=setInterval(change,2800);return()=>clearInterval(timer);
