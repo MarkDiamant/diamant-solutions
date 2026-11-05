@@ -381,7 +381,7 @@ if(p==="integrations/quickbooks/accounting-evidence"){
  const connection=(await rr.json().catch(()=>[]))[0];
  if(!connection)return NextResponse.json({error:"QuickBooks is not connected for this tenant"},{status:409});
  const realm=String(connection.external_tenant_id||"");
- if(!/^\\d{1,30}$/.test(realm))return NextResponse.json({error:"Invalid QuickBooks company ID"},{status:409});
+ if(!/^\d{1,30}$/.test(realm))return NextResponse.json({error:"Invalid QuickBooks company ID"},{status:409});
  if(!connection.token_expires_at||new Date(connection.token_expires_at).getTime()<=Date.now()+60000)return NextResponse.json({error:"QuickBooks authorisation expired; reconnect in Integrations"},{status:409});
  const token=decryptSecret(connection.access_token_ciphertext);
  if(!token)return NextResponse.json({error:"QuickBooks authorisation unavailable"},{status:409});
