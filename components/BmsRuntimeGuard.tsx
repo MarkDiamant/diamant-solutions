@@ -1,6 +1,6 @@
 "use client";
 import {useEffect} from "react";
-const KEYS=["northstar","electrical","insurance","studio","consultancy","distribution"];
+const KEYS=["northstar","electrical","insurance","studio","consultancy","distribution","flooring"];
 export default function BmsRuntimeGuard(){
  useEffect(()=>{
   const parts=window.location.pathname.split("/").filter(Boolean),sample=KEYS.includes(parts[0])?parts[0]:"northstar";
