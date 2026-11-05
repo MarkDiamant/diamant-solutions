@@ -30,6 +30,8 @@ const checks=[
  ["Demo Xero reconciliation is fictional",files.demo.includes('provider:"fictional_xero_fixture"')&&files.demo.includes("FICTIONAL SIMULATION ONLY")],
  ["Demo Xero sync history is fictional",files.demo.includes('sync_type:"fictional_reconciliation"')],
  ["Xero ledger paginated without silent truncation",files.live.includes("offset+=500")&&files.live.includes("Financial evidence exceeds safe audit limit")],
+ ["Tenant financial integrity API is permission gated and read only",files.live.includes('if(p==="finance/integrity")')&&files.live.includes("bms_financial_integrity_check")],
+ ["Fictional finance audit remains isolated",files.demo.includes('if(p==="finance/integrity")return ok({tenantScoped:true,simulation:true')],
  ["Xero incomplete pages cannot be presented as totals",files.live.includes("Xero reconciliation exceeded the verified pagination limit")],
  ["Demo APIs cannot route to live tenant handlers",files.middleware.includes('if(isDemo&&path.startsWith("/api/admin/"))')&&files.middleware.includes('if(tenantHost){')]
 ];
