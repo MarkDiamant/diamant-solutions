@@ -3,7 +3,7 @@ import {useEffect,useMemo,useState} from "react";
 import {BmsPage,BmsCard,BmsInput,BmsSelect} from "@/business-software-core/components/admin/BmsUI";
 import "@/business-software-core/components/admin/materials/materials.css";
 type Location={id:string;name:string;active:boolean;is_default?:boolean};
-type Product={id:string;name:string;sku:string;unit:string};
+type Product={id:string;name:string;sku:string;unit:string;stock_controlled?:boolean};
 type Balance={product_id:string;location_id:string;on_hand:number;reserved:number};
 type Movement={id:string;product_id:string;location_id:string;quantity_delta:number;reason:string;source_type:string;source_id:string;created_at:string};
 type Reservation={id:string;job_id:string;product_id:string;location_id:string;quantity:number};type Job={id:string;reference:string;job_title?:string;site_address_line_1?:string;site_city?:string;site_postcode?:string};
