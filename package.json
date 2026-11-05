@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check:bms-parity && npm run check:bms-launch && next build",
+    "build": "npm run check:bms-parity && npm run check:bms-launch && npm run test:stripe-signed && next build",
     "start": "next start",
     "check:bms-parity": "node scripts/check-bms-demo-parity.mjs",
-    "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs"
+    "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs",
+    "test:stripe-signed": "node --test tests/bms-stripe-signed-fixtures.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
