@@ -14,5 +14,5 @@ export default async function BmsRuntimeLayout({children}:{children:React.ReactN
  const publicSettings=tenant?.slug?await publicTenantSettings(tenant.slug).catch(()=>null):null;
  const rawAccent=String(publicSettings?.accent_colour||"");
  const accent=/^#[0-9a-fA-F]{6}$/.test(rawAccent)?rawAccent:undefined;
- return <div className="bms-shell" style={accent?({"--bms-accent":accent,"--nav-accent":accent} as React.CSSProperties):undefined}>{!live&&<BmsRuntimeGuard/>}{!live&&<><div className="bg-[#17385f] px-4 py-2 text-center text-xs font-black text-white print:hidden">DEMO MODE · Fictional data · Try editing anything · Changes reset automatically</div><DemoSelector/></>}{!login&&<><AdminBrandBar/></>}{children}{!login&&<footer className="bms-footer print:hidden"><DiamantCredit dark/></footer>}</div>;
+ return <div className="bms-shell" style={accent?({"--bms-accent":accent,"--nav-accent":accent} as React.CSSProperties):undefined}>{!live&&<BmsRuntimeGuard/>}{!live&&<><div className="bg-[#17385f] px-4 py-2 text-center text-xs font-black text-white print:hidden">DEMO MODE · Fictional data · Try editing anything · Changes reset automatically</div><DemoSelector/></>}{!login&&<><AdminBrandBar fictionalDemo={!live}/></>}{children}{!login&&<footer className="bms-footer print:hidden"><DiamantCredit dark/></footer>}</div>;
 }
