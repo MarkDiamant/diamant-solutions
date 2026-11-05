@@ -181,6 +181,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{path?:string
  if(p==="integrations/google/status")return ok({connected:false,email:null,status:"demo"});
  if(p==="integrations/xero/status")return ok({connected:false,status:"demo"});
  if(p==="integrations/xero/organisations")return ok({organisations:[]});
+ if(p==="finance/integrity")return ok({tenantScoped:true,simulation:true,invalidAllocations:0,overallocatedPayments:0,inconsistentInvoices:0,invalidCustomerReturns:0,invalidStockReturns:0,readOnly:true,checkedAt:new Date().toISOString()});
  if(p==="integrations/xero/sync-history")return ok({runs:[{sync_type:"fictional_reconciliation",status:"demo_only",checked:5,imported:0,matched_existing:1,needs_review:2,failed:0,error_message:null,finished_at:iso(-1)}],simulation:true});
  if(p==="integrations/xero/reconciliation-audit"){
   const payment={PaymentID:"fictional-xero-pay-001",Amount:600,Status:"AUTHORISED",CurrencyCode:"GBP",Date:iso(-3),Invoice:{Type:"ACCREC",InvoiceNumber:"DEMO-INV-001",InvoiceID:"fictional-inv-001",Contact:{Name:"Fictional Customer"}}};
