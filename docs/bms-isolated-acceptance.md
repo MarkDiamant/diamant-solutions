@@ -12,11 +12,11 @@ This is a preparation guide, **not** a claim that authenticated checkout has bee
 ## Local opt-in acceptance
 Copy `tests/fixtures/bms-isolated-preview.env.example` to a local untracked file and fill with **test-only** values. Do not commit credentials.
 Run `node scripts/bms-test-preflight.cjs` after loading test environment variables.
-Run `node scripts/bms-isolated-auth-acceptance.cjs` to test real disposable Supabase password authentication, refresh-token session persistence, Preview first-login gating and cross-tenant denial. This script only sends authentication POSTs and read-only onboarding GETs. It does not create subscriptions, tenant records or invitations.
+Run `node scripts/bms-isolated-schema-check.cjs` first to verify the isolated schema, VAT snapshots and archive guard. Then run `node scripts/bms-isolated-auth-acceptance.cjs` to test real disposable Supabase password authentication, refresh-token session persistence, Preview first-login gating and cross-tenant denial. This script only sends authentication POSTs and read-only onboarding GETs. It does not create subscriptions, tenant records or invitations.
 Run `npm run test:acceptance-static` for fixture-based guards and purchasing/finance tests without external credentials.
 
 ## Still requires real isolated acceptance
 Provision a fictional tenant and owner membership using the supported onboarding workflow, then test signup/paid test checkout, tenant activation, invitations, role restrictions, archive and stock persistence, finance reconciliation and signed Stripe webhook replay in the isolated environment. Keep live accounts disconnected. Capture request IDs and reconcile tenant-scoped database rows; clean up only isolated test data.
 
 ## Important
-A successful build and HTTP 200 do not prove authenticated acceptance. The preflight is a configuration check, not a secret-validity check; Stripe API and Supabase Auth can only be verified after isolated credentials exist. Historical VAT snapshots remain NULL by design; only newly created purchase-order lines receive VAT snapshots.
+A successful build and HTTP 200 do not prove authenticated acceptance. Do not put the disposable owner password into Vercel: use it locally only for the authenticated test runner. The preflight is a configuration check, not a secret-validity check; Stripe API and Supabase Auth can only be verified after isolated credentials exist. Historical VAT snapshots remain NULL by design; only newly created purchase-order lines receive VAT snapshots.
