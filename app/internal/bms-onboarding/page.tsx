@@ -9,6 +9,15 @@ export default function InternalOnboarding(){
   setItems(data.items||[]);setError("");
  }
  useEffect(()=>{supabase.auth.getSession().then(({data})=>{const t=data.session?.access_token||"";setToken(t);if(t)load(t);else setError("Sign in with your authorised Diamant Solutions administrator account.")})},[]);
+ async function prepare(item:any){
+  setBusy(item.tenant_id);
+  try{
+   const r=await fetch("/api/internal/bms-onboarding",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({tenantId:item.tenant_id,action:"prepare"})});
+   const data=await r.json().catch(()=>({}));
+   if(!r.ok)throw Error(data.error||"Could not prepare paid tenant");
+   await load(token);
+  }catch(e:any){setError(e.message||"Preparation failed")}finally{setBusy("")}
+ }
  async function update(item:any,status:string,notes:string,bmsTenantId?:string){
   setBusy(item.tenant_id);try{
    const r=await fetch("/api/internal/bms-onboarding",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({tenantId:item.tenant_id,status,notes,bmsTenantId})});
@@ -24,7 +33,7 @@ export default function InternalOnboarding(){
    <p><strong>Status:</strong> {item.status} · <strong>Progress:</strong> {item.progress||0}% · <strong>Submitted:</strong> {item.submitted_at?new Date(item.submitted_at).toLocaleDateString("en-GB"):"Not submitted"}</p>
    <p><strong>Requested modules:</strong> {(item.proposed_config?.modules?.enabled||item.answers?.optionalModules||[]).join(", ")||"Not selected"}</p>
    <details><summary>Answers and proposed setup</summary><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",fontSize:12}}>{JSON.stringify({answers:item.answers,proposedConfiguration:item.proposed_config},null,2)}</pre></details>
-   <h3>Configuration checklist</h3>
+   {["submitted","being_configured"].includes(item.status)&&!item.review?.applied_bms_tenant_id&&<button disabled={busy===item.tenant_id} onClick={()=>prepare(item)} style={{padding:"10px 14px",border:"1px solid #777",borderRadius:8}}>Prepare paid tenant for review</button>}<h3>Configuration checklist</h3>
    <ul>{(item.proposed_config?.tasks||[]).map((t:any)=><li key={t.key}>{t.label}: {t.status}</li>)}</ul>
    <label style={{display:"block"}}>Internal review notes<textarea id={"notes-"+item.tenant_id} defaultValue={item.review?.review_notes||""} rows={3} style={{display:"block",width:"100%",margin:"8px 0",border:"1px solid #bbb",padding:8}}/></label>
    {["submitted","awaiting_clarification","being_configured"].includes(item.status)&&<div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{["submitted","awaiting_clarification","being_configured"].map(status=><button key={status} disabled={busy===item.tenant_id} onClick={()=>update(item,status,(document.getElementById("notes-"+item.tenant_id) as HTMLTextAreaElement)?.value||"")} style={{padding:"10px 14px",border:"1px solid #aaa",borderRadius:8,cursor:"pointer"}}>{status.replaceAll("_"," ")}</button>)}</div>}
