@@ -504,7 +504,7 @@ export async function POST(req:Request,{params}:{params:Promise<{path?:string[]}
  if(!canBms(member,"manage_business_settings")||!canBms(member,"view_money_overview"))return NextResponse.json({error:"Accounting administrator permission required"},{status:403});
  if(process.env.QBO_ENVIRONMENT!=="sandbox")return NextResponse.json({error:"QuickBooks production writes are blocked"},{status:403});
  const body=await req.json().catch(()=>({}));
- if(body.confirm_sandbox_write!==true||!/^\x5b0-9a-f-\x5d{36}$/i.test(String(body.payment_id||"")))return NextResponse.json({error:"Explicit sandbox confirmation and payment UUID required"},{status:400});
+ if(body.confirm_sandbox_write!==true||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(body.payment_id||"")))return NextResponse.json({error:"Explicit sandbox confirmation and payment UUID required"},{status:400});
  const paymentId=String(body.payment_id);
  const [ir,pr,links]=await Promise.all([
   centralRest("business_software_integrations?tenant_id=eq."+encodeURIComponent(tenantId)+"&provider=eq.quickbooks&status=eq.connected&select=external_tenant_id,access_token_ciphertext,token_expires_at&limit=1",{cache:"no-store"}),
@@ -605,6 +605,12 @@ if(p==="integrations/quickbooks/sandbox-sync"){
    if(!taxCheck.ok)return NextResponse.json({error:"Unable to verify QuickBooks tax code"},{status:502});
    const codes=(await taxCheck.json())?.QueryResponse?.TaxCode||[];
    if(!Array.isArray(codes)||codes.length!==1||codes[0].Active===false)return NextResponse.json({error:"QuickBooks tax code is not active or uniquely verified"},{status:409});
+   const rateRefs=(codes[0].SalesTaxRateList?.TaxRateDetail||[]).map((x:any)=>String(x.TaxRateRef?.value||"")).filter(Boolean);
+   if(rateRefs.length!==1)return NextResponse.json({error:"VAT code must resolve to exactly one verifiable sales tax rate"},{status:409});
+   const taxRateResponse=await fetch(base+"/taxrate/"+encodeURIComponent(rateRefs[0])+"?minorversion=75",{headers,cache:"no-store",signal:AbortSignal.timeout(15000)});
+   if(!taxRateResponse.ok)return NextResponse.json({error:"QuickBooks tax rate verification unavailable"},{status:502});
+   const providerRate=(await taxRateResponse.json())?.TaxRate;
+   if(!providerRate||providerRate.Active===false||Math.abs(Number(providerRate.RateValue)-rate)>0.0001)return NextResponse.json({error:"QuickBooks VAT rate does not match the selected BMS rate; posting blocked"},{status:409});
    const net=Math.round(gross/(1+rate/100)*100)/100,vat=Math.round((gross-net)*100)/100;
    const payload={DocNumber:key,CustomerRef:{value:String(customers[0].Id)},TxnDate:String(local.invoice_date||new Date().toISOString().slice(0,10)),...(local.due_date?{DueDate:String(local.due_date).slice(0,10)}:{}),Line:[{DetailType:"SalesItemLineDetail",Amount:net,Description:"BMS invoice "+String(local.invoice_number||id),SalesItemLineDetail:{ItemRef:{value:String(request.sandbox_item_id||"")},TaxCodeRef:{value:taxCode}}}]};
    if(!/^\d{1,30}$/.test(String(request.sandbox_item_id||"")))return NextResponse.json({error:"Verified sandbox service item ID required"},{status:409});
