@@ -533,7 +533,40 @@ export async function POST(req:Request,{params}:{params:Promise<{path?:string[]}
   const existing=(await qr.json())?.QueryResponse?.[entity]||[];
   if(!Array.isArray(existing))return NextResponse.json({error:"Invalid duplicate-check response"},{status:502});
   if(existing.length)return NextResponse.json({already_exists:true,provider:"quickbooks",external_id:String(existing[0].Id),record_id:id},{headers:{"Cache-Control":"no-store"}});
-  if(entity==="Invoice")return NextResponse.json({error:"Invoice posting requires a verified QuickBooks customer mapping and tax code. No invoice was created.",requires:["verified_customer_mapping","vat_tax_code","line_items"]},{status:409});
+  if(entity==="Invoice"){
+   // A local invoice is posted only with its actual tenant customer, explicit VAT and a verified provider customer.
+   const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(String(request.job_id||""))+"&select=id,customer_id&limit=1",{cache:"no-store"});
+   if(!jr.ok)return NextResponse.json({error:"Unable to verify invoice job"},{status:503});
+   const job=(await jr.json().catch(()=>[]))[0];
+   if(!job?.customer_id)return NextResponse.json({error:"A valid tenant job and customer are required"},{status:409});
+   const cr=await centralRest("business_software_customers?tenant_id=eq."+encodeURIComponent(tenantId)+"&id=eq."+encodeURIComponent(job.customer_id)+"&select=id&limit=1",{cache:"no-store"});
+   if(!cr.ok||!(await cr.json().catch(()=>[]))[0])return NextResponse.json({error:"Unable to verify invoice customer"},{status:409});
+   const customerKey="BMS-"+tenantId.slice(0,8)+"-"+job.customer_id;
+   const cq=await fetch(base+"/query?query="+encodeURIComponent("select * from Customer where DisplayName = '"+customerKey+"'")+"&minorversion=75",{headers,cache:"no-store",signal:AbortSignal.timeout(15000)});
+   if(!cq.ok)return NextResponse.json({error:"Unable to verify QuickBooks customer"},{status:502});
+   const customers=(await cq.json())?.QueryResponse?.Customer||[];
+   if(!Array.isArray(customers)||customers.length!==1||!customers[0].Id)return NextResponse.json({error:"Synchronise this tenant customer to QuickBooks sandbox before invoicing"},{status:409});
+   const gross=Number(local.total),rate=Number(request.vat_rate),taxCode=String(request.tax_code||"");
+   if(!Number.isFinite(gross)||gross<=0||!Number.isFinite(rate)||![0,5,20].includes(rate)||!/^\\w{1,40}$/.test(taxCode))return NextResponse.json({error:"Explicit 0%, 5% or 20% VAT rate, valid tax code and positive invoice total required"},{status:400});
+   if(request.confirm_vat_mapping!==true)return NextResponse.json({error:"Confirm the selected QuickBooks tax code corresponds to the stated VAT rate"},{status:409});
+   const taxCheck=await fetch(base+"/query?query="+encodeURIComponent("select * from TaxCode where Id = '"+taxCode+"'")+"&minorversion=75",{headers,cache:"no-store",signal:AbortSignal.timeout(15000)});
+   if(!taxCheck.ok)return NextResponse.json({error:"Unable to verify QuickBooks tax code"},{status:502});
+   const codes=(await taxCheck.json())?.QueryResponse?.TaxCode||[];
+   if(!Array.isArray(codes)||codes.length!==1||codes[0].Active===false)return NextResponse.json({error:"QuickBooks tax code is not active or uniquely verified"},{status:409});
+   const net=Math.round(gross/(1+rate/100)*100)/100,vat=Math.round((gross-net)*100)/100;
+   const payload={DocNumber:key,CustomerRef:{value:String(customers[0].Id)},TxnDate:String(local.invoice_date||new Date().toISOString().slice(0,10)),...(local.due_date?{DueDate:String(local.due_date).slice(0,10)}:{}),Line:[{DetailType:"SalesItemLineDetail",Amount:net,Description:"BMS invoice "+String(local.invoice_number||id),SalesItemLineDetail:{ItemRef:{value:String(request.sandbox_item_id||"")},TaxCodeRef:{value:taxCode}}}]};
+   if(!/^\\d{1,30}$/.test(String(request.sandbox_item_id||"")))return NextResponse.json({error:"Verified sandbox service item ID required"},{status:409});
+   const itemCheck=await fetch(base+"/item/"+encodeURIComponent(String(request.sandbox_item_id))+"?minorversion=75",{headers,cache:"no-store",signal:AbortSignal.timeout(15000)});
+   if(!itemCheck.ok)return NextResponse.json({error:"Unable to verify sandbox invoice item"},{status:502});
+   const item=(await itemCheck.json())?.Item;
+   if(!item||String(item.Id)!==String(request.sandbox_item_id)||item.Active===false)return NextResponse.json({error:"Sandbox item invalid"},{status:409});
+   const posted=await fetch(base+"/invoice?minorversion=75",{method:"POST",headers,body:JSON.stringify(payload),cache:"no-store",signal:AbortSignal.timeout(15000)});
+   if(!posted.ok)return NextResponse.json({error:"QuickBooks sandbox invoice rejected; inspect remote key before retry",provider_status:posted.status},{status:502});
+   const created=(await posted.json())?.Invoice;
+   if(!created?.Id)return NextResponse.json({error:"Provider invoice response uncertain; inspect remote key before retry"},{status:502});
+   const actual=Number(created.TotalAmt),actualTax=Number(created.TxnTaxDetail?.TotalTax||0);
+   return NextResponse.json({created:true,sandbox:true,external_id:String(created.Id),record_id:id,expected_gross:gross,expected_vat:vat,provider_gross:actual,provider_vat:actualTax,balanced:Math.abs(actual-gross)<0.011&&Math.abs(actualTax-vat)<0.011,warning:"Sandbox only. Provider VAT and gross must reconcile before recording an invoice link. No BMS invoice state changed."},{headers:{"Cache-Control":"no-store"}});
+  }
   const name=[local.first_name,local.last_name].filter(Boolean).join(" ").trim();
   if(!name)return NextResponse.json({error:"Customer name is required"},{status:409});
   const payload={DisplayName:key,GivenName:String(local.first_name||""),FamilyName:String(local.last_name||""),...(local.email?{PrimaryEmailAddr:{Address:String(local.email)}}:{})};
