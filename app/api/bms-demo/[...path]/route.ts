@@ -167,6 +167,7 @@ export async function GET(req:NextRequest,{params}:{params:Promise<{path?:string
  if(p==="operations/planning-options")return ok({jobs:demoJobsWithEdits(req).filter((j:any)=>!j.archivedAt).map((j:any)=>({id:j.id,reference:j.reference,job_title:j.jobType||j.jobTitle||"",site_address_line_1:j.siteAddressLine1||"",site_city:j.siteCity||"",site_postcode:j.sitePostcode||""})),worker_work_types:["installation","delivery","survey","travel","other"],demo:true});
 
  if(p==="jobs")return ok({jobs:demoJobsWithEdits(req).filter((j:any)=>req.nextUrl.searchParams.get("archived")==="1"?Boolean(j.archivedAt):!j.archivedAt),people:peopleForSample(req),activities,admin,permissions,settings:{...settings,...sampleFrom(req)}});
+ if(p==="payments/money-decisions")return ok({demo:true,simulation:true,decisions:[],history:[],assignments:[],invoices:[{id:"fictional-invoice-001",job_id:"fictional-job-001",invoice_number:"DEMO-INV-001",status:"paid",total:600,amount_paid:600}],payments:[{id:"fictional-bms-payment-001",job_id:"fictional-job-001",direction:"customer_in",amount:600,payment_type:"Bank transfer",paid_at:iso(-3)}],jobCosts:[],timeEntries:[]});
  if(p==="payments/customer-ledger-summary")return ok({recorded_total:0,verified_xero_total:0,historical_unverified_total:0,undated_count:0,unlinked_count:0,complete:true,demo:true});
  if(p==="dashboard")return ok({activities,admin});
  if(p==="job-types")return ok({options:(sampleFrom(req).workTypes||settings.workTypes).map((name,i)=>({name,count:Math.max(1,8-i)}))});
