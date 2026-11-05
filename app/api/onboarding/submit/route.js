@@ -22,7 +22,7 @@ export async function POST(request){
   const existing=(await current.json())[0];
   if(!existing||existing.service_type!==service)return NextResponse.json({error:'Setup not found'},{status:404});
   if(existing.status==='submitted')return NextResponse.json({ok:true,alreadySubmitted:true});
-  if(existing.status!=='in_progress')return NextResponse.json({error:'Setup cannot be submitted in its current state'},{status:409});
+  if(!['in_progress','awaiting_clarification'].includes(existing.status))return NextResponse.json({error:'Setup cannot be submitted in its current state'},{status:409});
   const required=service==='website'?['businessName','contactName','email','businessType','domainOwnership']:['businessName','contactName','email','phone','businessType','workflow','features','users'];
   if(required.some(k=>!String(answers[k]||'').trim()))return NextResponse.json({error:'Please complete the required questions'},{status:400});
   const moduleNames=['Prospects','Customers','Customer-specific pricing','Quotes','Sales orders','Deliveries','Returns','Jobs','Tasks','Scheduling','Files','Campaigns','Price book','Purchasing','Inventory','Goods received','Job allocations','Workforce','Timesheets','Labour costing','Invoices','Payments','Job finances','Money overview','Xero','Ruby AI'];
@@ -46,7 +46,7 @@ export async function POST(request){
   }:null;
   const payload={answers,service_type:service,current_step:service==='business_software'?99:4,progress:100,status:'submitted',submitted_at:new Date().toISOString(),logo_path:logoPath||null,...(proposedConfig?{proposed_config:proposedConfig}:{})};
   if(service==='business_software'&&selection)payload.plan_selection=selection;
-  const saved=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&status=eq.in_progress',{method:'PATCH',headers:{...getHeaders(),Prefer:'return=representation'},body:JSON.stringify(payload),cache:'no-store'});
+  const saved=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&status=eq.'+encodeURIComponent(existing.status),{method:'PATCH',headers:{...getHeaders(),Prefer:'return=representation'},body:JSON.stringify(payload),cache:'no-store'});
   if(!saved.ok){console.error('Onboarding submission rejected',saved.status,await saved.text());return NextResponse.json({error:'Database rejected submission. Please contact support.'},{status:502})}
   const rows=await saved.json();
   if(rows.length!==1)return NextResponse.json({error:'Submission could not be confirmed'},{status:409});
