@@ -48,3 +48,14 @@ test("onboarding submission and activation require an authenticated owner",async
  const launch=await request.get(site+"/api/onboarding/launch?tenantId=11111111-1111-4111-8111-111111111111");
  expect(launch.status()).toBe(401);
 });
+
+test("Flooring Price Book and purchasing use flooring materials, never property boiler fixtures",async({page})=>{
+ await page.goto(demo+"/flooring/price-book",{waitUntil:"networkidle"});
+ await expect(page.getByText("Oak laminate 8mm")).toBeVisible();
+ await expect(page.getByText("Boiler circulation pump")).toHaveCount(0);
+ const r=await page.request.get(demo+"/api/bms-demo/price-book",{headers:{referer:demo+"/flooring/price-book"}});
+ expect(r.status()).toBe(200);
+ const book=await r.json();
+ expect(book.items.some((x:any)=>x.name==="Oak laminate 8mm")).toBe(true);
+ expect(book.items.some((x:any)=>x.name==="Boiler circulation pump")).toBe(false);
+});
