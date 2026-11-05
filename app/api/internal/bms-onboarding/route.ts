@@ -30,7 +30,13 @@ export async function PATCH(req){
  const allowed=["submitted","awaiting_clarification","being_configured"];
  const status=String(body.status||row.status);
  if(!allowed.includes(status)&&status!=="ready")return reply({error:"Invalid review status"},400);
- if(status==="ready")return reply({error:"Approval requires verified tenant provisioning and configuration checks; not available through a status change"},409);
+ if(status==="ready"){
+  const bmsTenantId=String(body.bmsTenantId||"");
+  if(!uuid(bmsTenantId))return reply({error:"Select the verified BMS tenant ID before approving"},400);
+  const applied=await rest("rpc/bms_approve_onboarding_configuration",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_bms_tenant:bmsTenantId,p_reviewer:user.id})});
+  if(!applied.ok){const detail=await applied.json().catch(()=>({}));return reply({error:detail.message||"Verification or configuration approval failed"},409)}
+  return reply({ok:true,result:await applied.json()});
+ }
  if(!["submitted","awaiting_clarification","being_configured"].includes(row.status))return reply({error:"This onboarding cannot be reviewed yet"},409);
  const update=await rest("onboarding?tenant_id=eq."+tenantId+"&status=eq."+encodeURIComponent(row.status),{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({status})});
  if(!update.ok)return reply({error:"Could not update onboarding status"},502);
