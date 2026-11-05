@@ -28,6 +28,22 @@ export async function POST(request){
   if(String(order.customer_email||"").toLowerCase()!==String(user.email).toLowerCase())return NextResponse.json({error:"This purchase belongs to a different signed-in account"},{status:403});
   if(order.stripe_customer_id&&stripeSession.customer&&order.stripe_customer_id!==stripeSession.customer)return NextResponse.json({error:"Checkout verification failed"},{status:409});
   if(order.tenant_id){
+   const onboarding=await centralRest("onboarding?tenant_id=eq."+encodeURIComponent(order.tenant_id)+"&service_type=eq.business_software&select=status&limit=1",{cache:"no-store"});
+   if(!onboarding.ok)return NextResponse.json({error:"Unable to verify onboarding approval"},{status:503});
+   const application=(await onboarding.json())[0];
+   if(application&&application.status!=="ready")return NextResponse.json({error:"Your business setup is awaiting internal approval"},{status:409});
+   if(application&&order.stripe_subscription_id){
+    const existingSubscription=await centralRest("business_software_subscriptions?stripe_subscription_id=eq."+encodeURIComponent(order.stripe_subscription_id)+"&select=tenant_id&limit=1",{cache:"no-store"});
+    if(!existingSubscription.ok)return NextResponse.json({error:"Unable to verify existing business"},{status:503});
+    const linked=(await existingSubscription.json())[0];
+    if(linked?.tenant_id){
+     const existingTenant=await centralRest("business_software_tenants?id=eq."+encodeURIComponent(linked.tenant_id)+"&select=slug,canonical_host&limit=1");
+     if(!existingTenant.ok)return NextResponse.json({error:"Unable to verify existing business"},{status:503});
+     return NextResponse.json({ok:true,tenant:(await existingTenant.json())[0],alreadyProvisioned:true});
+    }
+   }
+  }
+  if(order.tenant_id){
    const existing=await centralRest("business_software_tenants?id=eq."+order.tenant_id+"&select=slug,canonical_host&limit=1");const row=(await existing.json())?.[0];
    return NextResponse.json({ok:true,tenant:row,alreadyProvisioned:true});
   }
