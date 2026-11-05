@@ -5,7 +5,7 @@ const read=(p)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 test("worker sidebar exposes only My Jobs after membership loads",()=>{
  const s=read("business-software-core/components/admin/AdminBrandBar.tsx");
  assert.match(s,/setIsWorker\(String\(d\.admin\?\.role/);
- assert.match(s,/isWorker\?\[\{name:"My Jobs"/);
+ assert.match(s,/if\(isWorker\)return \[\{name:"My Jobs"/);
  assert.match(s,/permissions===null&&!demo\?\[\]/);
 });
 test("worker cannot access generic tenant APIs or non-worker pages",()=>{
