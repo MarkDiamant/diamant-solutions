@@ -8,6 +8,10 @@ export async function POST(request){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)||!['website','business_software'].includes(service))return NextResponse.json({error:'Invalid sign-in request'},{status:400});
   const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY,mail=process.env.RESEND_API_KEY;
   if(!key||!mail)return NextResponse.json({error:'Sign-in email unavailable'},{status:503});
+  // Only existing paid onboarding customers can request a fresh magic link.
+  const eligible=await fetch(SB+'/rest/v1/checkout_orders?customer_email=eq.'+encodeURIComponent(address)+'&service_type=eq.'+encodeURIComponent(service)+'&payment_status=eq.paid&select=stripe_checkout_session_id&limit=1',{headers:{apikey:key,Authorization:'Bearer '+key},cache:'no-store'});
+  if(!eligible.ok)return NextResponse.json({error:'Unable to verify setup access right now'},{status:503});
+  if(!(await eligible.json()).length)return NextResponse.json({error:'No verified purchase found for this email. Please use your original welcome email or contact support.'},{status:403});
   const path=service==='website'?'/website-setup':'/setup';
   const response=await fetch(SB+'/auth/v1/admin/generate_link',{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({type:'magiclink',email:address,redirect_to:ORIGIN+path,data:{service_type:service}}),cache:'no-store'});
   if(!response.ok){console.error('Setup login link generation failed',response.status);return NextResponse.json({error:'Could not prepare secure sign-in email'},{status:502})}
