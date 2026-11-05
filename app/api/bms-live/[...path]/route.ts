@@ -547,7 +547,7 @@ export async function POST(req:Request,{params}:{params:Promise<{path?:string[]}
    const customers=(await cq.json())?.QueryResponse?.Customer||[];
    if(!Array.isArray(customers)||customers.length!==1||!customers[0].Id)return NextResponse.json({error:"Synchronise this tenant customer to QuickBooks sandbox before invoicing"},{status:409});
    const gross=Number(local.total),rate=Number(request.vat_rate),taxCode=String(request.tax_code||"");
-   if(!Number.isFinite(gross)||gross<=0||!Number.isFinite(rate)||![0,5,20].includes(rate)||!/^\\w{1,40}$/.test(taxCode))return NextResponse.json({error:"Explicit 0%, 5% or 20% VAT rate, valid tax code and positive invoice total required"},{status:400});
+   if(!Number.isFinite(gross)||gross<=0||!Number.isFinite(rate)||![0,5,20].includes(rate)||!/^\w{1,40}$/.test(taxCode))return NextResponse.json({error:"Explicit 0%, 5% or 20% VAT rate, valid tax code and positive invoice total required"},{status:400});
    if(request.confirm_vat_mapping!==true)return NextResponse.json({error:"Confirm the selected QuickBooks tax code corresponds to the stated VAT rate"},{status:409});
    const taxCheck=await fetch(base+"/query?query="+encodeURIComponent("select * from TaxCode where Id = '"+taxCode+"'")+"&minorversion=75",{headers,cache:"no-store",signal:AbortSignal.timeout(15000)});
    if(!taxCheck.ok)return NextResponse.json({error:"Unable to verify QuickBooks tax code"},{status:502});
@@ -555,7 +555,7 @@ export async function POST(req:Request,{params}:{params:Promise<{path?:string[]}
    if(!Array.isArray(codes)||codes.length!==1||codes[0].Active===false)return NextResponse.json({error:"QuickBooks tax code is not active or uniquely verified"},{status:409});
    const net=Math.round(gross/(1+rate/100)*100)/100,vat=Math.round((gross-net)*100)/100;
    const payload={DocNumber:key,CustomerRef:{value:String(customers[0].Id)},TxnDate:String(local.invoice_date||new Date().toISOString().slice(0,10)),...(local.due_date?{DueDate:String(local.due_date).slice(0,10)}:{}),Line:[{DetailType:"SalesItemLineDetail",Amount:net,Description:"BMS invoice "+String(local.invoice_number||id),SalesItemLineDetail:{ItemRef:{value:String(request.sandbox_item_id||"")},TaxCodeRef:{value:taxCode}}}]};
-   if(!/^\\d{1,30}$/.test(String(request.sandbox_item_id||"")))return NextResponse.json({error:"Verified sandbox service item ID required"},{status:409});
+   if(!/^\d{1,30}$/.test(String(request.sandbox_item_id||"")))return NextResponse.json({error:"Verified sandbox service item ID required"},{status:409});
    const itemCheck=await fetch(base+"/item/"+encodeURIComponent(String(request.sandbox_item_id))+"?minorversion=75",{headers,cache:"no-store",signal:AbortSignal.timeout(15000)});
    if(!itemCheck.ok)return NextResponse.json({error:"Unable to verify sandbox invoice item"},{status:502});
    const item=(await itemCheck.json())?.Item;
