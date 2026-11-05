@@ -32,10 +32,13 @@ test("industry switching stays fictional and changes demo URL",async({page})=>{
  await expect(page).toHaveURL(/\/electrical/);
  await expect(page.getByText(/DEMO MODE.*Fictional data/)).toBeVisible();
 });
-test("anonymous tenant APIs fail closed and cannot impersonate a tenant",async({request})=>{
+test("fictional money ledger is isolated and internal review rejects spoofed hosts",async({request})=>{
  const r=await request.get(demo+"/api/admin/payments/money-decisions");
  expect(r.status()).toBe(200); // Fictional demo ledger is intentionally public and read-only.
- expect((await r.json()).decisions).toBeDefined();
+ const ledger=await r.json();
+ expect(ledger.simulation).toBe(true);
+ expect(Array.isArray(ledger.decisions)).toBe(true);
+ expect(ledger.payments[0].id).toBe("fictional-bms-payment-001");
  const x=await request.get(site+"/api/internal/bms-onboarding",{headers:{"x-forwarded-host":"fictional.diamantsolutions.co.uk"}});
  expect([401,403]).toContain(x.status());
 });
