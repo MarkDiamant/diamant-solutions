@@ -28,6 +28,21 @@ export async function PATCH(req){
  const r=await rest("onboarding?tenant_id=eq."+tenantId+"&service_type=eq.business_software&select=tenant_id,status,answers,proposed_config&limit=1");
  if(!r.ok)return reply({error:"Unable to verify onboarding"},502);
  const row=(await r.json())[0];if(!row)return reply({error:"Onboarding not found"},404);
+ if(body.action==="prepare"){
+  const order=await rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=stripe_subscription_id,stripe_customer_id&limit=1");
+  if(!order.ok)return reply({error:"Unable to verify paid checkout"},503);
+  const checkout=(await order.json())[0];
+  if(!checkout?.stripe_subscription_id||!checkout?.stripe_customer_id)return reply({error:"Verified paid checkout missing"},409);
+  const stripeKey=process.env.STRIPE_SECRET_KEY;
+  if(!stripeKey)return reply({error:"Stripe verification unavailable"},503);
+  const sr=await fetch("https://api.stripe.com/v1/subscriptions/"+encodeURIComponent(checkout.stripe_subscription_id),{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
+  if(!sr.ok)return reply({error:"Could not verify current subscription"},503);
+  const sub=await sr.json();
+  if(!["active","trialing"].includes(sub.status)||String(sub.customer)!==checkout.stripe_customer_id)return reply({error:"Subscription is not currently active or does not match customer"},409);
+  const result=await rest("rpc/bms_prepare_paid_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id})});
+  if(!result.ok){const detail=await result.json().catch(()=>({}));return reply({error:detail.message||"Tenant preparation failed"},409)}
+  return reply({ok:true,bmsTenantId:await result.json()});
+ }
  const allowed=["submitted","awaiting_clarification","being_configured"];
  const status=String(body.status||row.status);
  if(!allowed.includes(status)&&status!=="ready")return reply({error:"Invalid review status"},400);
