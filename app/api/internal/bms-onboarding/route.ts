@@ -29,6 +29,9 @@ async function activationEmail(tenantId:string){
  if(!tenant.ok||!checkout.ok)throw Error("Unable to verify activation recipient");
  const business=(await tenant.json())[0],order=(await checkout.json())[0];
  if(!business||!order?.customer_email)throw Error("Activation recipient or business unavailable");
+ const activeOwner=await rest("business_software_users?tenant_id=eq."+encodeURIComponent(approved.applied_bms_tenant_id)+"&role=eq.owner&status=eq.active&auth_user_id=not.is.null&select=id&limit=1");
+ if(!activeOwner.ok||!(await activeOwner.json()).length)throw Error("Verified owner account has not been activated; do not send login email yet");
+
  const host=String(business.canonical_host||"");
  if(!/^[a-z0-9-]+\\.diamantsolutions\\.co\\.uk$/i.test(host))throw Error("Unverified business domain");
  try{await dns.lookup(host)}catch{throw Error("Tenant domain DNS is not configured. Add the wildcard CNAME before sending activation.")}
