@@ -1,22 +1,27 @@
-# Flooring Demo: client recording walkthrough
+# Flooring BMS recording walkthrough (verified-only, 5 November 2026)
 
-**Environment:** https://bms.diamantsolutions.co.uk/flooring (fictional data only). Use a wide desktop browser and select **Flooring & Tiles** in the industry selector. This is a product demonstration, not a live customer account.
+## Recording order (3 to 4 minutes)
 
-## Recommended recording (8–12 minutes)
-1. **Overview and dashboard (45 sec).** Explain the connected workspace: enquiries, jobs, team, purchasing, stock and money. Point out that the demo is fictional.
-2. **Prospects → Customers (1 min).** Start with an enquiry, customer contact, property/site details and history. Explain the handover from sales to delivery.
-3. **Quotes → Jobs (1.5 min).** Show a flooring quote, version/revision, approval and the resulting job with site details, schedule and next actions. Use an existing fictional record if authenticated write access is unavailable.
-4. **Price Book (1 min).** Show flooring-specific laminate, LVT, tiles, underlay and scotia, with supplier costs and standard sell pricing. Explain customer-specific pricing and labour rates.
-5. **Purchasing and Goods Received (1.5 min).** Show a job's material requirements, consolidated supplier purchase order, receipt and stock location. Distinguish draft/ordered/received.
-6. **Stock and Job Allocations (1 min).** Show available versus reserved stock, issue to a job, stock movements and partial returns. Avoid claiming an actual write unless the authorised demo account successfully saves it.
-7. **Orders & Deliveries (1 min).** Show sales order, pick/pack, delivery, proof of delivery and returns workflow. Explain stock movement and job linkage.
-8. **Workforce and Scheduling (45 sec).** Show assigned fitter/driver, planned visits and labour costing.
-9. **Invoices → Payments & Money (1.5 min).** Show how purchases, materials, labour, invoices and receipts feed job margin and money overview. Explain that Xero integration is optional and that this demonstration does not connect a live Xero organisation.
-10. **Wrap-up (30 sec).** Highlight one consistent shared codebase, configurable terminology/modules and visibility by user role.
+1. Open **Flooring & Tiles Demo** at `https://bms.diamantsolutions.co.uk/flooring`. State that all people, products and figures are fictional.
+2. Show **Dashboard** and the overview of existing fictional orders, enquiries and tasks. Do not promise that every action is live.
+3. Open **Settings → Business details → What do you call your work?** and show **Orders**. This is a tenant setting; MJ Metal retains **Jobs**. Avoid changing settings during the recording.
+4. Open **Price Book** and show the flooring materials with costs (oak laminate, LVT, porcelain tiles, underlay and scotia).
+5. Open **Purchasing & Stock** to show the existing fictional purchase-order records and statuses. Do not demonstrate receiving goods or claim a stock update until a write has passed a live transaction test.
+6. Open **Stock & Inventory** and show stock locations, quantities, available stock, and indicative valuation. Explain that valuation is estimated from Price Book cost, excluding VAT; it is not FIFO accounting valuation.
+7. Open **Order allocations** and point out Reserve, Release, Issue and Return options, but do not click Save or claim persistence until authenticated end-to-end testing confirms them.
 
-## Presenter safeguards
-- **Record now** using the public fictional demo for browsing and narration; do not show actual MJ Metal or client records.
-- The public demo may not permit authenticated changes. Use an isolated authorised fictional manager to demonstrate live saves. Four authenticated browser tests remain gated on protected credentials.
-- Do not demonstrate live Stripe seat purchases, welcome emails, Xero OAuth, or tenant-specific wildcard URLs until external acceptance is completed.
-- Check the **Price Book** displays flooring products, not boiler/plumbing items, after the industry-specific API fix is deployed and browser-tested.
-- Avoid claiming every end-to-end workflow is verified merely because the page renders. Confirm saving, allocation, delivery and financial effects under an authorised fictional manager session before narrating them as executed.
+## Verified technical checks
+
+- Shared BMS production build completed and both production domains served the same READY deployment (reverify latest commit before recording).
+- Flooring page and stock GET endpoint returned HTTP 200.
+- Server-side demo stock storage table accepted an isolated INSERT/UPDATE/SELECT test inside a rolled-back transaction.
+- Fictional stock products and costs now use the same shared demo catalogue as Price Book and Purchasing.
+
+## Not yet verified, so do not demonstrate as completed
+
+- Reserve → partial release → issue → return through the actual browser, with persisted quantity and cost reconciliation.
+- Goods Received posting to stock, allocations and financial costing in the demo.
+- Stripe paid-seat reduction safeguards.
+- All tenant-wide terminology surfaces.
+
+Do not imply the demo is fully production-ready or that the fictional demo performs real financial transactions.
