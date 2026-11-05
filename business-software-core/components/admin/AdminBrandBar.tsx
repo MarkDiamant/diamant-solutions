@@ -61,7 +61,7 @@ export default function AdminBrandBar({fictionalDemo=false}:{fictionalDemo?:bool
  const embeddedDemo=fictionalDemo&&parts[0]==="bms-runtime";
  const sample=searchParams.get("sample")||"northstar";
  const demo=demoKeys.includes(parts[0])?parts[0]:embeddedDemo?(demoKeys.includes(sample)?sample:"northstar"):null;
- const prefix=demo?"/"+demo:pathname.startsWith("/bms-runtime")?"/bms-runtime":"";
+ const prefix=embeddedDemo?"/bms-runtime":demo?"/"+demo:pathname.startsWith("/bms-runtime")?"/bms-runtime":"";
  const local=pathname.slice(prefix.length)||"/";
  const go=(href:string)=>prefix+(href==="/"?"/":href)+(embeddedDemo?"?sample="+encodeURIComponent(demo||"northstar"):"");
  const [config,setConfig]=useState<any>(null),[permissions,setPermissions]=useState<string[]|null>(null),[isWorker,setIsWorker]=useState(false);
