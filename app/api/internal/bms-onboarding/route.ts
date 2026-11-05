@@ -33,7 +33,8 @@ async function activationEmail(tenantId:string){
  if(!activeOwner.ok||!(await activeOwner.json()).length)throw Error("Verified owner account has not been activated; do not send login email yet");
 
  const host=String(business.canonical_host||"");
- if(!/^[a-z0-9-]+\\.diamantsolutions\\.co\\.uk$/i.test(host))throw Error("Unverified business domain");
+const hostLabels=host.toLowerCase().split(".");
+ if(hostLabels.length!==4||hostLabels[1]!=="diamantsolutions"||hostLabels[2]!=="co"||hostLabels[3]!=="uk"||!/^[a-z0-9-]+$/.test(hostLabels[0]))throw Error("Unverified business domain");
  try{await dns.lookup(host)}catch{throw Error("Tenant domain DNS is not configured. Add the wildcard CNAME before sending activation.")}
  if(!process.env.RESEND_API_KEY)throw Error("Activation email service unavailable");
  const url="https://"+host+"/login";
