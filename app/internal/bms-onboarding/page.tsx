@@ -9,9 +9,9 @@ export default function InternalOnboarding(){
   setItems(data.items||[]);setError("");
  }
  useEffect(()=>{supabase.auth.getSession().then(({data})=>{const t=data.session?.access_token||"";setToken(t);if(t)load(t);else setError("Sign in with your authorised Diamant Solutions administrator account.")})},[]);
- async function update(item:any,status:string,notes:string){
+ async function update(item:any,status:string,notes:string,bmsTenantId?:string){
   setBusy(item.tenant_id);try{
-   const r=await fetch("/api/internal/bms-onboarding",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({tenantId:item.tenant_id,status,notes})});
+   const r=await fetch("/api/internal/bms-onboarding",{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({tenantId:item.tenant_id,status,notes,bmsTenantId})});
    const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data.error||"Could not save review");await load(token);
   }catch(e){setError(e.message)}finally{setBusy("")}
  }
@@ -28,7 +28,7 @@ export default function InternalOnboarding(){
    <ul>{(item.proposed_config?.tasks||[]).map((t:any)=><li key={t.key}>{t.label}: {t.status}</li>)}</ul>
    <label style={{display:"block"}}>Internal review notes<textarea id={"notes-"+item.tenant_id} defaultValue={item.review?.review_notes||""} rows={3} style={{display:"block",width:"100%",margin:"8px 0",border:"1px solid #bbb",padding:8}}/></label>
    {["submitted","awaiting_clarification","being_configured"].includes(item.status)&&<div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{["submitted","awaiting_clarification","being_configured"].map(status=><button key={status} disabled={busy===item.tenant_id} onClick={()=>update(item,status,document.getElementById("notes-"+item.tenant_id)?.value||"")} style={{padding:"10px 14px",border:"1px solid #aaa",borderRadius:8,cursor:"pointer"}}>{status.replaceAll("_"," ")}</button>)}</div>}
-   <p style={{fontSize:13}}>Final approval is withheld until verified tenant provisioning, permissions, modules, integrations and billing have been checked.</p>
+   {["submitted","being_configured"].includes(item.status)&&<div style={{marginTop:16,padding:12,border:"1px solid #ddd",borderRadius:8}}><label>Verified BMS tenant ID <input id={"bms-"+item.tenant_id} defaultValue={item.review?.applied_bms_tenant_id||""} placeholder="Existing paid BMS tenant UUID" style={{width:"100%",padding:8,border:"1px solid #bbb"}}/></label><button disabled={busy===item.tenant_id} onClick={()=>{if(!window.confirm("Approve and apply configuration to the verified paid BMS tenant?"))return;update(item,"ready",(document.getElementById("notes-"+item.tenant_id) as HTMLTextAreaElement)?.value||"",(document.getElementById("bms-"+item.tenant_id) as HTMLInputElement)?.value||"")}} style={{padding:"10px 14px",marginTop:8,border:"1px solid #777",borderRadius:8}}>Verify billing and approve setup</button></div>}<p style={{fontSize:13}}>Final approval is withheld until verified tenant provisioning, permissions, modules, integrations and billing have been checked.</p>
   </section>)}
  </main>
 }
