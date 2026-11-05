@@ -16,9 +16,9 @@ async function rest(path,options={}){return fetch(base+"/rest/v1/"+path,{...opti
 const uuid=x=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x||"");
 export async function GET(req){
  if(!await admin(req))return reply({error:"Internal administrator access required"},403);
- const r=await rest("onboarding?service_type=eq.business_software&select=tenant_id,status,progress,answers,proposed_config,submitted_at,updated_at,tenants(name,slug),business_software_onboarding_reviews(review_notes,approved_at,applied_bms_tenant_id)&order=updated_at.desc&limit=200");
+ const r=await rest("onboarding?service_type=eq.business_software&select=tenant_id,status,progress,answers,proposed_config,submitted_at,updated_at,tenants(name,slug)&order=updated_at.desc&limit=200");
  if(!r.ok)return reply({error:"Unable to load onboarding queue"},502);
- return reply({items:await r.json()});
+ const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map(x=>[x.tenant_id,x]));return reply({items:items.map(x=>({...x,review:byId.get(x.tenant_id)||null}))});
 }
 export async function PATCH(req){
  const user=await admin(req);if(!user)return reply({error:"Internal administrator access required"},403);
