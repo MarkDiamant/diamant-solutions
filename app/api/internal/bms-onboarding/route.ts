@@ -9,8 +9,9 @@ async function admin(req:Request){
  const r=await fetch(base+"/auth/v1/user",{headers:{apikey:key,Authorization:"Bearer "+token},cache:"no-store"});
  if(!r.ok)return null;
  const u=await r.json();
- const allowed=String(process.env.DS_INTERNAL_ADMIN_EMAILS||"").split(",").map(x=>x.trim().toLowerCase()).filter(Boolean);
- return allowed.includes(String(u.email||"").toLowerCase())?u:null;
+ const membership=await fetch(base+"/rest/v1/internal_admins?user_id=eq."+encodeURIComponent(String(u.id))+"&select=user_id&limit=1",{headers:headers(),cache:"no-store"});
+ if(!membership.ok)return null;
+ return (await membership.json()).length===1?u:null;
 }
 async function rest(path:string,options:RequestInit={}){return fetch(base+"/rest/v1/"+path,{...options,headers:{...headers(),...options.headers},cache:"no-store"})}
 const uuid=(x:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x||"");
