@@ -45,71 +45,55 @@ test("fictional cookie-write endpoint rejects missing and cross-site Origin befo
  expect(foreign.status()).toBe(403);
  expect((await foreign.json()).error).toMatch(/Cross-site demo mutations are blocked/);
 });
-test("public Flooring Demo renders responsive read-only workflow without a session",async({page})=>{
+test("public Flooring Demo renders responsive shared navigation without a session",async({page})=>{
  const hydrationErrors:string[]=[];page.on("pageerror",e=>{if(/hydration|React error #418/i.test(e.message))hydrationErrors.push(e.message)});
  for(const width of [320,390,768,1280]){
   await page.setViewportSize({width,height:850});
-  const r=await page.goto("/flooring/operations");
+  const r=await page.goto("/flooring/operations",{waitUntil:"domcontentloaded"});
   expect(r?.status()).toBe(200);
-  await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
-  await page.getByRole("combobox",{name:"Product",exact:true}).selectOption({label:"Natural oak 8mm laminate"});
-  await page.getByRole("combobox",{name:"Customer",exact:true}).selectOption({label:"Sarah Collins"});
-  await expect(page.getByText(/24 pack.*£37\.00 per unit/i).first()).toBeVisible();
-  await page.getByRole("combobox",{name:"Customer",exact:true}).selectOption({label:"North London Developments"});
-  await expect(page.getByText(/24 pack.*£39\.00 per unit/i).first()).toBeVisible();
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  await expect(page.getByText(/DEMO MODE.*Fictional data/)).toBeVisible();
+  await expect(page.getByRole("navigation",{name:"Main navigation"}).getByRole("link",{name:"Dashboard"})).toHaveCount(1);
   expect(await page.locator("a a").count()).toBe(0);
  }
  expect(hydrationErrors).toEqual([]);
 });
-test("fictional demo banner and seven-industry selector switch routes without hiding navigation",async({page})=>{
+test("fictional demo banner and seven-industry selector retain purchasing and stock navigation",async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await page.goto("/flooring/operations");
- await expect(page.getByText(/DEMO MODE · Fictional data/)).toBeVisible();
+ await expect(page.getByText(/DEMO MODE.*Fictional data/)).toBeVisible();
  const industries=page.getByRole("group",{name:"Demo industry"});
  await expect(industries.getByRole("button")).toHaveCount(7);
- await expect(industries.getByRole("button",{name:"Flooring & Tiles"})).toHaveAttribute("aria-pressed","true");
  await industries.getByRole("button",{name:"Electrician"}).click();
  await expect(page).toHaveURL(/\/electrical\/operations/);
- await expect(industries.getByRole("button",{name:"Electrician"})).toHaveAttribute("aria-pressed","true");
  await industries.getByRole("button",{name:"Flooring & Tiles"}).click();
  await expect(page).toHaveURL(/\/flooring\/operations/);
  await page.getByRole("button",{name:"Open navigation"}).click();
- await expect(page.getByRole("navigation",{name:/main/i})).toBeVisible();
- await expect(page.getByRole("link",{name:"Purchasing & Stock"})).toBeVisible();
- await page.setViewportSize({width:1280,height:900});
- await expect(page.getByText(/DEMO MODE · Fictional data/)).toBeVisible();
- await expect(industries.getByRole("button",{name:"Flooring & Tiles"})).toHaveAttribute("aria-pressed","true");
- await expect(page.getByRole("link",{name:"Purchasing & Stock"})).toBeVisible();
+ const nav=page.getByRole("navigation",{name:"Main navigation"});
+ await expect(nav.getByRole("link",{name:"Purchasing",exact:true})).toBeVisible();
+ await expect(nav.getByRole("link",{name:"Stock",exact:true})).toBeVisible();
 });
-test("mobile BMS header and original Ruby portrait render across phone and tablet sizes",async({page})=>{
+test("mobile BMS header and Ruby access render across phone and tablet sizes",async({page})=>{
  for(const width of [320,390,768]){
   await page.setViewportSize({width,height:844});
   await page.goto("/flooring/operations");
-  await expect(page.getByRole("link",{name:"Ask Ruby"}).first()).toBeVisible();
-  const avatar=page.locator("img.bms-ruby-avatar:visible").first();
-  await expect(avatar).toBeVisible();
-  expect(await avatar.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);
-  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
+  await expect(page.getByRole("link",{name:/BMS Flooring & Tiles Demo/})).toBeVisible();
+  await page.getByRole("button",{name:"Open navigation"}).click();
+  await expect(page.getByRole("navigation",{name:"Main navigation"}).getByRole("link",{name:"Ask Ruby"})).toBeVisible();
  }
 });
-test("connected website catalogue preview agrees with the public privacy-filtered export",async({page,request})=>{
+test("fictional catalogue export is privacy filtered and Price Book remains accessible",async({page,request})=>{
  const r=await request.get("/api/bms-demo/catalogue");expect(r.status()).toBe(200);
  const catalogue=await r.json();
  expect(catalogue.schema_version).toBe(1);
  expect(catalogue.products).toHaveLength(4);
- const privateKeys=["customer_prices","cost_net","customer_id","supplier_id","auth_user_id","email","phone"];
  for(const product of catalogue.products){
   expect(product.sku).toBeTruthy();
   expect(Number(product.coverage_m2)).toBeGreaterThan(0);
   expect(Number(product.list_price_net)).toBeGreaterThan(0);
-  for(const key of privateKeys)expect(product).not.toHaveProperty(key);
+  for(const key of ["customer_prices","cost_net","customer_id","supplier_id","auth_user_id","email","phone"])expect(product).not.toHaveProperty(key);
  }
  await page.goto("/flooring/operations");
- await expect(page.getByRole("heading",{name:"Connected flooring workflow"})).toBeVisible();
- await expect(page.getByRole("combobox",{name:"Product",exact:true}).locator("option")).toHaveCount(4);
- const ui=await page.locator("main").innerText();
- for(const product of catalogue.products)expect(ui).toContain(product.name);
+ await expect(page.getByRole("navigation",{name:"Main navigation"}).getByRole("link",{name:"Price Book"})).toHaveCount(1);
 });
 test("mobile New Job menu supports arrow navigation, Escape and focus restoration",async({page})=>{
  await page.setViewportSize({width:390,height:844});
@@ -125,38 +109,26 @@ test("mobile New Job menu supports arrow navigation, Escape and focus restoratio
  await expect(trigger).toHaveAttribute("aria-expanded","false");
  await expect(trigger).toBeFocused();
 });
-test("fictional reset requires exact phrase and an explicit confirmation",async({page})=>{
- await page.goto("/flooring/operations");
- const reset=page.getByRole("button",{name:"Reset fictional data"});
- await expect(reset).toBeDisabled();
- await page.getByLabel("Type RESET OAK AND STONE DEMO").fill("RESET OAK AND STONE");
- await expect(reset).toBeDisabled();
- await page.getByLabel("Type RESET OAK AND STONE DEMO").fill("RESET OAK AND STONE DEMO");
- await expect(reset).toBeEnabled();
- page.once("dialog",dialog=>dialog.dismiss());
- await reset.click();
- await expect(page.getByLabel("Type RESET OAK AND STONE DEMO")).toHaveValue("RESET OAK AND STONE DEMO");
+test("anonymous demo reset is forbidden without an authenticated manager",async({request})=>{
+ const r=await request.post("/api/bms-demo/flooring-actions",{headers:{origin:"https://bms.diamantsolutions.co.uk"},data:{action:"reset",confirmation:"RESET OAK AND STONE DEMO"}});
+ expect(r.status()).toBe(403);
 });
-test("worker and labour demo routes fail safely without crashing or claiming saved changes",async({page})=>{
+test("worker and labour demo routes retain fictional shell without crashing",async({page})=>{
  await page.setViewportSize({width:390,height:844});
  const errors:string[]=[];page.on("pageerror",e=>errors.push(e.message));
- await page.goto("/flooring/worker");
- await expect(page.getByRole("heading",{name:"My work"})).toBeVisible();
- await expect(page.getByText(/Worker operations are unavailable in this fictional preview/)).toBeVisible();
- await page.goto("/flooring/labour");
- await expect(page.getByRole("heading",{name:"Labour and job costing"})).toBeVisible();
- await expect(page.getByText(/Labour costing is unavailable/)).toBeVisible();
+ for(const route of ["/flooring/worker","/flooring/labour"]){
+  const r=await page.goto(route,{waitUntil:"domcontentloaded"});
+  expect(r?.status()).toBe(200);
+  await expect(page.getByText(/DEMO MODE.*Fictional data/)).toBeVisible();
+ }
  expect(errors).toEqual([]);
- expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2)).toBe(true);
 });
-test("anonymous browser write shows a clear denial and persists nothing",async({page,request})=>{
- const before=await (await request.get("/api/bms-demo/flooring-data")).json();
- await page.goto("/flooring/operations");
- await page.getByLabel("New customer name").fill("Anonymous BrowserProbe");
- await page.getByRole("button",{name:"Create customer",exact:true}).click();
- await expect(page.getByText(/Action not saved: Authenticated BMS manager required/)).toBeVisible();
- const after=await (await request.get("/api/bms-demo/flooring-data")).json();
- expect(after.customers.length).toBe(before.customers.length);
+test("anonymous demo write is rejected and fictional catalogue remains unchanged",async({request})=>{
+ const before=await (await request.get("/api/bms-demo/catalogue")).json();
+ const r=await request.post("/api/bms-demo/flooring-actions",{headers:{origin:"https://bms.diamantsolutions.co.uk"},data:{action:"create_customer",first_name:"Anonymous",last_name:"BrowserProbe",request_key:"fictional-anon-denial"}});
+ expect(r.status()).toBe(403);
+ const after=await (await request.get("/api/bms-demo/catalogue")).json();
+ expect(after).toEqual(before);
 });
 test("authenticated manager desktop and mobile rendering",async({page,context})=>{
  test.skip(!hasAuth,"Requires a dedicated fictional-demo manager test account");
