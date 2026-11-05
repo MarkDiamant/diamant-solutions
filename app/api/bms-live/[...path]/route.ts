@@ -302,10 +302,10 @@ async function payload(tenantId:string,token:string):Promise<any>{const r=await 
 async function onboardingModuleDenied(tenantId:string,path:string):Promise<boolean>{
  const mapping:[RegExp,string][]=[
  [/^(?:operations\/customer-price|customers\/pricing)/,"customerPricing"],
- [/^(?:purchasing\/|purchase-orders|goods-received)/,"purchasing"],
- [/^(?:stock\/|inventory\/)/,"inventory"],
- [/^(?:sales-orders\/|sales\/orders)/,"salesOrders"],
- [/^(?:deliveries\/|sales\/deliveries)/,"deliveries"],
+ [/^(?:purchasing(?:\/|$)|purchase-orders|goods-received|operations\/(?:purchase-order|edit-purchase-order|receive-purchase|supplier))/, "purchasing"],
+ [/^(?:stock(?:\/|$)|inventory(?:\/|$)|operations\/(?:stock|adjust-stock|location|reserve-sales|pick-sales|consume-job-stock|fitter-material|fitter-usage|accept-return|import-products))/, "inventory"],
+ [/^(?:sales-orders(?:\/|$)|sales\/orders|operations\/sales-orders)/,"salesOrders"],
+ [/^(?:deliveries(?:\/|$)|sales\/deliveries|operations\/(?:delivery|complete-delivery|logistics|fitting))/, "deliveries"],
  [/^(?:workforce\/|team\/|worker\/)/,"workforce"],
  [/^(?:campaigns\/|campaigns$)/,"campaigns"],
  [/^(?:prospects\/|prospects$)/,"prospects"],
