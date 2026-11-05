@@ -13,7 +13,7 @@ test("Fictional Xero audit is isolated and labelled",async({request})=>{
  expect(j.simulation).toBe(true);
  expect(j.provider).toBe("fictional_xero_fixture");
  expect(j.warning).toContain("FICTIONAL SIMULATION ONLY");
- expect(j.externalEvidence.some(x=>x.status==="amount_mismatch")).toBe(true);
+ expect(j.externalEvidence.some((x:any)=>x.status==="amount_mismatch")).toBe(true);
  expect(j.bankReceiptsFlaggedNonCustomer.total).toBe(250);
 });
 test("Fictional Xero sync-history cannot report real connection",async({request})=>{
