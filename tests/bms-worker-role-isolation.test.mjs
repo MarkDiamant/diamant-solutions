@@ -6,7 +6,7 @@ test("worker sidebar exposes only My Jobs after membership loads",()=>{
  const s=read("business-software-core/components/admin/AdminBrandBar.tsx");
  assert.match(s,/setIsWorker\(String\(d\.admin\?\.role/);
  assert.match(s,/if\(isWorker\)return \[\{name:"My Jobs"/);
- assert.match(s,/permissions===null&&!demo\?\[\]/);
+ assert.match(s,/if\(permissions===null&&!demo\)return \[\]/);
 });
 test("worker cannot access generic tenant APIs or non-worker pages",()=>{
  const s=read("middleware.ts");
