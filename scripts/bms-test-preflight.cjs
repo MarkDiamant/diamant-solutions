@@ -13,6 +13,7 @@ function preflight(env=process.env){
  if(get("DS_SUPABASE_URL")&&get("NEXT_PUBLIC_SUPABASE_URL")&&get("DS_SUPABASE_URL")!==get("NEXT_PUBLIC_SUPABASE_URL"))errors.push("Supabase server/public URLs must identify same isolated project");
  const banned=["iepqggrfenfqrqyzqyed","diiqajrvlalkggjlutyn"];
  for(const k of ["DS_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_URL"])if(banned.some(ref=>get(k).includes(ref)))errors.push(k+": known production project is prohibited");
+ if(get("DS_SUPABASE_URL").includes("YOUR-ISOLATED-REF")||get("STRIPE_SECRET_KEY")==="sk_test_REPLACE"||get("BMS_TEST_OWNER_PASSWORD")==="REPLACE_WITH_DISPOSABLE_PASSWORD")errors.push("Replace example fixture placeholders before running live acceptance");
  if(get("BMS_TEST_ISOLATED")!=="true")errors.push("BMS_TEST_ISOLATED must explicitly equal true");
  if(get("VERCEL_ENV")==="production"||get("NODE_ENV")==="production"&&get("BMS_TEST_ALLOW_PRODUCTION_RUNTIME")!=="true")errors.push("Refusing production runtime; use isolated Preview or local test process");
  if(get("STRIPE_SECRET_KEY")&&!get("STRIPE_SECRET_KEY").startsWith("sk_test_"))errors.push("STRIPE_SECRET_KEY must be sk_test_");
