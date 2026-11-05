@@ -11,7 +11,7 @@ const wrapper=read("components/admin/CrmDashboardV5.tsx");
 const checks=[
  ["Demo admin API uses isolated demo handlers",middleware.includes('if(isDemo&&path.startsWith("/api/admin/"))')&&middleware.includes('url.pathname="/api/bms-demo/"+path.slice("/api/admin/".length)')],
  ["Demo campaigns cannot access real sending APIs",middleware.includes('if(isDemo&&path==="/api/business-software/campaigns")')&&demo.includes('if(p==="campaigns")')],
- ["Demo stock respects browser cookie limits",demoStock.includes('encoded.length>3600')],
+ ["Demo stock persists server-side without oversized cookies",demoStock.includes("business_software_demo_stock_state")&&!demoStock.includes("encoded.length>3600")],
  ["Demo ledger uses fictional handler",middleware.includes('if(isDemo&&path==="/api/bms-live/payments/customer-ledger-summary")')],
  ["Live tenant API routing remains independent",middleware.includes('if(tenantHost){')&&middleware.includes('if(path.startsWith("/api/admin/"))')],
  ["Demo has jobs/dashboard/job types/settings",['if(p==="jobs")','if(p==="dashboard")','if(p==="job-types")','if(p==="settings")'].every(s=>demo.includes(s))],
