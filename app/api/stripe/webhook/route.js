@@ -14,4 +14,25 @@ function stripeStatus(s){return s==='trialing'?'trialing':s==='active'?'active':
 async function updateTenant(subscriptionId,patch){if(!SUPABASE_URL||!SERVICE_KEY)throw new Error('Supabase server configuration missing');if(!subscriptionId)return;const r=await fetch(SUPABASE_URL+'/rest/v1/business_software_subscriptions?stripe_subscription_id=eq.'+encodeURIComponent(subscriptionId),{method:'PATCH',headers:{apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(patch)});if(!r.ok)throw new Error('Tenant billing update failed: '+await r.text())}
 async function subscriptionChanged(s){const patch={current_period_end:s.current_period_end?new Date(s.current_period_end*1000).toISOString():null},status=stripeStatus(s.status);if(status)patch.billing_status=status;await updateTenant(s.id,patch)}
 async function invoiceChanged(i,paid){const sub=typeof i.subscription==='string'?i.subscription:null;if(sub)await updateTenant(sub,{billing_status:paid?'active':'past_due'})}
-export async function POST(req){const raw=await req.text();if(!verify(raw,req.headers.get('stripe-signature')))return new NextResponse('Invalid signature',{status:400});try{const event=JSON.parse(raw);if(event.type==='checkout.session.completed'||event.type==='checkout.session.async_payment_succeeded')await upsertSession(event.data.object);else if(event.type==='customer.subscription.updated'||event.type==='customer.subscription.deleted')await subscriptionChanged(event.data.object);else if(event.type==='invoice.paid')await invoiceChanged(event.data.object,true);else if(event.type==='invoice.payment_failed')await invoiceChanged(event.data.object,false);return NextResponse.json({received:true})}catch(e){console.error('stripe webhook',e);return new NextResponse('Webhook processing failed',{status:500})}}
+async function webhookRpc(name,payload){const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});if(!r.ok)throw new Error('Webhook event registry unavailable: '+r.status);return r.json();}
+export async function POST(req){
+ const raw=await req.text();
+ if(!verify(raw,req.headers.get('stripe-signature')))return new NextResponse('Invalid signature',{status:400});
+ let event,claimed=false;
+ try{
+  event=JSON.parse(raw);
+  if(typeof event.id!=='string'||!event.id.startsWith('evt_'))return new NextResponse('Invalid event',{status:400});
+  claimed=await webhookRpc('ds_claim_stripe_webhook_event',{p_id:event.id,p_type:event.type});
+  if(!claimed)return NextResponse.json({received:true,duplicate:true});
+  if(event.type==='checkout.session.completed'||event.type==='checkout.session.async_payment_succeeded')await upsertSession(event.data.object);
+  else if(event.type==='customer.subscription.updated'||event.type==='customer.subscription.deleted')await subscriptionChanged(event.data.object);
+  else if(event.type==='invoice.paid')await invoiceChanged(event.data.object,true);
+  else if(event.type==='invoice.payment_failed')await invoiceChanged(event.data.object,false);
+  await webhookRpc('ds_finish_stripe_webhook_event',{p_id:event.id,p_success:true});
+  return NextResponse.json({received:true});
+ }catch(e){
+  console.error('stripe webhook',e);
+  if(claimed&&event?.id)try{await webhookRpc('ds_finish_stripe_webhook_event',{p_id:event.id,p_success:false})}catch(err){console.error('stripe webhook retry release failed',err)}
+  return new NextResponse('Webhook processing failed',{status:500});
+ }
+}
