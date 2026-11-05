@@ -1,3 +1,4 @@
+import {demoPriceBookFor} from "@/lib/business-software/demo-catalog";
 import {NextRequest,NextResponse} from "next/server";
 import {ImageResponse} from "next/og";
 import React from "react";
@@ -81,16 +82,7 @@ const demoPeople:any={
  flooring:[["fl1","David Foster","Oak & Stone Flooring","employee"],["fl2","Michael Price","Oak & Stone Flooring","employee"],["fl3","Ryan Baker","Oak & Stone Flooring","employee"],["fl4","James Carter","Oak & Stone Flooring","employee"],["fl5","Olivia Green","Oak & Stone Flooring","employee"]]
 };
 function peopleForSample(req:NextRequest){const k=sampleKey(req);return (demoPeople[k]||demoPeople.northstar).map((p:any[],i:number)=>({id:p[0],name:p[1],company:p[2],relationship_type:p[3],phone:"020 7946 "+String(3100+i).padStart(4,"0"),email:String(p[1]).toLowerCase().replaceAll(" ",".")+"@example-demo.co.uk",capabilities:[(sampleConfigs[k]?.workforceRoles||["Team member"])[i%(sampleConfigs[k]?.workforceRoles?.length||1)]]}))}
-const demoPriceBooks:any={
- northstar:{items:[["Boiler circulation pump","Heating","each",95],["Kitchen mixer tap","Plumbing","each",42],["Decorator materials allowance","Decorating","job",120],["Smoke alarm","Fire safety","each",18]],labour:[["Maintenance engineer","day",220],["Electrician","day",300]]},
- electrical:{items:[["Twin & earth cable 2.5mm","Cable","metre",1.05],["Consumer unit 10-way","Distribution","each",82],["Double socket","Accessories","each",5.5],["EV charger","EV","each",410]],labour:[["Electrician","day",280],["Apprentice","day",140]]},
- insurance:{items:[["Policy administration","Services","policy",35],["Commercial renewal review","Services","policy",75],["Claims support","Services","hour",45]],labour:[["Insurance adviser","hour",32],["Account manager","hour",28]]},
- studio:{items:[["A4 brochure print","Print","each",1.8],["Stock image licence","Creative costs","each",12],["Domain registration","Digital","year",10]],labour:[["Designer","hour",38],["Copywriter","hour",42],["Creative director","hour",65]]},
- consultancy:{items:[["Workshop materials","Delivery costs","session",45],["Research data allowance","Research","project",120]],labour:[["Consultant","day",480],["Analyst","day",260],["Project manager","day",420]]},
- distribution:{items:[["Pallet","Packaging","each",9.5],["Stretch wrap","Packaging","roll",6.2],["Fuel allowance","Transport","mile",0.24],["Warehouse handling","Warehouse","pallet",4.5]],labour:[["Driver","day",175],["Warehouse operative","hour",14.5]]},
- flooring:{items:[["Oak laminate 8mm","Laminate","pack",24],["Oak LVT click","LVT","pack",32],["Porcelain grey tile 600mm","Tiles","box",18],["Foam underlay","Underlay","roll",12],["Matching scotia","Accessories","length",3.5]],labour:[["Flooring fitter","day",230],["Floor surveyor","visit",75]]}
-};
-function demoPriceBook(req:NextRequest){const k=sampleKey(req),d=demoPriceBooks[k]||demoPriceBooks.northstar;return {items:d.items.map((x:any[],i:number)=>({id:`demo-${k}-item-${i}`,name:x[0],category:x[1],unit:x[2],cost_net:x[3],cost_vat_rate:20,pricing_method:"margin",margin_percent:30,active:true})),labour:d.labour.map((x:any[],i:number)=>({id:`demo-${k}-labour-${i}`,name:x[0],unit:x[1],cost_rate:x[2],cost_vat_rate:0,pricing_method:"margin",margin_percent:30,active:true})),pricing:{defaultPricingMethod:"margin",defaultMarginPercent:30,defaultMarkupPercent:30,costBasis:"net",defaultCostVatRate:20}};}
+function demoPriceBook(req:NextRequest){return demoPriceBookFor(sampleKey(req));}
 function sampleKey(req:NextRequest){const valid=new Set(Object.keys(sampleConfigs));const direct=req.nextUrl.searchParams.get("sample")||req.headers.get("x-bms-demo-sample");if(direct&&valid.has(direct))return direct;try{const ref=req.headers.get("referer");if(!ref)return "northstar";const url=new URL(ref);if(url.origin!==req.nextUrl.origin)return "northstar";const selected=url.searchParams.get("sample");if(selected&&valid.has(selected))return selected;const route=url.pathname.split("/").filter(Boolean)[0];return route&&valid.has(route)?route:"northstar"}catch{return "northstar"}} function sampleFrom(req:NextRequest){return sampleConfigs[sampleKey(req)]||sampleConfigs.northstar}
 function jobsForSample(req:NextRequest){
  const sample=sampleFrom(req),types=sample.workTypes;
