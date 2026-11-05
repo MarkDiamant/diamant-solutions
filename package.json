@@ -12,8 +12,9 @@
     "test:onboarding": "node --test tests/bms-onboarding-first-login.test.cjs tests/bms-onboarding-submit.test.cjs",
     "test:tenant-routing": "node --test tests/bms-demo-tenant-routing.test.cjs",
     "test:demo-stock": "node --test tests/bms-demo-stock-flow.test.cjs",
-    "test:acceptance-static": "node --test tests/bms-test-preflight.test.cjs tests/purchasing-workspace-guards.test.cjs tests/finance-reconciliation.test.cjs tests/flooring-finance-guards.test.cjs",
-    "test:isolated-preflight": "node scripts/bms-test-preflight.cjs"
+    "test:acceptance-static": "node --test tests/bms-test-preflight.test.cjs tests/purchasing-workspace-guards.test.cjs tests/finance-reconciliation.test.cjs tests/flooring-finance-guards.test.cjs tests/bms-isolated-auth-acceptance.test.cjs",
+    "test:isolated-preflight": "node scripts/bms-test-preflight.cjs",
+    "test:isolated-auth": "node scripts/bms-isolated-auth-acceptance.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
