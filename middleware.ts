@@ -5,7 +5,7 @@ function hostname(value:string|null|undefined){return String(value||"").trim().t
 
 export async function middleware(request:NextRequest){
  const requestHost=hostname(request.nextUrl.hostname),hostHeader=hostname(request.headers.get("host")),forwardedHost=hostname(request.headers.get("x-forwarded-host"));
- const hosts=[requestHost,hostHeader,forwardedHost],host=hosts.includes(DEMO_HOST)?DEMO_HOST:(requestHost||hostHeader),path=request.nextUrl.pathname;
+ const host=requestHost||hostHeader,path=request.nextUrl.pathname; // Never allow a caller-supplied forwarded host to override the actual routed tenant.
  if(host==="sites.diamantsolutions.co.uk"){return NextResponse.redirect(new URL("https://diamantsolutions.co.uk/websites#work"),308);}
  const tenantHost=host.endsWith(".diamantsolutions.co.uk")&&host!==DEMO_HOST&&host!=="www.diamantsolutions.co.uk";
  if(tenantHost&&path.startsWith("/bms-runtime/")){const url=request.nextUrl.clone();url.pathname=path.slice("/bms-runtime".length);return NextResponse.redirect(url,308);}
