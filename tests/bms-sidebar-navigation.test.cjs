@@ -9,7 +9,7 @@ test("shared sidebar replaces horizontal menu and preserves tenant branding",()=
  assert.match(nav,/config\?\.accentColour/);assert.doesNotMatch(nav,/overflow-x-auto/);
 });
 test("navigation groups cover actual core routes without duplicate menu hrefs",()=>{
- for(const group of ["Overview","Sales & Customers","Products & Stock","Finance","Workforce","Documents","Administration"])assert.ok(nav.includes('name:"'+group+'"'));
+ for(const group of ["Overview","Sales & Customers","Products & Stock","Finance","People & Work","Files & Photos","Administration"])assert.ok(nav.includes('name:"'+group+'"'));
  const hrefs=[...nav.slice(0,nav.indexOf("const available=")).matchAll(/\{href:"([^"]+)",label:/g)].map(m=>m[1]);
  assert.equal(new Set(hrefs).size,hrefs.length);
  for(const href of hrefs){if(href==="/")continue;assert.ok(fs.existsSync("app/bms-runtime"+href+"/page.tsx"),"missing route "+href);}
