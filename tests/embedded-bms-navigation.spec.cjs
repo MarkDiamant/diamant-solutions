@@ -14,7 +14,7 @@ test("embedded fictional navigation displays actual links and switches tenant",a
  await expect(nav.getByRole("link",{name:"Settings"})).toBeVisible();
  await runtime.getByRole("button",{name:"Flooring & Tiles"}).click();
  await expect(nav.getByRole("link",{name:"Dashboard"})).toBeVisible();
- await expect(runtime.locator(".bms-brand-details")).toContainText(/Flooring|Tiles/i);
+ await expect(runtime.locator(".bms-brand-link strong")).toContainText(/Flooring|Tiles/i);
  await expect(nav.getByRole("link",{name:"Orders",exact:true})).toBeVisible();
  await nav.getByRole("link",{name:"Stock",exact:true}).click();
  await expect(runtime.locator("body")).toContainText(/stock|inventory/i);
