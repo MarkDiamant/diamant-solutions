@@ -1,6 +1,6 @@
 import {defineConfig,devices} from "@playwright/test";
 export default defineConfig({
- testDir:"./tests/e2e",
+ testDir:"./tests",
  timeout:90000,
  expect:{timeout:15000},
  retries:0,
