@@ -1,7 +1,7 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs");
 const read=p=>fs.readFileSync(p,"utf8");
 test("software page keeps a single embedded BMS selector, no outer controls",()=>{
- const embedded=read("app/software/EmbeddedBmsDemo.js");
+ const embedded=read("app/bms-demo/page.js");
  assert.doesNotMatch(embedded,/embeddedBmsChooser|Demo business:|setSample|useState/);
  assert.match(embedded,/iframe src="\/bms-runtime\?sample=northstar"/);
  const selector=read("components/DemoSelector.tsx");
