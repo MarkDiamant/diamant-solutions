@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {usePathname,useRouter} from "next/navigation";
+import {usePathname,useRouter,useSearchParams} from "next/navigation";
 import {useEffect,useMemo,useState} from "react";
 import DiamantCredit from "./DiamantCredit";
 import NewJobMenu from "./NewJobMenu";
@@ -53,12 +53,17 @@ const demoAccent:Record<string,string>={northstar:"#17385f",electrical:"#d27832"
 const storeKey="bms-sidebar-collapsed";
 const sectionsKey="bms-sidebar-sections";
 const NAV_EVENT="bms-nav-start";
-export default function AdminBrandBar(){
- const pathname=usePathname(),router=useRouter();
- const parts=pathname.split("/").filter(Boolean),demo=demoKeys.includes(parts[0])?parts[0]:null;
+export default function AdminBrandBar({fictionalDemo=false}:{fictionalDemo?:boolean}){
+ const pathname=usePathname(),router=useRouter(),searchParams=useSearchParams();
+ const parts=pathname.split("/").filter(Boolean);
+ // Only the server-confirmed fictional runtime may use demo navigation without a tenant session.
+ // Live tenant shells always pass fictionalDemo=false and retain authenticated permissions.
+ const embeddedDemo=fictionalDemo&&parts[0]==="bms-runtime";
+ const sample=searchParams.get("sample")||"northstar";
+ const demo=demoKeys.includes(parts[0])?parts[0]:embeddedDemo?(demoKeys.includes(sample)?sample:"northstar"):null;
  const prefix=demo?"/"+demo:pathname.startsWith("/bms-runtime")?"/bms-runtime":"";
  const local=pathname.slice(prefix.length)||"/";
- const go=(href:string)=>prefix+(href==="/"?"/":href);
+ const go=(href:string)=>prefix+(href==="/"?"/":href)+(embeddedDemo?"?sample="+encodeURIComponent(demo||"northstar"):"");
  const [config,setConfig]=useState<any>(null),[permissions,setPermissions]=useState<string[]|null>(null),[isWorker,setIsWorker]=useState(false);
  const [mobileOpen,setMobileOpen]=useState(false),[compact,setCompact]=useState(false);
  const [openSections,setOpenSections]=useState<Record<string,boolean>>({});
