@@ -1,0 +1,44 @@
+name: BMS isolated fictional manager acceptance
+on:
+  workflow_dispatch:
+    inputs:
+      run_mutations:
+        description: "I confirm the manager belongs ONLY to the isolated fictional demo tenant and reset is authorised"
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+jobs:
+  fictional-manager:
+    if: ${{ inputs.run_mutations == true }}
+    runs-on: ubuntu-latest
+    environment: bms-fictional-acceptance
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run four isolated authenticated acceptance tests
+        env:
+          CI: "true"
+          BMS_TEST_BASE_URL: https://bms.diamantsolutions.co.uk
+          BMS_DEMO_MANAGER_EMAIL: ${{ secrets.BMS_DEMO_MANAGER_EMAIL }}
+          BMS_DEMO_MANAGER_PASSWORD: ${{ secrets.BMS_DEMO_MANAGER_PASSWORD }}
+          BMS_DEMO_ALLOW_MUTATIONS: "true"
+          BMS_TEST_EMAIL: ${{ secrets.BMS_DEMO_MANAGER_EMAIL }}
+          BMS_TEST_PASSWORD: ${{ secrets.BMS_DEMO_MANAGER_PASSWORD }}
+          BMS_TEST_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.BMS_TEST_SUPABASE_PUBLISHABLE_KEY }}
+          BMS_RUN_MUTATIONS: "1"
+        run: |
+          set -euo pipefail
+          for key in BMS_DEMO_MANAGER_EMAIL BMS_DEMO_MANAGER_PASSWORD BMS_TEST_SUPABASE_PUBLISHABLE_KEY; do
+            if [ -z "${!key:-}" ]; then echo "::error::Missing protected fictional test secret: $key"; exit 1; fi
+          done
+          npx playwright test tests/e2e/flooring.spec.ts tests/e2e/flooring-manager-acceptance.spec.ts --project=chromium --workers=1 --reporter=line
