@@ -31,7 +31,7 @@ test("embedded mobile navigation opens with real links",async({page})=>{
  await expect(runtime.locator('nav[aria-label="Main navigation"]').getByRole("link",{name:"Dashboard"})).toBeVisible();
  await expect(runtime.getByText("DEMO MODE")).toBeVisible();
  await expect(runtime.getByText("View demo as")).toBeVisible();
- await runtime.getByRole("button",{name:"Electrical",exact:true}).click();
- await expect(runtime.locator(".bms-brand-link strong")).toContainText(/Electrical/i);
+ await runtime.getByRole("button",{name:"Electrician",exact:true}).click();
+ await expect(runtime.locator(".bms-brand-link strong")).toContainText(/Electrician|Electrical/i);
  await expect(runtime.locator('nav[aria-label="Main navigation"]').getByRole("link",{name:"Dashboard"})).toBeVisible();
 });
