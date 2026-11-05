@@ -1,4 +1,5 @@
 import {NextResponse} from "next/server";
+import dns from "node:dns/promises";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const reply=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
@@ -30,6 +31,7 @@ async function activationEmail(tenantId:string){
  if(!business||!order?.customer_email)throw Error("Activation recipient or business unavailable");
  const host=String(business.canonical_host||"");
  if(!/^[a-z0-9-]+\\.diamantsolutions\\.co\\.uk$/i.test(host))throw Error("Unverified business domain");
+ try{await dns.lookup(host)}catch{throw Error("Tenant domain DNS is not configured. Add the wildcard CNAME before sending activation.")}
  if(!process.env.RESEND_API_KEY)throw Error("Activation email service unavailable");
  const url="https://"+host+"/login";
  const r=await fetch("https://api.resend.com/emails",{method:"POST",headers:{Authorization:"Bearer "+process.env.RESEND_API_KEY,"Content-Type":"application/json","Idempotency-Key":"ds-bms-approved-"+tenantId},body:JSON.stringify({from:"Diamant Solutions <info@diamantsolutions.co.uk>",to:[order.customer_email],subject:"Your Business Management Software is ready",html:'<p>Your business setup has been approved.</p><p><a href="'+url+'">Sign in to your Business Management Software</a></p><p>Use the email address associated with your purchase to sign in securely.</p>',text:"Your business setup has been approved. Sign in: "+url+"\\nUse the email address associated with your purchase."}),cache:"no-store"});
