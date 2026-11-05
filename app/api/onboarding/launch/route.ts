@@ -1,4 +1,5 @@
 import {NextResponse} from "next/server";
+import dns from "node:dns/promises";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const json=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
@@ -29,5 +30,6 @@ export async function GET(req:Request){
  if(!(await owner.json()).length)return json({ready:false,error:"Your administrator access is awaiting activation"});
  const host=String(business.canonical_host||"");
  if(!/^[a-z0-9-]+\.diamantsolutions\.co\.uk$/i.test(host))return json({ready:false,error:"Business domain requires administrator review"});
+ try{await dns.lookup(host)}catch{return json({ready:false,error:"Your business domain is being configured"})}
  return json({ready:true,url:"https://"+host+"/login",slug:business.slug});
 }
