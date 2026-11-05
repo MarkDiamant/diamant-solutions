@@ -17,6 +17,10 @@ export async function POST(request){
   if(!member.ok){console.error('Membership lookup failed',member.status,await member.text());return NextResponse.json({error:'We could not complete your submission right now. Your answers are safe; please try again shortly.'},{status:502})}
   const members=await member.json();
   if(!members.length)return NextResponse.json({error:'We could not confirm access to this setup. Please contact support.'},{status:403});
+  if(String(user.email||'').trim().toLowerCase()!==String(answers.email||'').trim().toLowerCase())return NextResponse.json({error:'Your contact email must match the verified account used to purchase this setup'},{status:403});
+  const paid=await fetch(SB+'/rest/v1/checkout_orders?tenant_id=eq.'+encodeURIComponent(tenantId)+'&service_type=eq.'+encodeURIComponent(service)+'&payment_status=eq.paid&customer_email=ilike.'+encodeURIComponent(String(user.email||''))+'&select=id&limit=1',{headers:getHeaders(),cache:'no-store'});
+  if(!paid.ok)return NextResponse.json({error:'Unable to verify payment for this setup'},{status:503});
+  if(!(await paid.json()).length)return NextResponse.json({error:'Verified paid checkout required before submitting'},{status:403});
   const current=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&select=status,service_type&limit=1',{headers:getHeaders(),cache:'no-store'});
   if(!current.ok)return NextResponse.json({error:'Could not load setup'},{status:502});
   const existing=(await current.json())[0];
