@@ -44,7 +44,7 @@ export async function POST(request){
     {key:'activate',label:'Final internal approval before customer access',status:'pending'}
    ]
   }:null;
-  const payload={answers,service_type:service,current_step:service==='business_software'?99:4,progress:100,status:'submitted',submitted_at:new Date().toISOString(),logo_path:logoPath||null,...(proposedConfig?{proposed_config:proposedConfig}:{})};
+  const payload={answers,service_type:service,current_step:service==='business_software'?20:4,progress:100,status:'submitted',submitted_at:new Date().toISOString(),logo_path:logoPath||null,...(proposedConfig?{proposed_config:proposedConfig}:{})};
   if(service==='business_software'&&selection)payload.plan_selection=selection;
   const saved=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&status=eq.'+encodeURIComponent(existing.status),{method:'PATCH',headers:{...getHeaders(),Prefer:'return=representation'},body:JSON.stringify(payload),cache:'no-store'});
   if(!saved.ok){console.error('Onboarding submission rejected',saved.status,await saved.text());return NextResponse.json({error:'Database rejected submission. Please contact support.'},{status:502})}
