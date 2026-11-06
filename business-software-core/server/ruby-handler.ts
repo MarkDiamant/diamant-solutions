@@ -14,7 +14,10 @@ return async function POST(request:Request){
  const entitled=settings?.billing?.mode==="free"||settings?.plan?.aiIncluded===true;
  if(!entitled)return NextResponse.json({error:"AI Assistant is not included in this subscription."},{status:403});
  const body=await request.json().catch(()=>({}));
- const question=String(body.question||"").trim().slice(0,4000);
+ const question=String(body.question||"").trim();
+ // Long multi-item quotations and private costing instructions must not be silently truncated.
+ // A truncated request can omit prices, safety conditions or explicit do-not-send instructions.
+ if(question.length>24000)return NextResponse.json({error:"This instruction is too long to process safely in one request. Please split it into separate messages; nothing was changed."},{status:413});
  if(!question)return NextResponse.json({error:"Enter a question."},{status:400});
  const apiKey=process.env.OPENAI_API_KEY;
  if(!apiKey)return NextResponse.json({error:"AI Assistant is not configured yet."},{status:503});
