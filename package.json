@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check:bms-parity && npm run check:bms-launch && npm run test:stripe-signed && npm run test:onboarding && npm run test:tenant-routing && npm run test:demo-stock && npm run test:acceptance-static && npm run test:embedded-nav && npm run test:archive-safety && next build",
+    "build": "npm run check:bms-parity && npm run check:bms-launch && npm run test:stripe-signed && npm run test:onboarding && npm run test:tenant-routing && npm run test:demo-stock && npm run test:acceptance-static && npm run test:embedded-nav && npm run test:archive-safety && npm run test:ruby-long-quote && next build",
     "start": "next start",
     "check:bms-parity": "node scripts/check-bms-demo-parity.mjs",
     "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs",
@@ -17,7 +17,8 @@
     "test:isolated-auth": "node scripts/bms-isolated-auth-acceptance.cjs",
     "test:isolated-schema": "node scripts/bms-isolated-schema-check.cjs",
     "test:embedded-nav": "node --test tests/embedded-bms-navigation-contract.test.cjs",
-    "test:archive-safety": "node --test tests/bms-archive-safety.test.cjs"
+    "test:archive-safety": "node --test tests/bms-archive-safety.test.cjs",
+    "test:ruby-long-quote": "node --test tests/ruby-long-quotation-context.test.cjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.0.0",
