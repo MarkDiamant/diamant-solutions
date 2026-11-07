@@ -15,7 +15,10 @@ export async function POST(request){
  const hostReply=next=>{const early=next.time.getTime()-now.getTime()>3600000;const matchedHost=next.hosts.find(h=>phone(h.phone)===caller);const firstName=String(matchedHost?.name||'').trim().split(/\s+/)[0]||'host';const vars={day:occasionForSlot(next,settings),date:date(next.time),when:date(next.time),time:time(next.time),remaining:remaining(next.time),first_name:firstName,host_first_name:firstName};return speak(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars))+(early?'<Hangup/>':'<Redirect method="POST">/api/havdalah/host/wait?slot='+next.slot+(next.slotId?'&amp;id='+next.slotId:'')+'</Redirect>')};
  const managed=await getManagedSlots(now).catch(()=>null);
  if(managed){
-  const next=managed.find(s=>s.time.getTime()>=now.getTime()-10*60000&&s.hosts.some(h=>phone(h.phone)===caller));
+  const candidates=managed.filter(s=>s.time.getTime()>=now.getTime()-10*60000&&s.time.getTime()<=now.getTime()+60*60000&&s.hosts.some(h=>phone(h.phone)===caller));
+  const digit=String(form.get('Digits')||'');
+  if(candidates.length>1&&!digit){const choices=candidates.slice(0,9).map((s,i)=>'For '+s.label+' at '+time(s.time)+', press '+(i+1)+'.').join(' ');return xml('<Gather input="dtmf" numDigits="1" timeout="15" action="/api/havdalah/host/select" method="POST">'+speak('You are assigned to multiple Havdalah sessions. '+choices)+'</Gather><Redirect method="POST">/api/havdalah/host/select</Redirect>');}
+  const next=digit?candidates[Number(digit)-1]:candidates[0]||managed.find(s=>s.time.getTime()>=now.getTime()-10*60000&&s.hosts.some(h=>phone(h.phone)===caller));
   if(!next)return xml(speak('You are not assigned to an upcoming Havdalah session.')+'<Hangup/>');
   return xml(hostReply(next));
  }
