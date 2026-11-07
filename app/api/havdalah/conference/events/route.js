@@ -43,7 +43,7 @@ export async function POST(request){
    const host=participants.find(p=>p.label==='host-primary');
    if(host?.muted){
     const url=new URL('/api/havdalah/announcement',request.url).toString();
-    try{await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});}
+    try{for(let attempt=0;attempt<4;attempt++){try{await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});break;}catch(error){if(!/404/.test(error.message)||attempt===3)throw error;await new Promise(resolve=>setTimeout(resolve,400*(attempt+1)));}}}
     catch(error){console.error('HAVDALAH_ANNOUNCEMENT_FAILED_UNMUTING_HOST',error.message);await twilio('Conferences/'+conference+'/Participants/'+host.call_sid+'.json',{Muted:'false'});}
    }
   }
