@@ -1,3 +1,4 @@
+import {createClient} from '@supabase/supabase-js';
 import {sayOrPlay} from '../../../../../lib/havdalahGoogleVoice';
 import {getVoiceSettings,spoken,fillTemplate,occasionForSlot} from '../../../../../lib/havdalahVoiceSettings';
 import {verifyTwilio} from '../../../../../lib/havdalahTwilioAuth';
@@ -12,6 +13,7 @@ export async function POST(request){
  if(!(await verifyTwilio(request,form)))return new Response('Forbidden',{status:403});
  const now=new Date(),caller=phone(form.get('From'));const settings=await getVoiceSettings();const speak=t=>sayOrPlay(spoken(t,settings),settings.voice);const time=t=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'numeric',minute:'2-digit',hour12:true}).format(t);const date=t=>new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',day:'numeric',month:'long'}).format(t);
  const remaining=t=>{const m=Math.max(0,Math.ceil((t-now)/60000));const h=Math.floor(m/60),r=m%60;return h?(h+' hour'+(h===1?'':'s')+(r?' and '+r+' minute'+(r===1?'':'s'):'')):(m+' minute'+(m===1?'':'s'))};
+ const logArrival=async next=>{const sid=String(form.get('CallSid')||'');if(!sid)return;try{const db=createClient(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false}});const matched=next.hosts.find(h=>phone(h.phone)===caller);const label=Number(matched?.priority)===2?'host-backup-2':'host-primary';const {error}=await db.from('havdalah_call_events').upsert({event_key:[next.conference,'host-call',sid].join(':'),call_sid:sid,conference_name:next.conference,participant_label:label,event_type:'host-call'},{onConflict:'event_key',ignoreDuplicates:true});if(error)console.error('HAVDALAH_HOST_ARRIVAL_LOG',error.message);}catch(e){console.error('HAVDALAH_HOST_ARRIVAL_LOG',e.message);}};
  const hostReply=next=>{const early=next.time.getTime()-now.getTime()>3600000;const matchedHost=next.hosts.find(h=>phone(h.phone)===caller);const firstName=String(matchedHost?.name||'').trim().split(/\s+/)[0]||'host';const vars={day:occasionForSlot(next,settings),date:date(next.time),when:date(next.time),time:time(next.time),remaining:remaining(next.time),first_name:firstName,host_first_name:firstName};return speak(fillTemplate(early?settings.host_early_text:settings.host_welcome_text,vars))+(early?'<Hangup/>':'<Redirect method="POST">/api/havdalah/host/wait?slot='+next.slot+(next.slotId?'&amp;id='+next.slotId:'')+'</Redirect>')};
  const managed=await getManagedSlots(now).catch(()=>null);
  if(managed){
@@ -20,7 +22,7 @@ export async function POST(request){
   if(candidates.length>1&&!digit){const choices=candidates.slice(0,9).map((s,i)=>'For '+s.label+' at '+time(s.time)+', press '+(i+1)+'.').join(' ');return xml('<Gather input="dtmf" numDigits="1" timeout="15" action="/api/havdalah/host/select" method="POST">'+speak('You are assigned to multiple Havdalah sessions. '+choices)+'</Gather><Redirect method="POST">/api/havdalah/host/select</Redirect>');}
   const next=digit?candidates[Number(digit)-1]:candidates[0]||managed.find(s=>s.time.getTime()>=now.getTime()-10*60000&&s.hosts.some(h=>phone(h.phone)===caller));
   if(!next)return xml(speak('You are not assigned to an upcoming Havdalah session.')+'<Hangup/>');
-  return xml(hostReply(next));
+  await logArrival(next);return xml(hostReply(next));
  }
  return xml(speak('Host schedule is temporarily unavailable. Please try again shortly.')+'<Hangup/>');
 }
