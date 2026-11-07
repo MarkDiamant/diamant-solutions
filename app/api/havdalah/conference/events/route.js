@@ -37,7 +37,7 @@ export async function POST(request){
 
  try{
   if(!/^CF[a-fA-F0-9]{32}$/.test(conference))return new Response(null,{status:204});
-  if(event==='participant-join'&&label==='host-primary'){
+  if((event==='participant-join'&&label==='host-primary')||event==='conference-start'){
    const {sid,auth}=credentials();
    const list=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Conferences/'+conference+'/Participants.json?PageSize=100',{headers:{Authorization:auth}});
    if(!list.ok)throw new Error('Conference participant lookup failed: '+list.status);
@@ -46,7 +46,7 @@ export async function POST(request){
    if(host?.muted){
     const url=new URL('/api/havdalah/announcement',request.url).toString();
     try{for(let attempt=0;attempt<4;attempt++){try{await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});break;}catch(error){if(!/404/.test(error.message)||attempt===3)throw error;await new Promise(resolve=>setTimeout(resolve,400*(attempt+1)));}}}
-    catch(error){console.error('HAVDALAH_ANNOUNCEMENT_FAILED_UNMUTING_HOST',error.message,'callbackAccountMatchesConfigured',callbackAccount===process.env.TWILIO_ACCOUNT_SID);await twilio('Conferences/'+conference+'/Participants/'+host.call_sid+'.json',{Muted:'false'});}
+    catch(error){console.error('HAVDALAH_CONFERENCE_ANNOUNCEMENT_FAILED_TRYING_PARTICIPANTS',error.message,'callbackAccountMatchesConfigured',callbackAccount===process.env.TWILIO_ACCOUNT_SID);const results=await Promise.allSettled(participants.filter(p=>p.call_sid).map(p=>twilio('Conferences/'+conference+'/Participants/'+p.call_sid+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'})));const failed=results.filter(r=>r.status==='rejected');if(failed.length)throw new Error('Countdown failed for '+failed.length+' conference participants; host remains muted');console.info('HAVDALAH_COUNTDOWN_PARTICIPANT_FALLBACK_STARTED',{conference,participantCount:results.length});}
    }
   }
   if(event==='participant-leave'&&label==='host-primary'){
