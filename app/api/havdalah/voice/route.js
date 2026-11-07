@@ -31,9 +31,8 @@ export async function POST(request){
  const hostSlots=activeSlots?.filter(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000&&s.time.getTime()<=now.getTime()+60*60000)||[];
  if(hostSlots.length===1&&form.get('CallSid')){try{const db=createClient(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false}});const sid=String(form.get('CallSid'));const slot=hostSlots[0];const {error}=await db.from('havdalah_call_events').upsert({event_key:[slot.conference,'host-call',sid].join(':'),call_sid:sid,conference_name:slot.conference,participant_label:(slot.hosts.find(h=>phone(h.phone)===phone(form.get('From')))?.priority===2?'host-backup-2':'host-primary'),event_type:'host-call'},{onConflict:'event_key',ignoreDuplicates:true});if(error)console.error('HAVDALAH_HOST_ARRIVAL_LOG',error.message);}catch(e){console.error('HAVDALAH_HOST_ARRIVAL_LOG',e.message);}}
 
- const eligible=activeSlots?.filter(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000&&s.time.getTime()<=now.getTime()+60*60000)||[];
- if(eligible.length>1)return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
- const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
+ if(hostSlots.length>1)return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
+ const assigned=hostSlots.length===1?hostSlots[0]:null;
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
   const matchedHost=assigned.hosts.find(h=>phone(h.phone)===phone(form.get('From')));const firstName=String(matchedHost?.name||'').trim().split(/\s+/)[0]||'host';
