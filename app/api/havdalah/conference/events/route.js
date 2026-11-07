@@ -37,7 +37,7 @@ export async function POST(request){
 
  try{
   if(!/^CF[a-fA-F0-9]{32}$/.test(conference))return new Response(null,{status:204});
-  if((event==='participant-join'&&label==='host-primary')||event==='conference-start'){
+  if(event==='participant-join'&&label==='host-primary'){
    const {sid,auth}=credentials();
    const list=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Conferences/'+conference+'/Participants.json?PageSize=100',{headers:{Authorization:auth}});
    if(!list.ok)throw new Error('Conference participant lookup failed: '+list.status);
