@@ -1,3 +1,4 @@
+import {createClient} from '@supabase/supabase-js';
 import {sayOrPlay} from '../../../../../lib/havdalahGoogleVoice';
 import {getVoiceSettings,spoken} from '../../../../../lib/havdalahVoiceSettings';
 import {verifyTwilio} from '../../../../../lib/havdalahTwilioAuth';
@@ -17,6 +18,15 @@ export async function POST(request){
  if(!target)return xml(speak('That Havdalah slot is no longer available.')+'<Hangup/>');
  const id=target.slotId?'&amp;id='+target.slotId:'';
  if(form.get('Digits')!=='1')return xml(`<Redirect method="POST">/api/havdalah/host/wait?slot=${slot}${id}</Redirect>`);
+ const callSid=String(form.get('CallSid')||'');
+ if(!/^CA[a-fA-F0-9]{32}$/.test(callSid))return xml(speak('We could not verify your call. Please call back.')+'<Hangup/>');
+ try{
+  const db=createClient(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false}});
+  const {data:claimed,error}=await db.rpc('havdalah_claim_host_start',{p_conference:target.conference,p_call_sid:callSid});
+  if(error)throw error;
+  if(!claimed)return xml(speak('Another host has already started this Havdalah session. You cannot start it again.')+'<Hangup/>');
+ }catch(error){console.error('HAVDALAH_HOST_START_LOCK_ERROR',error.message);return xml(speak('The session could not be safely started. Please try again shortly.')+'<Hangup/>');}
+
  
  return xml(`${sayOrPlay(spoken(settings.host_ready_text||'You are still private. Please begin immediately after the five second countdown.',settings),settings.voice)}<Dial timeLimit="600"><Conference muted="true" participantLabel="host-primary" startConferenceOnEnter="true" endConferenceOnExit="false" beep="false" waitUrl="/api/havdalah/wait?conference=${encodeURIComponent(target.conference)}" waitMethod="POST" statusCallback="/api/havdalah/conference/events" statusCallbackMethod="POST" statusCallbackEvent="start end join leave mute announcement">${x(target.conference)}</Conference></Dial>`);
 }
