@@ -43,6 +43,7 @@ export async function POST(request){
  const upcoming=activeSlots?.find(s=>s.time.getTime()>now.getTime());
  const recent=activeSlots?.filter(s=>s.time.getTime()<=now.getTime()&&s.time.getTime()>=now.getTime()-60*60000).at(-1);
  let next=upcoming||recent;
+ if(next&&form.get('CallSid')){try{const db=createClient(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false}});const sid=String(form.get('CallSid'));const {error}=await db.from('havdalah_call_events').upsert({event_key:[next.conference,'listener-call',sid].join(':'),call_sid:sid,conference_name:next.conference,participant_label:'listener-'+sid,event_type:'listener-call'},{onConflict:'event_key',ignoreDuplicates:true});if(error)console.error('HAVDALAH_LISTENER_ARRIVAL_LOG',error.message);}catch(e){console.error('HAVDALAH_LISTENER_ARRIVAL_LOG',e.message);}}
  if(managed===null){console.error('HAVDALAH_MANAGED_UNAVAILABLE_NO_FALLBACK');return xml(sayOrPlay(spoken('The hotline is temporarily unavailable. Please call back shortly.',settings),settings.voice)+'<Hangup/>');}
  console.info('HAVDALAH_NEXT_SLOT',{managedCount:managed?.length??null,found:!!next});
  if(!next)return xml('<Pause length="2"/>'+sayOrPlay(spoken(settings.opening_text+' '+settings.no_more_sessions_text,settings),settings.voice)+'<Hangup/>');
