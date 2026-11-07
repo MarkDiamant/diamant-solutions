@@ -1,3 +1,4 @@
+import {createClient} from '@supabase/supabase-js';
 import {sayOrPlay} from '../../../../lib/havdalahGoogleVoice';
 import {getVoiceSettings,spoken,activeSponsor,fillTemplate,occasionForSlot} from '../../../../lib/havdalahVoiceSettings';
 import {verifyTwilio} from '../../../../lib/havdalahTwilioAuth';
@@ -27,6 +28,9 @@ export async function POST(request){
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
  const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},12000))]);
  const activeSlots=managed?.some(s=>s.isTest)?managed.filter(s=>s.isTest):managed;
+ const hostSlots=activeSlots?.filter(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000&&s.time.getTime()<=now.getTime()+60*60000)||[];
+ if(hostSlots.length===1&&form.get('CallSid')){try{const db=createClient(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.DS_SUPABASE_SERVICE_ROLE_KEY,{auth:{persistSession:false}});const sid=String(form.get('CallSid'));const slot=hostSlots[0];const {error}=await db.from('havdalah_call_events').upsert({event_key:[slot.conference,'host-call',sid].join(':'),call_sid:sid,conference_name:slot.conference,participant_label:'host-primary',event_type:'host-call'},{onConflict:'event_key',ignoreDuplicates:true});if(error)console.error('HAVDALAH_HOST_ARRIVAL_LOG',error.message);}catch(e){console.error('HAVDALAH_HOST_ARRIVAL_LOG',e.message);}}
+
  const eligible=activeSlots?.filter(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000&&s.time.getTime()<=now.getTime()+60*60000)||[];
  if(eligible.length>1)return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
