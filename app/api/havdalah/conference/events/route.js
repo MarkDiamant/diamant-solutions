@@ -44,6 +44,16 @@ export async function POST(request){
    const participants=(await list.json()).participants||[];
    const host=participants.find(p=>p.label==='host-primary');
    if(host?.muted){
+    // Twilio cannot announce to an unbridged one-person conference.
+    // Redirect the sole host call through its own countdown, then rejoin live.
+    if(participants.length===1){
+     const hostCall=host.call_sid||call;
+     const name=encodeURIComponent(conferenceName);
+     const countdown=new URL('/api/havdalah/host/solo-countdown?conference='+name,request.url).toString();
+     await twilio('Calls/'+hostCall+'.json',{Url:countdown,Method:'POST'});
+     console.info('HAVDALAH_SOLO_HOST_COUNTDOWN_REDIRECT',{conference,hostCall});
+     return new Response(null,{status:204});
+    }
     const url=new URL('/api/havdalah/announcement',request.url).toString();
     try{for(let attempt=0;attempt<4;attempt++){try{await twilio('Conferences/'+conference+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'});break;}catch(error){if(!/404/.test(error.message)||attempt===3)throw error;await new Promise(resolve=>setTimeout(resolve,400*(attempt+1)));}}}
     catch(error){console.error('HAVDALAH_CONFERENCE_ANNOUNCEMENT_FAILED_TRYING_PARTICIPANTS',error.message,'callbackAccountMatchesConfigured',callbackAccount===process.env.TWILIO_ACCOUNT_SID);const results=await Promise.allSettled(participants.filter(p=>p.call_sid).map(p=>twilio('Conferences/'+conference+'/Participants/'+p.call_sid+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'})));const failed=results.filter(r=>r.status==='rejected');if(failed.length)throw new Error('Countdown failed for '+failed.length+' conference participants; host remains muted');console.info('HAVDALAH_COUNTDOWN_PARTICIPANT_FALLBACK_STARTED',{conference,participantCount:results.length});}
