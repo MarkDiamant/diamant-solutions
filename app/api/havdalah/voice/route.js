@@ -27,6 +27,8 @@ export async function POST(request){
  console.log('HAVDALAH_VOICE_SELECTED',{voice:settings.voice,googleKeyPresent:!!process.env.GOOGLE_TTS_API_KEY,signingTokenPresent:!!process.env.TWILIO_AUTH_TOKEN});
  const managed=await Promise.race([getManagedSlots(now,phone(form.get('To'))).catch(error=>{console.error('HAVDALAH_MANAGED_LOOKUP',error);return null;}),new Promise(resolve=>setTimeout(()=>{console.error('HAVDALAH_MANAGED_LOOKUP_TIMEOUT');resolve(null);},12000))]);
  const activeSlots=managed?.some(s=>s.isTest)?managed.filter(s=>s.isTest):managed;
+ const eligible=activeSlots?.filter(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000&&s.time.getTime()<=now.getTime()+60*60000)||[];
+ if(eligible.length>1)return xml('<Redirect method="POST">/api/havdalah/host/select</Redirect>');
  const assigned=activeSlots?.find(s=>s.hosts.some(h=>phone(h.phone)===phone(form.get('From')))&&s.time.getTime()>=now.getTime()-10*60000);
  if(assigned){
   const early=assigned.time.getTime()-now.getTime()>3600000;
