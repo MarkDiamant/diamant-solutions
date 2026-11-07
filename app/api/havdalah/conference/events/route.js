@@ -59,7 +59,7 @@ export async function POST(request){
     catch(error){console.error('HAVDALAH_CONFERENCE_ANNOUNCEMENT_FAILED_TRYING_PARTICIPANTS',error.message,'callbackAccountMatchesConfigured',callbackAccount===process.env.TWILIO_ACCOUNT_SID);const results=await Promise.allSettled(participants.filter(p=>p.call_sid).map(p=>twilio('Conferences/'+conference+'/Participants/'+p.call_sid+'.json',{AnnounceUrl:url,AnnounceMethod:'POST'})));const failed=results.filter(r=>r.status==='rejected');if(failed.length)throw new Error('Countdown failed for '+failed.length+' conference participants; host remains muted');console.info('HAVDALAH_COUNTDOWN_PARTICIPANT_FALLBACK_STARTED',{conference,participantCount:results.length});}
    }
   }
-  if(event==='participant-leave'&&label==='host-primary'){
+  if(event==='participant-leave'&&(label==='host-primary'||label==='host-live')){
    const {sid,auth}=credentials();
    const list=await fetch('https://api.twilio.com/2010-04-01/Accounts/'+sid+'/Conferences/'+conference+'/Participants.json?PageSize=100',{headers:{Authorization:auth}});
    if(!list.ok)throw new Error('Closing participant lookup failed: '+list.status);
