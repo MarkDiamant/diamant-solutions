@@ -32,8 +32,8 @@ export async function GET(req){
   eventQuery=requestedName?eventQuery.eq('conference_name',requestedName):eventQuery.eq('conference_sid',requestedConference);
   const {data:events,error:eventError}=await eventQuery.order('occurred_at',{ascending:true}).limit(1000);
   if(eventError)return Response.json({error:eventError.message},{status:500});
-  const joined=(events||[]).filter(e=>e.event_type==='participant-join'&&e.call_sid);
-  const calls=[...new Map(joined.map(e=>[e.call_sid,e])).values()];
+  const relevant=(events||[]).filter(e=>['participant-join','host-call','listener-call'].includes(e.event_type)&&e.call_sid);
+  const calls=[...new Map(relevant.map(e=>[e.call_sid,e])).values()];
   const sid=process.env.TWILIO_ACCOUNT_SID;
   const key=process.env.TWILIO_API_KEY_SID,secret=process.env.TWILIO_API_KEY_SECRET;
   if(!sid||!key||!secret)return Response.json({error:'Twilio call lookup is not configured'},{status:503});
