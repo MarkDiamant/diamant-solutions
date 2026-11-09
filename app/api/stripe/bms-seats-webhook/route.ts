@@ -29,13 +29,13 @@ export async function POST(req:Request){
  if(!sr.ok)return json({error:"Unable to verify subscription with Stripe"},503);
  const sub:any=await sr.json();
  if(sub.metadata?.product!=="bms_seats")return json({received:true,ignored:true});
- const seatItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===priceId);const baseItem=(sub.items?.data||[]).find((item:any)=>item.price?.id===basePriceId);
+ const configured=[{interval:"month",seat:priceId,base:basePriceId},{interval:"year",seat:process.env.BMS_STRIPE_ANNUAL_SEAT_PRICE_ID,base:process.env.BMS_STRIPE_ANNUAL_BASE_PRICE_ID}];const items=sub.items?.data||[];const catalogue=configured.find(c=>items.some((item:any)=>item.price?.id===c.base||item.price?.id===c.seat));if(!catalogue)return json({error:"Subscription does not contain a configured BMS licence product"},409);const seatItem=items.find((item:any)=>item.price?.id===catalogue.seat);const baseItem=items.find((item:any)=>item.price?.id===catalogue.base);if(items.some((item:any)=>(item.price?.id===priceId||item.price?.id===basePriceId||item.price?.id===process.env.BMS_STRIPE_ANNUAL_SEAT_PRICE_ID||item.price?.id===process.env.BMS_STRIPE_ANNUAL_BASE_PRICE_ID)&&![catalogue.seat,catalogue.base].includes(item.price?.id)))return json({error:"Mixed monthly and annual licence prices are not permitted"},409);
  if(!seatItem&&!baseItem)return json({error:"Subscription does not contain a configured BMS licence product"},409);
  const tenantId=String(sub.metadata?.tenant_id||"");
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId))return json({error:"Missing verified tenant mapping"},409);
  const customerId=typeof sub.customer==="string"?sub.customer:sub.customer?.id;
  if(!customerId)return json({error:"Subscription customer missing"},409);
- const interval=(seatItem||baseItem).price?.recurring?.interval==="year"?"annual":"monthly";
+ const interval=catalogue.interval==="year"?"annual":"monthly";
  const quantity=Number(seatItem?.quantity||0)+Number(baseItem?1:0);
  if(!Number.isSafeInteger(quantity)||quantity<0||quantity>10000)return json({error:"Invalid subscription quantity"},409);
  // A paid event must be verified against the actual paid invoice, not only the
@@ -51,10 +51,10 @@ export async function POST(req:Request){
   const lines=await fetch("https://api.stripe.com/v1/invoices/"+encodeURIComponent(invoiceId)+"/lines?limit=100",{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
   if(!lines.ok)return json({error:"Unable to verify invoice line items"},503);
   const invoiceLines:any=await lines.json();
-  const licenceLines=(invoiceLines.data||[]).filter((line:any)=>[priceId,basePriceId].includes(line.price?.id||line.pricing?.price_details?.price));
+  const licenceLines=(invoiceLines.data||[]).filter((line:any)=>[catalogue.seat,catalogue.base].includes(line.price?.id||line.pricing?.price_details?.price));
   if(invoiceLines.has_more)return json({error:"Invoice has additional unverified lines"},503);
   if(!licenceLines.length)return json({received:true,ignored:true});
-  const invoicedSeats=licenceLines.reduce((n:number,line:any)=>n+(line.price?.id===basePriceId||line.pricing?.price_details?.price===basePriceId?1:Number(line.quantity||0)),0);
+  const invoicedSeats=licenceLines.reduce((n:number,line:any)=>n+(line.price?.id===catalogue.base||line.pricing?.price_details?.price===catalogue.base?1:Number(line.quantity||0)),0);
   if(!Number.isSafeInteger(invoicedSeats)||invoicedSeats<quantity)return json({received:true,ignored:true,reason:"Current subscription has seats not yet covered by this invoice"});
  }
 
