@@ -2,6 +2,8 @@ const {test}=require("node:test"),assert=require("node:assert/strict"),fs=requir
 const file=path.join(__dirname,"../app/api/checkout/route.js"),source=fs.readFileSync(file,"utf8");
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
 const original=Module._load;Module._load=function(name,...args){if(name==="next/server")return {NextResponse:{json:(body,{status=200}={})=>({status,body})}};return original.call(this,name,...args)};
+const savedInitial={NEXT_PUBLIC_SUPABASE_URL:process.env.NEXT_PUBLIC_SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY:process.env.SUPABASE_SERVICE_ROLE_KEY};
+process.env.NEXT_PUBLIC_SUPABASE_URL="https://fictionaltest123.supabase.co";process.env.SUPABASE_SERVICE_ROLE_KEY="fictional_only";
 const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(js,file);Module._load=original;
 const keys=["STRIPE_SECRET_KEY","BMS_TEST_ISOLATED","VERCEL_ENV","NEXT_PUBLIC_SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_AI_PRICE_ID"];
 const saved=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
@@ -11,4 +13,4 @@ test("isolated checkout sends test price IDs, never hardcoded live IDs",async()=
 test("missing test prices fail before external Stripe or Supabase calls",async()=>{configure();delete process.env.BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID;const calls=[];global.fetch=async()=>{calls.push(1);throw Error("Must not call network")};const result=await mod.exports.POST(req());assert.equal(result.status,503);assert.equal(calls.length,0)});
 test("test-mode checkout on production environment fails closed",async()=>{configure();process.env.VERCEL_ENV="production";const calls=[];global.fetch=async()=>{calls.push(1);throw Error("Must not call network")};const result=await mod.exports.POST(req());assert.equal(result.status,500);assert.equal(calls.length,0)});
 test("live Stripe key is refused in isolated Preview before network access",async()=>{configure();process.env.STRIPE_SECRET_KEY="sk_live_fixture";const calls=[];global.fetch=async()=>{calls.push(1);throw Error("Must not call network")};const result=await mod.exports.POST(req());assert.equal(result.status,500);assert.equal(calls.length,0)});
-process.on("exit",()=>{for(const [k,v]of Object.entries(saved))if(v===undefined)delete process.env[k];else process.env[k]=v});
+process.on("exit",()=>{for(const [k,v]of Object.entries({...saved,...savedInitial}))if(v===undefined)delete process.env[k];else process.env[k]=v});
