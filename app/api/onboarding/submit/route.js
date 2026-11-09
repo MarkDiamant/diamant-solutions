@@ -34,14 +34,14 @@ export async function POST(request){
   const textAnswer=(key)=>typeof answers[key]==='string'?answers[key].trim():'';
   const onboardingSections={
    business:{businessName:textAnswer('businessName'),contactName:textAnswer('contactName'),email:textAnswer('email'),phone:textAnswer('phone'),businessType:textAnswer('businessType'),terminology:textAnswer('terminology'),colours:textAnswer('colours')},
-   users:{requestedSeats:textAnswer('users'),roles:textAnswer('roles'),permissions:textAnswer('permissions'),invitationEmails:textAnswer('invitationEmails')},
-   workflows:{workflow:textAnswer('workflow'),jobStages:textAnswer('jobStages'),customerImport:textAnswer('customerImport'),quotingProcess:textAnswer('quotingProcess')},
-   priceBook:{productCategories:textAnswer('productCategories'),services:textAnswer('services'),pricingStructure:textAnswer('pricingStructure'),priceBookImport:textAnswer('priceBookImport')},
-   purchasing:{suppliers:textAnswer('suppliers'),supplierPriceLists:textAnswer('supplierPriceLists'),purchaseApprovals:textAnswer('purchaseApprovals'),goodsReceivedProcess:textAnswer('goodsReceivedProcess')},
-   inventory:{stockLocations:textAnswer('stockLocations'),openingStock:textAnswer('openingStock'),stockValuation:textAnswer('stockValuation'),stockMovements:textAnswer('stockMovements')},
-   materials:{materialRequirements:textAnswer('materialRequirements'),reservations:textAnswer('reservations'),jobAllocations:textAnswer('jobAllocations'),jobCosting:textAnswer('jobCosting')},
-   workforce:{workers:textAnswer('workers'),fittingTeams:textAnswer('fittingTeams'),subcontractors:textAnswer('subcontractors'),labourRates:textAnswer('labourRates')},
-   finance:{vatScheme:textAnswer('vatScheme'),invoiceTerms:textAnswer('invoiceTerms'),paymentMethods:textAnswer('paymentMethods'),accountingProvider:textAnswer('accountingProvider'),xeroOrganisation:textAnswer('xeroOrganisation'),quickBooksCompany:textAnswer('quickBooksCompany')}
+   users:{requestedSeats:textAnswer('users'),roles:textAnswer('roles'),permissions:textAnswer('permissionsPolicy'),invitationEmails:textAnswer('staffStructure')},
+   workflows:{workflow:textAnswer('workflow'),jobStages:textAnswer('jobStages'),customerImport:textAnswer('customerImport'),quotingProcess:textAnswer('quotes')},
+   priceBook:{productCategories:textAnswer('productTypes'),services:textAnswer('productCosting'),pricingStructure:textAnswer('priceRules'),priceBookImport:textAnswer('catalogueImport')},
+   purchasing:{suppliers:textAnswer('suppliersSetup'),supplierPriceLists:textAnswer('catalogueImport'),purchaseApprovals:textAnswer('purchaseApproval'),goodsReceivedProcess:textAnswer('goodsReceiving')},
+   inventory:{stockLocations:textAnswer('locationsSetup'),openingStock:textAnswer('stockOpening'),stockValuation:textAnswer('productCosting'),stockMovements:textAnswer('stockMovements')},
+   materials:{materialRequirements:textAnswer('jobMaterials'),reservations:textAnswer('stockAllocation'),jobAllocations:textAnswer('stockAllocation'),jobCosting:textAnswer('jobCostReview')},
+   workforce:{workers:textAnswer('staffStructure'),fittingTeams:textAnswer('staffStructure'),subcontractors:textAnswer('staffStructure'),labourRates:textAnswer('labourRates')},
+   finance:{vatScheme:textAnswer('vatSettings'),invoiceTerms:textAnswer('invoiceSettings'),paymentMethods:textAnswer('paymentTracking'),accountingProvider:textAnswer('integrations'),xeroOrganisation:textAnswer('xeroSetup'),quickBooksCompany:textAnswer('integrations')}
   };
   const hasModule=(...names)=>names.some(x=>selectedModules.includes(x));
   const sectionRelevant={
@@ -69,7 +69,7 @@ export async function POST(request){
     ...(sectionRelevant.materials?[{key:'configure_materials',label:'Review material reservations, allocations and job costing',status:'pending'}]:[]),
     ...(sectionRelevant.users?[{key:'configure_users',label:'Review purchased seats, invitations and role permissions',status:'pending'}]:[]),
     ...(selectedModules.includes('Xero')?[{key:'authorise_xero',label:'Customer authorisation required for Xero',status:'pending'}]:[]),
-    ...(textAnswer('accountingProvider').toLowerCase().includes('quickbooks')?[{key:'authorise_quickbooks',label:'Review QuickBooks integration availability and authorisation',status:'pending'}]:[]),
+    ...(textAnswer('integrations').toLowerCase().includes('quickbooks')?[{key:'authorise_quickbooks',label:'Review QuickBooks integration availability and authorisation',status:'pending'}]:[]),
     {key:'review_imports',label:'Review and approve any data imports',status:'pending'},
     {key:'client_approval',label:'Obtain customer approval of configured BMS',status:'pending'},
     {key:'activate',label:'Final internal approval before customer access',status:'pending'}
