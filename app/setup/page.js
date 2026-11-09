@@ -11,6 +11,14 @@ const baseSteps=[
  {title:'Documents & money',fields:[['quotes','How do you currently handle quotes?'],['invoices','How do you currently handle invoices and payments?'],['existingData','Do you have existing customers, prospects, jobs or other records to import? If so, where are they kept (for example, spreadsheets or another system)?'],['files','What files, photos or documents do you need to keep?'],['integrations','Any software you would like connected?']]},
  {title:'Branding & extras',fields:[['logo','Your logo'],['colours','Brand colours (if known)'],['terminology','Any other wording you use instead of standard terms?'],['dashboard','What would you most like to see on your dashboard?'],['automation','Are there routine actions, task reminders or follow-ups you would like the system to handle?'],['anythingElse','Anything else we should know?']]}
 ];
+const flooringStep={title:'Flooring installation workflow',fields:[
+ ['flooringMaterials','Which flooring types, underlay, adhesives, trims and accessories do you supply or fit?'],
+ ['flooringMeasurements','How do you record site surveys, room measurements, areas and waste allowances?'],
+ ['flooringFitting','How do you schedule fitters, installation dates and customer sign-off?'],
+ ['flooringWaste','How do you estimate wastage, offcuts, returns and stock allocations?'],
+ ['flooringUnits','Do you price materials per square metre, pack, roll or unit, and labour per area or job?'],
+ ['flooringSubcontractors','Which fitting teams or subcontractors need job access and cost tracking?']
+]};
 const requiredKeys=['businessName','contactName','email','phone','businessType','workflow','features','users'];
 const moduleGroups={
  'Sales & customers':['Prospects','Customers','Customer-specific pricing','Quotes','Sales orders','Deliveries','Returns'],
@@ -39,7 +47,7 @@ const plan=s=>s?{users:Math.max(1,Number(s.users)||1),ai:!!s.ai,interval:s.inter
 
 const canonical=value=>JSON.stringify(value,(_key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
 export default function SetupPage(){
- const [data,setData]=useState({}); const steps=useMemo(()=>[...baseSteps,...details.filter(x=>!x.module||moduleSelected(data,x.module))],[data.optionalModules]); const [submitError,setSubmitError]=useState(''); const [step,setStep]=useState(0); const [saved,setSaved]=useState(false); const [selection,setSelection]=useState(null); const [session,setSession]=useState(null); const [tenantId,setTenantId]=useState(''); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false); const [logoPath,setLogoPath]=useState(''); const [launchUrl,setLaunchUrl]=useState('');
+ const [data,setData]=useState({}); const steps=useMemo(()=>[...baseSteps,...(/flooring|carpet|laminate|vinyl|lvt|floor covering/i.test(String(data.businessType||''))?[flooringStep]:[]),...details.filter(x=>!x.module||moduleSelected(data,x.module))],[data.optionalModules,data.businessType]); const [submitError,setSubmitError]=useState(''); const [step,setStep]=useState(0); const [saved,setSaved]=useState(false); const [selection,setSelection]=useState(null); const [session,setSession]=useState(null); const [tenantId,setTenantId]=useState(''); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false); const [logoPath,setLogoPath]=useState(''); const [launchUrl,setLaunchUrl]=useState('');
  const saveQueue=useRef(Promise.resolve()),revision=useRef(0),submittedRef=useRef(false),loadedRef=useRef(false),pendingSave=useRef(false),[accountLoaded,setAccountLoaded]=useState(false);
  const pct=useMemo(()=>Math.round(((Math.min(step,steps.length-1)+1)/steps.length)*100),[step,steps.length]);
  const update=(k,v)=>{revision.current++;setSaved(false);setData(x=>({...x,[k]:v}))};
