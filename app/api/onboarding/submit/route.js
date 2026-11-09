@@ -41,7 +41,7 @@ export async function POST(request){
    inventory:{stockLocations:textAnswer('locationsSetup'),openingStock:textAnswer('stockOpening'),stockValuation:textAnswer('productCosting'),stockMovements:textAnswer('stockMovements')},
    materials:{materialRequirements:textAnswer('jobMaterials'),reservations:textAnswer('stockAllocation'),jobAllocations:textAnswer('stockAllocation'),jobCosting:textAnswer('jobCostReview')},
    workforce:{workers:textAnswer('staffStructure'),fittingTeams:textAnswer('staffStructure'),subcontractors:textAnswer('staffStructure'),labourRates:textAnswer('labourRates')},
-   finance:{vatScheme:textAnswer('vatSettings'),invoiceTerms:textAnswer('invoiceSettings'),paymentMethods:textAnswer('paymentTracking'),accountingProvider:textAnswer('integrations'),xeroOrganisation:textAnswer('xeroSetup'),quickBooksCompany:textAnswer('integrations')},
+   finance:{vatScheme:textAnswer('vatSettings'),invoiceTerms:textAnswer('invoiceSettings'),paymentMethods:textAnswer('paymentTracking'),accountingProvider:textAnswer('accountingSystem')||textAnswer('integrations'),accountingSync:textAnswer('accountingSync'),xeroOrganisation:textAnswer('xeroSetup'),quickBooksCompany:textAnswer('accountingSystem')},
    flooring:{materials:textAnswer('flooringMaterials'),measurements:textAnswer('flooringMeasurements'),fitting:textAnswer('flooringFitting'),waste:textAnswer('flooringWaste'),units:textAnswer('flooringUnits'),subcontractors:textAnswer('flooringSubcontractors')}
   };
   const hasModule=(...names)=>names.some(x=>selectedModules.includes(x));
@@ -71,7 +71,7 @@ export async function POST(request){
     ...(sectionRelevant.materials?[{key:'configure_materials',label:'Review material reservations, allocations and job costing',status:'pending'}]:[]),
     ...(sectionRelevant.users?[{key:'configure_users',label:'Review purchased seats, invitations and role permissions',status:'pending'}]:[]),
     ...(selectedModules.includes('Xero')?[{key:'authorise_xero',label:'Customer authorisation required for Xero',status:'pending'}]:[]),
-    ...(textAnswer('integrations').toLowerCase().includes('quickbooks')?[{key:'authorise_quickbooks',label:'Review QuickBooks integration availability and authorisation',status:'pending'}]:[]),
+    ...((textAnswer('accountingSystem')+' '+textAnswer('integrations')).toLowerCase().includes('quickbooks')?[{key:'authorise_quickbooks',label:'Review QuickBooks integration availability and authorisation',status:'pending'}]:[]),
     ...(sectionRelevant.flooring?[{key:'configure_flooring',label:'Review surveys, area measurements, fitting teams, wastage and material units',status:'pending'}]:[]),
     {key:'review_imports',label:'Review and approve any data imports',status:'pending'},
     {key:'client_approval',label:'Obtain customer approval of configured BMS',status:'pending'},
