@@ -23,18 +23,18 @@ test("submitted signup is idempotent",async()=>{const calls=mock({status:"submit
 test("successful signup stores reviewed modules without enabling unsupported names",async()=>{const calls=mock();const r=await mod.exports.POST(request());assert.equal(r.status,200);const patch=calls.find(c=>c.opts.method==="PATCH");assert.ok(patch);const body=JSON.parse(patch.opts.body);assert.equal(body.status,"submitted");assert.equal(body.proposed_config.reviewRequired,true);assert.deepEqual(body.proposed_config.modules.enabled,["Customers","Quotes","Inventory"]);assert.equal(body.proposed_config.tasks.some(x=>x.key==="configure_stock"),true)});
 
 test("submitted Flooring setup organises purchasing, inventory, materials and workforce for admin review",async()=>{
- const calls=mock();const a={...answers,businessType:"Flooring installation",optionalModules:["Jobs","Price book","Purchasing","Inventory","Goods received","Job allocations","Workforce","Labour costing","Invoices"],stockLocations:"Main warehouse; vans",openingStock:"Import stock count",suppliers:"Flooring wholesaler",supplierPriceLists:"Upload CSV",purchaseApprovals:"Owner approval",goodsReceivedProcess:"Receive into warehouse",materialRequirements:"Allocate flooring per job",reservations:"Reserve before installation",jobAllocations:"Issue to fitting team",workers:"Two fitting teams",fittingTeams:"Team A, Team B",subcontractors:"Approved fitters",labourRates:"Per square metre",roles:"Owner, fitter",permissions:"Fitters only see assigned jobs",productCategories:"Carpet, laminate, LVT",services:"Fitting, uplift",vatScheme:"Standard",invoiceTerms:"14 days"};
+ const calls=mock();const a={...answers,businessType:"Flooring installation",optionalModules:["Jobs","Price book","Purchasing","Inventory","Goods received","Job allocations","Workforce","Labour costing","Invoices"],locationsSetup:"Main warehouse; vans",stockOpening:"Import stock count",suppliersSetup:"Flooring wholesaler",catalogueImport:"Upload CSV",purchaseApproval:"Owner approval",goodsReceiving:"Receive into warehouse",jobMaterials:"Allocate flooring per job",stockAllocation:"Reserve before installation",stockAllocation:"Issue to fitting team",staffStructure:"Two fitting teams",staffStructure:"Team A, Team B",staffStructure:"Approved fitters",labourRates:"Per square metre",roles:"Owner, fitter",permissionsPolicy:"Fitters only see assigned jobs",productTypes:"Carpet, laminate, LVT",productCosting:"Fitting, uplift",vatSettings:"Standard",invoiceSettings:"14 days"};
  const r=await mod.exports.POST(request({a}));assert.equal(r.status,200);
  const patch=calls.find(c=>c.opts.method==="PATCH");const config=JSON.parse(patch.opts.body).proposed_config;
- assert.equal(config.version,3);assert.equal(config.questionnaire.sections.inventory.stockLocations,"Main warehouse; vans");
- assert.equal(config.questionnaire.sections.materials.reservations,"Reserve before installation");
+ assert.equal(config.version,3);assert.equal(config.questionnaire.sections.inventory.locationsSetup,"Main warehouse; vans");
+ assert.equal(config.questionnaire.sections.materials.stockAllocation,"Reserve before installation");
  assert.equal(config.questionnaire.sections.workforce.labourRates,"Per square metre");
- assert.equal(config.questionnaire.sections.users.permissions,"Fitters only see assigned jobs");
+ assert.equal(config.questionnaire.sections.users.permissionsPolicyPolicy,"Fitters only see assigned jobs");
  for(const key of ["configure_price_book","configure_purchasing","configure_materials","configure_users","configure_stock","configure_workforce"])assert.ok(config.tasks.some(t=>t.key===key),key);
  assert.equal(config.approved,false);assert.equal(config.reviewRequired,true);
 });
 test("irrelevant questionnaire sections are omitted from proposed setup",async()=>{
- const calls=mock();const r=await mod.exports.POST(request({a:{...answers,optionalModules:["Customers","Quotes"],stockLocations:"Should not configure"}}));
+ const calls=mock();const r=await mod.exports.POST(request({a:{...answers,optionalModules:["Customers","Quotes"],locationsSetup:"Should not configure"}}));
  assert.equal(r.status,200);const config=JSON.parse(calls.find(c=>c.opts.method==="PATCH").opts.body).proposed_config;
  assert.equal(config.questionnaire.sections.inventory,undefined);
  assert.equal(config.questionnaire.sections.purchasing,undefined);
