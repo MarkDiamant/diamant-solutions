@@ -30,9 +30,31 @@ export async function POST(request){
   const required=service==='website'?['businessName','contactName','email','businessType','domainOwnership']:['businessName','contactName','email','phone','businessType','workflow','features','users'];
   if(required.some(k=>!String(answers[k]||'').trim()))return NextResponse.json({error:'Please complete the required questions'},{status:400});
   const moduleNames=['Prospects','Customers','Customer-specific pricing','Quotes','Sales orders','Deliveries','Returns','Jobs','Tasks','Scheduling','Files','Campaigns','Price book','Purchasing','Inventory','Goods received','Job allocations','Workforce','Timesheets','Labour costing','Invoices','Payments','Job finances','Money overview','Xero','Ruby AI'];
-  const selectedModules=Array.isArray(answers.optionalModules)?[...new Set(answers.optionalModules.filter(x=>moduleNames.includes(x)))]:[];
+  const selectedModules=Array.isArray(answers.optionalModules)?[...new Set(answers.optionalModules.filter(x=>typeof x==='string'&&moduleNames.includes(x)))]:[];
+  const textAnswer=(key)=>typeof answers[key]==='string'?answers[key].trim():'';
+  const onboardingSections={
+   business:{businessName:textAnswer('businessName'),contactName:textAnswer('contactName'),email:textAnswer('email'),phone:textAnswer('phone'),businessType:textAnswer('businessType'),terminology:textAnswer('terminology'),colours:textAnswer('colours')},
+   users:{requestedSeats:textAnswer('users'),roles:textAnswer('roles'),permissions:textAnswer('permissions'),invitationEmails:textAnswer('invitationEmails')},
+   workflows:{workflow:textAnswer('workflow'),jobStages:textAnswer('jobStages'),customerImport:textAnswer('customerImport'),quotingProcess:textAnswer('quotingProcess')},
+   priceBook:{productCategories:textAnswer('productCategories'),services:textAnswer('services'),pricingStructure:textAnswer('pricingStructure'),priceBookImport:textAnswer('priceBookImport')},
+   purchasing:{suppliers:textAnswer('suppliers'),supplierPriceLists:textAnswer('supplierPriceLists'),purchaseApprovals:textAnswer('purchaseApprovals'),goodsReceivedProcess:textAnswer('goodsReceivedProcess')},
+   inventory:{stockLocations:textAnswer('stockLocations'),openingStock:textAnswer('openingStock'),stockValuation:textAnswer('stockValuation'),stockMovements:textAnswer('stockMovements')},
+   materials:{materialRequirements:textAnswer('materialRequirements'),reservations:textAnswer('reservations'),jobAllocations:textAnswer('jobAllocations'),jobCosting:textAnswer('jobCosting')},
+   workforce:{workers:textAnswer('workers'),fittingTeams:textAnswer('fittingTeams'),subcontractors:textAnswer('subcontractors'),labourRates:textAnswer('labourRates')},
+   finance:{vatScheme:textAnswer('vatScheme'),invoiceTerms:textAnswer('invoiceTerms'),paymentMethods:textAnswer('paymentMethods'),accountingProvider:textAnswer('accountingProvider'),xeroOrganisation:textAnswer('xeroOrganisation'),quickBooksCompany:textAnswer('quickBooksCompany')}
+  };
+  const hasModule=(...names)=>names.some(x=>selectedModules.includes(x));
+  const sectionRelevant={
+   business:true,users:true,workflows:true,
+   priceBook:hasModule('Price book','Purchasing','Inventory','Jobs'),
+   purchasing:hasModule('Purchasing','Goods received'),
+   inventory:hasModule('Inventory','Goods received','Job allocations'),
+   materials:hasModule('Job allocations','Jobs','Job finances'),
+   workforce:hasModule('Workforce','Timesheets','Labour costing'),
+   finance:hasModule('Invoices','Payments','Money overview','Job finances','Xero')
+  };
   const proposedConfig=service==='business_software'?{
-   version:2,reviewRequired:true,approved:false,modules:{enabled:selectedModules,hidden:moduleNames.filter(x=>!selectedModules.includes(x))},
+   version:3,reviewRequired:true,approved:false,questionnaire:{sections:Object.fromEntries(Object.entries(onboardingSections).filter(([key])=>sectionRelevant[key])),relevantSections:Object.keys(sectionRelevant).filter(key=>sectionRelevant[key])},modules:{enabled:selectedModules,hidden:moduleNames.filter(x=>!selectedModules.includes(x))},
    business:{name:String(answers.businessName||'').trim(),type:String(answers.businessType||''),terminology:String(answers.terminology||answers.workName||''),branding:{colours:String(answers.colours||''),logoPath:logoPath||null}},
    tasks:[
     {key:'verify_subscription',label:'Verify paid subscription and user seats',status:'pending'},
@@ -42,7 +64,12 @@ export async function POST(request){
     {key:'configure_finance',label:'Review VAT, invoices, payment terms and reporting',status:'pending'},
     ...(selectedModules.some(x=>['Inventory','Purchasing','Goods received','Job allocations'].includes(x))?[{key:'configure_stock',label:'Approve warehouses, stock costs and purchasing defaults',status:'pending'}]:[]),
     ...(selectedModules.some(x=>['Workforce','Timesheets','Labour costing'].includes(x))?[{key:'configure_workforce',label:'Review staff roles, rates and timesheets',status:'pending'}]:[]),
+    ...(sectionRelevant.priceBook?[{key:'configure_price_book',label:'Review products, services, categories and customer pricing',status:'pending'}]:[]),
+    ...(sectionRelevant.purchasing?[{key:'configure_purchasing',label:'Review suppliers, purchasing approvals and goods received',status:'pending'}]:[]),
+    ...(sectionRelevant.materials?[{key:'configure_materials',label:'Review material reservations, allocations and job costing',status:'pending'}]:[]),
+    ...(sectionRelevant.users?[{key:'configure_users',label:'Review purchased seats, invitations and role permissions',status:'pending'}]:[]),
     ...(selectedModules.includes('Xero')?[{key:'authorise_xero',label:'Customer authorisation required for Xero',status:'pending'}]:[]),
+    ...(textAnswer('accountingProvider').toLowerCase().includes('quickbooks')?[{key:'authorise_quickbooks',label:'Review QuickBooks integration availability and authorisation',status:'pending'}]:[]),
     {key:'review_imports',label:'Review and approve any data imports',status:'pending'},
     {key:'client_approval',label:'Obtain customer approval of configured BMS',status:'pending'},
     {key:'activate',label:'Final internal approval before customer access',status:'pending'}
