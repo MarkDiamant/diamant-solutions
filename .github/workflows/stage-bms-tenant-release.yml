@@ -40,6 +40,7 @@ jobs:
           CORE_VERSION="${CORE_VERSION#bms-core-v}"
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/MarkDiamant/mjmetal.git" tenant
           cd tenant
+          node ../scripts/bms-tenant-source-divergence-gate.cjs .
           test -f package.json && test -f package-lock.json
           node - <<'NODE'
           const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));
