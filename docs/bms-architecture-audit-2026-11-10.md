@@ -18,3 +18,6 @@ Use one immutable canonical shared-core package with a **single manifest listing
 
 ## Data protection
 Never overwrite tenant branding/settings or customer data during package updates. Maintain RLS, tenant-scoped unique job references, reversible application rollback, verified migration compatibility, and backup/restore procedures. No production migration or deployment authorised.
+
+## Confirmed release automation defect
+Inspected `.github/workflows/release-bms-core.yml` on `main`: it triggers only when `business-software-core/package.json` or the workflow itself changes on `main`, or on manual dispatch. It validates and publishes an immutable GitHub release but **contains no downstream tenant dependency update, deployment parity gate, M&J dispatch, demo browser acceptance or rollback orchestration**. Thus a core version bump can publish a package without deploying it to M&J. This is a confirmed architectural release-pipeline gap, although the specific failure of M&J's external automatic-consumption process after v1.0.38 remains unknown without that repository's workflow history. No code-level fork has been demonstrated.
