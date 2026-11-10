@@ -34,7 +34,7 @@ jobs:
       - name: Open M&J dependency upgrade pull request (never merge or deploy)
         env:
           GH_TOKEN: ${{ secrets.BMS_TENANT_RELEASE_TOKEN }}
-          CORE_VERSION: ${{ inputs.core_version }}
+          CORE_VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.core_version }}
         run: |
           set -euo pipefail
           CORE_VERSION="${CORE_VERSION#bms-core-v}"
@@ -54,7 +54,7 @@ jobs:
           const v=process.env.CORE_VERSION;
           // GitHub release tarball is immutable and must be installed via npm to update lockfile.
           p.dependencies['@markdiamant/business-software-core']=`https://github.com/MarkDiamant/diamant-solutions/releases/download/bms-core-v${v}/markdiamant-business-software-core-${v}.tgz`;
-          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\\n');
+          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
           NODE
           npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           npm ci --ignore-scripts --no-audit --no-fund
