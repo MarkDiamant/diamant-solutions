@@ -21,6 +21,7 @@ export async function POST(req:Request){
  const raw=await req.text();
  if(!verified(raw,req.headers.get("stripe-signature")||"",secret))return json({error:"Invalid Stripe signature"},400);
  let event:any;try{event=JSON.parse(raw)}catch{return json({error:"Invalid JSON"},400)}
+ if(process.env.BMS_TEST_ISOLATED==='true'&&event.livemode!==false)return json({error:'Live Stripe events prohibited in isolated acceptance'},400);
  const type=String(event.type||"");
  if(!["invoice.paid","invoice.payment_failed","customer.subscription.updated","customer.subscription.deleted"].includes(type))return json({received:true,ignored:true});
  const obj=event.data?.object||{};
