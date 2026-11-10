@@ -5,6 +5,6 @@ test('Full Job uses dedicated unsaved tabbed workspace and complete form',()=>{c
 test('New Job menu provides loading and duplicate-click prevention',()=>{assert.match(menu,/setPending\("quick"\)/);assert.match(menu,/setPending\("full"\)/);assert.match(menu,/disabled=\{pending!==null\}/);assert.match(menu,/bms-dashboard-new-job-ready/);});
 
 test('unsaved Full Job tab changes preserve Overview form state',()=>{const workspace=require('node:fs').readFileSync('business-software-core/components/admin/UnsavedFullJobWorkspace.tsx','utf8');assert.match(workspace,/hidden=\{tab!=="Overview"\}/);assert.match(workspace,/tab!=="Overview"&&<section/);});
-test('saved Quick Add link is server-render safe and does not automatically navigate',()=>{assert.match(dashboard,/href=\{\x60\/jobs\/\$\{encodeURIComponent\(savedQuickJobReference\)\}\x60\}/);assert.doesNotMatch(dashboard,/router\.push\(\x60\$\{window\.location\.pathname\.startsWith/);});
+test('saved Quick Add link is server-render safe and does not automatically navigate',()=>{assert.match(dashboard,/newJobDashboardPath\?\.startsWith\("\/bms-runtime"\)/);assert.match(dashboard,/encodeURIComponent\(savedQuickJobReference\)/);assert.doesNotMatch(dashboard,/router\.push\(\x60\$\{window\.location\.pathname\.startsWith/);});
 
 test('reopening Quick Add starts with fresh blank form',()=>{assert.match(dashboard,/setQuickAddGeneration\(n=>n\+1\)/);assert.match(dashboard,/key=\{quickAddGeneration\}/);});
