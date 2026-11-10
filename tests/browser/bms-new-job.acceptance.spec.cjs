@@ -2,6 +2,7 @@ const {test,expect}=require("@playwright/test");
 const base=process.env.BMS_ACCEPTANCE_PREVIEW_URL;
 if(!base||!/^https:\/\//.test(base))throw Error("BMS_ACCEPTANCE_PREVIEW_URL must be an isolated HTTPS Preview");
 if(!process.env.BMS_ACCEPTANCE_STORAGE_STATE)throw Error("BMS_ACCEPTANCE_STORAGE_STATE required; authenticated browser test must not silently run anonymously");
+test.use({storageState:process.env.BMS_ACCEPTANCE_STORAGE_STATE});
 const dashboard=new URL("/bms-runtime",base).href;
 test("Quick Add inline creation, cancellation and repeated selection",async({page})=>{
  await page.goto(dashboard);await expect(page.getByRole("button",{name:/\+ New Job/i}).first()).toBeVisible();
