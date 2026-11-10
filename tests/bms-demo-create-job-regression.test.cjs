@@ -1,0 +1,3 @@
+const {test}=require("node:test");const assert=require("node:assert/strict");const fs=require("node:fs");const src=fs.readFileSync("app/api/bms-demo/[...path]/route.ts","utf8");
+test("demo creates unique fictional references and stores jobs per browser",()=>{assert.match(src,/function demoCreatedJobs\(/);assert.match(src,/Math\.max\(42,\.\.\.existing\.map/);assert.match(src,/response\.cookies\.set\("bms_demo_created_"/);assert.match(src,/\.\.\.demoCreatedJobs\(req\),\.\.\.jobsForSample\(req\)/);assert.doesNotMatch(src,/if\(p==="jobs"\)return ok\(\{job:\{\.\.\.jobs\[0\],reference:"DS043"/)});
+test("demo-created jobs never write customer database",()=>{assert.match(src,/Fictional demo job saved in this browser only/);assert.match(src,/encoded\.length>3500/)});
