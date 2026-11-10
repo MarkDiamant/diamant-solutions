@@ -3,7 +3,7 @@ import crypto from 'crypto';
 const SUPABASE_URL=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const SERVICE_KEY=process.env.DS_SUPABASE_SERVICE_ROLE_KEY;
 const WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET;
-const SITE_URL='https://diamantsolutions.co.uk';
+const SITE_URL=process.env.BMS_TEST_ISOLATED==='true'?(process.env.BMS_TEST_PREVIEW_URL||''):'https://diamantsolutions.co.uk';
 const FROM='Diamant Solutions <info@diamantsolutions.co.uk>';
 function verify(raw,header){if(!WEBHOOK_SECRET||!header)return false;const parts=Object.fromEntries(header.split(',').map(x=>x.split('=')));const t=parts.t,v1=header.split(',').find(x=>x.startsWith('v1='))?.slice(3);if(!t||!v1||Math.abs(Date.now()/1000-Number(t))>300)return false;const expected=crypto.createHmac('sha256',WEBHOOK_SECRET).update(t+'.'+raw).digest('hex');try{return crypto.timingSafeEqual(Buffer.from(expected),Buffer.from(v1))}catch{return false}}
 async function secureSetupUrl(s,service,email){const path=service==='website'?'/website-setup':'/setup';const m=s.metadata||{};const data={business_name:'My business',service_type:service,checkout_session_id:s.id,plan_selection:service==='business_software'?{users:Math.max(1,Number(m.users)||1),ai:m.ai_included==='true',interval:m.billing_interval==='annual'?'annual':'monthly'}:{plan:m.plan_key||'monthly'}};const r=await fetch(SUPABASE_URL+'/auth/v1/admin/generate_link',{method:'POST',headers:{apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json'},body:JSON.stringify({type:'magiclink',email,data,redirect_to:SITE_URL+path})});if(!r.ok)throw new Error('Secure setup link failed: '+await r.text());const j=await r.json();const token=j.properties?.hashed_token||j.hashed_token;if(!token)throw new Error('Secure setup token was not returned');return SITE_URL+path+'?token_hash='+encodeURIComponent(token)+'&type=magiclink&checkout_session_id='+encodeURIComponent(s.id)}
@@ -18,6 +18,7 @@ async function invoiceChanged(i,paid){const sub=typeof i.subscription==='string'
 async function webhookRpc(name,payload){const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});if(!r.ok)throw new Error('Webhook event registry unavailable: '+r.status);return name==='ds_claim_stripe_webhook_event'?r.json():true;}
 export async function POST(req){
  if(!SUPABASE_URL||!SERVICE_KEY||!WEBHOOK_SECRET)return new NextResponse('Webhook configuration unavailable',{status:503});
+ if(process.env.BMS_TEST_ISOLATED==='true'&&(!/^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(SITE_URL)))return new NextResponse('Isolated onboarding redirect URL not configured',{status:503});
  if(process.env.BMS_TEST_ISOLATED==='true'&&(!process.env.BMS_TEST_SUPABASE_PROJECT_REF||SUPABASE_URL!=='https://'+process.env.BMS_TEST_SUPABASE_PROJECT_REF+'.supabase.co'||!STRIPE_WEBHOOK_SECRET||!process.env.STRIPE_SECRET_KEY?.startsWith('sk_test_')))return new NextResponse('Isolated webhook project or Stripe test credentials mismatch',{status:503});
  const raw=await req.text();
  if(!verify(raw,req.headers.get('stripe-signature')))return new NextResponse('Invalid signature',{status:400});
