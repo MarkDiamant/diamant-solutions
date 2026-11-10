@@ -2,7 +2,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict"),fs=requir
 const file=path.join(__dirname,"../app/api/onboarding/submit/route.js"),source=fs.readFileSync(file,"utf8");
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
 const originalLoad=Module._load;Module._load=function(name,...args){if(name==="next/server")return {NextResponse:{json:(body,{status=200}={})=>({status,body})}};return originalLoad.call(this,name,...args)};
-process.env.DS_SUPABASE_URL="https://fictional.invalid";process.env.DS_SUPABASE_SERVICE_ROLE_KEY="fictional_test_key";
+process.env.DS_SUPABASE_URL="https://fictionaltest123.supabase.co";process.env.BMS_TEST_SUPABASE_PROJECT_REF="fictionaltest123";process.env.DS_SUPABASE_SERVICE_ROLE_KEY="fictional_test_key";
 const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(js,file);Module._load=originalLoad;
 const tenant="11111111-1111-4111-8111-111111111111",email="fictional@example.invalid";
 const answers={businessName:"Fictional Ltd",contactName:"Fictional",email,phone:"000",businessType:"Services",workflow:"Quote to invoice",features:"Jobs",users:"2",optionalModules:["Customers","Quotes","Inventory","Inventory","Not a module"]};
