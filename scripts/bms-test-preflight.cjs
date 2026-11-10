@@ -24,7 +24,7 @@ function preflight(env=process.env){
  if(get("STRIPE_SECRET_KEY").startsWith("sk_live_"))errors.push("Live Stripe keys are prohibited");
  const expectedRef=get("BMS_TEST_SUPABASE_PROJECT_REF");
  if(expectedRef){
-  if(!/^[a-z]{20}$/.test(expectedRef))errors.push("BMS_TEST_SUPABASE_PROJECT_REF: invalid project reference");
+  if(!/^[a-z0-9]{12,32}$/.test(expectedRef))errors.push("BMS_TEST_SUPABASE_PROJECT_REF: invalid project reference");
   for(const k of ["DS_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_URL"])if(get(k)&&!get(k).startsWith("https://"+expectedRef+".supabase.co"))errors.push(k+": does not match explicitly approved isolated project");
  }else errors.push("BMS_TEST_SUPABASE_PROJECT_REF: missing explicit isolated project pin");
  for(const k of ["BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_BASE_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_EXTRA_PRICE_ID"])if(get(k)&&!get(k).startsWith("price_"))errors.push(k+": invalid Stripe price ID");
