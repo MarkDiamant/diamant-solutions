@@ -13,10 +13,11 @@ function verified(body:string,header:string,secret:string){
 export async function POST(req:Request){
  const secret=process.env.STRIPE_BMS_SEATS_WEBHOOK_SECRET;
  const stripeKey=process.env.STRIPE_SECRET_KEY;
- const priceId=process.env.BMS_STRIPE_SEAT_PRICE_ID;const basePriceId=process.env.BMS_STRIPE_BASE_PRICE_ID;
+ const priceId=process.env.BMS_TEST_ISOLATED==='true'?process.env.BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID:process.env.BMS_STRIPE_SEAT_PRICE_ID;const basePriceId=process.env.BMS_TEST_ISOLATED==='true'?process.env.BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID:process.env.BMS_STRIPE_BASE_PRICE_ID;
  const supabase=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
  const serviceKey=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
  if(!secret||!stripeKey||!priceId||!supabase||!serviceKey)return json({error:"Seat billing webhook not configured"},503);
+ if(process.env.BMS_TEST_ISOLATED==='true'&&(process.env.BMS_TEST_SUPABASE_PROJECT_REF!=='mhncjudrhevvbmsbvkta'||supabase!=='https://mhncjudrhevvbmsbvkta.supabase.co'||!stripeKey.startsWith('sk_test_')))return json({error:'Isolated seat billing configuration mismatch'},503);
  const raw=await req.text();
  if(!verified(raw,req.headers.get("stripe-signature")||"",secret))return json({error:"Invalid Stripe signature"},400);
  let event:any;try{event=JSON.parse(raw)}catch{return json({error:"Invalid JSON"},400)}
@@ -29,7 +30,7 @@ export async function POST(req:Request){
  if(!sr.ok)return json({error:"Unable to verify subscription with Stripe"},503);
  const sub:any=await sr.json();
  if(sub.metadata?.product!=="bms_seats")return json({received:true,ignored:true});
- const configured=[{interval:"month",seat:priceId,base:basePriceId},{interval:"year",seat:process.env.BMS_STRIPE_ANNUAL_SEAT_PRICE_ID,base:process.env.BMS_STRIPE_ANNUAL_BASE_PRICE_ID}];const items=sub.items?.data||[];const catalogue=configured.find(c=>items.some((item:any)=>item.price?.id===c.base||item.price?.id===c.seat));if(!catalogue)return json({error:"Subscription does not contain a configured BMS licence product"},409);const seatItem=items.find((item:any)=>item.price?.id===catalogue.seat);const baseItem=items.find((item:any)=>item.price?.id===catalogue.base);if(items.some((item:any)=>(item.price?.id===priceId||item.price?.id===basePriceId||item.price?.id===process.env.BMS_STRIPE_ANNUAL_SEAT_PRICE_ID||item.price?.id===process.env.BMS_STRIPE_ANNUAL_BASE_PRICE_ID)&&![catalogue.seat,catalogue.base].includes(item.price?.id)))return json({error:"Mixed monthly and annual licence prices are not permitted"},409);
+ const configured=[{interval:"month",seat:priceId,base:basePriceId},{interval:"year",seat:process.env.BMS_TEST_ISOLATED==='true'?process.env.BMS_STRIPE_TEST_ANNUAL_EXTRA_PRICE_ID:process.env.BMS_STRIPE_ANNUAL_SEAT_PRICE_ID,base:process.env.BMS_TEST_ISOLATED==='true'?process.env.BMS_STRIPE_TEST_ANNUAL_BASE_PRICE_ID:process.env.BMS_STRIPE_ANNUAL_BASE_PRICE_ID}];const items=sub.items?.data||[];const catalogue=configured.find(c=>items.some((item:any)=>item.price?.id===c.base||item.price?.id===c.seat));if(!catalogue)return json({error:"Subscription does not contain a configured BMS licence product"},409);const seatItem=items.find((item:any)=>item.price?.id===catalogue.seat);const baseItem=items.find((item:any)=>item.price?.id===catalogue.base);if(items.some((item:any)=>(item.price?.id===priceId||item.price?.id===basePriceId||item.price?.id===process.env.BMS_STRIPE_ANNUAL_SEAT_PRICE_ID||item.price?.id===process.env.BMS_STRIPE_ANNUAL_BASE_PRICE_ID)&&![catalogue.seat,catalogue.base].includes(item.price?.id)))return json({error:"Mixed monthly and annual licence prices are not permitted"},409);
  if(!seatItem&&!baseItem)return json({error:"Subscription does not contain a configured BMS licence product"},409);
  const tenantId=String(sub.metadata?.tenant_id||"");
  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tenantId))return json({error:"Missing verified tenant mapping"},409);
