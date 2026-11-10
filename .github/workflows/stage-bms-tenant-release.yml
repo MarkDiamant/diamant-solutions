@@ -1,10 +1,12 @@
 name: Stage canonical BMS release across tenant repositories
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       core_version:
         description: 'Immutable shared BMS core version, e.g. 1.0.44'
-        required: true
+        required: false
         type: string
 permissions:
   contents: read
@@ -21,9 +23,10 @@ jobs:
       - name: Verify immutable package exists and staging token is configured
         env:
           GH_TOKEN: ${{ secrets.BMS_TENANT_RELEASE_TOKEN }}
-          CORE_VERSION: ${{ inputs.core_version }}
+          CORE_VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.core_version }}
         run: |
           set -euo pipefail
+          CORE_VERSION="${CORE_VERSION#bms-core-v}"
           [[ "$CORE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
           test -n "$GH_TOKEN" || { echo '::error::BMS_TENANT_RELEASE_TOKEN missing; cannot stage tenant updates'; exit 1; }
           gh release view "bms-core-v$CORE_VERSION" --repo MarkDiamant/diamant-solutions >/dev/null
@@ -34,6 +37,7 @@ jobs:
           CORE_VERSION: ${{ inputs.core_version }}
         run: |
           set -euo pipefail
+          CORE_VERSION="${CORE_VERSION#bms-core-v}"
           git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/MarkDiamant/mjmetal.git" tenant
           cd tenant
           test -f package.json && test -f package-lock.json
@@ -60,4 +64,6 @@ jobs:
           if git diff --cached --quiet; then echo 'Already pinned; no PR necessary'; exit 0; fi
           git commit -m "Stage canonical BMS core v${CORE_VERSION} for acceptance"
           git push origin "$branch"
-          gh pr create --repo MarkDiamant/mjmetal --base main --head "$branch" --title "Stage BMS core v${CORE_VERSION} (NO PRODUCTION MERGE)" --body "Canonical shared package update only. Do not merge before authenticated tenant Preview acceptance, data isolation checks, version parity and explicit production approval."
+          if gh pr list --repo MarkDiamant/mjmetal --head "$branch" --json number --jq 'length' | grep -qx '0'; then
+            gh pr create --repo MarkDiamant/mjmetal --base main --head "$branch" --title "Stage BMS core v${CORE_VERSION} (NO PRODUCTION MERGE)" --body "Canonical shared package update only. Do not merge before authenticated tenant Preview acceptance, data isolation checks, version parity and explicit production approval."
+          fi
