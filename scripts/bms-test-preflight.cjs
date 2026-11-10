@@ -17,6 +17,18 @@ function preflight(env=process.env){
  if(get("DS_SUPABASE_URL").includes("YOUR-ISOLATED-REF")||get("STRIPE_SECRET_KEY")==="sk_test_REPLACE"||get("BMS_TEST_OWNER_PASSWORD")==="REPLACE_WITH_DISPOSABLE_PASSWORD")errors.push("Replace example fixture placeholders before running live acceptance");
  if(get("BMS_TEST_ISOLATED")!=="true")errors.push("BMS_TEST_ISOLATED must explicitly equal true");
  if(get("VERCEL_ENV")==="production"||get("NODE_ENV")==="production"&&get("BMS_TEST_ALLOW_PRODUCTION_RUNTIME")!=="true")errors.push("Refusing production runtime; use isolated Preview or local test process");
+ if(!get("RESEND_API_KEY"))errors.push("RESEND_API_KEY: missing isolated Preview sending credential");
+ if(!get("STRIPE_WEBHOOK_SECRET"))errors.push("STRIPE_WEBHOOK_SECRET: missing checkout webhook signing secret");
+ if(get("STRIPE_WEBHOOK_SECRET")&&!get("STRIPE_WEBHOOK_SECRET").startsWith("whsec_"))errors.push("STRIPE_WEBHOOK_SECRET must be whsec_");
+ if(get("STRIPE_WEBHOOK_SECRET")&&get("STRIPE_WEBHOOK_SECRET")===get("STRIPE_BMS_SEATS_WEBHOOK_SECRET"))warnings.push("Verify checkout and seat webhook endpoints are intentionally sharing one signing secret");
+ if(get("STRIPE_SECRET_KEY").startsWith("sk_live_"))errors.push("Live Stripe keys are prohibited");
+ const expectedRef=get("BMS_TEST_SUPABASE_PROJECT_REF");
+ if(expectedRef){
+  if(!/^[a-z]{20}$/.test(expectedRef))errors.push("BMS_TEST_SUPABASE_PROJECT_REF: invalid project reference");
+  for(const k of ["DS_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_URL"])if(get(k)&&!get(k).startsWith("https://"+expectedRef+".supabase.co"))errors.push(k+": does not match explicitly approved isolated project");
+ }else errors.push("BMS_TEST_SUPABASE_PROJECT_REF: missing explicit isolated project pin");
+ for(const k of ["BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_BASE_PRICE_ID","BMS_STRIPE_TEST_ANNUAL_EXTRA_PRICE_ID"])if(get(k)&&!get(k).startsWith("price_"))errors.push(k+": invalid Stripe price ID");
+ if(get("BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID")&&get("BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID")===get("BMS_STRIPE_TEST_ANNUAL_BASE_PRICE_ID"))errors.push("Monthly and annual base prices must differ");
  if(get("STRIPE_SECRET_KEY")&&!get("STRIPE_SECRET_KEY").startsWith("sk_test_"))errors.push("STRIPE_SECRET_KEY must be sk_test_");
  if(get("STRIPE_BMS_SEATS_WEBHOOK_SECRET")&&!get("STRIPE_BMS_SEATS_WEBHOOK_SECRET").startsWith("whsec_"))errors.push("Stripe webhook signing secret must be whsec_");
  for(const k of ["BMS_STRIPE_BASE_PRICE_ID","BMS_STRIPE_SEAT_PRICE_ID"])if(get(k)&&!get(k).startsWith("price_"))errors.push(k+": expected Stripe price ID");
