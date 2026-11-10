@@ -15,7 +15,7 @@ async function inventory(fetcher=global.fetch,env=process.env){
   const x=await get("/v6/deployments?projectId="+encodeURIComponent(project.id)+"&target=production&limit=20");
   const live=(x.deployments||[]).find(d=>d.state==="READY");
   if(!live)throw Error("No READY production deployment for "+project.name);
-  deployments.push({project:project.name,projectId:project.id,deploymentId:live.uid||live.id,gitSha:live.meta?.githubCommitSha||null,commitMessage:live.meta?.githubCommitMessage||null,versionEvidence:live.meta?.githubCommitMessage?.match(/(?:shared BMS core v|BMS core v)(\\d+\\.\\d+\\.\\d+)/i)?.[1]||null});
+  deployments.push({project:project.name,projectId:project.id,deploymentId:live.uid||live.id,gitSha:live.meta?.githubCommitSha||null,commitMessage:live.meta?.githubCommitMessage||null,versionEvidence:live.meta?.githubCommitMessage?.match(/(?:shared BMS core v|BMS core v)(\d+\.\d+\.\d+)/i)?.[1]||null});
  }
  return {observedAt:new Date().toISOString(),deployments,warning:"Project inventory is not logical tenant inventory; verify database tenant registry and each domain separately."};
 }
