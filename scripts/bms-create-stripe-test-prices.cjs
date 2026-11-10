@@ -1,6 +1,23 @@
 // Isolated acceptance one-off. Never runs without an explicitly opted-in test-only build flag.
 (async()=>{
- if(process.env.BMS_CREATE_TEST_PRICES!=='true')return;
+ if(process.env.BMS_CREATE_TEST_PRICES!=='true'){
+  if(process.env.BMS_TEST_ISOLATED!=='true')return;
+  const key=process.env.STRIPE_SECRET_KEY;
+  if(!key?.startsWith('sk_test_'))throw Error('Isolated price verification requires sk_test_');
+  const amounts={BASE:[4900,49900],EXTRA:[1000,10000],AI:[1500,15000]};
+  for(const [component,pair] of Object.entries(amounts)){
+   for(const [i,period] of ['MONTHLY','ANNUAL'].entries()){
+    const id=process.env['BMS_STRIPE_TEST_'+period+'_'+component+'_PRICE_ID'];
+    if(!/^price_[A-Za-z0-9]+$/.test(id||''))throw Error('Missing test price ID for '+period+' '+component);
+    const r=await fetch('https://api.stripe.com/v1/prices/'+encodeURIComponent(id),{headers:{Authorization:'Bearer '+key}});
+    if(!r.ok)throw Error('Test price lookup failed '+period+' '+component+' HTTP '+r.status);
+    const p=await r.json();
+    if(p.livemode!==false||!p.active||p.currency!=='gbp'||p.unit_amount!==pair[i]||p.recurring?.interval!==(i===0?'month':'year')||p.recurring?.interval_count!==1)throw Error('Invalid test price '+period+' '+component);
+   }
+  }
+  console.log('PASS All six isolated Stripe prices verified against Stripe test API');
+  return;
+ }
  if(process.env.BMS_TEST_ISOLATED!=='true'||process.env.VERCEL_ENV!=='preview'||process.env.VERCEL_GIT_COMMIT_REF!=='bms-signup-acceptance-hardening-20261109')throw Error('Refusing Stripe price provisioning outside isolated Preview branch');
  const key=process.env.STRIPE_SECRET_KEY;
  if(!key?.startsWith('sk_test_'))throw Error('Refusing non-test Stripe credentials');
