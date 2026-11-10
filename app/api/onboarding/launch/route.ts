@@ -30,6 +30,7 @@ export async function GET(req:Request){
  if(!owner.ok)return json({error:"Could not verify user activation"},503);
  if(!(await owner.json()).length)return json({ready:false,error:"Your administrator access is awaiting activation"});
  const host=String(business.canonical_host||"");
+ if(process.env.BMS_TEST_ISOLATED==="true")return json({ready:false,error:"Isolated acceptance cannot redirect to a production tenant domain"});
  if(!/^[a-z0-9-]+\.diamantsolutions\.co\.uk$/i.test(host))return json({ready:false,error:"Business domain requires administrator review"});
  try{await dns.lookup(host)}catch{return json({ready:false,error:"Your business domain is being configured"})}
  return json({ready:true,url:"https://"+host+"/login",slug:business.slug});
