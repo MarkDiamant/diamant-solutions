@@ -1,3 +1,3 @@
-import NewJobFormV2 from "@/components/admin/NewJobFormV2";
+import UnsavedFullJobWorkspace from "@/components/admin/UnsavedFullJobWorkspace";
 export const dynamic="force-dynamic";
-export default function NewJobPage(){return <NewJobFormV2/>;}
+export default function NewJobPage(){return <UnsavedFullJobWorkspace/>;}
