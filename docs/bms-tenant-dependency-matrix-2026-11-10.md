@@ -21,3 +21,12 @@ GitHub App installation `157726111` for `MarkDiamant` advertises `repository_sel
 5. Actual authenticated Playwright browser testing cannot be run from this environment: no browser automation connector is available and container DNS cannot reach Preview. Do not substitute static tests for real browser acceptance.
 
 All production databases, deployments, branding and settings remain unchanged.
+
+## Historical M&J source-consolidation evidence from Vercel
+Inspected 100 M&J deployment records. Historical commit messages explicitly state: `Move full JobDetail.tsx interface implementation into BMS shared core`, `Move full CrmDashboardV3.tsx interface implementation into BMS shared core`, `Remove duplicated tenant UI formatters and use canonical BMS presentation helpers`, `Replace duplicated tenant interface with shared BMS core re-export`, `Pin BMS package release tarball with SHA-256 integrity in tenant lockfile`, and `Import ... directly from immutable canonical BMS package`. These strongly support a past consolidation and package adoption, but **cannot establish that all duplicated code is now absent**. Current M&J source tree and lockfile are still required for a definitive audit. The latest 10+ deployments indicate automatic shared-package consumption through v1.0.38, then no newer deployment.
+
+## Implemented acceptance-branch safety controls
+- Source-duplication scanner rejects copied core files and large implementations at canonical wrapper paths, while allowing thin package re-exports.
+- Rollback readiness gate requires old immutable deployment, package integrity, verified database backup, backward-compatible migration and an actual rollback rehearsal for each tenant. This is **not** a completed rehearsal.
+- Isolated Preview build runs parity, source-duplication, inventory and rollback fixture tests. It does not publish, merge or promote to production.
+- Authenticated Playwright workflow loads a required browser storage state, but no real session secret is currently available and no browser run has been executed.
