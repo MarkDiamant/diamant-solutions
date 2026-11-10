@@ -18,6 +18,7 @@ async function admin(req:Request){
 async function rest(path:string,options:RequestInit={}){return fetch(base+"/rest/v1/"+path,{...options,headers:{...headers(),...options.headers},cache:"no-store"})}
 const uuid=(x:string)=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(x||"");
 async function activationEmail(tenantId:string){
+ if(process.env.BMS_TEST_ISOLATED==="true")throw Error("Isolated acceptance cannot email a production tenant login URL");
  const review=await rest("business_software_onboarding_reviews?tenant_id=eq."+tenantId+"&approved_at=not.is.null&select=applied_bms_tenant_id,activation_email_sent_at&limit=1");
  if(!review.ok)throw Error("Unable to verify approved setup");
  const approved=(await review.json())[0];
