@@ -15,6 +15,22 @@
     if(p.livemode!==false||!p.active||p.currency!=='gbp'||p.unit_amount!==pair[i]||p.recurring?.interval!==(i===0?'month':'year')||p.recurring?.interval_count!==1)throw Error('Invalid test price '+period+' '+component);
    }
   }
+  const wh=await fetch('https://api.stripe.com/v1/webhook_endpoints?limit=100',{headers:{Authorization:'Bearer '+key}});
+  if(!wh.ok)throw Error('Stripe test webhook endpoint listing HTTP '+wh.status);
+  const endpoints=await wh.json();
+  if(endpoints.has_more)throw Error('Stripe webhook catalogue exceeds page limit');
+  const required=[
+   ['/api/stripe/webhook',['checkout.session.completed','checkout.session.async_payment_succeeded','customer.subscription.updated','customer.subscription.deleted','invoice.paid','invoice.payment_failed'],'STRIPE_WEBHOOK_SECRET'],
+   ['/api/stripe/bms-seats-webhook',['customer.subscription.updated','customer.subscription.deleted','invoice.paid','invoice.payment_failed'],'STRIPE_BMS_SEATS_WEBHOOK_SECRET']
+  ];
+  for(const [path,events,secretName] of required){
+   const url='https://bms-acceptance.diamantsolutions.co.uk'+path;
+   const matching=endpoints.data.filter(x=>x.url===url&&x.status==='enabled'&&x.livemode===false);
+   if(matching.length!==1)throw Error('Expected exactly one enabled test webhook for '+path);
+   if(events.some(e=>!matching[0].enabled_events.includes(e)))throw Error('Missing required events for '+path);
+   if(!process.env[secretName]?.startsWith('whsec_'))throw Error('Missing Preview signing secret '+secretName);
+  }
+  console.log('PASS Both isolated Stripe test webhooks configured with required events and branch signing secrets');
   console.log('PASS All six isolated Stripe prices verified against Stripe test API');
   return;
  }
