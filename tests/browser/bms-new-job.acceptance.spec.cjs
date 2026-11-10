@@ -1,0 +1,32 @@
+const {test,expect}=require("@playwright/test");
+const base=process.env.BMS_ACCEPTANCE_PREVIEW_URL;
+if(!base||!/^https:\/\//.test(base))throw Error("BMS_ACCEPTANCE_PREVIEW_URL must be an isolated HTTPS Preview");
+if(!process.env.BMS_ACCEPTANCE_STORAGE_STATE)throw Error("BMS_ACCEPTANCE_STORAGE_STATE required; authenticated browser test must not silently run anonymously");
+const dashboard=new URL("/bms-runtime",base).href;
+test("Quick Add inline creation, cancellation and repeated selection",async({page})=>{
+ await page.goto(dashboard);await expect(page.getByRole("button",{name:/\+ New Job/i}).first()).toBeVisible();
+ const trigger=page.getByRole("button",{name:/\+ New Job/i}).first();await trigger.click();
+ await page.getByRole("menuitem",{name:/Quick Add Job/i}).click();
+ await expect(page).toHaveURL(/\/bms-runtime\/?$/);
+ await expect(page.getByRole("button",{name:/Cancel/i}).first()).toBeVisible();
+ await page.getByRole("button",{name:/Cancel/i}).first().click();
+ await expect(page).toHaveURL(/\/bms-runtime\/?$/);
+ await trigger.click();await page.getByRole("menuitem",{name:/Quick Add Job/i}).click();
+ await expect(page.getByRole("button",{name:/Cancel/i}).first()).toBeVisible();
+});
+test("Full Job opens unsaved workspace and preserves form input across tabs",async({page})=>{
+ await page.goto(dashboard);await page.getByRole("button",{name:/\+ New Job/i}).first().click();
+ await page.getByRole("menuitem",{name:/Full Job/i}).click();
+ await expect(page).toHaveURL(/\/bms-runtime\/jobs\/new/);
+ await expect(page.getByRole("heading",{name:"Full Job workspace"})).toBeVisible();
+ const firstText=page.locator("main input[type=text]").first();
+ await expect(firstText).toBeVisible();const original=await firstText.inputValue();await firstText.fill("Unsaved acceptance draft");
+ await page.getByRole("button",{name:"Activity",exact:true}).click();
+ await page.getByRole("button",{name:"Overview",exact:true}).click();
+ await expect(firstText).toHaveValue("Unsaved acceptance draft");
+ await firstText.fill(original);
+ await page.getByRole("button",{name:/Cancel/i}).first().click();
+ await expect(page.getByRole("alertdialog",{name:"Discard unsaved job"})).toBeVisible();
+ await page.getByRole("button",{name:"Keep editing"}).click();
+ await expect(page.getByRole("heading",{name:"Full Job workspace"})).toBeVisible();
+});
