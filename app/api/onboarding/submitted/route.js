@@ -2,7 +2,7 @@ import {NextResponse} from 'next/server';
 const SB=process.env.DS_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SK=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const FROM='Diamant Solutions <info@diamantsolutions.co.uk>';
-async function userFrom(request){const auth=request.headers.get('authorization')||'';if(!auth.startsWith('Bearer ')||!SB||!SK)return null;const r=await fetch(SB+'/auth/v1/user',{headers:{apikey:SK,Authorization:auth},cache:'no-store'});return r.ok?r.json():null}
+async function userFrom(request){const auth=request.headers.get('authorization')||'';if(process.env.BMS_TEST_ISOLATED==='true'&&(process.env.BMS_TEST_SUPABASE_PROJECT_REF!=='mhncjudrhevvbmsbvkta'||SB!=='https://mhncjudrhevvbmsbvkta.supabase.co'))return null;if(!auth.startsWith('Bearer ')||!SB||!SK)return null;const r=await fetch(SB+'/auth/v1/user',{headers:{apikey:SK,Authorization:auth},cache:'no-store'});return r.ok?r.json():null}
 
 async function publishWebsiteAssets(tenantId,onboarding){
  const answers=onboarding.answers||{};
