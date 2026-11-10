@@ -19,7 +19,7 @@
     "test:embedded-nav": "node --test tests/embedded-bms-navigation-contract.test.cjs",
     "test:archive-safety": "node --test tests/bms-archive-safety.test.cjs",
     "test:ruby-long-quote": "node --test tests/ruby-long-quotation-context.test.cjs",
-    "test:bms-release-parity": "node --test tests/bms-deployment-parity-gate.test.cjs tests/bms-vercel-deployment-inventory.test.cjs",
+    "test:bms-release-parity": "node --test tests/bms-deployment-parity-gate.test.cjs tests/bms-vercel-deployment-inventory.test.cjs tests/bms-demo-create-job-regression.test.cjs",
     "check:bms-deployed-versions": "node scripts/bms-deployment-parity-gate.cjs"
   },
   "dependencies": {
