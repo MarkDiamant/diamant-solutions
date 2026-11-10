@@ -1,10 +1,11 @@
 import {NextResponse} from 'next/server';
-const SB=process.env.DS_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://iepqggrfenfqrqyzqyed.supabase.co';
+const SB=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const SK=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const getHeaders=()=>({apikey:SK,Authorization:'Bearer '+SK,'Content-Type':'application/json'});
 export async function POST(request){
  try{
   if(!SB||!SK)return NextResponse.json({error:'Submission service unavailable'},{status:503});
+  if(process.env.BMS_TEST_ISOLATED==='true'&&(!process.env.BMS_TEST_SUPABASE_PROJECT_REF||SB!=='https://'+process.env.BMS_TEST_SUPABASE_PROJECT_REF+'.supabase.co'))return NextResponse.json({error:'Isolated project configuration mismatch'},{status:503});
   const token=(request.headers.get('authorization')||'').replace(/^Bearer /,'');
   if(!token)return NextResponse.json({error:'Sign in required'},{status:401});
   const auth=await fetch(SB+'/auth/v1/user',{headers:{apikey:SK,Authorization:'Bearer '+token},cache:'no-store'});
