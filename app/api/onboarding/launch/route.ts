@@ -6,6 +6,7 @@ const json=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cache
 const headers=()=>({apikey:key,Authorization:"Bearer "+key});
 export async function GET(req:Request){
  if(!base||!key)return json({error:"Setup unavailable"},503);
+ if(process.env.BMS_TEST_ISOLATED==="true"&&(process.env.BMS_TEST_SUPABASE_PROJECT_REF!=="mhncjudrhevvbmsbvkta"||base!=="https://mhncjudrhevvbmsbvkta.supabase.co"))return json({error:"Isolated onboarding configuration mismatch"},503);
  const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/,"");
  if(!token)return json({error:"Sign in required"},401);
  const userResponse=await fetch(base+"/auth/v1/user",{headers:{...headers(),Authorization:"Bearer "+token},cache:"no-store"});
