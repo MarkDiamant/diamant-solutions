@@ -10,7 +10,7 @@ const forbidden=[
 function inspect(files,packageJson,readFile=()=>""){
  const problems=[];
  if(!packageJson.dependencies?.["@markdiamant/business-software-core"])problems.push("Missing canonical package dependency");
- for(const name of files){if(forbidden.some(rx=>rx.test(name))){const source=readFile(name).trim();if(!/^export\s+(?:\{[^}]*\}\s+from|\*\s+from|\{\s*default\s*\}\s+from)\s*[\x27\x22]@markdiamant\/business-software-core\//.test(source)&&!/^export\s+\{\s*default\s*\}\s+from\s*[\x27\x22]@markdiamant\/business-software-core\//.test(source))problems.push("Potential duplicated BMS implementation: "+name)}}
+ for(const name of files){if(forbidden.some(rx=>rx.test(name))){const source=readFile(name).replace(/^\\s*["\x27]use client["\x27];?\\s*/,"").trim();if(!/^export\s+(?:\{[^}]*\}\s+from|\*\s+from|\{\s*default\s*\}\s+from)\s*[\x27\x22]@markdiamant\/business-software-core\//.test(source)&&!/^export\s+\{\s*default\s*\}\s+from\s*[\x27\x22]@markdiamant\/business-software-core\//.test(source))problems.push("Potential duplicated BMS implementation: "+name)}}
  return problems;
 }
 function walk(dir,base=""){let a=[];for(const entry of fs.readdirSync(dir,{withFileTypes:true})){if(["node_modules",".git",".next"].includes(entry.name))continue;const name=base?base+"/"+entry.name:entry.name;if(entry.isDirectory())a.push(...walk(path.join(dir,entry.name),name));else a.push(name)}return a}
