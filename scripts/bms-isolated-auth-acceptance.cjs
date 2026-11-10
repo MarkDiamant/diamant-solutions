@@ -4,7 +4,7 @@ const {preflight}=require("./bms-test-preflight.cjs");
 async function run(env=process.env,fetcher=global.fetch){
  const check=preflight(env);if(!check.ok)throw Error(check.errors.join("; "));
  const base=String(env.BMS_TEST_PREVIEW_URL||"");const url=new URL(base);
- if(url.protocol!=="https:"||!url.hostname.endsWith(".vercel.app"))throw Error("BMS_TEST_PREVIEW_URL must be an isolated vercel.app Preview hostname, never a production domain");
+ if(url.protocol!=="https:"||!["bms-acceptance.diamantsolutions.co.uk"].includes(url.hostname))throw Error("BMS_TEST_PREVIEW_URL must be the verified isolated acceptance Preview hostname");
  const sb=env.DS_SUPABASE_URL;const anon=env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
  const login=await fetcher(sb+"/auth/v1/token?grant_type=password",{method:"POST",headers:{"Content-Type":"application/json",apikey:anon},body:JSON.stringify({email:env.BMS_TEST_OWNER_EMAIL,password:env.BMS_TEST_OWNER_PASSWORD})});
  const session=await login.json().catch(()=>({}));if(!login.ok||!session.access_token||!session.refresh_token)throw Error("Disposable Supabase Auth login failed: "+String(session.error_description||session.msg||login.status));
@@ -17,7 +17,7 @@ async function run(env=process.env,fetcher=global.fetch){
  const launch=await fetcher(launchUrl,{headers:{Authorization:"Bearer "+refreshed.access_token},redirect:"manual"});
  const body=await launch.json().catch(()=>({}));if(![200,401,403].includes(launch.status))throw Error("Onboarding launch unexpected status "+launch.status);
  if(launch.status===401)throw Error("Preview rejected valid disposable Supabase Auth session; verify Preview keys and URL");
- if(body.ready&&(!body.url||!String(body.url).endsWith(".diamantsolutions.co.uk/login")))throw Error("Unsafe first-login tenant URL");
+ if(body.ready)throw Error("Isolated Preview must never redirect an authenticated owner to a production tenant domain");
  const other=new URL("/api/onboarding/launch?tenantId=00000000-0000-4000-8000-000000000000",base);
  const isolated=await fetcher(other,{headers:{Authorization:"Bearer "+refreshed.access_token},redirect:"manual"});const isolatedBody=await isolated.json().catch(()=>({}));
  if(isolatedBody.ready)throw Error("Cross-tenant first login unexpectedly allowed");
