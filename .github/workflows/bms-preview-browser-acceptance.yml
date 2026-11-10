@@ -1,0 +1,34 @@
+name: Authenticated BMS Preview browser acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Install pinned dependencies and Chromium
+        run: |
+          npm ci --ignore-scripts
+          npx playwright install --with-deps chromium
+      - name: Run authenticated UI acceptance against isolated Preview
+        env:
+          BMS_ACCEPTANCE_PREVIEW_URL: https://bms-acceptance.diamantsolutions.co.uk
+          BMS_ACCEPTANCE_STORAGE_STATE_B64: ${{ secrets.BMS_ACCEPTANCE_STORAGE_STATE_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$BMS_ACCEPTANCE_STORAGE_STATE_B64" || { echo '::error::Authenticated Preview storage state secret missing'; exit 1; }
+          printf '%s' "$BMS_ACCEPTANCE_STORAGE_STATE_B64" | base64 --decode > "$RUNNER_TEMP/bms-auth.json"
+          chmod 600 "$RUNNER_TEMP/bms-auth.json"
+          export BMS_ACCEPTANCE_STORAGE_STATE="$RUNNER_TEMP/bms-auth.json"
+          npx playwright test tests/browser/bms-new-job.acceptance.spec.cjs --browser=chromium --workers=1
+      - name: Clean temporary authentication material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/bms-auth.json"
