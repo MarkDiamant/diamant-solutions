@@ -1,7 +1,9 @@
 // Preview-only credential validation. Never print keys or response bodies.
 const assert=require('node:assert/strict');
 (async()=>{
- if(process.env.BMS_TEST_ISOLATED!=='true'){console.log('Isolated Supabase credential probe skipped outside acceptance Preview');return;}
+ const acceptanceBranch=process.env.VERCEL_GIT_COMMIT_REF==='bms-signup-acceptance-hardening-20261109';
+ if(acceptanceBranch&&process.env.BMS_TEST_ISOLATED!=='true')throw new Error('Acceptance branch missing isolated Preview safety flag');
+ if(process.env.BMS_TEST_ISOLATED!=='true'){console.log('Supabase credential probe skipped for non-isolated build');return;}
  const ref=process.env.BMS_TEST_SUPABASE_PROJECT_REF;
  const expected='https://'+ref+'.supabase.co';
  assert.equal(ref,'mhncjudrhevvbmsbvkta','Acceptance Preview must target the approved isolated project');
