@@ -8,3 +8,5 @@ test('unsaved Full Job tab changes preserve Overview form state',()=>{const work
 test('saved Quick Add link is server-render safe and does not automatically navigate',()=>{assert.match(dashboard,/newJobDashboardPath\?\.startsWith\("\/bms-runtime"\)/);assert.match(dashboard,/encodeURIComponent\(savedQuickJobReference\)/);assert.doesNotMatch(dashboard,/router\.push\(\x60\$\{window\.location\.pathname\.startsWith/);});
 
 test('reopening Quick Add starts with fresh blank form',()=>{assert.match(dashboard,/setQuickAddGeneration\(n=>n\+1\)/);assert.match(dashboard,/key=\{quickAddGeneration\}/);});
+
+test('New Job menu retains selection and loading state until ready or navigation',()=>{assert.match(menu,/setSelected\("quick"\);setPending\("quick"\)/);assert.match(menu,/setSelected\("full"\);setPending\("full"\)/);assert.match(menu,/aria-selected=\{selected==="quick"\}/);assert.match(menu,/aria-selected=\{selected==="full"\}/);assert.match(menu,/setPending\(null\);setOpen\(false\)/);assert.doesNotMatch(menu,/setPending\("quick"\);setOpen\(false\)/);});
