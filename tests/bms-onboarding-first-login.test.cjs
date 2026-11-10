@@ -6,7 +6,7 @@ const js=ts.transpileModule(fs.readFileSync(file,"utf8"),{compilerOptions:{modul
 const originalLoad=Module._load;
 Module._load=function(name,...args){if(name==="next/server")return {NextResponse:{json:(body,{status=200}={})=>({status,body})}};if(name==="node:dns/promises")return {default:{lookup:async()=>({address:"127.0.0.1"})},lookup:async()=>({address:"127.0.0.1"})};return originalLoad.call(this,name,...args)};
 const previous={DS_SUPABASE_URL:process.env.DS_SUPABASE_URL,DS_SUPABASE_SERVICE_ROLE_KEY:process.env.DS_SUPABASE_SERVICE_ROLE_KEY};
-process.env.DS_SUPABASE_URL="https://fictional.invalid";process.env.DS_SUPABASE_SERVICE_ROLE_KEY="fictional_test_key";
+process.env.BMS_TEST_ISOLATED="false";process.env.DS_SUPABASE_URL="https://fictional.invalid";process.env.DS_SUPABASE_SERVICE_ROLE_KEY="fictional_test_key";
 const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(js,file);Module._load=originalLoad;
 const user="11111111-1111-4111-8111-111111111111",checkout="22222222-2222-4222-8222-222222222222",bms="33333333-3333-4333-8333-333333333333";
 function mock({member=true,approved=true,active=true,owner=true,host="fictional.diamantsolutions.co.uk"}={}){const calls=[];global.fetch=async(url)=>{const u=String(url);calls.push(u);let result=[];
