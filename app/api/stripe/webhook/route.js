@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import crypto from 'crypto';
-const SUPABASE_URL=process.env.DS_SUPABASE_URL||'https://iepqggrfenfqrqyzqyed.supabase.co';
+const SUPABASE_URL=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const SERVICE_KEY=process.env.DS_SUPABASE_SERVICE_ROLE_KEY;
 const WEBHOOK_SECRET=process.env.STRIPE_WEBHOOK_SECRET;
 const SITE_URL='https://diamantsolutions.co.uk';
@@ -17,6 +17,8 @@ async function subscriptionChanged(s){const patch={current_period_end:s.current_
 async function invoiceChanged(i,paid){const sub=typeof i.subscription==='string'?i.subscription:null;if(sub)await updateTenant(sub,{billing_status:paid?'active':'past_due'})}
 async function webhookRpc(name,payload){const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+name,{method:'POST',headers:{apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json'},body:JSON.stringify(payload),cache:'no-store'});if(!r.ok)throw new Error('Webhook event registry unavailable: '+r.status);return name==='ds_claim_stripe_webhook_event'?r.json():true;}
 export async function POST(req){
+ if(!SUPABASE_URL||!SERVICE_KEY||!WEBHOOK_SECRET)return new NextResponse('Webhook configuration unavailable',{status:503});
+ if(process.env.BMS_TEST_ISOLATED==='true'&&(!SUPABASE_URL.includes('supabase.co')||SUPABASE_URL.includes('iepqggrfenfqrqyzqyed')))return new NextResponse('Isolated webhook project mismatch',{status:503});
  const raw=await req.text();
  if(!verify(raw,req.headers.get('stripe-signature')))return new NextResponse('Invalid signature',{status:400});
  let event,claimed=false;
