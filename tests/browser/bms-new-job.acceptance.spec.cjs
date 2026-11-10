@@ -19,7 +19,7 @@ test("Full Job opens unsaved workspace and preserves form input across tabs",asy
  await page.getByRole("menuitem",{name:/Full Job/i}).click();
  await expect(page).toHaveURL(/\/bms-runtime\/jobs\/new/);
  await expect(page.getByRole("heading",{name:"Full Job workspace"})).toBeVisible();
- const firstText=page.locator("main input[type=text]").first();
+ const firstText=page.getByPlaceholder("Type a customer name", {exact:false}).first();
  await expect(firstText).toBeVisible();const original=await firstText.inputValue();await firstText.fill("Unsaved acceptance draft");
  await page.getByRole("button",{name:"Activity",exact:true}).click();
  await page.getByRole("button",{name:"Overview",exact:true}).click();
