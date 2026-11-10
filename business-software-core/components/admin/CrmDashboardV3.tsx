@@ -69,7 +69,7 @@ export default function CrmDashboardV3() {
   const [pageSize,setPageSize]=useState(25), [page,setPage]=useState(1);
   const [inlineNewJob,setInlineNewJob]=useState(false);
   const [savedQuickJobReference,setSavedQuickJobReference]=useState<string|null>(null);
-  useEffect(()=>{const open=()=>setInlineNewJob(true);window.addEventListener("bms-dashboard-new-job",open);return()=>window.removeEventListener("bms-dashboard-new-job",open);},[]);
+  useEffect(()=>{const open=()=>{setSavedQuickJobReference(null);setInlineNewJob(true);};window.addEventListener("bms-dashboard-new-job",open);return()=>window.removeEventListener("bms-dashboard-new-job",open);},[]);
   const [editingRef,setEditingRef]=useState<string|null>(null), [draft,setDraft]=useState<QuickDraft|null>(null), [savingRef,setSavingRef]=useState<string|null>(null), [customType,setCustomType]=useState("");
   const [editUpdatedAt,setEditUpdatedAt]=useState<string|null>(null), [remoteChanged,setRemoteChanged]=useState(false), [remoteChangedBy,setRemoteChangedBy]=useState<string|null>(null);
   const [assigningRef,setAssigningRef]=useState<string|null>(null), [removingAssignment,setRemovingAssignment]=useState<string|null>(null);
