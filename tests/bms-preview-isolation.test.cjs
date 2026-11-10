@@ -17,3 +17,5 @@ test('Preview acceptance domain and URLs are never production URLs',()=>{
  assert.match(probe,/mhncjudrhevvbmsbvkta/);
  assert.doesNotMatch(probe,/iepqggrfenfqrqyzqyed/);
 });
+
+test('Preview sign-in email cannot direct a customer to production',()=>{const code=read('app/api/onboarding/sign-in-link/route.js');assert.match(code,/ISOLATED\?process\.env\.BMS_TEST_PREVIEW_URL/);assert.match(code,/ORIGIN!=='https:\/\/bms-acceptance\.diamantsolutions\.co\.uk'/);assert.match(code,/BMS_TEST_SUPABASE_PROJECT_REF/);assert.doesNotMatch(code,/const SB=process\.env\.DS_SUPABASE_URL\|\|'https:\/\/iepqggrfenfqrqyzqyed/);});
