@@ -2,11 +2,12 @@ import {NextResponse} from "next/server";
 import dns from "node:dns/promises";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
+const isolatedProjectValid=()=>process.env.BMS_TEST_ISOLATED!=='true'||(!!process.env.BMS_TEST_SUPABASE_PROJECT_REF&&base==='https://'+process.env.BMS_TEST_SUPABASE_PROJECT_REF+'.supabase.co');
 const reply=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
 const headers=()=>({apikey:key,Authorization:"Bearer "+key,"Content-Type":"application/json"});
 async function admin(req:Request){
  const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/,"");
- if(!token||!base||!key)return null;
+ if(!token||!base||!key||!isolatedProjectValid())return null;
  const r=await fetch(base+"/auth/v1/user",{headers:{apikey:key,Authorization:"Bearer "+token},cache:"no-store"});
  if(!r.ok)return null;
  const u=await r.json();
