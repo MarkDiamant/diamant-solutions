@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check:bms-parity && npm run check:bms-launch && npm run test:stripe-signed && npm run test:onboarding && npm run test:tenant-routing && npm run test:demo-stock && npm run test:acceptance-static && npm run test:embedded-nav && npm run test:archive-safety && npm run test:ruby-long-quote && next build",
+    "build": "npm run check:bms-parity && npm run check:bms-launch && node scripts/check-bms-preview-auth.cjs && npm run test:stripe-signed && npm run test:onboarding && npm run test:tenant-routing && npm run test:demo-stock && npm run test:acceptance-static && npm run test:embedded-nav && npm run test:archive-safety && npm run test:ruby-long-quote && next build",
     "start": "next start",
     "check:bms-parity": "node scripts/check-bms-demo-parity.mjs",
     "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs",
