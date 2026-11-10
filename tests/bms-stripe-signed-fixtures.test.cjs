@@ -41,3 +41,5 @@ test("annual paid invoice uses annual catalogue and records annual entitlement",
  const r=await POST(signed(evt("invoice.paid",{id:"in_fictional"})));assert.equal(r.status,200);
  const rpc=calls.find(x=>x.url.includes("/rpc/"));assert.ok(rpc);assert.equal(rpc.body.p_interval,"annual");assert.equal(rpc.body.p_seats,3);
 });
+
+test("isolated seat webhook rejects wrong Supabase project before external access",async()=>{const old=process.env.BMS_TEST_ISOLATED;process.env.BMS_TEST_ISOLATED="true";const calls=fixtureFetch();try{const r=await POST(signed(evt("invoice.paid")));assert.equal(r.status,503);assert.equal(calls.length,0);}finally{process.env.BMS_TEST_ISOLATED=old;}});
