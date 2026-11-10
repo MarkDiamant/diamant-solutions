@@ -1,11 +1,13 @@
 import {NextResponse} from 'next/server';
-const ORIGIN='https://diamantsolutions.co.uk';
-const SB=process.env.DS_SUPABASE_URL||'https://iepqggrfenfqrqyzqyed.supabase.co';
+const ISOLATED=process.env.BMS_TEST_ISOLATED==='true';
+const ORIGIN=ISOLATED?process.env.BMS_TEST_PREVIEW_URL:'https://diamantsolutions.co.uk';
+const SB=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 export async function POST(request){
  try{
   const {email,service}=await request.json();
   const address=String(email||'').trim().toLowerCase();
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(address)||!['website','business_software'].includes(service))return NextResponse.json({error:'Invalid sign-in request'},{status:400});
+  if(ISOLATED&&(ORIGIN!=='https://bms-acceptance.diamantsolutions.co.uk'||SB!=='https://mhncjudrhevvbmsbvkta.supabase.co'||process.env.BMS_TEST_SUPABASE_PROJECT_REF!=='mhncjudrhevvbmsbvkta'))return NextResponse.json({error:'Isolated sign-in configuration mismatch'},{status:503});
   const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY,mail=process.env.RESEND_API_KEY;
   if(!key||!mail)return NextResponse.json({error:'Sign-in email unavailable'},{status:503});
   // Only existing paid onboarding customers can request a fresh magic link.
@@ -19,7 +21,7 @@ export async function POST(request){
   if(!token)return NextResponse.json({error:'Could not prepare secure sign-in email'},{status:502});
   const url=ORIGIN+path+'?token_hash='+encodeURIComponent(token)+'&type=magiclink';
   const label=service==='website'?'Website':'BMS';
-  const sent=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+mail,'Content-Type':'application/json'},body:JSON.stringify({from:'Diamant Solutions <info@diamantsolutions.co.uk>',to:[address],subject:'Your Diamant Solutions '+label+' sign-in link',html:'<p>Use this secure link to continue your '+label+' setup:</p><p><a href="'+url+'">Continue '+label+' setup</a></p><p>This link takes you directly to diamantsolutions.co.uk.</p>',text:'Continue your '+label+' setup: '+url})});
+  const sent=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+mail,'Content-Type':'application/json'},body:JSON.stringify({from:'Diamant Solutions <info@diamantsolutions.co.uk>',to:[address],subject:'Your Diamant Solutions '+label+' sign-in link',html:'<p>Use this secure link to continue your '+label+' setup:</p><p><a href="'+url+'">Continue '+label+' setup</a></p><p>This link takes you to your secure Diamant Solutions setup.</p>',text:'Continue your '+label+' setup: '+url})});
   if(!sent.ok){console.error('Setup login email failed',sent.status);return NextResponse.json({error:'Could not send secure sign-in email'},{status:502})}
   return NextResponse.json({ok:true});
  }catch{return NextResponse.json({error:'Unable to send sign-in email'},{status:500})}
