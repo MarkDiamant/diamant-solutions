@@ -20,10 +20,11 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Run authenticated UI acceptance against isolated Preview
         env:
-          BMS_ACCEPTANCE_PREVIEW_URL: https://bms-acceptance.diamantsolutions.co.uk
+          BMS_ACCEPTANCE_PREVIEW_URL: ${{ vars.BMS_ACCEPTANCE_PREVIEW_URL }}
           BMS_ACCEPTANCE_STORAGE_STATE_B64: ${{ secrets.BMS_ACCEPTANCE_STORAGE_STATE_B64 }}
         run: |
           set -euo pipefail
+          test -n "$BMS_ACCEPTANCE_PREVIEW_URL" || { echo '::error::Missing isolated Preview URL repository variable'; exit 1; }
           test -n "$BMS_ACCEPTANCE_STORAGE_STATE_B64" || { echo '::error::Authenticated Preview storage state secret missing'; exit 1; }
           printf '%s' "$BMS_ACCEPTANCE_STORAGE_STATE_B64" | base64 --decode > "$RUNNER_TEMP/bms-auth.json"
           chmod 600 "$RUNNER_TEMP/bms-auth.json"
