@@ -170,7 +170,7 @@ export default function CrmDashboardV3() {
 
   const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
   const currentPage=Math.min(page,totalPages);
-  const newJobRow={reference:"__bms_new_job__",jobTitle:"New job",jobType:"",jobTypes:[],firstName:"",lastName:"",companyName:"",phone:"",email:"",siteAddressLine1:"",sitePostcode:"",status:"new_enquiry",manager:"",source:"",finishes:[],isPlaceholder:false};
+  const newJobRow={id:"__bms_new_job__",reference:"__bms_new_job__",jobTitle:"New job",jobType:"",jobTypes:[],firstName:"",lastName:"",companyName:"",phone:"",email:"",siteAddressLine1:"",sitePostcode:"",status:"new_enquiry",manager:"",source:"",finishes:[],isPlaceholder:false};
   const paginated=useMemo(()=>inlineNewJob?[newJobRow,...filtered.slice((currentPage-1)*pageSize,currentPage*pageSize)]:filtered.slice((currentPage-1)*pageSize,currentPage*pageSize),[filtered,currentPage,pageSize,inlineNewJob]);
   useEffect(()=>{setPage(1);},[query,status,manager,type,sortMode,pageSize,summaryFilter]);
 
