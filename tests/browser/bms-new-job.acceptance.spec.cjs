@@ -36,3 +36,21 @@ test("Full Job opens unsaved workspace and preserves form input across tabs",asy
  await page.getByRole("button",{name:"Keep editing"}).click();
  await expect(page.getByRole("heading",{name:"Full Job workspace"})).toBeVisible();
 });
+
+test("Quick Add actually saves an isolated tenant job without leaving Dashboard",async({page})=>{
+ const fixture=process.env.BMS_ACCEPTANCE_TEST_CUSTOMER;
+ if(!fixture)throw Error("BMS_ACCEPTANCE_TEST_CUSTOMER must name an existing isolated tenant test customer");
+ await page.goto(dashboard);
+ await page.getByRole("button",{name:/\\+ New Job/i}).first().click();
+ await page.getByRole("menuitem",{name:/Quick Add Job/i}).click();
+ const search=page.getByPlaceholder("Type a customer name", {exact:false}).first();
+ await search.fill(fixture);
+ const customer=page.getByRole("button",{name:new RegExp(fixture.replace(/[.*+?^\\$\\{\\}()|[\\]\\\\]/g,"\\\\$&"),"i")}).first();
+ await expect(customer).toBeVisible();await customer.click();
+ const types=page.getByText("Work types, choose all that apply").locator("..").locator("..").locator("button");
+ if(await types.count())await types.first().click();
+ await page.getByRole("button",{name:"Save job on Dashboard"}).click();
+ await expect(page.getByRole("status").filter({hasText:/Job .* saved/})).toBeVisible({timeout:20000});
+ await expect(page).toHaveURL(dashboardPath);
+ await expect(page.getByRole("link",{name:"Open saved job"})).toHaveAttribute("href",/\\/jobs\\//);
+});
