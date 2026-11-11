@@ -118,9 +118,45 @@ async function renderQuotePage(page:HTMLElement){
   }finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
 
-export async function createQuotePdfBlob(){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}return new Blob([pdfFromPages(images)],{type:"application/pdf"});}
+// Preserve the established single-page appearance for ordinary quotations. Only
+// exceptionally tall quotations are split, keeping the original 900px layout
+// and a fixed readable scale rather than shrinking the entire document.
+function paginateLongQuote(canvas:HTMLCanvasElement):HTMLCanvasElement[]{
+  const width=canvas.width,height=canvas.height;
+  const pageHeight=Math.round(width*1.4142);
+  if(height<=pageHeight*1.12)return [canvas];
+  const output:HTMLCanvasElement[]=[];
+  const context=canvas.getContext("2d",{willReadFrequently:true});
+  if(!context)throw new Error("Cannot paginate the long quotation");
+  let start=0;
+  while(start<height){
+    let end=Math.min(height,start+pageHeight);
+    if(end<height){
+      // Prefer a near-white horizontal gap, to avoid slicing a text line.
+      const searchStart=Math.max(start+Math.round(pageHeight*.72),end-Math.round(pageHeight*.16));
+      const scan=context.getImageData(0,searchStart,width,end-searchStart);
+      let best=-1,bestScore=-1;
+      for(let y=0;y<scan.height;y+=2){
+        let white=0;
+        for(let x=30;x<width-30;x+=12){const i=(y*width+x)*4;if(scan.data[i]>245&&scan.data[i+1]>245&&scan.data[i+2]>245)white++;}
+        if(white>bestScore){bestScore=white;best=y;}
+      }
+      const sampleCount=Math.ceil((width-60)/12);
+      if(bestScore>=sampleCount*.97&&best>=0)end=searchStart+best;
+    }
+    if(end<=start)throw new Error("Unable to determine a safe quotation page break");
+    const sheet=document.createElement("canvas");sheet.width=width;sheet.height=end-start;
+    const ctx=sheet.getContext("2d");if(!ctx)throw new Error("Quotation page canvas unavailable");
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,width,sheet.height);
+    ctx.drawImage(canvas,0,start,width,sheet.height,0,0,width,sheet.height);
+    output.push(sheet);start=end;
+  }
+  return output;
+}
 
-export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+export async function createQuotePdfBlob(){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);for(const sheet of paginateLongQuote(canvas))images.push({data:await jpegBytes(sheet),width:sheet.width,height:sheet.height});}return new Blob([pdfFromPages(images)],{type:"application/pdf"});}
+
+export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);for(const sheet of paginateLongQuote(canvas))images.push({data:await jpegBytes(sheet),width:sheet.width,height:sheet.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 
 export default function QuotePdfActions({ reference, quoteId }: { reference: string; quoteId: string }) {
   const [busy,setBusy]=useState(false);
@@ -131,7 +167,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none");
       if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");
       const images=[] as {data:Uint8Array;width:number;height:number}[];
-      for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}
+      for(const page of pages){const canvas=await renderQuotePage(page);for(const sheet of paginateLongQuote(canvas))images.push({data:await jpegBytes(sheet),width:sheet.width,height:sheet.height});}
       const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});
 
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quoteId)}/pdf`,{method:"POST",headers:{"Content-Type":"application/pdf"},body:blob});
