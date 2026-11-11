@@ -145,7 +145,7 @@ function paginateLongQuote(canvas:HTMLCanvasElement,companyName:string,reference
   const footer=layout?.footer;
   const footerGap=Math.round(pageHeight*.018);
   const footerImage=footer&&footer.height>0&&footer.y>=0&&footer.y+footer.height<=height?{y:footer.y,height:footer.height}:undefined;
-  const bodyHeight=footerImage?Math.max(0,footerImage.y-Math.round(pageHeight*.012)):height;
+  const bodyHeight=footerImage?Math.max(0,footerImage.y-2):height;
   let start=0;
   while(start<bodyHeight){
     let end=Math.min(bodyHeight,start+contentHeight);
