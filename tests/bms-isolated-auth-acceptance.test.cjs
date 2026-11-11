@@ -8,3 +8,5 @@ test("rejects production BMS hostname before sending credentials",async()=>{cons
 test("rejects cross-tenant ready response",async()=>{await assert.rejects(()=>run(env,mock({badTenant:true}).fetcher),/Cross-tenant/)});
 test("rejects expired session",async()=>{await assert.rejects(()=>run(env,mock({expired:true}).fetcher),/rejected valid/)});
 test("rejects failed refresh",async()=>{await assert.rejects(()=>run(env,mock({refreshFails:true}).fetcher),/refresh failed/)});
+
+test("isolated authentication acceptance does not require Stripe credentials",async()=>{const m=mock();const withoutStripe=Object.fromEntries(Object.entries(env).filter(([key])=>!key.startsWith("STRIPE_")&&!key.startsWith("BMS_STRIPE_")));const result=await run(withoutStripe,m.fetcher);assert.equal(result.auth,"PASS");assert.equal(result.cross_tenant,"PASS");});
