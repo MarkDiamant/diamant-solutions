@@ -1,18 +1,14 @@
-name: Stage canonical BMS release across tenant repositories
+name: Validate universal canonical BMS release (no production promotion)
 on:
+  workflow_dispatch:
   release:
     types: [published]
-  workflow_dispatch:
-    inputs:
-      core_version:
-        description: 'Immutable shared BMS core version, e.g. 1.0.44'
-        required: false
-        type: string
 permissions:
   contents: read
 jobs:
-  stage-mjmetal:
+  validate-canonical-release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
@@ -20,51 +16,21 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '22'
-      - name: Verify immutable package exists and staging token is configured
+      - name: Validate canonical deployment domains and active tenant routing
         env:
-          GH_TOKEN: ${{ secrets.BMS_TENANT_RELEASE_TOKEN }}
-          CORE_VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.core_version }}
+          VERCEL_TOKEN: ${{ secrets.BMS_VERCEL_AUDIT_TOKEN }}
+          VERCEL_TEAM_ID: team_pnXM49OpKfjmDidelNwJzcZ6
         run: |
           set -euo pipefail
-          CORE_VERSION="${CORE_VERSION#bms-core-v}"
-          [[ "$CORE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || exit 1
-          test -n "$GH_TOKEN" || { echo '::error::BMS_TENANT_RELEASE_TOKEN missing; cannot stage tenant updates'; exit 1; }
-          gh release view "bms-core-v$CORE_VERSION" --repo MarkDiamant/diamant-solutions >/dev/null
-          gh api repos/MarkDiamant/mjmetal --jq '.full_name' >/dev/null
-      - name: Open M&J dependency upgrade pull request (never merge or deploy)
-        env:
-          GH_TOKEN: ${{ secrets.BMS_TENANT_RELEASE_TOKEN }}
-          CORE_VERSION: ${{ github.event_name == 'release' && github.event.release.tag_name || inputs.core_version }}
+          test -n "$VERCEL_TOKEN" || { echo '::error::Missing BMS_VERCEL_AUDIT_TOKEN'; exit 1; }
+          node scripts/bms-vercel-deployment-inventory.cjs > "$RUNNER_TEMP/bms-inventory.json"
+          node -e 'const x=require(process.argv[1]);if(x.deployments.length!==1||!x.domains.includes("mjmetal.diamantsolutions.co.uk"))process.exit(1)' "$RUNNER_TEMP/bms-inventory.json"
+      - name: Validate shared workflow regression and rollback gates
         run: |
-          set -euo pipefail
-          CORE_VERSION="${CORE_VERSION#bms-core-v}"
-          git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/MarkDiamant/mjmetal.git" tenant
-          cd tenant
-          node ../scripts/bms-tenant-source-divergence-gate.cjs .
-          test -f package.json && test -f package-lock.json
-          node - <<'NODE'
-          const fs=require('fs');const p=JSON.parse(fs.readFileSync('package.json','utf8'));
-          const dep=p.dependencies?.['@markdiamant/business-software-core'];
-          if(!dep)throw Error('M&J lacks canonical BMS package dependency; manual architecture review required');
-          console.log('Existing dependency: '+dep);
-          NODE
-          branch="stage/bms-core-v${CORE_VERSION}"
-          git checkout -b "$branch"
-          node - <<'NODE'
-          const fs=require('fs'),p=JSON.parse(fs.readFileSync('package.json','utf8'));
-          const v=process.env.CORE_VERSION;
-          // GitHub release tarball is immutable and must be installed via npm to update lockfile.
-          p.dependencies['@markdiamant/business-software-core']=`https://github.com/MarkDiamant/diamant-solutions/releases/download/bms-core-v${v}/markdiamant-business-software-core-${v}.tgz`;
-          fs.writeFileSync('package.json',JSON.stringify(p,null,2)+'\n');
-          NODE
-          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
           npm ci --ignore-scripts --no-audit --no-fund
-          git config user.name 'bms-release-bot'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add package.json package-lock.json
-          if git diff --cached --quiet; then echo 'Already pinned; no PR necessary'; exit 0; fi
-          git commit -m "Stage canonical BMS core v${CORE_VERSION} for acceptance"
-          git push origin "$branch"
-          if gh pr list --repo MarkDiamant/mjmetal --head "$branch" --json number --jq 'length' | grep -qx '0'; then
-            gh pr create --repo MarkDiamant/mjmetal --base main --head "$branch" --title "Stage BMS core v${CORE_VERSION} (NO PRODUCTION MERGE)" --body "Canonical shared package update only. Do not merge before authenticated tenant Preview acceptance, data isolation checks, version parity and explicit production approval."
-          fi
+          npm run test:bms-release-parity
+          node --test tests/bms-inline-job-creation.test.cjs
+      - name: Require separate authenticated Preview acceptance before approval
+        run: |
+          echo 'Validation only. No per-tenant code copies, no legacy M&J repository updates, no production deployment.'
+          echo 'Approval requires authenticated Preview browser acceptance, tenant-scoped concurrency and rollback rehearsal.'
