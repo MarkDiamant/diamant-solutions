@@ -9,7 +9,7 @@ import TaskReminderBanner from "./TaskReminderBanner";
 
 import {quoteAmountFromText} from "../../lib/quote-format";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ALL_STATUSES, STATUS_META } from "@/lib/crm/constants";
 import type { JobStatus, Manager } from "@/lib/crm/types";
