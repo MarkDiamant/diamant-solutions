@@ -94,6 +94,13 @@ async function renderQuotePage(page:HTMLElement){
       if(viewport)viewport.setAttribute("content","width=1200, initial-scale=1");
     }
   });
+    const pageBox=page.getBoundingClientRect();
+    const pixelScale=result.width/pageBox.width;
+    const blocks=Array.from(page.querySelectorAll<HTMLElement>("section h2, section h3, section p, section [data-quote-scope] > div, section [data-quote-scope] > p"));
+    const breaks=blocks.map(el=>{const box=el.getBoundingClientRect();return {y:Math.round((box.top-pageBox.top)*pixelScale),heading:/^H[1-6]$/.test(el.tagName)||(/^\\s*(?:\\d+[.)]\\s*)?[A-Z][^.!?]{3,80}:?\\s*$/.test(el.innerText||"")&&el.innerText.trim().length<75)};}).filter(b=>b.y>0&&b.y<result.height);
+    const footer=page.querySelector<HTMLElement>("footer:last-child");
+    const footerBox=footer?.getBoundingClientRect();
+    quotePdfLayouts.set(result,{breaks,footer:footerBox?{y:Math.round((footerBox.top-pageBox.top)*pixelScale),height:Math.ceil(footerBox.height*pixelScale)}:undefined});
     // The Android renderer may omit the logo from its snapshot. Composite it
     // after capture without changing the PDF download path or page layout.
     // If drawing is unsupported, preserve the working PDF download.
@@ -118,6 +125,9 @@ async function renderQuotePage(page:HTMLElement){
   }finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
 
+type QuotePdfLayout={breaks:{y:number;heading:boolean}[];footer?:{y:number;height:number}};
+const quotePdfLayouts=new WeakMap<HTMLCanvasElement,QuotePdfLayout>();
+
 // Preserve the established single-page appearance for ordinary quotations. Only
 // exceptionally tall quotations are split, keeping the original 900px layout
 // and a fixed readable scale rather than shrinking the entire document.
@@ -126,15 +136,20 @@ function paginateLongQuote(canvas:HTMLCanvasElement,companyName:string,reference
   const pageHeight=Math.round(width*842/595);
   // Keep the original single-page renderer for ordinary quotations.
   if(height<=pageHeight*1.12)return [canvas];
+  const layout=quotePdfLayouts.get(canvas);
   const context=canvas.getContext("2d",{willReadFrequently:true});
   if(!context)throw new Error("Cannot paginate the long quotation");
   const output:HTMLCanvasElement[]=[];
   const topMargin=Math.round(pageHeight*.045),bottomMargin=Math.round(pageHeight*.045);
   const contentHeight=pageHeight-topMargin-bottomMargin;
+  const footer=layout?.footer;
+  const footerGap=Math.round(pageHeight*.018);
+  const footerImage=footer&&footer.height>0&&footer.y>=0&&footer.y+footer.height<=height?{y:footer.y,height:footer.height}:undefined;
+  const bodyHeight=footerImage?footerImage.y:height;
   let start=0;
-  while(start<height){
-    let end=Math.min(height,start+contentHeight);
-    if(end<height){
+  while(start<bodyHeight){
+    let end=Math.min(bodyHeight,start+contentHeight);
+    if(end<bodyHeight){
       // A blank horizontal band is required. Never silently cut through text.
       const searchStart=Math.max(start+Math.round(contentHeight*.65),end-Math.round(contentHeight*.22));
       const scan=context.getImageData(0,searchStart,width,end-searchStart);
@@ -147,6 +162,12 @@ function paginateLongQuote(canvas:HTMLCanvasElement,companyName:string,reference
         const distance=Math.abs(candidate-(start+contentHeight));
         if(distance<bestDistance){best=candidate;bestDistance=distance;}
       }
+      // Prefer actual DOM block boundaries over raster whitespace. A heading
+      // is only a valid break if its following text also stays on the page.
+      const candidates=(layout?.breaks||[]).filter(b=>b.y>=searchStart&&b.y<=end);
+      const safe=candidates.filter(b=>b.heading||!((layout?.breaks||[]).some(h=>h.heading&&h.y<b.y&&b.y-h.y<Math.round(pageHeight*.075))));
+      const boundary=safe.length?safe[safe.length-1].y:-1;
+      if(boundary>start+Math.round(contentHeight*.55))best=boundary;
       if(best<0)throw new Error("The quotation is too long for a safe automatic page break. Please separate the long description into paragraphs before exporting.");
       end=best;
     }
@@ -158,6 +179,18 @@ function paginateLongQuote(canvas:HTMLCanvasElement,companyName:string,reference
     ctx.fillStyle="#fff";ctx.fillRect(0,0,width,pageHeight);
     ctx.drawImage(canvas,0,start,width,end-start,0,topMargin,width,end-start);
     output.push(sheet);start=end;
+  }
+  if(footerImage&&output.length){
+    const last=output[output.length-1];const ctx=last.getContext("2d");
+    if(ctx){const targetY=pageHeight-bottomMargin-footerImage.height;
+      const lastStart=bodyHeight-(output.length===1?Math.min(bodyHeight,contentHeight):0);
+      // If content reaches the footer zone, use another page rather than overlap.
+      const lastContent=last.getContext("2d",{willReadFrequently:true});
+      let occupied=false;
+      if(lastContent){const pixels=lastContent.getImageData(Math.round(width*.06),Math.max(topMargin,targetY-footerGap),Math.round(width*.88),Math.min(footerImage.height+footerGap,pageHeight-Math.max(topMargin,targetY-footerGap))).data;for(let k=0;k<pixels.length;k+=16){if(pixels[k]<235||pixels[k+1]<235||pixels[k+2]<235){occupied=true;break;}}}
+      const destination=occupied?(()=>{const extra=document.createElement("canvas");extra.width=width;extra.height=pageHeight;const c=extra.getContext("2d");if(c){c.fillStyle="#fff";c.fillRect(0,0,width,pageHeight);}output.push(extra);return extra;})():last;
+      destination.getContext("2d")?.drawImage(canvas,0,footerImage.y,width,footerImage.height,0,targetY,width,footerImage.height);
+    }
   }
   output.forEach((sheet,i)=>{const ctx=sheet.getContext("2d");if(!ctx)return;ctx.save();ctx.fillStyle="#555";ctx.font=`${Math.max(16,Math.round(width*.012))}px sans-serif`;if(i>0){ctx.textAlign="left";ctx.fillText(`${companyName}  ·  Quotation ${reference}`,Math.round(width*.06),Math.round(topMargin*.58));}ctx.textAlign="right";ctx.fillText(`Page ${i+1} of ${output.length}`,Math.round(width*.94),pageHeight-Math.round(bottomMargin*.36));ctx.restore();});
   return output;
