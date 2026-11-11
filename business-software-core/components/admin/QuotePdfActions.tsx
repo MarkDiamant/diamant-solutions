@@ -16,8 +16,8 @@ function pdfFromPages(images:{data:Uint8Array;width:number;height:number}[]){
   add(1,bytes("<< /Type /Catalog /Pages 2 0 R >>"));
   add(2,bytes(`<< /Type /Pages /Kids [${pageNums.map(n=>`${n} 0 R`).join(" ")}] /Count ${images.length} >>`));
   images.forEach((img,i)=>{
-    const page=pageNums[i],image=imageNums[i],content=contentNums[i],ratio=Math.min(595/img.width,842/img.height),w=img.width*ratio,h=img.height*ratio,stream=bytes(`q\n${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${((595-w)/2).toFixed(2)} ${((842-h)/2).toFixed(2)} cm\n/Im0 Do\nQ\n`);
-    add(page,bytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /XObject << /Im0 ${image} 0 R >> >> /Contents ${content} 0 R >>`));
+    const page=pageNums[i],image=imageNums[i],content=contentNums[i],ratio=Math.min(595/img.width,842/img.height),w=img.width*ratio,h=img.height*ratio,stream=bytes(`q\n${w.toFixed(2)} 0 0 ${h.toFixed(2)} ${((595-w)/2).toFixed(2)} ${((842-h)/2).toFixed(2)} cm\n/Im0 Do\nQ\nBT /F1 9 Tf 0.32 g 490 18 Td (Page ${i+1} of ${images.length}) Tj ET\n`);
+    add(page,bytes(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> /XObject << /Im0 ${image} 0 R >> >> /Contents ${content} 0 R >>`));
     add(image,join([bytes(`<< /Type /XObject /Subtype /Image /Width ${img.width} /Height ${img.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${img.data.length} >>\nstream\n`),img.data,bytes("\nendstream")]));
     add(content,join([bytes(`<< /Length ${stream.length} >>\nstream\n`),stream,bytes("endstream")]));
   });
