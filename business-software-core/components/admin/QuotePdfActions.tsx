@@ -129,12 +129,14 @@ function paginateLongQuote(canvas:HTMLCanvasElement):HTMLCanvasElement[]{
   const context=canvas.getContext("2d",{willReadFrequently:true});
   if(!context)throw new Error("Cannot paginate the long quotation");
   const output:HTMLCanvasElement[]=[];
+  const topMargin=Math.round(pageHeight*.045),bottomMargin=Math.round(pageHeight*.045);
+  const contentHeight=pageHeight-topMargin-bottomMargin;
   let start=0;
   while(start<height){
-    let end=Math.min(height,start+pageHeight);
+    let end=Math.min(height,start+contentHeight);
     if(end<height){
       // A blank horizontal band is required. Never silently cut through text.
-      const searchStart=Math.max(start+Math.round(pageHeight*.65),end-Math.round(pageHeight*.22));
+      const searchStart=Math.max(start+Math.round(contentHeight*.65),end-Math.round(contentHeight*.22));
       const scan=context.getImageData(0,searchStart,width,end-searchStart);
       const sampleX=Array.from({length:Math.ceil((width-80)/8)},(_,i)=>40+i*8);
       const blank=(y:number)=>sampleX.every(x=>{const i=(y*width+x)*4;return scan.data[i]>247&&scan.data[i+1]>247&&scan.data[i+2]>247&&scan.data[i+3]>245;});
@@ -142,7 +144,7 @@ function paginateLongQuote(canvas:HTMLCanvasElement):HTMLCanvasElement[]{
       for(let y=6;y<scan.height-6;y+=2){
         if(!blank(y-4)||!blank(y)||!blank(y+4))continue;
         const candidate=searchStart+y;
-        const distance=Math.abs(candidate-(start+pageHeight));
+        const distance=Math.abs(candidate-(start+contentHeight));
         if(distance<bestDistance){best=candidate;bestDistance=distance;}
       }
       if(best<0)throw new Error("The quotation is too long for a safe automatic page break. Please separate the long description into paragraphs before exporting.");
@@ -154,7 +156,7 @@ function paginateLongQuote(canvas:HTMLCanvasElement):HTMLCanvasElement[]{
     const sheet=document.createElement("canvas");sheet.width=width;sheet.height=pageHeight;
     const ctx=sheet.getContext("2d");if(!ctx)throw new Error("Quotation page canvas unavailable");
     ctx.fillStyle="#fff";ctx.fillRect(0,0,width,pageHeight);
-    ctx.drawImage(canvas,0,start,width,end-start,0,0,width,end-start);
+    ctx.drawImage(canvas,0,start,width,end-start,0,topMargin,width,end-start);
     output.push(sheet);start=end;
   }
   return output;
