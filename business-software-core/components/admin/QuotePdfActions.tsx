@@ -123,32 +123,38 @@ async function renderQuotePage(page:HTMLElement){
 // and a fixed readable scale rather than shrinking the entire document.
 function paginateLongQuote(canvas:HTMLCanvasElement):HTMLCanvasElement[]{
   const width=canvas.width,height=canvas.height;
-  const pageHeight=Math.round(width*1.4142);
+  const pageHeight=Math.round(width*842/595);
+  // Keep the original single-page renderer for ordinary quotations.
   if(height<=pageHeight*1.12)return [canvas];
-  const output:HTMLCanvasElement[]=[];
   const context=canvas.getContext("2d",{willReadFrequently:true});
   if(!context)throw new Error("Cannot paginate the long quotation");
+  const output:HTMLCanvasElement[]=[];
   let start=0;
   while(start<height){
     let end=Math.min(height,start+pageHeight);
     if(end<height){
-      // Prefer a near-white horizontal gap, to avoid slicing a text line.
-      const searchStart=Math.max(start+Math.round(pageHeight*.72),end-Math.round(pageHeight*.16));
+      // A blank horizontal band is required. Never silently cut through text.
+      const searchStart=Math.max(start+Math.round(pageHeight*.65),end-Math.round(pageHeight*.22));
       const scan=context.getImageData(0,searchStart,width,end-searchStart);
-      let best=-1,bestScore=-1;
-      for(let y=0;y<scan.height;y+=2){
-        let white=0;
-        for(let x=30;x<width-30;x+=12){const i=(y*width+x)*4;if(scan.data[i]>245&&scan.data[i+1]>245&&scan.data[i+2]>245)white++;}
-        if(white>bestScore){bestScore=white;best=y;}
+      const sampleX=Array.from({length:Math.ceil((width-80)/8)},(_,i)=>40+i*8);
+      const blank=(y:number)=>sampleX.every(x=>{const i=(y*width+x)*4;return scan.data[i]>247&&scan.data[i+1]>247&&scan.data[i+2]>247&&scan.data[i+3]>245;});
+      let best=-1,bestDistance=Infinity;
+      for(let y=6;y<scan.height-6;y+=2){
+        if(!blank(y-4)||!blank(y)||!blank(y+4))continue;
+        const candidate=searchStart+y;
+        const distance=Math.abs(candidate-(start+pageHeight));
+        if(distance<bestDistance){best=candidate;bestDistance=distance;}
       }
-      const sampleCount=Math.ceil((width-60)/12);
-      if(bestScore>=sampleCount*.97&&best>=0)end=searchStart+best;
+      if(best<0)throw new Error("The quotation is too long for a safe automatic page break. Please separate the long description into paragraphs before exporting.");
+      end=best;
     }
     if(end<=start)throw new Error("Unable to determine a safe quotation page break");
-    const sheet=document.createElement("canvas");sheet.width=width;sheet.height=end-start;
+    // Each continuation uses a full A4-ratio canvas. Short final pages must
+    // not be enlarged to fill A4, which would change text size between pages.
+    const sheet=document.createElement("canvas");sheet.width=width;sheet.height=pageHeight;
     const ctx=sheet.getContext("2d");if(!ctx)throw new Error("Quotation page canvas unavailable");
-    ctx.fillStyle="#fff";ctx.fillRect(0,0,width,sheet.height);
-    ctx.drawImage(canvas,0,start,width,sheet.height,0,0,width,sheet.height);
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,width,pageHeight);
+    ctx.drawImage(canvas,0,start,width,end-start,0,0,width,end-start);
     output.push(sheet);start=end;
   }
   return output;
