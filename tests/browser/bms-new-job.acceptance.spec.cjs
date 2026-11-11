@@ -45,7 +45,7 @@ test("Quick Add actually saves an isolated tenant job without leaving Dashboard"
  await page.getByRole("menuitem",{name:/Quick Add Job/i}).click();
  const search=page.getByPlaceholder("Type a customer name", {exact:false}).first();
  await search.fill(fixture);
- const customer=page.getByRole("button",{name:new RegExp(fixture.replace(/[.*+?^\\$\\{\\}()|[\\]\\\\]/g,"\\\\$&"),"i")}).first();
+ const customer=page.getByRole("button").filter({hasText:fixture}).first();
  await expect(customer).toBeVisible();await customer.click();
  const types=page.getByText("Work types, choose all that apply").locator("..").locator("..").locator("button");
  if(await types.count())await types.first().click();
