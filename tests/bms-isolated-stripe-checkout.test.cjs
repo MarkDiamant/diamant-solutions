@@ -1,11 +1,15 @@
 const {test}=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),ts=require("typescript"),Module=require("node:module"),path=require("node:path");
 const file=path.join(__dirname,"../app/api/checkout/route.js"),source=fs.readFileSync(file,"utf8");
 const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
-const original=Module._load;Module._load=function(name,...args){if(name==="next/server")return {NextResponse:{json:(body,{status=200}={})=>({status,body})}};return original.call(this,name,...args)};
-const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(js,file);Module._load=original;
+// The checkout module reads Supabase configuration at module initialization.
+// Configure only isolated fixture values before importing it, then restore
+// the original process environment after the suite finishes.
 const keys=["STRIPE_SECRET_KEY","BMS_TEST_ISOLATED","VERCEL_ENV","NEXT_PUBLIC_SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID","BMS_STRIPE_TEST_MONTHLY_AI_PRICE_ID"];
 const saved=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
 function configure(){Object.assign(process.env,{STRIPE_SECRET_KEY:"sk_test_fixture",BMS_TEST_ISOLATED:"true",VERCEL_ENV:"preview",NEXT_PUBLIC_SUPABASE_URL:"https://fictionaltest123.supabase.co",SUPABASE_SERVICE_ROLE_KEY:"fictional_only",BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID:"price_test_base",BMS_STRIPE_TEST_MONTHLY_EXTRA_PRICE_ID:"price_test_extra",BMS_STRIPE_TEST_MONTHLY_AI_PRICE_ID:"price_test_ai"})}
+configure();
+const original=Module._load;Module._load=function(name,...args){if(name==="next/server")return {NextResponse:{json:(body,{status=200}={})=>({status,body})}};return original.call(this,name,...args)};
+const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(js,file);Module._load=original;
 function req(users=3){return new Request("https://fictional-preview.vercel.app/api/checkout",{method:"POST",body:JSON.stringify({service:"business_software",users,interval:"monthly"})})}
 test("isolated checkout sends test price IDs, never hardcoded live IDs",async()=>{configure();const calls=[];global.fetch=async(u,o)=>{calls.push({u:String(u),o});return {ok:true,json:async()=>String(u).includes("stripe.com")?{id:"cs_test_fixture",url:"https://checkout.stripe.com/c/test"}:{}}};const result=await mod.exports.POST(req());assert.equal(result.status,200);const body=String(calls[0].o.body);assert.match(body,/price_test_base/);assert.match(body,/price_test_extra/);assert.doesNotMatch(body,/price_1UIFEa/);assert.equal(calls.length,2)});
 test("missing test prices fail before external Stripe or Supabase calls",async()=>{configure();delete process.env.BMS_STRIPE_TEST_MONTHLY_BASE_PRICE_ID;const calls=[];global.fetch=async()=>{calls.push(1);throw Error("Must not call network")};const result=await mod.exports.POST(req());assert.equal(result.status,503);assert.equal(calls.length,0)});
