@@ -98,7 +98,7 @@ async function renderQuotePage(page:HTMLElement){
     // after capture without changing the PDF download path or page layout.
     // If drawing is unsupported, preserve the working PDF download.
     try{
-      if(logo&&embeddedLogo){
+      if(logo&&embeddedLogo&&!replacedLogo){
         const image=new Image();
         image.src=embeddedLogo;
         if(!image.complete)await new Promise<void>(resolve=>{image.onload=()=>resolve();image.onerror=()=>resolve();});
