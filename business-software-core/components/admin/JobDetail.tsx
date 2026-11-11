@@ -71,7 +71,19 @@ export default function JobDetail({reference}:{reference:string}){
     finally{window.clearTimeout(timeout);setSavingJob(false);}
   }
   async function action(payload:any){setMessage("Saving...");try{const res=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});const body=await res.json().catch(()=>({}));if(!res.ok)throw new Error(body.error||"Save failed");setMessage("Saved successfully");await fetchFull();return body;}catch(e){setMessage(e instanceof Error?"Save failed: "+e.message:"Save failed");throw e;}}
-  async function chooseTab(next:Tab){if(!visibleTabs.includes(next))return;setTab(next);setPendingTab(next);try{const url=new URL(window.location.href);url.searchParams.set("tab",next);window.history.replaceState(null,"",url.pathname+url.search+url.hash);if(next!=="Overview"&&!data?._full)await fetchFull();}finally{setPendingTab(null);}}
+  // Keep unsaved editable fields when the user navigates between workspace tabs.
+  // Values are held only in memory; they are never submitted to another tenant or persisted on Cancel.
+  const unsavedTabFields=useRef<Record<string,Array<{name:string,value:string,checked?:boolean,type:string}>>>({});
+  const restoreTabFields=useCallback(()=>{
+    const entries=unsavedTabFields.current[tab];if(!entries)return;
+    const forms=Array.from(document.querySelectorAll<HTMLFormElement>(".bms-job-detail form"));
+    for(const entry of entries){for(const form of forms){const elements=Array.from(form.elements).filter((el):el is HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement=>el instanceof HTMLInputElement||el instanceof HTMLSelectElement||el instanceof HTMLTextAreaElement).filter(el=>el.name===entry.name);for(const el of elements){if(el instanceof HTMLInputElement&&(el.type==="checkbox"||el.type==="radio")){if(el.value===entry.value)el.checked=!!entry.checked;}else if(el.value!==entry.value){el.value=entry.value;el.dispatchEvent(new Event("input",{bubbles:true}));}}}}
+  },[tab]);
+  useEffect(()=>{restoreTabFields();},[restoreTabFields]);
+  async function chooseTab(next:Tab){if(!visibleTabs.includes(next))return;
+    const fields:Array<{name:string,value:string,checked?:boolean,type:string}>=[];
+    document.querySelectorAll<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>(".bms-job-detail form input[name],.bms-job-detail form select[name],.bms-job-detail form textarea[name]").forEach(el=>{if(el instanceof HTMLInputElement&&el.type==="file")return;fields.push({name:el.name,value:el.value,type:el.type,checked:el instanceof HTMLInputElement&&(el.type==="checkbox"||el.type==="radio")?el.checked:undefined});});
+    unsavedTabFields.current[tab]=fields;setTab(next);setPendingTab(next);try{const url=new URL(window.location.href);url.searchParams.set("tab",next);window.history.replaceState(null,"",url.pathname+url.search+url.hash);if(next!=="Overview"&&!data?._full)await fetchFull();}finally{setPendingTab(null);}}
 
   if(loading&&!data)return <main aria-busy="true" aria-label="Loading job details" className="min-h-screen bg-[#f5f5f2] px-4 py-8 sm:px-8"><div role="status" className="sr-only">Loading job {reference}</div><div className="mx-auto max-w-7xl animate-pulse space-y-6"><div className="space-y-3"><div className="h-8 w-56 rounded-lg bg-slate-200"/><div className="h-4 w-72 max-w-full rounded bg-slate-200"/></div><div className="grid gap-3 sm:grid-cols-3">{[0,1,2].map(i=><div key={i} className="h-24 rounded-2xl border border-slate-200 bg-white"/>)}</div><div className="h-14 rounded-2xl border border-slate-200 bg-white"/><div className="grid gap-5 lg:grid-cols-2">{[0,1,2,3].map(i=><div key={i} className="h-44 rounded-2xl border border-slate-200 bg-white"/>)}</div></div></main>;
   if(error||!data)return <main className="min-h-screen bg-[#f5f5f2] p-10"><div className="mx-auto max-w-xl rounded-2xl bg-white p-6"><h1 className="text-xl font-black">{reference}</h1><p className="mt-3 text-red-700">{error||"Job not found"}</p><a href="/admin" className="mt-5 inline-block font-bold text-[var(--bms-accent)]">Back to CRM</a></div></main>;
