@@ -2,7 +2,7 @@
 // Opt-in authenticated acceptance against an isolated Preview only. No writes or subscriptions.
 const {preflight}=require("./bms-test-preflight.cjs");
 async function run(env=process.env,fetcher=global.fetch){
- const check=preflight(env);if(!check.ok)throw Error(check.errors.join("; "));
+ const check=preflight(env);const authOnlyErrors=check.errors.filter(error=>!/^STRIPE_|^BMS_STRIPE_|^BMS_CREATE_TEST_PRICES/.test(error));for(const key of ["BMS_TEST_OWNER_EMAIL","BMS_TEST_OWNER_PASSWORD","NEXT_PUBLIC_SUPABASE_ANON_KEY","BMS_TEST_PREVIEW_URL"])if(!String(env[key]||"").trim())authOnlyErrors.push(key+": missing");if(authOnlyErrors.length)throw Error([...new Set(authOnlyErrors)].join("; "));
  const base=String(env.BMS_TEST_PREVIEW_URL||"");const url=new URL(base);
  if(url.protocol!=="https:"||!url.hostname.endsWith(".vercel.app"))throw Error("BMS_TEST_PREVIEW_URL must be an isolated vercel.app Preview hostname, never a production domain");
  const sb=env.DS_SUPABASE_URL;const anon=env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
