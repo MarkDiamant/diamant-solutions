@@ -2,7 +2,7 @@
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {useEffect,useRef,useState,type KeyboardEvent} from "react";
-export default function NewJobMenu({accent="var(--bms-accent)",className="",basePath,terminology="jobs"}:{accent?:string;className?:string;basePath?:string;terminology?:"jobs"|"orders"}){
+export default function NewJobMenu({accent="var(--bms-accent)",className="",basePath,terminology="jobs",onQuickAdd,onFullJob}:{accent?:string;className?:string;basePath?:string;terminology?:"jobs"|"orders";onQuickAdd?:()=>void;onFullJob?:()=>void}){
  const [open,setOpen]=useState(false),root=useRef<HTMLDivElement>(null),buttonRef=useRef<HTMLButtonElement>(null),menuRef=useRef<HTMLDivElement>(null),pathname=usePathname();
  const noun=terminology==="orders"?"Order":"Job";
  const prefix=basePath&&basePath!=="/bms-runtime"?basePath:"";
@@ -13,6 +13,6 @@ export default function NewJobMenu({accent="var(--bms-accent)",className="",base
 
  return <div ref={root} className={"bms-new-job bms-dashboard-new-job "+className}>
  <button ref={buttonRef} type="button" className="bms-new-job-button" style={{backgroundColor:accent,color:"#ffffff"}} aria-haspopup="menu" aria-expanded={open} onKeyDown={e=>{if(e.key==="ArrowDown"||e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(true)}}} onClick={()=>setOpen(v=>!v)}>+ New {noun} <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="bms-new-job-chevron"><path d="m6 9 6 6 6-6"/></svg></button>
- {open&&<div ref={menuRef} role="menu" aria-label={`Create a new ${noun.toLowerCase()}`} onKeyDown={onMenuKey} className="bms-job-popover"><Link role="menuitem" href={prefix+"/jobs/new?quick=1"} onClick={()=>setOpen(false)}>Quick Add {noun}</Link><Link role="menuitem" href={prefix+"/jobs/new"} onClick={()=>setOpen(false)}>Full {noun}</Link></div>}
+ {open&&<div ref={menuRef} role="menu" aria-label={`Create a new ${noun.toLowerCase()}`} onKeyDown={onMenuKey} className="bms-job-popover">{onQuickAdd?<button role="menuitem" type="button" onClick={()=>{setOpen(false);onQuickAdd();}}>Quick Add {noun}</button>:<Link role="menuitem" href={prefix+"/jobs/new?quick=1"} onClick={()=>setOpen(false)}>Quick Add {noun}</Link>}{onFullJob?<button role="menuitem" type="button" onClick={()=>{setOpen(false);onFullJob();}}>Full {noun}</button>:<Link role="menuitem" href={prefix+"/jobs/new"} onClick={()=>setOpen(false)}>Full {noun}</Link>}</div>}
  </div>;
 }
