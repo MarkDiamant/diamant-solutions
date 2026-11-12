@@ -118,9 +118,42 @@ async function renderQuotePage(page:HTMLElement){
   }finally{page.style.width=previous.width;page.style.minWidth=previous.minWidth;page.style.maxWidth=previous.maxWidth;page.style.zoom=previous.zoom;if(replacedLogo&&logo&&originalLogoSrc!==null)logo.setAttribute("src",originalLogoSrc);}
 }
 
-export async function createQuotePdfBlob(){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}return new Blob([pdfFromPages(images)],{type:"application/pdf"});}
+// A long rendered quotation must never be scaled down to one sheet. Split the
+// full-resolution capture into A4-proportioned sheets, preferring whitespace
+// boundaries so text lines are not cut between pages.
+async function renderQuoteSheets(page:HTMLElement){
+  const canvas=await renderQuotePage(page);
+  const sheetHeight=Math.round(canvas.width*842/595);
+  if(canvas.height<=sheetHeight*1.035)return [{data:await jpegBytes(canvas),width:canvas.width,height:canvas.height}];
+  const context=canvas.getContext("2d",{willReadFrequently:true});
+  const output:{data:Uint8Array;width:number;height:number}[]=[];
+  let top=0;
+  while(top<canvas.height){
+    let bottom=Math.min(top+sheetHeight,canvas.height);
+    if(bottom<canvas.height&&context){
+      const start=Math.max(top+Math.round(sheetHeight*.75),bottom-Math.round(sheetHeight*.12));
+      let best=bottom,bestInk=Infinity;
+      for(let y=start;y<bottom;y+=3){
+        const pixels=context.getImageData(Math.round(canvas.width*.1),y,Math.round(canvas.width*.8),1).data;
+        let ink=0;for(let x=0;x<pixels.length;x+=4)if(pixels[x]<225||pixels[x+1]<225||pixels[x+2]<225)ink++;
+        if(ink<bestInk){bestInk=ink;best=y;if(ink===0)break;}
+      }
+      if(bestInk<5)bottom=best;
+    }
+    const height=bottom-top;
+    const sheet=document.createElement("canvas");sheet.width=canvas.width;sheet.height=sheetHeight;
+    const ctx=sheet.getContext("2d");if(!ctx)throw new Error("PDF page canvas unavailable");
+    ctx.fillStyle="#ffffff";ctx.fillRect(0,0,sheet.width,sheet.height);
+    ctx.drawImage(canvas,0,top,canvas.width,height,0,0,canvas.width,height);
+    output.push({data:await jpegBytes(sheet),width:sheet.width,height:sheet.height});
+    top=bottom;
+  }
+  return output;
+}
 
-export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
+export async function createQuotePdfBlob(){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){images.push(...await renderQuoteSheets(page));}return new Blob([pdfFromPages(images)],{type:"application/pdf"});}
+
+export async function downloadQuotePdf(reference:string){await ensureRenderer();const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none"&&!el.classList.contains("hidden"));if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");await document.fonts.ready;const images=[] as {data:Uint8Array;width:number;height:number}[];for(const page of pages){images.push(...await renderQuoteSheets(page));}const blob=new Blob([pdfFromPages(images)],{type:"application/pdf"});const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`${reference}-Quote.pdf`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 
 export default function QuotePdfActions({ reference, quoteId }: { reference: string; quoteId: string }) {
   const [busy,setBusy]=useState(false);
@@ -131,7 +164,7 @@ export default function QuotePdfActions({ reference, quoteId }: { reference: str
       const pages=Array.from(document.querySelectorAll<HTMLElement>(".quote-page")).filter(el=>getComputedStyle(el).display!=="none");
       if(!pages.length||!window.html2canvas)throw new Error("Quote preview is not ready");
       const images=[] as {data:Uint8Array;width:number;height:number}[];
-      for(const page of pages){const canvas=await renderQuotePage(page);images.push({data:await jpegBytes(canvas),width:canvas.width,height:canvas.height});}
+      for(const page of pages){images.push(...await renderQuoteSheets(page));}
       const pdf=pdfFromPages(images),blob=new Blob([pdf],{type:"application/pdf"});
 
       const response=await fetch(`/api/admin/jobs/${encodeURIComponent(reference)}/quotes/${encodeURIComponent(quoteId)}/pdf`,{method:"POST",headers:{"Content-Type":"application/pdf"},body:blob});
