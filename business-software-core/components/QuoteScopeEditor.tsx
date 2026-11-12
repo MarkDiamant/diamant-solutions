@@ -1,6 +1,5 @@
 "use client";
 import {useEffect,useRef} from "react";
-import {normaliseQuoteScope} from "../lib/quote-format";
 
 /** Rich text editor preserving source numbering and bold formatting without browser list auto-numbering. */
 export default function QuoteScopeEditor({value,onChange}:{value:string;onChange:(value:string)=>void}){
@@ -10,7 +9,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  function render(source:string){
    const host=ref.current;if(!host)return;
    host.replaceChildren();
-   const lines=normaliseQuoteScope(source).split("\n");
+   const lines=String(source||"").split("\n");
    lines.forEach((line,i)=>{
      if(i)host.appendChild(document.createElement("br"));
      // Mirror the customer quote: numbered item and title bold, final dash and price bold.
@@ -46,7 +45,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
  }
  function save(){
    const host=ref.current;if(!host)return;
-   const text=normaliseQuoteScope(Array.from(host.childNodes).map(serialize).join("").replace(/^\n+|\n+$/g,""));
+   const text=Array.from(host.childNodes).map(serialize).join("");
    if(text!==value){lastValue.current=text;onChange(text);}
  }
  return <div className="rounded-xl border border-[var(--bms-border)] bg-[var(--bms-surface)] p-3">
@@ -57,7 +56,9 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
     onFocus={()=>{focused.current=true;}}
     onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="b"){e.preventDefault();document.execCommand("bold");save();}}}
     onInput={save}
-    onBlur={()=>{focused.current=false;save();}}
+    onClick={e=>e.stopPropagation()}
+    onMouseDown={e=>e.stopPropagation()}
+    onBlur={()=>{save();focused.current=false;}}
   />
  </div>;
 }
