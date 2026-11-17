@@ -1,3 +1,4 @@
+import onboardingModel from '../../../../lib/bms-onboarding-model.cjs';
 import {NextResponse} from "next/server";
 import dns from "node:dns/promises";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
@@ -57,6 +58,10 @@ export async function PATCH(req){
  const r=await rest("onboarding?tenant_id=eq."+tenantId+"&service_type=eq.business_software&select=tenant_id,status,answers,proposed_config&limit=1");
  if(!r.ok)return reply({error:"Unable to verify onboarding"},502);
  const row=(await r.json())[0];if(!row)return reply({error:"Onboarding not found"},404);
+ if(body.action==="prepare"||body.status==="ready"){
+  const check=onboardingModel.completion(row.answers||{}),unresolved=onboardingModel.reviewNeeds(row.answers||{});
+  if(check.missing.length||unresolved.length)return reply({error:"Questionnaire needs clarification before configuration or approval. Reopen it and resolve the missing or deferred answers.",missing:check.missing,unresolved},409);
+ }
  if(body.action==="prepare"){
   const order=await rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=stripe_subscription_id,stripe_customer_id&limit=1");
   if(!order.ok)return reply({error:"Unable to verify paid checkout"},503);

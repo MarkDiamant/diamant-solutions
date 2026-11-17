@@ -9,7 +9,7 @@
     "check:bms-parity": "node scripts/check-bms-demo-parity.mjs",
     "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs",
     "test:stripe-signed": "node --test tests/bms-stripe-signed-fixtures.test.cjs",
-    "test:onboarding": "node --test tests/bms-onboarding-first-login.test.cjs tests/bms-onboarding-submit.test.cjs",
+    "test:onboarding": "node --test tests/bms-onboarding-first-login.test.cjs tests/bms-onboarding-submit.test.cjs tests/bms-onboarding-completeness.test.cjs tests/bms-checkout-confirm.test.cjs tests/bms-onboarding-review-guard.test.cjs && node tests/bms-onboarding-trigger-isolated.cjs",
     "test:tenant-routing": "node --test tests/bms-demo-tenant-routing.test.cjs",
     "test:demo-stock": "node --test tests/bms-demo-stock-flow.test.cjs",
     "test:acceptance-static": "node --test tests/bms-test-preflight.test.cjs tests/purchasing-workspace-guards.test.cjs tests/finance-reconciliation.test.cjs tests/flooring-finance-guards.test.cjs tests/bms-isolated-auth-acceptance.test.cjs tests/bms-isolated-stripe-checkout.test.cjs tests/bms-isolated-schema-check.test.cjs",
@@ -18,24 +18,26 @@
     "test:isolated-schema": "node scripts/bms-isolated-schema-check.cjs",
     "test:embedded-nav": "node --test tests/embedded-bms-navigation-contract.test.cjs",
     "test:archive-safety": "node --test tests/bms-archive-safety.test.cjs",
-    "test:ruby-long-quote": "node --test tests/ruby-long-quotation-context.test.cjs"
+    "test:ruby-long-quote": "node --test tests/ruby-long-quotation-context.test.cjs",
+    "test:onboarding:visual": "node tests/bms-onboarding-visual-isolated.cjs"
   },
   "dependencies": {
+    "@hebcal/core": "^6.9.2",
+    "@hebcal/learning": "^6.11.4",
     "@supabase/supabase-js": "^2.0.0",
     "next": "15.5.28",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "@hebcal/core": "^6.9.2",
-    "@hebcal/learning": "^6.11.4"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "@playwright/test": "1.56.1"
+    "typescript": "^5"
   },
   "overrides": {
     "postcss": "8.5.32"

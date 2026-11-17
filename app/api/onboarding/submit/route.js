@@ -1,3 +1,4 @@
+import onboardingModel from '../../../../lib/bms-onboarding-model.cjs';
 import {NextResponse} from 'next/server';
 const SB=process.env.DS_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://iepqggrfenfqrqyzqyed.supabase.co';
 const SK=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -11,7 +12,7 @@ export async function POST(request){
   if(!auth.ok)return NextResponse.json({error:'Your session expired. Sign in again.'},{status:401});
   const user=await auth.json();
   const body=await request.json();
-  const {tenantId,service,answers,logoPath,selection}=body;
+  const {tenantId,service,answers,logoPath}=body;
   if(!/^[0-9a-f-]{36}$/i.test(tenantId||'')||!['website','business_software'].includes(service)||!answers||typeof answers!=='object'||Array.isArray(answers))return NextResponse.json({error:'Invalid submission'},{status:400});
   const member=await fetch(SB+'/rest/v1/tenant_members?user_id=eq.'+encodeURIComponent(user.id)+'&tenant_id=eq.'+encodeURIComponent(tenantId)+'&select=tenant_id',{headers:getHeaders(),cache:'no-store'});
   if(!member.ok){console.error('Membership lookup failed',member.status,await member.text());return NextResponse.json({error:'We could not complete your submission right now. Your answers are safe; please try again shortly.'},{status:502})}
@@ -21,7 +22,7 @@ export async function POST(request){
   const paid=await fetch(SB+'/rest/v1/checkout_orders?tenant_id=eq.'+encodeURIComponent(tenantId)+'&service_type=eq.'+encodeURIComponent(service)+'&payment_status=eq.paid&customer_email=ilike.'+encodeURIComponent(String(user.email||''))+'&select=id&limit=1',{headers:getHeaders(),cache:'no-store'});
   if(!paid.ok)return NextResponse.json({error:'Unable to verify payment for this setup'},{status:503});
   if(!(await paid.json()).length)return NextResponse.json({error:'Verified paid checkout required before submitting'},{status:403});
-  const current=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&select=status,service_type&limit=1',{headers:getHeaders(),cache:'no-store'});
+  const current=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&select=status,service_type,plan_selection&limit=1',{headers:getHeaders(),cache:'no-store'});
   if(!current.ok)return NextResponse.json({error:'Could not load setup'},{status:502});
   const existing=(await current.json())[0];
   if(!existing||existing.service_type!==service)return NextResponse.json({error:'Setup not found'},{status:404});
@@ -29,12 +30,16 @@ export async function POST(request){
   if(!['in_progress','awaiting_clarification'].includes(existing.status))return NextResponse.json({error:'Setup cannot be submitted in its current state'},{status:409});
   const required=service==='website'?['businessName','contactName','email','businessType','domainOwnership']:['businessName','contactName','email','phone','businessType','workflow','features','users'];
   if(required.some(k=>!String(answers[k]||'').trim()))return NextResponse.json({error:'Please complete the required questions'},{status:400});
+  const questionnaire=service==='business_software'?onboardingModel.completion(answers):null;
+  if(questionnaire?.missing.length)return NextResponse.json({error:'Complete the questionnaire or explicitly mark questions not applicable or for discussion.',missing:questionnaire.missing},{status:400});
   const moduleNames=['Prospects','Customers','Customer-specific pricing','Quotes','Sales orders','Deliveries','Returns','Jobs','Tasks','Scheduling','Files','Campaigns','Price book','Purchasing','Inventory','Goods received','Job allocations','Workforce','Timesheets','Labour costing','Invoices','Payments','Job finances','Money overview','Xero','Ruby AI'];
   const selectedModules=Array.isArray(answers.optionalModules)?[...new Set(answers.optionalModules.filter(x=>moduleNames.includes(x)))]:[];
   const proposedConfig=service==='business_software'?{
-   version:2,reviewRequired:true,approved:false,modules:{enabled:selectedModules,hidden:moduleNames.filter(x=>!selectedModules.includes(x))},
+   version:2,reviewRequired:true,approved:false,seatReview:{requestedUsers:Number(answers.users),recordedPlanUsers:Number(existing.plan_selection?.users)||null,required:Number(answers.users)!==Number(existing.plan_selection?.users)},modules:{enabled:selectedModules,hidden:moduleNames.filter(x=>!selectedModules.includes(x))},
+   completion:{version:1,pageCount:questionnaire.steps.length,completedPages:questionnaire.completePages,moduleDecision:answers.moduleDecision,needsClarification:onboardingModel.reviewNeeds(answers).length>0,unresolvedQuestions:onboardingModel.reviewNeeds(answers)},
    business:{name:String(answers.businessName||'').trim(),type:String(answers.businessType||''),terminology:String(answers.terminology||answers.workName||''),branding:{colours:String(answers.colours||''),logoPath:logoPath||null}},
    tasks:[
+    ...onboardingModel.reviewNeeds(answers).map(x=>({key:'clarify_'+x.key,label:'Resolve before configuration: '+x.label,status:'pending'})),
     {key:'verify_subscription',label:'Verify paid subscription and user seats',status:'pending'},
     {key:'review_branding',label:'Approve branding and business terminology',status:'pending'},
     {key:'configure_modules',label:'Review module visibility, permissions and dependencies',status:'pending'},
@@ -48,11 +53,17 @@ export async function POST(request){
     {key:'activate',label:'Final internal approval before customer access',status:'pending'}
    ]
   }:null;
-  const payload={answers,service_type:service,current_step:service==='business_software'?20:4,progress:100,status:'submitted',submitted_at:new Date().toISOString(),logo_path:logoPath||null,...(proposedConfig?{proposed_config:proposedConfig}:{})};
-  if(service==='business_software'&&selection)payload.plan_selection=selection;
+  const payload={answers,service_type:service,current_step:questionnaire?questionnaire.finalStep:4,progress:100,status:'submitted',submitted_at:new Date().toISOString(),logo_path:logoPath||null,...(proposedConfig?{proposed_config:proposedConfig}:{})};
+  // Subscription selection is server-owned. Questionnaire requests never alter paid seats.
+  if(service==='business_software')payload.plan_selection=existing.plan_selection||{};
   const saved=await fetch(SB+'/rest/v1/onboarding?tenant_id=eq.'+tenantId+'&status=eq.'+encodeURIComponent(existing.status),{method:'PATCH',headers:{...getHeaders(),Prefer:'return=representation'},body:JSON.stringify(payload),cache:'no-store'});
   if(!saved.ok){console.error('Onboarding submission rejected',saved.status,await saved.text());return NextResponse.json({error:'Database rejected submission. Please contact support.'},{status:502})}
   const rows=await saved.json();
+  if(rows.length===1&&proposedConfig&&JSON.stringify(rows[0].proposed_config)!==JSON.stringify(proposedConfig)){
+   // JSONB key order is not significant. Compare stable projections.
+   const canonical=x=>JSON.stringify(x,(_k,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.entries(v).sort(([a],[b])=>a.localeCompare(b))):v);
+   if(canonical(rows[0].proposed_config)!==canonical(proposedConfig))return NextResponse.json({error:'Your answers were saved, but configuration verification failed. Contact support; do not resubmit.'},{status:502});
+  }
   if(rows.length!==1)return NextResponse.json({error:'Submission could not be confirmed'},{status:409});
   return NextResponse.json({ok:true});
  }catch(e){console.error('Onboarding submission error',e);return NextResponse.json({error:'Submission failed unexpectedly'},{status:500})}
