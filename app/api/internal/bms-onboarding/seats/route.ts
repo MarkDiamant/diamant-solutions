@@ -59,5 +59,5 @@ export async function POST(req:Request){
   const authorityId=crypto.randomUUID();
   await adapters.rest('bms_original_upgrade_authorities','POST',{id:authorityId,original_tenant_id:binding.tenantId,stripe_subscription_id:binding.subscriptionId,stripe_customer_id:binding.customerId,target_total_users:body.targetTotalUsers,max_immediate_total:body.maxImmediateTotal,recurring_total:body.recurringTotal,currency:'gbp',collection_method:'saved_default_payment_method',tax_policy_ref:taxRef,owner_authority_ref:body.ownerAuthorityRef,client_consent_ref:body.clientConsentRef,reviewed_evidence_text:body.reviewedEvidenceText,reviewed_by:user.id,expires_at:new Date(expiresAt).toISOString()});
   return reply({authorityId,quote,charged:false});
- }catch(error:any){console.error('original subscription upgrade failed',error?.message);return reply({error:'Upgrade stopped safely. Review quote, consent and operation state before retrying.'},409);}
+ }catch(error:any){console.error('original subscription upgrade failed',error?.message);return reply({error:'Upgrade stopped safely. Review quote, consent and operation state before retrying.',diagnostic:String(error?.message||'Unknown failure').replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,'[email]').slice(0,240)},409);}
 }

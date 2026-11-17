@@ -48,7 +48,7 @@ const hostLabels=host.toLowerCase().split(".");
 export async function GET(req){
  if(!await admin(req))return reply({error:"Internal administrator access required"},403);
  const r=await rest("onboarding?service_type=eq.business_software&select=tenant_id,status,progress,answers,proposed_config,submitted_at,updated_at,tenants(name,slug)&order=updated_at.desc&limit=200");
- if(!r.ok){const detail=await r.json().catch(()=>({}));console.error("internal onboarding queue read failed",{status:r.status,code:String(detail.code||""),message:String(detail.message||"").slice(0,400)});return reply({error:"Unable to load onboarding queue"},502);}
+ if(!r.ok){const detail=await r.json().catch(()=>({}));console.error("internal onboarding queue read failed",{status:r.status,code:String(detail.code||""),message:String(detail.message||"").slice(0,400)});return reply({error:"Unable to load onboarding queue",diagnostic:{upstreamStatus:r.status,code:String(detail.code||"").slice(0,40),message:String(detail.message||"").replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,"[email]").slice(0,240)}},502);}
  const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id,activation_email_sent_at,activation_email_error&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
 }
 export async function PATCH(req){
