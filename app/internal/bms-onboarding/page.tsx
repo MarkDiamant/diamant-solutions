@@ -37,7 +37,7 @@ export default function InternalOnboarding(){
   <p>{items.length} onboarding applications</p>
   {items.map(item=><section key={item.tenant_id} style={{border:"1px solid #ddd",borderRadius:12,padding:20,margin:"18px 0"}}>
    <h2>{item.answers?.businessName||item.tenants?.name||"Unnamed business"}</h2>
-   <p><strong>Status:</strong> {item.status} · <strong>Questionnaire answered (not setup ready):</strong> {item.progress||0}% · <strong>Submitted:</strong> {item.submitted_at?new Date(item.submitted_at).toLocaleDateString("en-GB"):"Not submitted"}</p>
+   <p><strong>Status:</strong> {item.status} · <strong>Stored progress (legacy, unverified):</strong> {item.progress||0}% · <strong>Submitted:</strong> {item.submitted_at?new Date(item.submitted_at).toLocaleDateString("en-GB"):"Not submitted"}</p>
    <p><strong>Requested modules:</strong> {(item.proposed_config?.modules?.enabled||item.answers?.optionalModules||[]).join(", ")||"Not selected"}</p>
    {item.proposed_config?.completion?.needsClarification&&<div role="alert" style={{padding:12,background:"#fff3dd",border:"1px solid #b77"}}><strong>Unresolved questions. Do not configure or approve yet.</strong><ul>{(item.proposed_config.completion.unresolvedQuestions||[]).map((q:any)=><li key={q.key}>{q.label}</li>)}</ul><p>Return the questionnaire for clarification and replace the deferred answers with agreed details.</p></div>}
    <details><summary>Answers and proposed setup</summary><pre style={{whiteSpace:"pre-wrap",overflowWrap:"anywhere",fontSize:12}}>{JSON.stringify({answers:item.answers,proposedConfiguration:item.proposed_config},null,2)}</pre></details>
