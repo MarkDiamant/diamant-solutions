@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION public.bms_original_upgrade_observe(p_id text,p_event
 RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE r public.bms_original_subscription_upgrades;
 BEGIN
- IF coalesce(current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
+ IF coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'role',current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
  SELECT * INTO r FROM public.bms_original_subscription_upgrades WHERE operation_id=p_id FOR UPDATE;
  IF NOT FOUND OR r.invoice_id IS DISTINCT FROM p_invoice OR coalesce(p_event,'') NOT LIKE 'evt_%' OR coalesce(p_state,'') NOT IN ('pending','expired','failed') THEN RAISE EXCEPTION 'Observation binding mismatch'; END IF;
  IF r.state='paid_applied' THEN RETURN false; END IF;

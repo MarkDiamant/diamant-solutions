@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION public.bms_original_upgrade_begin(p_id text,p_quote j
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE r public.bms_original_subscription_upgrades;
 BEGIN
- IF coalesce(current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
+ IF coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'role',current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
  IF length(coalesce(p_quote->>'quoteHash',''))<>64 OR length(coalesce(p_consent->>'ownerAuthorityRef',''))<1 OR length(coalesce(p_consent->>'clientConsentRef',''))<1 THEN RAISE EXCEPTION 'Verified authority required'; END IF;
  PERFORM 1 FROM public.bms_original_upgrade_authorities a
  WHERE a.id=(p_consent->>'authorityId')::uuid AND a.revoked_at IS NULL AND a.expires_at>now()
@@ -35,7 +35,7 @@ CREATE OR REPLACE FUNCTION public.bms_original_upgrade_record(p_id text,p_result
 RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE r public.bms_original_subscription_upgrades;
 BEGIN
- IF coalesce(current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
+ IF coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'role',current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
  SELECT * INTO r FROM public.bms_original_subscription_upgrades WHERE operation_id=p_id FOR UPDATE;
  IF NOT FOUND OR r.stripe_subscription_id IS DISTINCT FROM p_result->>'subscriptionId' OR coalesce(p_result->>'invoiceId','') NOT LIKE 'in_%' OR coalesce(p_result->>'state','') NOT IN ('submitted','pending') THEN RAISE EXCEPTION 'Invalid provider result'; END IF;
  IF r.invoice_id IS NOT NULL AND r.invoice_id<>p_result->>'invoiceId' THEN RAISE EXCEPTION 'Invoice already bound'; END IF;
@@ -50,7 +50,7 @@ CREATE OR REPLACE FUNCTION public.bms_original_upgrade_commit(p_id text,p_event 
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE r public.bms_original_subscription_upgrades; runtime_id uuid; old_total integer; v_result jsonb;
 BEGIN
- IF coalesce(current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
+ IF coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'role',current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
  -- Same lock as preparation: payment before and after provisioning is one order.
  PERFORM pg_advisory_xact_lock(hashtextextended('bms-onboarding:'||p_tenant::text,0));
  SELECT * INTO r FROM public.bms_original_subscription_upgrades WHERE operation_id=p_id FOR UPDATE;

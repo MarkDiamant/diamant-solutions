@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION public.bms_original_upgrade_binding(p_tenant uuid)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE r record; n integer;
 BEGIN
- IF coalesce(current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
+ IF coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb->>'role',current_setting('request.jwt.claim.role',true),'')<>'service_role' THEN RAISE EXCEPTION 'Service role required'; END IF;
  SELECT count(*) INTO n FROM public.checkout_orders WHERE tenant_id=p_tenant AND service_type='business_software' AND payment_status='paid' AND stripe_subscription_id IS NOT NULL;
  IF n<>1 THEN RAISE EXCEPTION 'Exactly one original paid checkout required'; END IF;
  SELECT c.id,c.tenant_id,c.stripe_subscription_id,c.stripe_customer_id INTO r FROM public.checkout_orders c JOIN public.tenants t ON t.id=c.tenant_id
