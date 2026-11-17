@@ -1,3 +1,5 @@
+import originalSeatAdapters from '../../../../lib/bms-original-subscription-adapters.cjs';
+import originalSeatEvents from '../../../../lib/bms-original-subscription-events.cjs';
 import {NextResponse} from 'next/server';
 import crypto from 'crypto';
 const SUPABASE_URL=process.env.DS_SUPABASE_URL||'https://iepqggrfenfqrqyzqyed.supabase.co';
@@ -25,10 +27,17 @@ export async function POST(req){
   if(typeof event.id!=='string'||!event.id.startsWith('evt_'))return new NextResponse('Invalid event',{status:400});
   claimed=await webhookRpc('ds_claim_stripe_webhook_event',{p_id:event.id,p_type:event.type});
   if(!claimed)return NextResponse.json({received:true,duplicate:true});
+  let originalUpgradeHandled=false;
+  if(process.env.BMS_ORIGINAL_UPGRADES_ENABLED==='true'&&originalSeatEvents.allowed.includes(event.type)){
+   const adapters=originalSeatAdapters.createAdapters({stripeKey:process.env.STRIPE_SECRET_KEY,supabaseUrl:SUPABASE_URL,serviceKey:SERVICE_KEY});
+   const catalogue=await originalSeatAdapters.readCatalogue(adapters,{base:'price_1UIFEaKCFlu3cFvBVzR5uBNv',extra:'price_1UIX8VKCFlu3cFvBzdLNQgmy',ai:'price_1UIX8ZKCFlu3cFvBh8Ih992k'});
+   const result=await originalSeatEvents.handleVerifiedEvent({event,signatureVerified:true,adapters,catalogue});
+   originalUpgradeHandled=result.ignored!==true;
+  }
   if(event.type==='checkout.session.completed'||event.type==='checkout.session.async_payment_succeeded')await upsertSession(event.data.object);
-  else if(event.type==='customer.subscription.updated'||event.type==='customer.subscription.deleted')await subscriptionChanged(event.data.object);
-  else if(event.type==='invoice.paid')await invoiceChanged(event.data.object,true);
-  else if(event.type==='invoice.payment_failed')await invoiceChanged(event.data.object,false);
+  else if(!originalUpgradeHandled&&(event.type==='customer.subscription.updated'||event.type==='customer.subscription.deleted'))await subscriptionChanged(event.data.object);
+  else if(!originalUpgradeHandled&&event.type==='invoice.paid')await invoiceChanged(event.data.object,true);
+  else if(!originalUpgradeHandled&&event.type==='invoice.payment_failed')await invoiceChanged(event.data.object,false);
   await webhookRpc('ds_finish_stripe_webhook_event',{p_id:event.id,p_success:true});
   return NextResponse.json({received:true});
  }catch(e){

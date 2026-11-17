@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run check:bms-parity && npm run check:bms-launch && npm run test:stripe-signed && npm run test:onboarding && npm run test:tenant-routing && npm run test:demo-stock && npm run test:acceptance-static && npm run test:embedded-nav && npm run test:archive-safety && npm run test:ruby-long-quote && next build",
+    "build": "npm run check:bms-parity && npm run check:bms-launch && npm run test:stripe-signed && npm run test:original-upgrade && npm run test:onboarding && npm run test:tenant-routing && npm run test:demo-stock && npm run test:acceptance-static && npm run test:embedded-nav && npm run test:archive-safety && npm run test:ruby-long-quote && next build",
     "start": "next start",
     "check:bms-parity": "node scripts/check-bms-demo-parity.mjs",
     "check:bms-launch": "node scripts/check-bms-launch-contracts.mjs",
@@ -19,7 +19,8 @@
     "test:embedded-nav": "node --test tests/embedded-bms-navigation-contract.test.cjs",
     "test:archive-safety": "node --test tests/bms-archive-safety.test.cjs",
     "test:ruby-long-quote": "node --test tests/ruby-long-quotation-context.test.cjs",
-    "test:onboarding:visual": "node tests/bms-onboarding-visual-isolated.cjs"
+    "test:onboarding:visual": "node tests/bms-onboarding-visual-isolated.cjs",
+    "test:original-upgrade": "node --test tests/bms-original-subscription-upgrade.test.cjs tests/bms-original-upgrade-adapters.test.cjs tests/bms-original-upgrade-routes.test.cjs && node tests/bms-original-upgrade-ledger-isolated.cjs && node tests/bms-original-upgrade-rpcs-isolated.cjs"
   },
   "dependencies": {
     "@hebcal/core": "^6.9.2",
