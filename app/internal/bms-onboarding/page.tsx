@@ -2,13 +2,16 @@
 import {useEffect,useState} from "react";
 import {supabase} from "@/lib/supabase-browser";
 export default function InternalOnboarding(){
+ const [email,setEmail]=useState(""),[loginNotice,setLoginNotice]=useState(""),[loginBusy,setLoginBusy]=useState(false);
  const [items,setItems]=useState<any[]>([]),[error,setError]=useState(""),[busy,setBusy]=useState(""),[token,setToken]=useState("");
  async function load(t:string){
   const r=await fetch("/api/internal/bms-onboarding",{headers:{Authorization:"Bearer "+t},cache:"no-store"});
   const data=await r.json().catch(()=>({}));if(!r.ok){setError(data.error||"Unable to load queue");return;}
   setItems(data.items||[]);setError("");
  }
- useEffect(()=>{supabase.auth.getSession().then(({data})=>{const t=data.session?.access_token||"";setToken(t);if(t)load(t);else setError("Sign in with your authorised Diamant Solutions administrator account.")})},[]);
+ useEffect(()=>{let active=true;const apply=(session:any)=>{if(!active)return;const t=session?.access_token||"";setToken(t);if(t)load(t);else setError("Sign in with your authorised Diamant Solutions administrator account.")};supabase.auth.getSession().then(({data})=>apply(data.session));const {data}=supabase.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>apply(session),0)});return()=>{active=false;data.subscription.unsubscribe()}},[]);
+ async function signIn(e:any){e.preventDefault();setLoginBusy(true);setLoginNotice("");setError("");try{const {error}=await supabase.auth.signInWithOtp({email:email.trim(),options:{shouldCreateUser:false,emailRedirectTo:window.location.origin+"/internal/bms-onboarding"}});if(error)throw error;setLoginNotice("If this is an existing account, check your email for a secure sign-in link. Administrator access is checked after sign-in.")}catch(e:any){setError(e.message||"Unable to send sign-in link")}finally{setLoginBusy(false)}}
+
  async function prepare(item:any){
   setBusy(item.tenant_id);
   try{
@@ -26,6 +29,7 @@ export default function InternalOnboarding(){
  }
  return <main style={{maxWidth:1100,margin:"auto",padding:24,fontFamily:"Arial,sans-serif"}}>
   <h1>Client onboarding reviews</h1><p>Internal configuration checklist. Customer systems remain unapproved until verified setup is complete.</p>
+  {!token&&<section style={{maxWidth:480,border:"1px solid #ccd7e5",borderRadius:12,padding:20,margin:"20px 0"}}><h2 style={{fontSize:24,lineHeight:1.3,margin:"0 0 12px"}}>Administrator sign in</h2><p>Use your existing account email. This does not create an account or grant administrator access.</p><form onSubmit={signIn} style={{display:"grid",gap:12}}><label>Email address<input aria-label="Administrator email address" type="email" autoComplete="email" required value={email} onChange={e=>setEmail(e.target.value)} style={{display:"block",width:"100%",boxSizing:"border-box",padding:10,border:"1px solid #aab",borderRadius:6}}/></label><button disabled={loginBusy} style={{padding:12,border:"1px solid #17385f",borderRadius:6,background:"#17385f",color:"white"}}>{loginBusy?"Sending…":"Email my sign-in link"}</button></form><p>Already use your password? <a href="/admin/havdalah">Use the existing administrator sign-in</a>, then return here.</p>{loginNotice&&<p role="status">{loginNotice}</p>}</section>}
   {error&&<p role="alert" style={{color:"#a11"}}>{error}</p>}
   <p>{items.length} onboarding applications</p>
   {items.map(item=><section key={item.tenant_id} style={{border:"1px solid #ddd",borderRadius:12,padding:20,margin:"18px 0"}}>

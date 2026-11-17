@@ -20,7 +20,7 @@
     "test:archive-safety": "node --test tests/bms-archive-safety.test.cjs",
     "test:ruby-long-quote": "node --test tests/ruby-long-quotation-context.test.cjs",
     "test:onboarding:visual": "node tests/bms-onboarding-visual-isolated.cjs",
-    "test:original-upgrade": "node --test tests/bms-original-subscription-upgrade.test.cjs tests/bms-original-upgrade-adapters.test.cjs tests/bms-original-upgrade-routes.test.cjs && node tests/bms-original-upgrade-ledger-isolated.cjs && node tests/bms-original-upgrade-rpcs-isolated.cjs"
+    "test:original-upgrade": "node --test tests/bms-original-subscription-upgrade.test.cjs tests/bms-original-upgrade-adapters.test.cjs tests/bms-original-upgrade-routes.test.cjs tests/bms-internal-signin.test.cjs && node tests/bms-original-upgrade-ledger-isolated.cjs && node tests/bms-original-upgrade-rpcs-isolated.cjs"
   },
   "dependencies": {
     "@hebcal/core": "^6.9.2",
