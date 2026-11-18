@@ -3,6 +3,9 @@ const file=path.join(__dirname,'../app/api/internal/bms-onboarding/route.ts');
 process.env.DS_SUPABASE_URL='https://fictional.invalid';
 process.env.DS_SUPABASE_SERVICE_ROLE_KEY='fictional_only';
 process.env.STRIPE_SECRET_KEY='sk_test_fictional';
+// Hermetic catalogue environment: CI/preview builders may inject BMS_ORIGINAL_* overrides
+// and VERCEL_ENV; tests must start from the built-in catalogue unless they set overrides.
+delete process.env.BMS_ORIGINAL_BASE_PRICE_ID;delete process.env.BMS_ORIGINAL_EXTRA_PRICE_ID;delete process.env.BMS_ORIGINAL_AI_PRICE_ID;delete process.env.VERCEL_ENV;
 const original=Module._load;Module._load=function(n,...args){if(n==='next/server')return {NextResponse:{json:(body,{status=200}={})=>({body,status})}};return original.call(this,n,...args)};
 const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,file);Module._load=original;
 const model=require('../lib/bms-onboarding-model.cjs'),tenant='11111111-1111-4111-8111-111111111111',bmsTenant='22222222-2222-4222-8222-222222222222';
