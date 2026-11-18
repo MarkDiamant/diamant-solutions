@@ -1,6 +1,5 @@
 import onboardingModel from '../../../../lib/bms-onboarding-model.cjs';
 import {NextResponse} from "next/server";
-// Preview build trigger for isolated draft-tenant acceptance environment (no behavior change).
 import dns from "node:dns/promises";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
