@@ -1,9 +1,17 @@
 import onboardingModel from '../../../../lib/bms-onboarding-model.cjs';
+import proposedConfigBuilder from '../../../../lib/bms-onboarding-proposed-config.cjs';
+import adapterModule from '../../../../lib/bms-original-subscription-adapters.cjs';
+import subscriptionCore from '../../../../lib/bms-original-subscription-upgrade.cjs';
 import {NextResponse} from "next/server";
 import dns from "node:dns/promises";
 const base=process.env.DS_SUPABASE_URL||process.env.SUPABASE_URL;
 const key=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
 const reply=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cache-Control":"no-store"}});
+// Original BMS catalogue: base licence and seat add-on are distinct from the Ruby AI
+// item. Never sum arbitrary subscription items as seats; env overrides exist only for
+// isolated non-production fixtures.
+const priceId=(env:string,fallback:string)=>process.env.NODE_ENV==="production"?fallback:(process.env[env]||fallback);
+const originalCatalogueIds=()=>({base:priceId("BMS_ORIGINAL_BASE_PRICE_ID","price_1UIFEaKCFlu3cFvBVzR5uBNv"),extra:priceId("BMS_ORIGINAL_EXTRA_PRICE_ID","price_1UIX8VKCFlu3cFvBzdLNQgmy"),ai:priceId("BMS_ORIGINAL_AI_PRICE_ID","price_1UIX8ZKCFlu3cFvBh8Ih992k")});
 const headers=()=>({apikey:key,Authorization:"Bearer "+key,"Content-Type":"application/json"});
 async function admin(req:Request){
  const token=(req.headers.get("authorization")||"").replace(/^Bearer\s+/,"");
@@ -49,10 +57,10 @@ export async function GET(req){
  if(!await admin(req))return reply({error:"Internal administrator access required"},403);
  const r=await rest("onboarding?service_type=eq.business_software&select=tenant_id,status,progress,answers,proposed_config,submitted_at,updated_at,tenants(name,slug)&order=updated_at.desc&limit=200");
  if(!r.ok){const detail=await r.json().catch(()=>({}));console.error("internal onboarding queue read failed",{status:r.status,code:String(detail.code||""),message:String(detail.message||"").slice(0,400)});return reply({error:"Unable to load onboarding queue",diagnostic:{upstreamStatus:r.status,code:String(detail.code||"").slice(0,40),message:String(detail.message||"").replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,"[email]").slice(0,240)}},502);}
- const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id,activation_email_sent_at,activation_email_error&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
+ const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id,activation_email_sent_at,activation_email_error,draft_provenance&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
 }
 async function verifyPaidSubscription(tenantId:string){
- const order=await rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=stripe_subscription_id,stripe_customer_id&limit=1");
+ const order=await rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=id,stripe_subscription_id,stripe_customer_id,users,ai_included&limit=1");
  if(!order.ok)return reply({error:"Unable to verify paid checkout"},503);
  const checkout=(await order.json())[0];
  if(!checkout?.stripe_subscription_id||!checkout?.stripe_customer_id)return reply({error:"Verified paid checkout missing"},409);
@@ -64,13 +72,30 @@ async function verifyPaidSubscription(tenantId:string){
  if(!sr.ok)return reply({error:"Could not verify current subscription"},503);
  const sub=await sr.json();
  if(!["active","trialing"].includes(sub.status)||String(sub.customer)!==checkout.stripe_customer_id)return reply({error:"Subscription is not currently active or does not match customer"},409);
- return null;
+ return {checkout,sub};
+}
+// Draft preparation derives seats from the verified live subscription via the original
+// subscription catalogue checks (fail closed on any mismatch, inactivity or ambiguity).
+// The historical checkout row is evidence, never modified; client-supplied seat counts
+// are never trusted.
+async function verifiedDraftEntitlement(tenantId:string){
+ const verified=await verifyPaidSubscription(tenantId);
+ if(verified instanceof NextResponse)return verified;
+ const {checkout,sub}=verified;
+ if(sub.status!=="active")return reply({error:"Subscription is not currently active"},409);
+ const adapters=adapterModule.createAdapters({stripeKey:process.env.STRIPE_SECRET_KEY,supabaseUrl:base,serviceKey:key,stripeApiBase:process.env.NODE_ENV==="production"?null:(process.env.STRIPE_API_BASE||null)});
+ let found:any;
+ try{
+  const catalogue=await adapterModule.readCatalogue(adapters,originalCatalogueIds());
+  found=subscriptionCore.inspect(sub,{tenantId,orderId:checkout.id,subscriptionId:checkout.stripe_subscription_id,customerId:checkout.stripe_customer_id},catalogue);
+ }catch(e:any){console.error("draft entitlement verification failed",String(e?.message||e).slice(0,300));return reply({error:"Subscription could not be verified for draft preparation. Manual review required."},409)}
+ return {checkout,entitlement:{seats:found.existingTotalUsers,hasAI:found.hasAI,subscriptionId:checkout.stripe_subscription_id,customerId:checkout.stripe_customer_id,retrievedAt:new Date().toISOString()}};
 }
 export async function PATCH(req){
  const user=await admin(req);if(!user)return reply({error:"Internal administrator access required"},403);
  const body=await req.json().catch(()=>({}));const tenantId=String(body.tenantId||"");
  if(!uuid(tenantId))return reply({error:"Invalid tenant"},400);
- const r=await rest("onboarding?tenant_id=eq."+tenantId+"&service_type=eq.business_software&select=tenant_id,status,answers,proposed_config&limit=1");
+ const r=await rest("onboarding?tenant_id=eq."+tenantId+"&service_type=eq.business_software&select=tenant_id,status,answers,proposed_config,plan_selection,logo_path&limit=1");
  if(!r.ok)return reply({error:"Unable to verify onboarding"},502);
  const row=(await r.json())[0];if(!row)return reply({error:"Onboarding not found"},404);
  if(body.action==="prepare"||body.status==="ready"){
@@ -82,15 +107,20 @@ export async function PATCH(req){
    const reviewState=await rest("business_software_onboarding_reviews?tenant_id=eq."+tenantId+"&select=approved_at&limit=1");
    if(!reviewState.ok)return reply({error:"Unable to verify review state"},502);
    if((await reviewState.json())[0]?.approved_at)return reply({error:"Setup is already approved"},409);
-   const paidError=await verifyPaidSubscription(tenantId);
-   if(paidError)return paidError;
-   const draft=await rest("rpc/bms_prepare_draft_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id})});
+   const verified=await verifiedDraftEntitlement(tenantId);
+   if(verified instanceof NextResponse)return verified;
+   // Legacy submissions (pre-v2 proposed_config) are normalised from the stored answers
+   // with the shared submission builder. The original onboarding row is never rewritten;
+   // the RPC records the normalised config and provenance on the review record.
+   const normalised=String(row.proposed_config?.version||"")==="2"?null:proposedConfigBuilder.buildProposedConfig({answers:row.answers||{},planSelection:row.plan_selection,logoPath:row.logo_path});
+   const draft=await rest("rpc/bms_prepare_draft_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id,p_normalised_config:normalised,p_verified_entitlement:verified.entitlement})});
    if(!draft.ok){const detail=await draft.json().catch(()=>({}));return reply({error:detail.message||"Draft tenant preparation failed"},409)}
    const check=onboardingModel.completion(row.answers||{}),unresolved=onboardingModel.reviewNeeds(row.answers||{});
-   return reply({ok:true,draft:true,bmsTenantId:await draft.json(),pending:{missing:check.missing.length,unresolved:unresolved.length}});
+   const recordedUsers=Number(verified.checkout.users)||null;
+   return reply({ok:true,draft:true,bmsTenantId:await draft.json(),seats:verified.entitlement.seats,seatDiscrepancy:recordedUsers!==null&&recordedUsers!==verified.entitlement.seats,normalised:Boolean(normalised),pending:{missing:check.missing.length,unresolved:unresolved.length}});
   }
-  const paidError=await verifyPaidSubscription(tenantId);
-  if(paidError)return paidError;
+  const verifiedPaid=await verifyPaidSubscription(tenantId);
+  if(verifiedPaid instanceof NextResponse)return verifiedPaid;
   const result=await rest("rpc/bms_prepare_paid_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id})});
   if(!result.ok){const detail=await result.json().catch(()=>({}));return reply({error:detail.message||"Tenant preparation failed"},409)}
   return reply({ok:true,bmsTenantId:await result.json()});
