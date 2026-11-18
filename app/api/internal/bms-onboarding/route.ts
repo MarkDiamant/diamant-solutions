@@ -80,7 +80,7 @@ async function verifyPaidSubscription(tenantId:string){
 // are never trusted.
 async function verifiedDraftEntitlement(tenantId:string){
  const verified=await verifyPaidSubscription(tenantId);
- if(verified instanceof NextResponse)return verified;
+ if(!("checkout" in verified))return verified;
  const {checkout,sub}=verified;
  if(sub.status!=="active")return reply({error:"Subscription is not currently active"},409);
  const adapters=adapterModule.createAdapters({stripeKey:process.env.STRIPE_SECRET_KEY,supabaseUrl:base,serviceKey:key,stripeApiBase:process.env.NODE_ENV==="production"?null:(process.env.STRIPE_API_BASE||null)});
@@ -108,7 +108,7 @@ export async function PATCH(req){
    if(!reviewState.ok)return reply({error:"Unable to verify review state"},502);
    if((await reviewState.json())[0]?.approved_at)return reply({error:"Setup is already approved"},409);
    const verified=await verifiedDraftEntitlement(tenantId);
-   if(verified instanceof NextResponse)return verified;
+   if(!("checkout" in verified))return verified;
    // Legacy submissions (pre-v2 proposed_config) are normalised from the stored answers
    // with the shared submission builder. The original onboarding row is never rewritten;
    // the RPC records the normalised config and provenance on the review record.
@@ -120,7 +120,7 @@ export async function PATCH(req){
    return reply({ok:true,draft:true,bmsTenantId:await draft.json(),seats:verified.entitlement.seats,seatDiscrepancy:recordedUsers!==null&&recordedUsers!==verified.entitlement.seats,normalised:Boolean(normalised),pending:{missing:check.missing.length,unresolved:unresolved.length}});
   }
   const verifiedPaid=await verifyPaidSubscription(tenantId);
-  if(verifiedPaid instanceof NextResponse)return verifiedPaid;
+  if(!("checkout" in verifiedPaid))return verifiedPaid;
   const result=await rest("rpc/bms_prepare_paid_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id})});
   if(!result.ok){const detail=await result.json().catch(()=>({}));return reply({error:detail.message||"Tenant preparation failed"},409)}
   return reply({ok:true,bmsTenantId:await result.json()});
