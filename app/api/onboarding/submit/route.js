@@ -1,4 +1,5 @@
 import onboardingModel from '../../../../lib/bms-onboarding-model.cjs';
+import proposedConfigBuilder from '../../../../lib/bms-onboarding-proposed-config.cjs';
 import {NextResponse} from 'next/server';
 const SB=process.env.DS_SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL||'https://iepqggrfenfqrqyzqyed.supabase.co';
 const SK=process.env.DS_SUPABASE_SERVICE_ROLE_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -32,27 +33,7 @@ export async function POST(request){
   if(required.some(k=>!String(answers[k]||'').trim()))return NextResponse.json({error:'Please complete the required questions'},{status:400});
   const questionnaire=service==='business_software'?onboardingModel.completion(answers):null;
   if(questionnaire?.missing.length)return NextResponse.json({error:'Complete the questionnaire or explicitly mark questions not applicable or for discussion.',missing:questionnaire.missing},{status:400});
-  const moduleNames=['Prospects','Customers','Customer-specific pricing','Quotes','Sales orders','Deliveries','Returns','Jobs','Tasks','Scheduling','Files','Campaigns','Price book','Purchasing','Inventory','Goods received','Job allocations','Workforce','Timesheets','Labour costing','Invoices','Payments','Job finances','Money overview','Xero','Ruby AI'];
-  const selectedModules=Array.isArray(answers.optionalModules)?[...new Set(answers.optionalModules.filter(x=>moduleNames.includes(x)))]:[];
-  const proposedConfig=service==='business_software'?{
-   version:2,reviewRequired:true,approved:false,seatReview:{requestedUsers:Number(answers.users),recordedPlanUsers:Number(existing.plan_selection?.users)||null,required:Number(answers.users)!==Number(existing.plan_selection?.users)},modules:{enabled:selectedModules,hidden:moduleNames.filter(x=>!selectedModules.includes(x))},
-   completion:{version:1,pageCount:questionnaire.steps.length,completedPages:questionnaire.completePages,moduleDecision:answers.moduleDecision,needsClarification:onboardingModel.reviewNeeds(answers).length>0,unresolvedQuestions:onboardingModel.reviewNeeds(answers)},
-   business:{name:String(answers.businessName||'').trim(),type:String(answers.businessType||''),terminology:String(answers.terminology||answers.workName||''),branding:{colours:String(answers.colours||''),logoPath:logoPath||null}},
-   tasks:[
-    ...onboardingModel.reviewNeeds(answers).map(x=>({key:'clarify_'+x.key,label:'Resolve before configuration: '+x.label,status:'pending'})),
-    {key:'verify_subscription',label:'Verify paid subscription and user seats',status:'pending'},
-    {key:'review_branding',label:'Approve branding and business terminology',status:'pending'},
-    {key:'configure_modules',label:'Review module visibility, permissions and dependencies',status:'pending'},
-    {key:'configure_workflows',label:'Configure jobs, quotes, tasks and business workflows',status:'pending'},
-    {key:'configure_finance',label:'Review VAT, invoices, payment terms and reporting',status:'pending'},
-    ...(selectedModules.some(x=>['Inventory','Purchasing','Goods received','Job allocations'].includes(x))?[{key:'configure_stock',label:'Approve warehouses, stock costs and purchasing defaults',status:'pending'}]:[]),
-    ...(selectedModules.some(x=>['Workforce','Timesheets','Labour costing'].includes(x))?[{key:'configure_workforce',label:'Review staff roles, rates and timesheets',status:'pending'}]:[]),
-    ...(selectedModules.includes('Xero')?[{key:'authorise_xero',label:'Customer authorisation required for Xero',status:'pending'}]:[]),
-    {key:'review_imports',label:'Review and approve any data imports',status:'pending'},
-    {key:'client_approval',label:'Obtain customer approval of configured BMS',status:'pending'},
-    {key:'activate',label:'Final internal approval before customer access',status:'pending'}
-   ]
-  }:null;
+  const proposedConfig=service==='business_software'?proposedConfigBuilder.buildProposedConfig({answers,planSelection:existing.plan_selection,logoPath}):null;
   const payload={answers,service_type:service,current_step:questionnaire?questionnaire.finalStep:4,progress:100,status:'submitted',submitted_at:new Date().toISOString(),logo_path:logoPath||null,...(proposedConfig?{proposed_config:proposedConfig}:{})};
   // Subscription selection is server-owned. Questionnaire requests never alter paid seats.
   if(service==='business_software')payload.plan_selection=existing.plan_selection||{};
