@@ -26,8 +26,9 @@ begin
   end if;
   update public.business_software_material_orders
   set status = 'ordered', ordered_at = coalesce(ordered_at, now())
-  where id = p_order and tenant_id = p_tenant and status = 'draft';
-  return jsonb_build_object('ok', true, 'already', false, 'status', 'ordered');
+  where id = p_order and tenant_id = p_tenant and status = 'draft'
+  returning ordered_at into v.ordered_at;
+  return jsonb_build_object('ok', true, 'already', false, 'status', 'ordered', 'ordered_at', v.ordered_at);
 end
 $function$;
 revoke all on function public.bms_mark_purchase_order_ordered(uuid,uuid) from public,anon,authenticated;
