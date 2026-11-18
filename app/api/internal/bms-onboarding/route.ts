@@ -69,7 +69,7 @@ async function verifyPaidSubscription(tenantId:string){
  if(!checkout?.stripe_subscription_id||!checkout?.stripe_customer_id)return reply({error:"Verified paid checkout missing"},409);
  const stripeKey=process.env.STRIPE_SECRET_KEY;
  if(!stripeKey)return reply({error:"Stripe verification unavailable"},503);
- const stripeOverride=process.env.NODE_ENV==="production"?null:(process.env.STRIPE_API_BASE||null);
+ const stripeOverride=isProductionEnvironment()?null:(process.env.STRIPE_API_BASE||null);
  const stripeSubscriptionsUrl=stripeOverride?stripeOverride+"/v1/subscriptions/":"https://api.stripe.com/v1/subscriptions/";
  const sr=await fetch(stripeSubscriptionsUrl+encodeURIComponent(checkout.stripe_subscription_id),{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
  if(!sr.ok)return reply({error:"Could not verify current subscription"},503);
@@ -87,7 +87,7 @@ async function verifiedDraftEntitlement(tenantId:string){
  if(!("checkout" in verified))return verified;
  const {checkout,sub}=verified;
  if(sub.status!=="active")return reply({error:"Subscription is not currently active"},409);
- const adapters=adapterModule.createAdapters({stripeKey:process.env.STRIPE_SECRET_KEY,supabaseUrl:base,serviceKey:key,stripeApiBase:process.env.NODE_ENV==="production"?null:(process.env.STRIPE_API_BASE||null)});
+ const adapters=adapterModule.createAdapters({stripeKey:process.env.STRIPE_SECRET_KEY,supabaseUrl:base,serviceKey:key,stripeApiBase:isProductionEnvironment()?null:(process.env.STRIPE_API_BASE||null)});
  let found:any;
  try{
   const catalogue=await adapterModule.readCatalogue(adapters,originalCatalogueIds());
