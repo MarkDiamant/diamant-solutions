@@ -92,6 +92,22 @@ test('legacy v1 submissions are normalised server-side without touching the stor
  assert(!calls.some(c=>c.o.method==='PATCH'&&c.u.includes('/rest/v1/onboarding')),'original submission row never rewritten');
 });
 
+test('catalogue price ids honour env overrides outside production; production ignores them and fails closed',async()=>{
+ const custom={base:'price_tbase',extra:'price_textra',ai:'price_tai'};
+ catalogueAmounts[custom.base]=4900;catalogueAmounts[custom.extra]=1000;catalogueAmounts[custom.ai]=1500;
+ process.env.BMS_ORIGINAL_BASE_PRICE_ID=custom.base;process.env.BMS_ORIGINAL_EXTRA_PRICE_ID=custom.extra;process.env.BMS_ORIGINAL_AI_PRICE_ID=custom.ai;
+ const customSub={...activeSubscription(),items:{data:[subscriptionItem(custom.base,1)]}};
+ mockFetch({stripeBody:customSub});
+ const ok=await mod.exports.PATCH(draftRequest());
+ assert.equal(ok.status,200,'env override honoured outside production');
+ process.env.VERCEL_ENV='production';
+ const prodCalls=mockFetch({stripeBody:customSub});
+ const blocked=await mod.exports.PATCH(draftRequest());
+ assert.equal(blocked.status,409,'production environment ignores the override and fails closed');
+ assert(prodCalls.some(c=>c.u.includes('/v1/prices/'+catalogueIds.base)),'production fell back to the built-in catalogue');
+ delete process.env.VERCEL_ENV;delete process.env.BMS_ORIGINAL_BASE_PRICE_ID;delete process.env.BMS_ORIGINAL_EXTRA_PRICE_ID;delete process.env.BMS_ORIGINAL_AI_PRICE_ID;
+});
+
 test('a checkout seat count disagreeing with the verified subscription is reported, not trusted',async()=>{
  const calls=mockFetch({checkoutRows:[{...paidCheckout,users:2}]});
  const result=await mod.exports.PATCH(draftRequest());
