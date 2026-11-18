@@ -189,3 +189,5 @@ export async function PATCH(req){
  if(!review.ok)return reply({error:"Status saved but review notes failed; retry"},502);
  return reply({ok:true,status});
 }
+
+// Trigger preview build for isolated draft-tenant acceptance (no behavior change).
