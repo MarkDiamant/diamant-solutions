@@ -23,7 +23,7 @@ declare
   email text;
   paid_seats integer;
 begin
-  if coalesce(current_setting('request.jwt.claim.role', true), '') <> 'service_role' then
+  if coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role', current_setting('request.jwt.claim.role', true), '') <> 'service_role' then
     raise exception 'Service role required';
   end if;
 
