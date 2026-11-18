@@ -12,6 +12,7 @@ const reply=(body:any,status=200)=>NextResponse.json(body,{status,headers:{"Cach
 // isolated non-production fixtures.
 // Catalogue overrides are honoured everywhere except the true production environment.
 // Vercel sets NODE_ENV=production on previews too, so VERCEL_ENV decides when present.
+// Preview build trigger for the paired hermetic-test fix (no behavior change).
 const isProductionEnvironment=()=>process.env.VERCEL_ENV?process.env.VERCEL_ENV==="production":process.env.NODE_ENV==="production";
 const priceId=(env:string,fallback:string)=>isProductionEnvironment()?fallback:(process.env[env]||fallback);
 const originalCatalogueIds=()=>({base:priceId("BMS_ORIGINAL_BASE_PRICE_ID","price_1UIFEaKCFlu3cFvBVzR5uBNv"),extra:priceId("BMS_ORIGINAL_EXTRA_PRICE_ID","price_1UIX8VKCFlu3cFvBzdLNQgmy"),ai:priceId("BMS_ORIGINAL_AI_PRICE_ID","price_1UIX8ZKCFlu3cFvBh8Ih992k")});
