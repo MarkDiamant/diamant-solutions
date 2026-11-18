@@ -51,6 +51,21 @@ export async function GET(req){
  if(!r.ok){const detail=await r.json().catch(()=>({}));console.error("internal onboarding queue read failed",{status:r.status,code:String(detail.code||""),message:String(detail.message||"").slice(0,400)});return reply({error:"Unable to load onboarding queue",diagnostic:{upstreamStatus:r.status,code:String(detail.code||"").slice(0,40),message:String(detail.message||"").replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi,"[email]").slice(0,240)}},502);}
  const items=await r.json();const reviews=await rest("business_software_onboarding_reviews?select=tenant_id,review_notes,approved_at,applied_bms_tenant_id,activation_email_sent_at,activation_email_error&limit=200");if(!reviews.ok)return reply({error:"Unable to load review records"},502);const byId=new Map((await reviews.json()).map((x:any)=>[x.tenant_id,x]));return reply({items:items.map((x:any)=>({...x,review:byId.get(x.tenant_id)||null}))});
 }
+async function verifyPaidSubscription(tenantId:string){
+ const order=await rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=stripe_subscription_id,stripe_customer_id&limit=1");
+ if(!order.ok)return reply({error:"Unable to verify paid checkout"},503);
+ const checkout=(await order.json())[0];
+ if(!checkout?.stripe_subscription_id||!checkout?.stripe_customer_id)return reply({error:"Verified paid checkout missing"},409);
+ const stripeKey=process.env.STRIPE_SECRET_KEY;
+ if(!stripeKey)return reply({error:"Stripe verification unavailable"},503);
+ const stripeOverride=process.env.NODE_ENV==="production"?null:(process.env.STRIPE_API_BASE||null);
+ const stripeSubscriptionsUrl=stripeOverride?stripeOverride+"/v1/subscriptions/":"https://api.stripe.com/v1/subscriptions/";
+ const sr=await fetch(stripeSubscriptionsUrl+encodeURIComponent(checkout.stripe_subscription_id),{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
+ if(!sr.ok)return reply({error:"Could not verify current subscription"},503);
+ const sub=await sr.json();
+ if(!["active","trialing"].includes(sub.status)||String(sub.customer)!==checkout.stripe_customer_id)return reply({error:"Subscription is not currently active or does not match customer"},409);
+ return null;
+}
 export async function PATCH(req){
  const user=await admin(req);if(!user)return reply({error:"Internal administrator access required"},403);
  const body=await req.json().catch(()=>({}));const tenantId=String(body.tenantId||"");
@@ -62,20 +77,56 @@ export async function PATCH(req){
   const check=onboardingModel.completion(row.answers||{}),unresolved=onboardingModel.reviewNeeds(row.answers||{});
   if(check.missing.length||unresolved.length)return reply({error:"Questionnaire needs clarification before configuration or approval. Reopen it and resolve the missing or deferred answers.",missing:check.missing,unresolved},409);
  }
- if(body.action==="prepare"){
-  const order=await rest("checkout_orders?tenant_id=eq."+tenantId+"&service_type=eq.business_software&payment_status=eq.paid&select=stripe_subscription_id,stripe_customer_id&limit=1");
-  if(!order.ok)return reply({error:"Unable to verify paid checkout"},503);
-  const checkout=(await order.json())[0];
-  if(!checkout?.stripe_subscription_id||!checkout?.stripe_customer_id)return reply({error:"Verified paid checkout missing"},409);
-  const stripeKey=process.env.STRIPE_SECRET_KEY;
-  if(!stripeKey)return reply({error:"Stripe verification unavailable"},503);
-  const sr=await fetch("https://api.stripe.com/v1/subscriptions/"+encodeURIComponent(checkout.stripe_subscription_id),{headers:{Authorization:"Bearer "+stripeKey},cache:"no-store"});
-  if(!sr.ok)return reply({error:"Could not verify current subscription"},503);
-  const sub=await sr.json();
-  if(!["active","trialing"].includes(sub.status)||String(sub.customer)!==checkout.stripe_customer_id)return reply({error:"Subscription is not currently active or does not match customer"},409);
+ if(body.action==="prepare"||body.action==="prepare_draft"){
+  if(body.action==="prepare_draft"){
+   const reviewState=await rest("business_software_onboarding_reviews?tenant_id=eq."+tenantId+"&select=approved_at&limit=1");
+   if(!reviewState.ok)return reply({error:"Unable to verify review state"},502);
+   if((await reviewState.json())[0]?.approved_at)return reply({error:"Setup is already approved"},409);
+   const paidError=await verifyPaidSubscription(tenantId);
+   if(paidError)return paidError;
+   const draft=await rest("rpc/bms_prepare_draft_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id})});
+   if(!draft.ok){const detail=await draft.json().catch(()=>({}));return reply({error:detail.message||"Draft tenant preparation failed"},409)}
+   const check=onboardingModel.completion(row.answers||{}),unresolved=onboardingModel.reviewNeeds(row.answers||{});
+   return reply({ok:true,draft:true,bmsTenantId:await draft.json(),pending:{missing:check.missing.length,unresolved:unresolved.length}});
+  }
+  const paidError=await verifyPaidSubscription(tenantId);
+  if(paidError)return paidError;
   const result=await rest("rpc/bms_prepare_paid_onboarding_tenant",{method:"POST",body:JSON.stringify({p_onboarding_tenant:tenantId,p_reviewer:user.id})});
   if(!result.ok){const detail=await result.json().catch(()=>({}));return reply({error:detail.message||"Tenant preparation failed"},409)}
   return reply({ok:true,bmsTenantId:await result.json()});
+ }
+ if(body.action==="configure_draft"){
+  const reviewState=await rest("business_software_onboarding_reviews?tenant_id=eq."+tenantId+"&select=approved_at,applied_bms_tenant_id&limit=1");
+  if(!reviewState.ok)return reply({error:"Unable to verify review state"},502);
+  const rev=(await reviewState.json())[0];
+  if(!rev?.applied_bms_tenant_id)return reply({error:"Prepare the draft tenant before configuring it"},409);
+  if(rev.approved_at)return reply({error:"Setup is already approved"},409);
+  const t=await rest("business_software_tenants?id=eq."+encodeURIComponent(rev.applied_bms_tenant_id)+"&select=id,status&limit=1");
+  if(!t.ok)return reply({error:"Unable to verify draft tenant"},502);
+  const tenantRow=(await t.json())[0];
+  if(!tenantRow)return reply({error:"Draft tenant not found"},404);
+  if(tenantRow.status!=="suspended")return reply({error:"Only a suspended draft tenant can be configured through this internal action"},409);
+  const cfg:Record<string,any>=body.config&&typeof body.config==="object"&&!Array.isArray(body.config)?body.config:{};
+  const stringLimits={businessName:120,systemName:120,workItemTerminology:40,workforceTitle:60,workforceSingular:60};
+  const arrayKeys=["workforceRoles","workTypes","finishOptions","enquirySources","fileCategories"];
+  const templateKeys=["quoteTemplate","invoiceTemplate"];
+  const allowed=[...Object.keys(stringLimits),"logoUrl","accentColour",...arrayKeys,...templateKeys];
+  const bad=Object.keys(cfg).filter(k=>!allowed.includes(k));
+  if(bad.length)return reply({error:"These settings cannot be configured during draft: "+bad.sort().join(", ")},400);
+  const validated:Record<string,any>={};
+  for(const [k,max] of Object.entries(stringLimits))if(k in cfg){const v=String(cfg[k]??"").trim();if(v.length>max)return reply({error:k+" must be at most "+max+" characters"},400);validated[k]=v;}
+  if("logoUrl" in cfg){const v=String(cfg.logoUrl??"").trim();if(v&&!(v.startsWith("/")||v.startsWith("https://"))||v.length>500)return reply({error:"logoUrl must be a site path or https URL of at most 500 characters"},400);validated.logoUrl=v;}
+  if("accentColour" in cfg){const v=String(cfg.accentColour??"").trim();if(!/^#[0-9a-fA-F]{6}$/.test(v))return reply({error:"accentColour must be a hex colour such as #9C5F4B"},400);validated.accentColour=v;}
+  for(const k of templateKeys)if(k in cfg){const v=String(cfg[k]??"").trim();if(!["clean","classic","mj-signature"].includes(v))return reply({error:k+" must be clean, classic or mj-signature"},400);validated[k]=v;}
+  for(const k of arrayKeys)if(k in cfg){const v=cfg[k];if(!Array.isArray(v)||v.length>40||v.some(x=>typeof x!=="string"||x.trim().length===0||x.length>60))return reply({error:k+" must be a list of up to 40 short labels"},400);validated[k]=v.map(x=>x.trim());}
+  if(!Object.keys(validated).length)return reply({error:"No supported draft settings supplied"},400);
+  const current=await rest("business_software_tenant_settings?tenant_id=eq."+encodeURIComponent(tenantRow.id)+"&select=app_config&limit=1");
+  if(!current.ok)return reply({error:"Unable to read draft settings"},502);
+  const existing=(await current.json())[0]?.app_config;
+  const merged={...(existing&&typeof existing==="object"?existing:{}),...validated};
+  const saved=await rest("business_software_tenant_settings?tenant_id=eq."+encodeURIComponent(tenantRow.id),{method:"PATCH",headers:{Prefer:"return=representation"},body:JSON.stringify({app_config:merged})});
+  if(!saved.ok)return reply({error:"Could not save draft configuration"},502);
+  return reply({ok:true,applied:Object.keys(validated).sort()});
  }
  if(body.action==="send_activation"){
   if(row.status!=="ready")return reply({error:"Setup has not been approved"},409);
