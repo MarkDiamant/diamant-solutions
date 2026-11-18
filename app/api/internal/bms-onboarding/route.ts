@@ -77,7 +77,8 @@ async function verifyPaidSubscription(tenantId:string){
 // Draft preparation derives seats from the verified live subscription via the original
 // subscription catalogue checks (fail closed on any mismatch, inactivity or ambiguity).
 // The historical checkout row is evidence, never modified; client-supplied seat counts
-// are never trusted.
+// are never trusted. Verification unions are discriminated by property, not instanceof,
+// so route unit tests can stub NextResponse with plain objects.
 async function verifiedDraftEntitlement(tenantId:string){
  const verified=await verifyPaidSubscription(tenantId);
  if(!("checkout" in verified))return verified;
