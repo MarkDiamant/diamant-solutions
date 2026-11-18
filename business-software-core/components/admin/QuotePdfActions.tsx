@@ -97,7 +97,7 @@ async function renderQuotePage(page:HTMLElement){
     const pageBox=page.getBoundingClientRect();
     const pixelScale=result.width/pageBox.width;
     const blocks=Array.from(page.querySelectorAll<HTMLElement>("section h2, section h3, section p, section [data-quote-scope] > div, section [data-quote-scope] > p"));
-    const breaks=blocks.map(el=>{const box=el.getBoundingClientRect();return {y:Math.round((box.top-pageBox.top)*pixelScale),heading:/^H[1-6]$/.test(el.tagName)||(/^\\s*(?:\\d+[.)]\\s*)?[A-Z][^.!?]{3,80}:?\\s*$/.test(el.innerText||"")&&el.innerText.trim().length<75)};}).filter(b=>b.y>0&&b.y<result.height);
+    const breaks=blocks.map(el=>{const box=el.getBoundingClientRect();return {y:Math.round((box.top-pageBox.top)*pixelScale),heading:/^H[1-6]$/.test(el.tagName)||el.hasAttribute("data-quote-heading")||(/^\\s*(?:\\d+[.)]\\s*)?[A-Z][^.!?]{3,80}:?\\s*$/.test(el.innerText||"")&&el.innerText.trim().length<75)};}).filter(b=>b.y>0&&b.y<result.height);
     const footer=page.querySelector<HTMLElement>("footer:last-child");
     const footerBox=footer?.getBoundingClientRect();
     quotePdfLayouts.set(result,{breaks,footer:footerBox?{y:Math.round((footerBox.top-pageBox.top)*pixelScale),height:Math.ceil(footerBox.height*pixelScale)}:undefined});
