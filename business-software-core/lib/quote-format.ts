@@ -9,8 +9,27 @@ export function quoteAmountFromText(text:string){return String(text||"").split("
 export function validateTidiedQuote(before:string,after:string){const lines=(v:string)=>v.split("\n").map(x=>x.trim()).filter(Boolean);const priced=(v:string)=>[...v.matchAll(/£([\d,]+(?:\.\d{1,2})?)/g)].map(m=>Number(m[1].replace(/,/g,"")).toFixed(2)).sort();const a=lines(before),b=lines(after);if(b.length<a.length)throw Error("AI removed quotation lines. Original wording preserved.");const oldPrices=priced(before),newPrices=priced(after);if(JSON.stringify(oldPrices)!==JSON.stringify(newPrices))throw Error("AI changed or removed prices. Original wording preserved.");const oldPriced=a.filter(x=>/£[\d,]+(?:\.\d{1,2})?/.test(x));const newPriced=b.filter(x=>/£[\d,]+(?:\.\d{1,2})?/.test(x));if(oldPriced.some((line,i)=>newPriced[i]!==line))throw Error("AI altered a priced quotation line. Original wording preserved.");return after;}
 
 /** Canonical invoice-style quote lines. Preserve descriptions, numbering and bold markup. */
+/** Bold markers must close on the line they open. Older editor saves put the line break inside the bold span ("**Title\n**"), which prints as literal asterisks. */
+export function repairCrossLineBold(input:string){
+  const text=String(input||"").replace(/\\\*/g,"*");
+  const parts=text.split("**");
+  if(parts.length<3||parts.length%2===0)return text; // nothing to repair, or unbalanced: leave untouched
+  let out=parts[0];
+  for(let i=1;i<parts.length;i+=2){
+    const span=parts[i],after=parts[i+1]??"";
+    if(!span.includes("\n")){out+="**"+span+"**"+after;continue;}
+    const trailing=(span.match(/\s*$/)||[""])[0];
+    let core=span.slice(0,span.length-trailing.length);
+    // The break that sat inside the bold span is the real line break; keep one only if none follows.
+    const lead=(core.match(/^\s*/)||[""])[0];core=core.slice(lead.length);
+    const body=core.split("\n").map(l=>l.trim()?"**"+l.trim()+"**":l).join("\n");
+    const gap=after.startsWith("\n")?trailing.replace(/[ \t]*\n$/,""):trailing;
+    out+=lead+body+gap+after;
+  }
+  return out;
+}
 export function normaliseQuoteScope(input:string){
-  return String(input||"").split("\n").map(line=>{
+  return repairCrossLineBold(String(input||"")).split("\n").map(line=>{
     let out=line.trim();
     // Repair escaped markdown and repeated numbers from old quote saves.
     out=out.replace(/\\\*/g,"*");
