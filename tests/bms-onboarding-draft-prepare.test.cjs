@@ -99,6 +99,7 @@ test('catalogue price ids honour env overrides outside production; production ig
  const custom={base:'price_tbase',extra:'price_textra',ai:'price_tai'};
  catalogueAmounts[custom.base]=4900;catalogueAmounts[custom.extra]=1000;catalogueAmounts[custom.ai]=1500;
  process.env.BMS_ORIGINAL_BASE_PRICE_ID=custom.base;process.env.BMS_ORIGINAL_EXTRA_PRICE_ID=custom.extra;process.env.BMS_ORIGINAL_AI_PRICE_ID=custom.ai;
+ process.env.VERCEL_ENV='preview';
  const customSub={...activeSubscription(),items:{data:[subscriptionItem(custom.base,1)]}};
  mockFetch({stripeBody:customSub});
  const ok=await mod.exports.PATCH(draftRequest());
