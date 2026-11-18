@@ -40,7 +40,7 @@ export default function QuoteScopeEditor({value,onChange}:{value:string;onChange
    if(el.tagName==="BR")return "\n";
    const body=Array.from(el.childNodes).map(serialize).join("");
    if(el.dataset.autoBold==="true")return body;
-   if(el.tagName==="STRONG"||el.tagName==="B"||el.style.fontWeight==="bold"||Number(el.style.fontWeight)>=600)return "**"+body.replace(/^\*\*|\*\*$/g,"")+"**";
+   if(el.tagName==="STRONG"||el.tagName==="B"||el.style.fontWeight==="bold"||Number(el.style.fontWeight)>=600)return body.replace(/^\*\*|\*\*$/g,"").split(/(\n+)/).map(part=>!part||/^\n+$/.test(part)||!part.trim()?part:"**"+part+"**").join("");
    return body+(["DIV","P"].includes(el.tagName)?"\n":"");
  }
  function save(){
