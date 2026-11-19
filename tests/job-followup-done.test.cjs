@@ -71,6 +71,7 @@ test('panel: dialog requires a date, shows stage effect, verifies via shared mod
  assert.match(panel,/Next follow-up date \(required\)/);
  assert.match(panel,/verifyDoneResponse\(p,b\)/);
  assert.match(panel,/reloaded=await load\(\)/);
+ assert.match(panel,/"⚠ Unable to confirm update"/);
  assert.doesNotMatch(panel,/The job follow-up was not completed/);
  assert.match(panel,/disabled=\{!doneFor\.at\|\|updating===doneFor\.id\}/);
  assert.match(panel,/if\(updating===id\)return;setDoneFor/);
