@@ -125,6 +125,9 @@
  .bms-app-header-inner{padding:8px 12px;gap:9px}
  .bms-brand-logo{max-height:42px!important;max-width:100px!important}
  .bms-brand-details small,.bms-brand-details .builtBy{display:none}
+ .bms-brand-link{gap:8px;flex-wrap:nowrap}
+ .bms-brand-link strong{max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;line-height:1.2}
+ .bms-brand-details{flex-shrink:0}
  .bms-ruby-link{padding:9px}.bms-ruby-link span:last-child{display:none}
  .bms-new-job-button{padding:10px 11px;font-size:12px}
  .bms-sidebar{width:280px!important;max-width:85vw;transform:translateX(-110%);transition:transform .2s ease}

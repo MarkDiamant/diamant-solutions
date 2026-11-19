@@ -258,13 +258,13 @@
 .bms-dashboard .bms-inline-field{min-width:0;width:100%;height:34px;border:1px solid #cbd5e1;border-radius:8px;background:white;padding:4px 8px;font-size:12px;color:#0f172a}
 .bms-dashboard .bms-inline-field:focus{outline:2px solid var(--bms-accent);outline-offset:1px}
 /* Keep every NEXT column aligned regardless of status text length. */
-@media(min-width:1024px){.bms-dashboard .bms-job-status-action{display:grid!important;grid-template-columns: minmax(215px,1fr) minmax(0,1.15fr)!important;align-items:center!important;gap:8px!important}.bms-dashboard .bms-job-status-action > .bms-status-pill{justify-self:start}.bms-dashboard .bms-job-status-action > .bms-job-next-action{margin:0!important}}
+@media(min-width:1024px){.bms-dashboard .bms-job-status-action{display:grid!important;grid-template-columns: minmax(0,1fr) minmax(150px,1.15fr)!important;align-items:center!important;gap:8px!important}.bms-dashboard .bms-job-status-action > .bms-status-pill{justify-self:start}.bms-dashboard .bms-job-status-action > .bms-job-next-action{margin:0!important}}
 
 /* Money tiles: previous minimum-height override was defeated by dashboard styling. */
 .bms-shell .bms-dashboard .bms-money-tiles > button{height:58px!important;max-height:58px!important;min-height:0!important;box-sizing:border-box!important;padding:4px 12px!important;gap:0!important;overflow:hidden}
 .bms-shell .bms-dashboard .bms-money-tiles > button > p{min-height:0!important;margin-top:2px!important;line-height:1.15!important}
 /* Status and Next Action use identical fixed-size surfaces on the collapsed row. */
-@media(min-width:1024px){.bms-dashboard .bms-job-status-action{grid-template-columns: minmax(230px,1fr) minmax(0,1.15fr)!important}.bms-dashboard .bms-job-status-action > .bms-status-pill,.bms-dashboard .bms-job-status-action > .bms-job-next-action{height:38px!important;min-height:38px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;max-width:100%!important}}
+@media(min-width:1024px){.bms-dashboard .bms-job-status-action{grid-template-columns: minmax(0,1fr) minmax(150px,1.15fr)!important}.bms-dashboard .bms-job-status-action > .bms-status-pill{height:38px!important;min-height:38px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;max-width:100%!important}.bms-dashboard .bms-job-status-action > .bms-job-next-action{min-height:38px!important;border-radius:10px!important;display:inline-flex!important;align-items:center!important;justify-content:flex-start!important;max-width:100%!important;flex-wrap:wrap!important;row-gap:2px!important}}
 /* With the row editable, do not repeat status and job title in the toolbar. */
 .bms-dashboard .bms-quick-toolbar{display:block!important}
 .bms-dashboard .bms-quick-toolbar > div:first-child{display:none!important}
@@ -1026,6 +1026,13 @@ grid-template-columns:120px minmax(160px,1.02fr) minmax(145px,.95fr) minmax(125p
 .bms-shell .bms-dashboard .bms-manage-jobs-filters>input{
 height:40px!important;min-height:40px!important;max-height:40px!important;
 box-sizing:border-box!important;
+}
+}
+/* Manage Jobs toolbar: tighter track minimums at 1280-1439 so the + New Job action never clips past the viewport. */
+@media(min-width:1280px) and (max-width:1439px){
+.bms-shell .bms-dashboard .bms-manage-jobs-filters{
+grid-template-columns:120px minmax(120px,1.02fr) minmax(110px,.95fr) minmax(100px,.8fr) minmax(110px,.9fr) minmax(120px,1fr) auto!important;
+gap:7px!important;
 }
 }
 /* Start the four left-hand job actions under the Payment type field. */
