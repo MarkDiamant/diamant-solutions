@@ -26,7 +26,7 @@ function parseDoneRequest(b,now=Date.now()){
  return {ok:true,nextAt:at.toISOString(),newStatus:stage};
 }
 function verifyDoneResponse(req,body,now=Date.now()){
- const fail=()=>({ok:false,error:"The follow-up could not be confirmed as saved. The list has been refreshed. Check it before trying again."});
+ const fail=()=>({ok:false,error:"We couldn't confirm whether this saved."});
  const job=body&&body.job;
  if(!body||body.ok!==true||body.done!==true||!job||!job.next_action)return fail();
  const got=job.next_action_at?new Date(job.next_action_at).getTime():NaN,want=req&&req.next_at?new Date(req.next_at).getTime():NaN;
