@@ -161,7 +161,7 @@ function WorkTypePicker({options,initial}:{options:string[];initial:string[]}){
 
 function Overview({data,onSave,config,saving,reference,isNew=false}:{data:Bundle;onSave:(p:any)=>Promise<boolean>;config:CrmConfig;saving:boolean;reference:string;isNew?:boolean}){
   const [customers,setCustomers]=useState<any[]>([]),[customerSearch,setCustomerSearch]=useState(""),[selectedCustomerId,setSelectedCustomerId]=useState(""),[customerLoadError,setCustomerLoadError]=useState("");
- useEffect(()=>{if(!isNew)return;let active=true;fetch("/api/admin/customers",{cache:"no-store"}).then(async r=>{const b=await r.json();if(!r.ok||!Array.isArray(b.customers))throw Error("Existing customers could not be loaded. Retry before creating a job for an existing customer.");if(active)setCustomers(b.customers);}).catch(e=>{if(active)setCustomerLoadError(e.message)});return()=>{active=false}},[isNew]);
+ useEffect(()=>{if(!isNew)return;let active=true;fetch("/api/admin/customers",{cache:"no-store"}).then(async r=>{const b=await r.json();if(!r.ok||!Array.isArray(b.customers))throw Error("Existing customers could not be loaded. Retry before creating a job for an existing customer.");if(active)setCustomers(b.customers.map((c:any)=>({...c,firstName:c.firstName??c.first_name,lastName:c.lastName??c.last_name,companyName:c.companyName??c.company_name})));}).catch(e=>{if(active)setCustomerLoadError(e.message)});return()=>{active=false}},[isNew]);
  const selectedCustomer=customers.find(c=>c.id===selectedCustomerId);
  const j=data.job,c=data.customer||{};  const [snaggingRequired,setSnaggingRequired]=useState(Boolean(j.snagging_required));
  const initialTypes=Array.isArray(j.job_types)&&j.job_types.length?j.job_types:[j.job_type].filter(Boolean);
