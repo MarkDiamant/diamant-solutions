@@ -136,13 +136,14 @@ jobs:
             if(refs.some(id=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(id)))throw Error('/api/admin/jobs returned tenant-style UUID job ids for '+JSON.stringify(h));
             if(/M&J Metal|metal fabrication|mjmetal/i.test(JSON.stringify(data)))throw Error('M&J content leaked via /api/admin/jobs for '+JSON.stringify(h));
           }
-          const sess=await (await fetch('http://localhost:3100/api/admin/session',{headers:{host:'bms.diamantsolutions.co.uk'}})).json();
-          if(sess.demo!==true)throw Error('/api/admin/session is not the fictional demo endpoint');
+          const sessionResponse=await check('/api/admin/session',200);
+          const sess=await sessionResponse.json();
+          if(sessionResponse.headers.get('x-bms-demo')!=='1'||sess.admin?.email!=='alex@example-demo.co.uk'||sess.admin?.role!=='admin'||sess.tenant)throw Error('/api/admin/session is not the fictional demo endpoint');
           await check('/api/business-software/session?tenant_id=3ebc2265-8842-4826-b464-71783d6cf841',403);
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
-          for(const [sample,expected] of [['northstar','Property Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery']]){
+          for(const [sample,expected] of [['northstar','Property Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery'],['flooring','Laminate']]){
             const r=await fetch('http://localhost:3100/api/bms-demo/jobs?sample='+sample,{
               headers:{host:'bms.diamantsolutions.co.uk'}
             });
@@ -151,7 +152,7 @@ jobs:
             if(data.jobs?.[0]?.jobType!==expected)throw Error(sample+' jobs are not industry-specific');
             if(JSON.stringify(data).includes('M&J Metal'))throw Error('M&J brand leaked into '+sample);
           }
-          console.log('Demo firewall and six industry-specific fictional job samples passed.');})().catch(e=>{console.error(e);process.exitCode=1});
+          console.log('Demo firewall and seven industry-specific fictional job samples passed.');})().catch(e=>{console.error(e);process.exitCode=1});
           NODE
   preview_without_credentials:
     runs-on: ubuntu-latest
@@ -187,4 +188,3 @@ jobs:
             console.log('Unauthenticated tenant session denied.');
           })().catch(e=>{console.error(e);process.exitCode=1});
           NODE
-
