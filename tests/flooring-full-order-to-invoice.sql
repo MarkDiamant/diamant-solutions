@@ -21,6 +21,7 @@ BEGIN
  SELECT agreed_unit_net,id INTO unit_net,sl FROM business_software_sales_order_lines WHERE tenant_id=t AND sales_order_id=so;
  IF unit_net<>37 THEN RAISE EXCEPTION 'Customer-specific price failed: %',unit_net; END IF;
  po:=bms_create_purchase_order_once(t,s,j,jsonb_build_array(jsonb_build_object('product_id',p,'quantity',packs,'unit_cost_net',24)),'Test fictional purchase','test-full-workflow-po');
+ PERFORM bms_mark_purchase_order_ordered(t,po);
  SELECT id INTO pl FROM business_software_purchase_order_lines WHERE tenant_id=t AND material_order_id=po;
  PERFORM bms_receive_purchase_line(t,pl,l,12,'test-full-workflow-receipt-1');
  PERFORM bms_receive_purchase_line(t,pl,l,12,'test-full-workflow-receipt-2');
