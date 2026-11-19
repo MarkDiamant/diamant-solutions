@@ -52,7 +52,26 @@ test("activity submission retains entered data when server rejects save",()=>{as
 
 test("historical manager assignments remain selectable and quote/invoice notes are not conflated",()=>{assert.match(job,/j.manager&&!config.managers.some/);assert.match(job,/Customer requirements for quotation/);assert.match(job,/Quote Notes \/ exclusions \(shown on quotation only\)/);assert.match(job,/Job requirements for preparing the quote/);assert.match(job,/Private job notes, not shown to customers/);});
 
-test("work type multiselect rejects accidental zero selections rather than restoring stale types",()=>{assert.match(job,/if\(types\.length===0\)\{alert\("Choose at least one work type before saving this job\."\);return;\}/);assert.match(job,/job_type:types\[0\],job_types:types/);});
+test("work type multiselect rejects accidental zero selections on existing jobs rather than restoring stale types",()=>{
+ // job_type payload is still built from the selected types
+ assert.match(job,/job_type:types\[0\],job_types:types/);
+ // isNew is derived only from the NEW reference and is passed into the Overview form
+ assert.match(job,/const isNew=reference==="NEW";/);
+ assert.match(job,/function Overview\(\{[^)]*isNew=false/);
+ // run the real guard statement from the component source against the three cases
+ const m=job.match(/if\(types\.length===0(&&!isNew)?\)\{alert\("Choose at least one work type before saving this job\."\);return;\}/);
+ assert.ok(m,"work type guard statement not found in JobDetail source");
+ const run=(types,isNew)=>{const alerts=[];const fn=new Function("types","isNew","alert",m[0]+";return \"continue\";");const outcome=fn(types,isNew,(msg)=>alerts.push(msg));return {outcome,alerts};};
+ const existingEmpty=run([],false);
+ assert.equal(existingEmpty.outcome,undefined,"existing job with no work type must stop before saving");
+ assert.deepEqual(existingEmpty.alerts,["Choose at least one work type before saving this job."]);
+ const existingOne=run(["Fencing"],false);
+ assert.equal(existingOne.outcome,"continue");
+ assert.deepEqual(existingOne.alerts,[]);
+ const newEmpty=run([],true);
+ assert.equal(newEmpty.outcome,"continue","a new enquiry may be created before a work type is chosen");
+ assert.deepEqual(newEmpty.alerts,[]);
+});
 
 test("failed full job load preserves core job and exposes retry rather than infinite skeleton",()=>{assert.match(job,/const \[fullError,setFullError\]=useState\(""/);assert.match(job,/setFullError\(body\.error\|\|"Could not load complete job details"\)/);assert.match(job,/Retry full job details/);assert.match(job,/!data\._full&&!fullError&&<section/);});
 
