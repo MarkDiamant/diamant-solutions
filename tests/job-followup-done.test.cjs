@@ -63,11 +63,14 @@ test('migration: row lock, tenant scope, explicit date written after stage, audi
  assert.match(mig,/grant execute on function[^;]*to service_role/);
 });
 test('panel: dialog requires a date, shows stage effect, verifies via shared module and reloads after failure',()=>{
- assert.match(panel,/aria-label="Follow-up done"/);
- assert.match(panel,/Nothing is chosen for you/);
+ assert.match(panel,/aria-label="Complete follow-up"/);
+ assert.match(panel,/the stage and the date are both saved/);
+ assert.doesNotMatch(panel,/Nothing else changes/);
+ assert.match(panel,/Unable to confirm update: We couldn't confirm whether this saved/);
+ assert.match(panel,/The list could not be refreshed/);
  assert.match(panel,/Next follow-up date \(required\)/);
  assert.match(panel,/verifyDoneResponse\(p,b\)/);
- assert.match(panel,/try\{await load\(\)\}catch\{\}setErr\("Task change not saved: "/);
+ assert.match(panel,/reloaded=await load\(\)/);
  assert.doesNotMatch(panel,/The job follow-up was not completed/);
  assert.match(panel,/disabled=\{!doneFor\.at\|\|updating===doneFor\.id\}/);
  assert.match(panel,/if\(updating===id\)return;setDoneFor/);
