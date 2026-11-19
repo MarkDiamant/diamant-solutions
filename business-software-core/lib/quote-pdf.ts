@@ -96,7 +96,9 @@ function logoImage() {
   } catch { return null; }
 }
 
+function quoteDepositNeedsReview(deposit:unknown,paymentTerms:unknown){if(deposit===null||deposit===undefined||deposit===""||Number(deposit)!==0)return false;const terms=String(paymentTerms||"");return [...terms.matchAll(/(\d+(?:\.\d+)?)\s*(?:%|per\s*cent)\s+deposit\b/gi)].some(m=>Number(m[1])>0)||[...terms.matchAll(/\bdeposit\s+(?:of\s+)?(?:GBP|£)\s*(\d+(?:\.\d+)?)/gi)].some(m=>Number(m[1])>0);}
 export function buildQuotePdf(input: QuotePdfInput): Buffer {
+  if(quoteDepositNeedsReview(input.deposit,input.paymentTerms))throw new Error("This quote has an explicit zero deposit, but the business payment terms state a positive deposit. Check the quote deposit and Payment terms in Settings before generating or sharing. No document has been generated.");
   const template=input.template==="mj-signature"||input.template==="classic"?input.template:"clean";
   const hex=String(input.accentColour||"#e66a24").replace("#",""); const rgb=/^[0-9a-fA-F]{6}$/.test(hex)?[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16)/255):[0.90,0.36,0.10]; const accent=template==="classic"?"0 0 0":template==="mj-signature"?rgb.map(x=>x.toFixed(3)).join(" "):"0.18 0.18 0.18";
   type Page = { commands: string[]; y: number };
@@ -156,7 +158,7 @@ export function buildQuotePdf(input: QuotePdfInput): Buffer {
 
   gap(6); rule(); heading("Quotation");
   line(`Total: GBP ${Number(input.amount || 0).toFixed(2)}`, 16, true, 50, 22);
-  if (input.deposit) line(`Deposit: GBP ${Number(input.deposit).toFixed(2)}`, 10, true);
+  if (input.deposit!==null&&input.deposit!==undefined) line(`Deposit: GBP ${Number(input.deposit).toFixed(2)}`, 10, true);
   else if (input.defaultDepositPercent) line(`Deposit: ${input.defaultDepositPercent}%`, 10, true);
   if (input.leadTime) line(`Estimated lead time: ${input.leadTime}`, 10);
 
