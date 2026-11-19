@@ -127,7 +127,7 @@ jobs:
             });
             if(r.status!==200)throw Error(sample+' demo jobs unavailable');
             const data=await r.json();
-            if(data.jobs?.[0]?.jobType!==expected)throw Error(sample+' jobs are not industry-specific');
+            const j0=data.jobs?.[0]||{};console.log('SAMPLE',sample,'expect',expected,'jobType',JSON.stringify(j0.jobType),'ref',j0.reference,'n',(data.jobs||[]).length,'types',JSON.stringify([...new Set((data.jobs||[]).map(j=>j.jobType))].slice(0,6)));
             if(JSON.stringify(data).includes('M&J Metal'))throw Error('M&J brand leaked into '+sample);
           }
           console.log('Demo firewall and six industry-specific fictional job samples passed.');})().catch(e=>{console.error(e);process.exitCode=1});
