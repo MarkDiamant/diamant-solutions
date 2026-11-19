@@ -142,9 +142,9 @@ jobs:
           const demo=await check('/api/bms-demo/dashboard',200);
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
-          for(const [sample,expected] of [['northstar','Residential Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery']]){
-            const r=await fetch('http://localhost:3100/api/bms-demo/jobs',{
-              headers:{host:'bms.diamantsolutions.co.uk',referer:'https://bms.diamantsolutions.co.uk/?sample='+sample}
+          for(const [sample,expected] of [['northstar','Property Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery']]){
+            const r=await fetch('http://localhost:3100/api/bms-demo/jobs?sample='+sample,{
+              headers:{host:'bms.diamantsolutions.co.uk'}
             });
             if(r.status!==200)throw Error(sample+' demo jobs unavailable');
             const data=await r.json();
