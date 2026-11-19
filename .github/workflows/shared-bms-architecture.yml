@@ -122,12 +122,12 @@ jobs:
           const body=await demo.text();
           if(/M&J Metal|metal fabrication/i.test(body))throw Error('M&J content leaked into demo');
           for(const [sample,expected] of [['northstar','Residential Maintenance'],['electrical','Rewire'],['insurance','New Policy'],['studio','Branding'],['consultancy','Strategy'],['distribution','Delivery']]){
-            const r=await fetch('http://localhost:3100/api/bms-demo/jobs',{
-              headers:{host:'bms.diamantsolutions.co.uk',referer:'https://bms.diamantsolutions.co.uk/?sample='+sample}
+            const r=await fetch('http://localhost:3100/api/bms-demo/jobs?sample='+sample,{
+              headers:{host:'bms.diamantsolutions.co.uk'}
             });
             if(r.status!==200)throw Error(sample+' demo jobs unavailable');
             const data=await r.json();
-            const j0=data.jobs?.[0]||{};console.log('SAMPLE',sample,'expect',expected,'keys',Object.keys(j0).filter(k=>/type|trade|categor|work/i.test(k)).map(k=>k+'='+JSON.stringify(j0[k]).slice(0,80)).join(';'),'ref',j0.reference);
+            if(data.jobs?.[0]?.jobType!==expected)throw Error(sample+' jobs are not industry-specific');
             if(JSON.stringify(data).includes('M&J Metal'))throw Error('M&J brand leaked into '+sample);
           }
           console.log('Demo firewall and six industry-specific fictional job samples passed.');})().catch(e=>{console.error(e);process.exitCode=1});
