@@ -39,3 +39,18 @@ test("purchasing workspace offers Mark as ordered only for draft orders and keep
  assert.match(c,/o\.status==="draft"&&<button[^>]*onClick=\{\(\)=>void markOrdered\(o\)\}>Mark as ordered<\/button>/);
  assert.match(c,/No supplier order was sent by the system/,"button feedback keeps the no-auto-send promise");
 });
+
+
+test("fictional workflow has an explicit tenant-owned purchase transition and blocks draft receipts",()=>{
+ const r=source("app/api/bms-demo/flooring-actions/route.ts");
+ const c=source("business-software-core/components/admin/DemoOperationsPanel.tsx");
+ const branch=r.slice(r.indexOf('action==="mark_ordered"'),r.indexOf('action==="plan_delivery"'));
+ assert.match(branch,/await owned\("business_software_material_orders",tenant,order\)/);
+ assert.match(branch,/rpc\("bms_mark_purchase_order_ordered",\{p_tenant:tenant,p_order:order\}\)/);
+ assert.match(c,/purchaseOrder\?\.status!=="draft"/);
+ assert.match(c,/run\("mark_ordered",\{order_id:purchaseOrder.id\}\)/);
+ assert.match(c,/disabled=\{busy\|\|!receiptAllowed\|\|!purchaseLine/);
+ assert.match(c,/Nothing is sent to the supplier/);
+ const flow=source("tests/flooring-full-order-to-invoice.sql");
+ assert.ok(flow.indexOf('bms_mark_purchase_order_ordered(t,po)')<flow.indexOf('bms_receive_purchase_line(t,pl'));
+});

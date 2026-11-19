@@ -256,6 +256,9 @@ export async function POST(req:Request){
     const cost=amount(d.unit_cost_net);if(!Number.isFinite(cost))return response("Invalid unit cost",400);
     result=await rpc("bms_create_purchase_order_once",{p_tenant:tenant,p_supplier:supplier,p_job:job||null,p_lines:[{product_id:product,quantity:qty,unit_cost_net:cost}],p_notes:"Fictional flooring demo purchase",p_key:keyValue});
    }
+  }else if(action==="mark_ordered"){
+   const order=String(d.order_id||"");await owned("business_software_material_orders",tenant,order);
+   result=await rpc("bms_mark_purchase_order_ordered",{p_tenant:tenant,p_order:order});
   }else if(action==="plan_delivery"){
    const order=String(d.sales_order_id||"");await owned("business_software_sales_orders",tenant,order);
    const address=String(d.delivery_address||"").trim();if(address.length<5||address.length>300)return response("Enter a valid delivery address",400);
