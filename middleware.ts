@@ -24,6 +24,7 @@ export async function middleware(request:NextRequest){
    if(path.startsWith("/api/admin/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/"+path.slice("/api/admin/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path==="/api/jobs"||path.startsWith("/api/jobs/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/jobs"+path.slice("/api/jobs".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path.startsWith("/api/integrations/")){const url=request.nextUrl.clone();url.pathname="/api/bms-live/integrations/"+path.slice("/api/integrations/".length);const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
+   if(path==="/bms-set-password"){const response=NextResponse.next();response.headers.set("Cache-Control","no-store");response.headers.set("Referrer-Policy","no-referrer");return response;}
    if(path==="/login"){const url=request.nextUrl.clone();url.pathname="/bms-mj-preview";return NextResponse.rewrite(url);}
    if(!path.startsWith("/api/")&&!path.startsWith("/_next/")&&!path.includes(".")){
      const hasSession=Boolean(request.cookies.get("bms_access_token")?.value||request.cookies.get("bms_refresh_token")?.value);
