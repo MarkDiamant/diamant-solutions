@@ -54,3 +54,13 @@ test("fictional workflow has an explicit tenant-owned purchase transition and bl
  const flow=source("tests/flooring-full-order-to-invoice.sql");
  assert.ok(flow.indexOf('bms_mark_purchase_order_ordered(t,po)')<flow.indexOf('bms_receive_purchase_line(t,pl'));
 });
+
+
+test("fictional seed uses the real ordered-before-receipt rule and refuses a reused live identity",()=>{
+ const seed=source("supabase/demo/flooring_showcase_seed.sql");
+ assert.ok(seed.indexOf("bms_mark_purchase_order_ordered(t,po)")<seed.indexOf("bms_receive_purchase_line(t,pol"));
+ assert.match(seed,/canonical_host='flooring-showcase\.invalid'/);
+ assert.match(seed,/business_name='Oak & Stone Flooring Demo'/);
+ assert.match(seed,/billing_mode='free' AND reference_tenant=false/);
+ assert.match(seed,/Fictional demo identity guard failed/);
+});

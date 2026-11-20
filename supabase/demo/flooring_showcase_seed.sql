@@ -3,6 +3,7 @@ DO $$
 DECLARE t uuid;s uuid;c uuid;c2 uuid;l uuid;p uuid;tile uuid;lvt uuid;u uuid;j uuid;po uuid;so uuid;pol uuid;sol uuid;
 BEGIN
  SELECT id INTO t FROM business_software_tenants WHERE slug='flooring-showcase-demo';
+ IF t IS NOT NULL AND NOT EXISTS(SELECT 1 FROM business_software_tenants WHERE id=t AND canonical_host='flooring-showcase.invalid' AND business_name='Oak & Stone Flooring Demo' AND billing_mode='free' AND reference_tenant=false) THEN RAISE EXCEPTION 'Fictional demo identity guard failed'; END IF;
  IF t IS NULL THEN INSERT INTO business_software_tenants(slug,business_name,canonical_host,status,billing_mode,reference_tenant,data_backend) VALUES('flooring-showcase-demo','Oak & Stone Flooring Demo','flooring-showcase.invalid','active','free',false,'central') RETURNING id INTO t; END IF;
  INSERT INTO business_software_tenant_settings(tenant_id,business_name,accent_colour,quote_prefix,invoice_prefix,quote_default_lead_time,features) VALUES(t,'Oak & Stone Flooring Demo','#bf6c3a','FLQ','FLI','7-10 working days','{"flooring":true,"priceBook":true,"purchasing":true,"stock":true,"websiteCatalogue":true}') ON CONFLICT(tenant_id) DO NOTHING;
  SELECT id INTO s FROM business_software_suppliers WHERE tenant_id=t AND name='Harbour Flooring Wholesale';
@@ -37,6 +38,7 @@ BEGIN
  IF NOT EXISTS(SELECT 1 FROM business_software_stock_balances WHERE tenant_id=t AND product_id=lvt AND location_id=l) THEN PERFORM bms_apply_stock_movement(t,lvt,l,18,'Fictional opening stock','demo_seed','FL001','flooring-demo-opening-lvt'); END IF;
  IF NOT EXISTS(SELECT 1 FROM business_software_stock_balances WHERE tenant_id=t AND product_id=u AND location_id=l) THEN PERFORM bms_apply_stock_movement(t,u,l,12,'Fictional opening stock','demo_seed','FL001','flooring-demo-opening-underlay'); END IF;
  po:=bms_create_purchase_order_once(t,s,j,jsonb_build_array(jsonb_build_object('product_id',p,'quantity',20,'unit_cost_net',24)),'Fictional flooring PO','flooring-demo-po-1001');
+ IF EXISTS(SELECT 1 FROM business_software_material_orders WHERE id=po AND tenant_id=t AND status='draft') THEN PERFORM bms_mark_purchase_order_ordered(t,po); END IF;
  so:=bms_create_sales_order_once(t,c,j,jsonb_build_array(jsonb_build_object('product_id',p,'quantity',24)),'SO-2001','flooring-demo-so-2001');
  SELECT id INTO pol FROM business_software_purchase_order_lines WHERE tenant_id=t AND material_order_id=po AND product_id=p;
  SELECT id INTO sol FROM business_software_sales_order_lines WHERE tenant_id=t AND sales_order_id=so AND product_id=p;
