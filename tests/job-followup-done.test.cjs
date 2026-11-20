@@ -68,11 +68,53 @@ test('panel: dialog requires a date, shows stage effect, verifies via shared mod
  assert.doesNotMatch(panel,/Nothing else changes/);
  assert.match(panel,/Unable to confirm update: We couldn't confirm whether this saved/);
  assert.match(panel,/The list could not be refreshed/);
- assert.match(panel,/Next follow-up date \(required\)/);
+ assert.match(panel,/Next follow-up date\{doneFor\.noFollowup/);
+ assert.match(panel,/No further follow-up needed/);
  assert.match(panel,/verifyDoneResponse\(p,b\)/);
  assert.match(panel,/reloaded=await load\(\)/);
  assert.match(panel,/"⚠ Unable to confirm update"/);
  assert.doesNotMatch(panel,/The job follow-up was not completed/);
- assert.match(panel,/disabled=\{!doneFor\.at\|\|updating===doneFor\.id\}/);
+ assert.match(panel,/disabled=\{\(!doneFor\.noFollowup&&!doneFor\.at\)\|\|updating===doneFor\.id\}/);
  assert.match(panel,/if\(updating===id\)return;setDoneFor/);
+});
+
+const noNextMig=fs.readFileSync('supabase/migrations/20261120140000_bms_job_followup_no_next.sql','utf8');
+test('parse: no_followup is explicit and never combines with a date or a stage',()=>{
+ const r=parseDoneRequest({no_followup:true},NOW);
+ assert.equal(parseDoneRequest({no_followup:'false'},NOW).ok,false,'string must not silently pause followups');assert.equal(r.ok,true);assert.equal(r.noFollowup,true);assert.equal(r.nextAt,null);assert.equal(r.newStatus,null);
+ assert.equal(parseDoneRequest({no_followup:true,next_at:iso(3)},NOW).ok,false,'date plus opt-out must be rejected');
+ assert.equal(parseDoneRequest({no_followup:true,new_status:'quote_sent'},NOW).ok,false,'stage plus opt-out must be rejected');
+ assert.equal(parseDoneRequest({},NOW).ok,false,'a bare completion still requires a date');
+});
+test('verify: no_followup accepts only a persisted job with no next action and no date',()=>{
+ const req={no_followup:true};
+ const good={ok:true,done:true,job:{status:'awaiting_final_payment',next_action:null,next_action_at:null,next_action_paused:true}};
+ const v=verifyDoneResponse(req,good,NOW);assert.equal(v.ok,true);assert.equal(v.noFollowup,true);
+ assert.equal(verifyDoneResponse(req,{...good,job:{...good.job,next_action:'Chase final payment'}},NOW).ok,false,'refilled action means the opt-out did not stick');
+ assert.equal(verifyDoneResponse(req,{...good,job:{...good.job,next_action_at:iso(3)}},NOW).ok,false,'refilled date means the opt-out did not stick');
+ assert.equal(verifyDoneResponse(req,{...good,job:{...good.job,next_action_paused:false}},NOW).ok,false,'flag must be the persisted true');
+ assert.equal(verifyDoneResponse(req,{ok:true,done:true,job:{next_action:null,next_action_at:null}},NOW).ok,false,'missing persisted flag fails closed');
+ assert.equal(verifyDoneResponse({next_at:iso(3)},okBody({next_action:null}),NOW).ok,false,'date flow still rejects a missing action');
+});
+test('route: forwards the explicit opt-out to the same atomic tenant-scoped RPC',()=>{
+ assert.match(route,/p_no_followup:!!parsed\.noFollowup/);
+ assert.match(route,/rpc\/bms_complete_job_followup/);
+});
+test('no-next migration: persisted flag, trigger resume rules, single reviewed RPC signature, audited choice',()=>{
+ assert.match(noNextMig,/add column if not exists next_action_paused boolean not null default false/);
+ assert.match(noNextMig,/new\.status is distinct from old\.status then\s*new\.next_action_paused:=false/,'stage change resumes follow-ups');
+ assert.match(noNextMig,/new\.next_action is not null and btrim\(new\.next_action\)<>''/,'explicit next action resumes follow-ups');
+ assert.match(noNextMig,/if new\.next_action_paused then\s*new\.next_action:=null; new\.next_action_at:=null; return new;/,'paused jobs get no generated follow-up');
+ assert.match(noNextMig,/drop function if exists public\.bms_complete_job_followup\(uuid,uuid,timestamptz,text,text\)/);
+ assert.match(noNextMig,/p_no_followup boolean default false/);
+ assert.match(noNextMig,/'no_followup'/,'audit choice recorded');
+ assert.match(noNextMig,/grant execute on function public\.bms_complete_job_followup\(uuid,uuid,timestamptz,text,text,boolean\) to service_role/);
+ assert.match(noNextMig,/revoke all on function[^;]*from public, anon, authenticated/);
+ assert.match(noNextMig,/update public\.business_software_jobs set next_action=null,next_action_at=null,next_action_paused=true,updated_at=now\(\)/,'opt-out update touches only the follow-up fields');
+ assert.doesNotMatch(noNextMig,/set status='(completed|declined|cancelled|canceled|lost|dormant_enquiry)'/,'migration never moves a job to a terminal stage');
+});
+test('panel: completion actions are labelled Done for every task type',()=>{
+ assert.doesNotMatch(panel,/"Complete"\)/);
+ assert.doesNotMatch(panel,/>Complete</);
+ assert.match(panel,/The job stays in its current stage and no payment is recorded/);
 });
