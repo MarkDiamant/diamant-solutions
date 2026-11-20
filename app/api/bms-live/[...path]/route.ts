@@ -46,20 +46,7 @@ async function xeroRequest(tenantId:string,path:string,method="GET",body?:unknow
  if(!r.ok)throw new Error("Xero: "+String(result?.Message||result?.Elements?.[0]?.ValidationErrors?.[0]?.Message||result?.Detail||"Request failed ("+r.status+")"));
  return result;
 }
-async function createBmsInvoice(tenantId:string,reference:string,actor:string){
- const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id,reference,agreed_amount,quoted_amount&limit=1");
- const job=(await jr.json().catch(()=>[]))[0];if(!job)throw new Error("Job not found.");
- const ir=await centralRest("business_software_invoices?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&select=id,invoice_number&limit=1");
- const previous=(await ir.json().catch(()=>[]))[0];if(previous)return {already_exists:true,invoice:previous};
- const qr=await centralRest("business_software_quotes?tenant_id=eq."+encodeURIComponent(tenantId)+"&job_id=eq."+job.id+"&select=amount&order=created_at.desc&limit=1");
- const quote=(await qr.json().catch(()=>[]))[0];
- const amount=Number(job.agreed_amount||quote?.amount||job.quoted_amount||0);
- if(!Number.isFinite(amount)||amount<=0)throw new Error("A positive agreed or quoted amount is required.");
- const now=new Date().toISOString().slice(0,10);
- const saved=await centralRest("business_software_invoices?on_conflict=tenant_id,provider,external_invoice_id",{method:"POST",headers:{"Prefer":"resolution=merge-duplicates,return=representation"},body:JSON.stringify({tenant_id:tenantId,job_id:job.id,provider:"bms",external_invoice_id:"bms-"+job.id,invoice_number:job.reference,status:"DRAFT",total:amount,amount_due:amount,amount_paid:0,currency_code:"GBP",invoice_date:now,created_by:actor,synced_at:new Date().toISOString()})});
- if(!saved.ok)throw new Error("Unable to save BMS invoice ("+saved.status+").");
- return {invoice:(await saved.json().catch(()=>[]))[0]};
-}
+async function createBmsInvoice(_tenantId:string,_reference:string,_actor:string){throw new Error("Review the latest approved saved quote, its VAT basis and grand total using Review standalone BMS invoice. No invoice was created.");}
 async function createXeroDraftInvoice(tenantId:string,reference:string,actor:string){
  const jr=await centralRest("business_software_jobs?tenant_id=eq."+encodeURIComponent(tenantId)+"&reference=eq."+encodeURIComponent(reference)+"&select=id,reference,customer_id,customer_requirements,job_title,job_type,site_address_line_1,agreed_amount,quoted_amount&limit=1");
  const job=(await jr.json().catch(()=>[]))[0];
