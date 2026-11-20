@@ -36,3 +36,12 @@ test('TasksPanel preserves direct ordinary-task verification and job persisted-r
  for(const text of ['verifyDoneResponse(p,b)','checked?.task?.status!=="completed"','Unable to confirm update:','reloaded=await load()','if(updating===id)return;setDoneFor','<JobFollowupDialog','Complete occurrence','Complete task','Linked job unchanged.','Remind later'])assert.ok(s.includes(text),text);
  assert.doesNotMatch(s,/nextJobStep\(/);
 });
+
+test('success confirmation is content-sized, centred and expires after ten seconds without hiding errors',()=>{
+ const s=fs.readFileSync('business-software-core/components/admin/TasksPanel.tsx','utf8');
+ assert.match(s,/window\.setTimeout\(\(\)=>setDoneNote\(""\),10000\)/);
+ assert(s.includes('setDoneNoteVersion(v=>v+1)'));assert(s.includes('window.clearTimeout(timer)'));
+ const toast=s.slice(s.indexOf('{doneNote&&'),s.indexOf('{doneFor&&'));
+ assert(toast.includes('w-max'));assert(toast.includes('left-1/2'));assert(toast.includes('text-center'));assert(!toast.includes('Dismiss'));assert(!toast.includes('w-[92vw]'));
+ assert(s.includes('role="alertdialog"'));assert(s.includes('onClick={()=>setErr("")}'));assert(!s.includes('setTimeout(()=>setErr('));
+});
