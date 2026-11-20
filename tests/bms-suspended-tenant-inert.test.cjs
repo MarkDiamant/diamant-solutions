@@ -9,6 +9,7 @@ global.fetch=async(u)=>{calls.push(String(u));throw new Error('suspended tenant 
 
 const original=Module._load;
 Module._load=function(n,...args){
+ if(n==='@/business-software-core/lib/permissions'){const pm=new Module(path.join(__dirname,'../business-software-core/lib/permissions.ts'),module);pm._compile(ts.transpileModule(fs.readFileSync(pm.id,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,pm.id);return pm.exports;}
  if(n==='next/server')return {NextResponse:{json:(body,{status=200}={})=>({body,status})}};
  if(n==='next/headers')return {headers:async()=>({get:k=>k==='host'?'fictional-suspended.invalid':null}),cookies:async()=>({get:()=>undefined,set:()=>{}})};
  if(n==='@/lib/business-software/runtime'||n.endsWith('/lib/business-software/runtime'))return {runtimeTenant:async()=>suspendedTenant};

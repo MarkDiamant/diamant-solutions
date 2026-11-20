@@ -16,7 +16,7 @@ test("worker cannot access generic tenant APIs or non-worker pages",()=>{
 test("worker generic GET POST PATCH DELETE routes are restricted",()=>{
  const s=read("app/api/bms-live/[...path]/route.ts");
  assert.match(s,/\["session","worker\/me","worker\/location-checks"\]/);
- assert.match(s,/\["worker\/attendance","worker\/time"/);
+ assert.match(s,/\["worker\/attendance","worker\/break","worker\/other-work","worker\/time"/);
  for(const method of ["PATCH","DELETE"]){const start=s.indexOf("export async function "+method+"(");assert.ok(start>0);assert.match(s.slice(start,start+800),/role\|\|""\)\.toLowerCase\(\)==="worker"/);}
  assert.match(s,/role\|\|""\)\.toLowerCase\(\)==="worker"\|\|!canBms\(member,"manage_workforce"\)/);
 });
