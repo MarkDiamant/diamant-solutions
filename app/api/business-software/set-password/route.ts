@@ -21,8 +21,8 @@ export async function POST(req:Request){
   if(!Array.isArray(members)||members.length!==1||String(members[0].email||'').toLowerCase()!==String(p.user.email||'').toLowerCase())return reply({error:'This setup link is not for this business account.'},403);
   const lookup=await centralAuth('admin/users/'+encodeURIComponent(userId));
   const current=lookup.ok?await lookup.json():null;
-  if(!current||current.app_metadata?.bms_initial_password_tenant!==tenant.id)return reply({error:'Initial password setup is not enabled for this account. No password was changed.'},403);
-  const metadata={...current.app_metadata,bms_initial_password_tenant:null};
+  if(!current||current.app_metadata?.bms_initial_password_tenant!==tenant.id||!Number.isFinite(Date.parse(current.app_metadata?.bms_initial_password_expires_at||''))||Date.parse(current.app_metadata.bms_initial_password_expires_at)<=Date.now())return reply({error:'Initial password setup is not enabled for this account. No password was changed.'},403);
+  const metadata={...current.app_metadata,bms_initial_password_tenant:null,bms_initial_password_expires_at:null};
   const saved=await centralAuth('admin/users/'+encodeURIComponent(userId),{method:'PUT',body:JSON.stringify({password:d.password,app_metadata:metadata})});
   if(!saved.ok)return reply({error:'The password could not be saved. Ask for a fresh setup link.'},409);
   const account=await saved.json().catch(()=>null);if(account?.id!==userId||account?.app_metadata?.bms_initial_password_tenant)return reply({error:'Account setup needs administrator review before signing in.'},503);
