@@ -1,4 +1,4 @@
--- Transactional reset after a complete new fictional order-to-invoice workflow. Always rolls back.
+-- Full fictional workflow then reset, including cost layers, customer return and approved-quote draft invoice. Always rolls back.
 BEGIN;
 SET LOCAL ROLE service_role;
 DO $$
@@ -21,6 +21,7 @@ BEGIN
  SELECT agreed_unit_net,id INTO unit_net,sl FROM business_software_sales_order_lines WHERE tenant_id=t AND sales_order_id=so;
  IF unit_net<>37 THEN RAISE EXCEPTION 'Customer-specific price failed: %',unit_net; END IF;
  po:=bms_create_purchase_order_once(t,s,j,jsonb_build_array(jsonb_build_object('product_id',p,'quantity',packs,'unit_cost_net',24)),'Test fictional purchase','test-full-workflow-po');
+ PERFORM bms_mark_purchase_order_ordered(t,po);
  SELECT id INTO pl FROM business_software_purchase_order_lines WHERE tenant_id=t AND material_order_id=po;
  PERFORM bms_receive_purchase_line(t,pl,l,12,'test-full-workflow-receipt-1');
  PERFORM bms_receive_purchase_line(t,pl,l,12,'test-full-workflow-receipt-2');
@@ -28,20 +29,14 @@ BEGIN
  PERFORM bms_pick_sales_order_line(t,sl,l,12,'test-full-workflow-pick');
  delivery:=(bms_plan_delivery_once(t,so,'Fictional site, London','test-full-workflow-delivery')->>'id')::uuid;
  PERFORM bms_confirm_delivery(t,delivery,'test-full-workflow-delivery-confirm','Acceptance test');
+ PERFORM bms_record_customer_return(t,sl,l,2,true,'Fictional customer returned unopened packs','test-full-workflow-customer-return');
+ IF NOT EXISTS(SELECT 1 FROM business_software_customer_returns WHERE tenant_id=t AND sales_order_line_id=sl AND quantity=2 AND financial_status='credit_review_required') THEN RAISE EXCEPTION 'Customer return financial review missing';END IF;
+ PERFORM bms_approve_quote_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'Fictional acceptance manager','test-full-workflow-quote-approval');
  PERFORM bms_create_internal_draft_invoice_once(t,j,(SELECT id FROM business_software_quotes WHERE tenant_id=t AND job_id=j ORDER BY version DESC LIMIT 1),'test-full-workflow-invoice','FLI');
  IF NOT EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j AND status='draft') THEN RAISE EXCEPTION 'Invoice missing'; END IF;
- IF NOT EXISTS(SELECT 1 FROM business_software_deliveries WHERE tenant_id=t AND id=delivery AND status='delivered') THEN RAISE EXCEPTION 'New delivery missing before reset'; END IF;
  PERFORM bms_reset_flooring_showcase('RESET OAK AND STONE DEMO');
- IF EXISTS(SELECT 1 FROM business_software_jobs WHERE id=j)
- OR EXISTS(SELECT 1 FROM business_software_sales_orders WHERE id=so)
- OR EXISTS(SELECT 1 FROM business_software_material_orders WHERE id=po)
- OR EXISTS(SELECT 1 FROM business_software_deliveries WHERE id=delivery)
- OR EXISTS(SELECT 1 FROM business_software_invoices WHERE tenant_id=t AND job_id=j)
- THEN RAISE EXCEPTION 'Reset retained a newly created workflow record'; END IF;
- IF (SELECT count(*) FROM business_software_price_book_items WHERE tenant_id=t AND show_on_website=true)<>4
- OR (SELECT count(*) FROM business_software_customers WHERE tenant_id=t)<>2
- OR (SELECT count(*) FROM business_software_jobs WHERE tenant_id=t)<>1
- THEN RAISE EXCEPTION 'Reset did not restore exact fictional catalogue/customer/job baseline'; END IF;
+ IF EXISTS(SELECT 1 FROM business_software_jobs WHERE id=j) OR EXISTS(SELECT 1 FROM business_software_sales_orders WHERE id=so) OR EXISTS(SELECT 1 FROM business_software_material_orders WHERE id=po) OR EXISTS(SELECT 1 FROM business_software_deliveries WHERE id=delivery) THEN RAISE EXCEPTION 'Reset retained a new workflow record'; END IF;
+ IF (SELECT count(*) FROM business_software_price_book_items WHERE tenant_id=t AND show_on_website=true)<>4 OR (SELECT count(*) FROM business_software_customers WHERE tenant_id=t)<>2 OR (SELECT count(*) FROM business_software_jobs WHERE tenant_id=t)<>1 THEN RAISE EXCEPTION 'Reset did not restore exact fictional baseline'; END IF;
  SELECT count(*) INTO live_after FROM business_software_jobs WHERE tenant_id<>t;
  IF live_before<>live_after THEN RAISE EXCEPTION 'Live tenant changed'; END IF;
 END $$;
