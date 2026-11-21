@@ -1,3 +1,4 @@
+import {attendanceSessionInfo} from '../../../../lib/havdalahAttendanceDisplay';
 import {getLiveAttendance} from '../../../../lib/havdalahLiveAttendance';
 import {getManagedSlots} from '../../../../lib/havdalahManaged';
 import {getNextHavdalahSlot} from '../../../../lib/havdalahSchedule';
@@ -88,6 +89,7 @@ export async function GET(req){
   if(error)return Response.json({error:error.message},{status:500});
   result[name]=data;
  }
+ result.attendance_info=Object.fromEntries([...new Set(result.call_events.map(x=>x.conference_name).filter(Boolean))].map(name=>[name,attendanceSessionInfo(name,result)]));
  return Response.json(result,{headers:{'Cache-Control':'no-store'}});
 }
 
