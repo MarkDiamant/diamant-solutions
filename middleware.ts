@@ -15,6 +15,8 @@ export async function middleware(request:NextRequest){
    if(path==="/favicon.ico"){const url=request.nextUrl.clone();url.pathname="/api/business-software/icon";const headers=new Headers(request.headers);headers.set("x-bms-tenant-host",host);return NextResponse.rewrite(url,{request:{headers}});}
    if(path==="/manifest.webmanifest"){const url=request.nextUrl.clone();url.pathname="/api/business-software/manifest";return NextResponse.rewrite(url);}
    if(path.startsWith("/api/bms-demo"))return NextResponse.json({error:"Demo API is disabled on live BMS tenants."},{status:404});
+   // Recovery is provider-authenticated independently of stale BMS worker cookies.
+   if(path==="/bms-recover-password"||path==="/api/business-software/recover-password"||path==="/api/business-software/request-recovery"){const response=NextResponse.next();response.headers.set("Cache-Control","no-store");response.headers.set("Referrer-Policy","no-referrer");return response;}
    // Workers cannot use any other tenant API, including direct endpoints outside the admin router.
    if(path.startsWith("/api/")&&!path.startsWith("/api/admin/auth/")&&path!=="/api/admin/session"&&!path.startsWith("/api/admin/worker/")&&request.cookies.get("bms_access_token")?.value){
      let role:string|null=null;
