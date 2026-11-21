@@ -1,3 +1,4 @@
+import {getLiveAttendance} from '../../../../lib/havdalahLiveAttendance';
 import {getManagedSlots} from '../../../../lib/havdalahManaged';
 import {getNextHavdalahSlot} from '../../../../lib/havdalahSchedule';
 import {occasionForSlot} from '../../../../lib/havdalahVoiceSettings';
@@ -23,6 +24,10 @@ async function access(req){
 export async function GET(req){
  const a=await access(req);if(!a||a.error)return Response.json({error:a?.error||'Unauthorized'},{status:a?.status||401});
  const query=new URL(req.url).searchParams;
+ if(query.get('live_attendance')==='1'){
+  try{return Response.json(await getLiveAttendance({sid:process.env.TWILIO_ACCOUNT_SID,key:process.env.TWILIO_API_KEY_SID,secret:process.env.TWILIO_API_KEY_SECRET}),{headers:{'Cache-Control':'no-store'}});}
+  catch{return Response.json({error:'Live calls could not be confirmed. Try again shortly.'},{status:503,headers:{'Cache-Control':'no-store'}});}
+ }
  const requestedConference=query.get('conference_sid');
  const requestedName=query.get('conference_name');
  if(requestedConference||requestedName){
