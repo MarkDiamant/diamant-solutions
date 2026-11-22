@@ -1,0 +1,33 @@
+const ROOT=process.env.BMS_CANDIDATE_ROOT||require('path').resolve(__dirname,'..');
+const fs=require('fs'),ts=require(ROOT+'/node_modules/typescript'),vm=require('vm'),assert=require('node:assert/strict');
+const tenantId='f1c710aa-2026-4000-8000-000000000001',jobId='0ab6ba84-9df4-493a-9bdb-447587bee757';
+let role='manager',permissions=[],tenant={id:tenantId},orderCount=1,lineCount=1,legacyCount=1,cap=Infinity,rangeMode='exact',calls=[];
+const make=(data,range,ok=true)=>({ok,json:async()=>data,headers:{get:k=>k==='content-range'?range:null}});
+const ctx={exports:{},URL,Error,Number,fetch:async url=>make(url.endsWith('/user')?{id:'fictional-user'}:{role,permissions}),require:n=>n==='next/server'?{NextResponse:{json:(body,o={})=>({body,status:o.status||200,headers:o.headers})}}:n==='next/headers'?{cookies:async()=>({get:()=>({value:'fictional'})})}:n.includes('/runtime')?{runtimeTenant:async()=>tenant}:n.includes('/db')?{centralRest:async(path,opt)=>{
+ assert.equal(opt.method,'GET');assert(path.includes('tenant_id=eq.'+tenantId));assert.equal(opt.headers.Prefer,'count=exact');calls.push(path);
+ const u=new URL('https://fixture.invalid/'+path),table=u.pathname.slice(1),base='30000000-0000-4000-8000-';let rows;
+ if(table==='business_software_jobs')rows=u.searchParams.get('id')==='eq.'+jobId&&u.searchParams.get('reference')==='eq.JOB017'?[{id:jobId,reference:'JOB017'}]:[];
+ else if(table==='bms_material_orders')rows=Array.from({length:orderCount},(_,i)=>({id:base+String(i).padStart(12,'0'),status:'ordered',reference:'JOB017'}));
+ else if(table==='bms_material_lines')rows=Array.from({length:lineCount},(_,i)=>({id:'line'+i,order_id:base+'000000000000',product_id:null,quantity:24,received_qty:12,name:'Fictional packs',unit:'pack'}));
+ else if(table==='business_software_material_orders')rows=Array.from({length:legacyCount},(_,i)=>({id:'legacy'+i,job_id:jobId,supplier_name:'Legacy supplier',status:'ordered'}));
+ else if(table==='business_software_purchase_order_lines')rows=[{id:'legacy-line',material_order_id:'legacy0',description:'Separate m2 line',ordered_quantity:8,received_quantity:4,unit:'m2'}];
+ else if(table==='business_software_price_book_items')rows=[];else throw Error('Unexpected table '+table);
+ const total=rows.length;rows=rows.slice(0,Math.min(cap,Number(u.searchParams.get('limit')||Infinity)));
+ const range=rangeMode==='missing'?null:rangeMode==='star'?'0-0/*':`${rows.length?'0-'+(rows.length-1):'*'}/${total}`;
+ return make(rows,range);
+ }}:{linkedSalesMaterialCost:()=>{throw Error('Unrelated calculation called')}}};
+vm.createContext(ctx);vm.runInContext(ts.transpileModule(fs.readFileSync(ROOT+'/app/api/bms-materials/route.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText,ctx);
+const get=(ref='JOB017',id=jobId)=>ctx.exports.GET({url:'https://fixture.invalid?job_orders='+encodeURIComponent(ref)+'&job_id='+encodeURIComponent(id)});
+(async()=>{
+ let r=await get();assert.equal(r.status,200);assert.equal(r.body.complete,true);assert.equal(r.body.job_id,jobId);assert.equal(r.body.orders.length,1);assert.equal(r.body.lines[0].received_qty,12);assert.equal(r.body.lines[0].unit,'pack');assert.equal(r.body.legacy_lines[0].unit,'m2');assert.equal(r.headers['Cache-Control'],'private, no-store');
+ for(const ref of ['', 'x'.repeat(121),' JOB017'])assert.equal((await get(ref)).status,400);
+ for(const ref of ['job017','OTHER'])assert.equal((await get(ref)).status,409);
+ assert.equal((await get('JOB017','00000000-0000-4000-8000-000000000000')).status,409);assert.equal((await get('JOB017','bad')).status,400);
+ orderCount=101;cap=100;assert.equal((await get()).status,409);orderCount=1;lineCount=1001;cap=1000;assert.equal((await get()).status,409);
+ lineCount=2;cap=1;r=await get();assert.equal(r.status,409);assert.equal(r.body.orders,undefined);lineCount=1;cap=Infinity;
+ rangeMode='missing';assert.equal((await get()).status,409);rangeMode='star';assert.equal((await get()).status,409);rangeMode='exact';
+ role='worker';permissions=['view_jobs','view_costs_profit'];assert.equal((await get()).status,403);permissions.push('manage_purchasing');assert.equal((await get()).status,200);
+ role='manager';permissions=['view_jobs','view_costs_profit'];assert.equal((await get()).status,403);permissions=['manage_business_settings'];assert.equal((await get()).status,200);
+ role='admin';permissions=['view_jobs'];assert.equal((await get()).status,200);tenant=null;assert.equal((await get()).status,403);
+ console.log('PASS: exact tenant/job ID/case-sensitive reference, complete counted reads under lower server caps, missing counts, over-limit fail-closed, same purchasing permission semantics, explicit per-line units, read-only calls');
+})().catch(e=>{console.error(e);process.exit(1)});
