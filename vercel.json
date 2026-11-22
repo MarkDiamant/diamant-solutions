@@ -26,10 +26,5 @@
       "path": "/api/business-software/xero/bank-receipts",
       "schedule": "15,45 * * * *"
     }
-  ],
-  "git": {
-    "deploymentEnabled": {
-      "fix/shared-workflow-read-print-20261122": false
-    }
-  }
+  ]
 }
