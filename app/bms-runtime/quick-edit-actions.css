@@ -212,7 +212,7 @@
 /* Uniform Quick Edit action targets, without altering the More dropdown's inner menu. */
 .bms-dashboard .bms-quick-actions > a,.bms-dashboard .bms-quick-actions > button,.bms-dashboard .bms-quick-actions > details > summary,.bms-dashboard .bms-quick-actions > div{min-height:36px!important;display:inline-flex;align-items:center;justify-content:center;padding:6px 10px!important;border-radius:10px!important;font-size:12px!important;font-weight:800!important;white-space:nowrap}
 .bms-dashboard .bms-quick-actions > details > summary{display:flex}
-.bms-dashboard .bms-quick-actions > button:last-child{background:#141414!important;color:white!important}
+.bms-dashboard .bms-quick-actions > button:last-child{background:var(--bms-accent)!important;color:var(--bms-on-accent,#fff)!important;-webkit-text-fill-color:var(--bms-on-accent,#fff)!important}
 
 /* Compact desktop KPI counters: override older forced minimum label and value heights. */
 @media (min-width:640px){
