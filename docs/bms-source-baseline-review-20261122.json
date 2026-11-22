@@ -1,0 +1,309 @@
+{
+  "kind": "Explicit source-integrity re-anchor, not functional acceptance",
+  "base": "60837b7f85bfa45c9df48c0f2579be846a17cc49",
+  "candidate": "50922ee4db86c7b04b2485c44fa737f95eb92d04",
+  "originalManifest": "docs/bms-original-source-baseline-20260923.json",
+  "unchangedPin": "SetupRequired",
+  "components": [
+    {
+      "component": "AdminBrandBar",
+      "path": "business-software-core/components/admin/AdminBrandBar.tsx",
+      "main_blob": "1bbeae3191dfbf1848bffeeb906b66bf4f8be0fd",
+      "candidate_blob": "1bbeae3191dfbf1848bffeeb906b66bf4f8be0fd",
+      "baseline_blob": "91c8ac0b1312c0faa97fb387f755b69d6aba6b81",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "8466995b0c5e7b699727d31b19eb7068e531db10 Use Orders terminology for fictional Flooring sidebar without changing live tenant permissions"
+      ],
+      "recentHistoricalCommits": [
+        "8466995b0c5e7b699727d31b19eb7068e531db10 Use Orders terminology for fictional Flooring sidebar without changing live tenant permissions",
+        "b3c0cff3d8a91f2e838899fd17aa6039e2545753 Keep embedded demo navigation within its original runtime path",
+        "1c45ae45832c36442618e97a366295e50cdc00c8 Recognise server-confirmed embedded fictional demo for sidebar permissions and preserve sample on navigation",
+        "3f5151cdb39e32b085f006641c2d3f0f26c90e07 Make header Powered by Diamant Solutions credit independently clickable in new tab across all BMS tenants",
+        "6d24e8b0cbddfa8f7a06ed5c72aa53c56526db55 Hide privileged tenant menu until membership permissions load, while preserving fictional demo and worker portal",
+        "8bb6f410d69b6adc66d886e0d149ec1eecb80594 Respect independent scheduling and labour-costing module selections in navigation",
+        "372ae48f0972c7e1c8ff03b6ed57efe2f2a789ac Hide disabled tenant modules and unauthorized links in shared BMS navigation; refresh after changes",
+        "e3706aeaefa25b4d5b5c2ae940c3a446c826a128 Prevent loading-state navy colour from overriding server-rendered tenant accent",
+        "b5d7d11a38f8ea375628fb15eb8167bc5b8cfd69 Preserve tenant accent variables during navigation to prevent navy colour flash",
+        "0934c7860b982ec473282c3cef15e9ceecde72f0 Correct build error while restoring full BMS menu",
+        "c5323eb61ee06dc0100fdc2b616dd000f90b2674 Restore complete original menu for all non-worker accounts; keep backend permission enforcement",
+        "412329bf95c85e3dc011b5532530b6d2c4ba155a Restore all shared BMS menu modules for owners and administrators regardless of incomplete permissions or stale module flags"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "CrmDashboardV3",
+      "path": "business-software-core/components/admin/CrmDashboardV3.tsx",
+      "main_blob": "722461a2015efbaed437b5e541c55146a86dd995",
+      "candidate_blob": "722461a2015efbaed437b5e541c55146a86dd995",
+      "baseline_blob": "6c01398aa0c2e99f973d4ab9fd2e1653b9625901",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "ecf4c652b9b2becc874a551b02efda717bf50601 Speed up archived count and reorder Dormant before Did not proceed"
+      ],
+      "recentHistoricalCommits": [
+        "ecf4c652b9b2becc874a551b02efda717bf50601 Speed up archived count and reorder Dormant before Did not proceed",
+        "c6bd9a8f120a64fdcfb6de78eb5d4044b7a92ad0 Add Dormant/Other summary cards and include archived in Total enquiries",
+        "855c63282190272c11936321a540783041fc61dc Permission payload repair + settings security + dashboard/layout fixes",
+        "b993e34cb9736fea0c1c6101a11230cd64cfcdf8 BMS demos: per-demo fictional manager names, remove hardcoded M&J names (#10)",
+        "a59cfa46c4f5f4fe2ed82270f732c0c78ab5f5c5 BMS: refresh quote valid-until to 30 days on every edit (business-calendar basis) (#8)",
+        "04b87c876e97b49c645fc97c151daf0df4edbf69 Return from Quick Add immediately and refresh only jobs without unrelated dashboard requests",
+        "ddc1cfd3a40e9ea469637a30ad8d36e992ffe902 Fix quote editor click activating Add item through enclosing label",
+        "babc8942d821350f84483316854b0efc83f1db42 Polish shared Quick Add accent, compact warnings, action sizing and quote invoice fallbacks",
+        "c99b346671ba6eec3881bdcefb10b793001f2545 Keep successful Quick Add visible even when dashboard refresh fails",
+        "c6f453744a86d671fa51e7a162c9c113f5231d3e Repair Quick Add parser error in shared dashboard build",
+        "a42ad1deb4b8edbd449dfffae6ec1cfc97b48693 Fix Quick Add name-only creation and clear validation saving state",
+        "8ffb3e9d54cd05a94b0f96cf46d2b57a332d9b38 Enable inline Dashboard Quick Add using existing Quick Edit and tenant-scoped job POST"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "CrmDashboardV4",
+      "path": "business-software-core/components/admin/CrmDashboardV4.tsx",
+      "main_blob": "1b1c72480608fb1c85146d4541dc9b2a09aa6c41",
+      "candidate_blob": "1b1c72480608fb1c85146d4541dc9b2a09aa6c41",
+      "baseline_blob": "0686a852fdc9680e96eff78bdd3e7f3cb54e4801",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "02f3cb64b02c88e0800998003c88b85c3af07e29 Remove duplicate dynamically injected lost job value card",
+        "6e677117dea9ee477765b67c6e0f788882891add Preserve historical M&J lost-job-value metric in canonical BMS Dashboard core",
+        "bad42455ba6b3638963ecf14a94a3646a5623d24 Reduce Dashboard enhancer polling and remove hardcoded tenant job-reference pattern"
+      ],
+      "recentHistoricalCommits": [
+        "02f3cb64b02c88e0800998003c88b85c3af07e29 Remove duplicate dynamically injected lost job value card",
+        "8c8a3c27e9d02a4d5e1a29cdc85242d9ba60adeb Activate preserved lost-job-value Dashboard metric in shared core",
+        "6e677117dea9ee477765b67c6e0f788882891add Preserve historical M&J lost-job-value metric in canonical BMS Dashboard core",
+        "bad42455ba6b3638963ecf14a94a3646a5623d24 Reduce Dashboard enhancer polling and remove hardcoded tenant job-reference pattern",
+        "9b79a03f37a7d76448f302fa50ce18d11f7b3e81 Align shared workforce payment enhancer with generic Workforce heading",
+        "d010e07065e77dc6eb5bc2363e7a13f4ddf3cb9d Fix actual Dashboard invoice/quote action hierarchy and improve shared responsive layout",
+        "166c6a79579cebd36dee6a18d6e0209b410df4b4 Resolve internal BMS UI components locally inside versioned package",
+        "ee0f08e02251451623936160aa03915e8d3e0918 Restore required shared BMS build components",
+        "3678d1e9da0fe6781c950c3a3ee2bcda54cd490f Remove obsolete duplicate BMS core copy",
+        "c6978030769144755b26808a1c72dfd770ed7852 Remove delayed lost-value DOM injection",
+        "50a3d97fd12741ce58c896a122c7417236c1b978 Remove stale DOM activity enhancer from BMS dashboard",
+        "ac4e51ec34d902f33c613ce2a21fb561a77619e3 Fix expanded BMS activity links"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "CrmDashboardV5",
+      "path": "business-software-core/components/admin/CrmDashboardV5.tsx",
+      "main_blob": "dc0058eb96f850ba9173cee1390d97ce7519fa4d",
+      "candidate_blob": "dc0058eb96f850ba9173cee1390d97ce7519fa4d",
+      "baseline_blob": "11dc8baa50b76ef9b58df7c5a1db7669cd50898f",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "ede690d5bcd5c3e1a0fe008a388918562f6957da Keep task reminder in dashboard title row without duplication"
+      ],
+      "recentHistoricalCommits": [
+        "ede690d5bcd5c3e1a0fe008a388918562f6957da Keep task reminder in dashboard title row without duplication",
+        "e79fbbf3671ebfa4c844684e3f0391952ff2da2b Align actual invoice computed-style precedence with quote and remove V5 DOM/CSS patch layer",
+        "68e050b696240fc69872017575f4839ee44d780d Remove fragile dashboard DOM relocation now that responsive layout is native React grid",
+        "b08e88c01c7411946f598e20675d2fcb9c769a1a Resolve internal BMS UI components locally inside versioned package",
+        "182ff14443459be23a7fee996ace42845398b53b Enforce compact centred mobile BMS Save action",
+        "6c275714ab94de8723b12f09350300f451dc881f Show due task reminders on BMS dashboard",
+        "963d527681926d075f9213df560ae6bd0e21b899 Place mobile filter message after money overview",
+        "a5bf215bdafb1aa6b5f76969a487f01411911ac4 Restore required shared BMS build components",
+        "c5f2729cdb7e9e7c5961ddc749617662068aaf8e Remove obsolete duplicate BMS core copy",
+        "4274607f7f9c6524d655abfbcd35e354ac8d80dc Remove tenant-specific dashboard marker",
+        "a06f8f5917fbafd5a3b27e1e0a90772ef6405529 Seed BMS master core CrmDashboardV5.tsx"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "JobDetail",
+      "path": "business-software-core/components/admin/JobDetail.tsx",
+      "main_blob": "6ec53c5fce814751941e58542f3434f54ad76d97",
+      "candidate_blob": "943a7c55aaaf0e3469838fb726f48453d22a15c7",
+      "baseline_blob": "11b006ec567a2ea5a86ab0cb491fc02fa17f8d9a",
+      "mainBlobExistsInHistoricalClone": false,
+      "blobHistory": [],
+      "recentHistoricalCommits": [
+        "b75f98fc39c5a37c18a69f2c90db443311c042c6 Add JobDetail reviewed order handoff",
+        "ad7440c2793acbdbf4b9360bdf2fb3475058b539 Fix Materials layout and wrap mobile job status messages",
+        "f9e05fef8c8ce0d4e1754af2af8f3047a7cf34c0 Preserve full job operational inputs and controlled saved assignments",
+        "1bad756f57561b85604b9445b50e4e1ce7c2700a Normalize live and fictional customer list keys for explicit reuse",
+        "d5b80fded0406c58c94c1debc053a9ad58134cd9 Preserve company label and explicitly reuse selected existing customers",
+        "fd2ca27d0527222ef8ffa2da42c4639b3ce6b161 New job: send site address 2, city, customer reference; load permissions from session and fail closed",
+        "855c63282190272c11936321a540783041fc61dc Permission payload repair + settings security + dashboard/layout fixes",
+        "b993e34cb9736fea0c1c6101a11230cd64cfcdf8 BMS demos: per-demo fictional manager names, remove hardcoded M&J names (#10)",
+        "a59cfa46c4f5f4fe2ed82270f732c0c78ab5f5c5 BMS: refresh quote valid-until to 30 days on every edit (business-calendar basis) (#8)",
+        "20cafd1d8b9ce30addc8e671e0bad6c5c4887da1 Fail closed on purchase-order unit mismatch instead of silently copying incorrect stock quantities",
+        "f046377db0eea3890c49b01be510caf493014b70 Reconcile actual persisted material requirements after partial purchase-order copy failure",
+        "7b9ecad9e1f8e0d2110432fecd4ec22be2b37df2 Validate source PO quantities and unit costs before copying and clarify original VAT and cost records are not duplicated into requirements"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "JobWorkflowPanel",
+      "path": "business-software-core/components/admin/JobWorkflowPanel.tsx",
+      "main_blob": "f92b3c0a7979fc4f0a9799cb1f6a42e3205687e0",
+      "candidate_blob": "f92b3c0a7979fc4f0a9799cb1f6a42e3205687e0",
+      "baseline_blob": "c5a93a0851d50da504e8f3d1eac7019129b4c526",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "fddcbbab675827f984611e7a7659b00d732c7f39 Migrate shared JobWorkflowPanel form controls to central BMS design system, preserving native checkbox/file semantics"
+      ],
+      "recentHistoricalCommits": [
+        "fddcbbab675827f984611e7a7659b00d732c7f39 Migrate shared JobWorkflowPanel form controls to central BMS design system, preserving native checkbox/file semantics",
+        "98155f22ed759c08b1564fbb821682995841ff4b Remove application-specific helper import from packaged BMS component",
+        "204cc6e25eb476abd40758b5ac8e32a3eab55223 Preserve client directive in JobWorkflowPanel.tsx",
+        "358484c9b494354f68ca9d74c79775e651eb8f6e Sanitise technical errors in JobWorkflowPanel.tsx",
+        "bbd696972970b45bb10da47f5712ee73d1971ffa Use canonical BMS status list in workflow editor dropdown",
+        "c92d576657034491b35184e1e0f0a6a72f761115 Add Being priced up status and show Workforce day rates",
+        "8d686e5815d14e8dcfbdcd0532a22c9a143ce88a Restore required shared BMS build components",
+        "fe7657dbbf54aaa1cb348cdeef4ee9be8ff06bef Remove obsolete duplicate BMS core copy",
+        "714a90c4c4f704b4cc8536c8d6a5b7c65f6f4aec Seed BMS master core JobWorkflowPanel.tsx"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "NewJobForm",
+      "path": "business-software-core/components/admin/NewJobForm.tsx",
+      "main_blob": "54354627cce52515b9479aedae5e0a709d69994e",
+      "candidate_blob": "54354627cce52515b9479aedae5e0a709d69994e",
+      "baseline_blob": "aa064fe6fdafb9a9c112454e259d0eb8bfb45b94",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "d875b729a42e0595bd2ef37698fa500ee1592775 Migrate shared NewJobForm form controls to central BMS design system, preserving native checkbox/file semantics"
+      ],
+      "recentHistoricalCommits": [
+        "d875b729a42e0595bd2ef37698fa500ee1592775 Migrate shared NewJobForm form controls to central BMS design system, preserving native checkbox/file semantics",
+        "da0d36d4780b75ec9714a99b4f89e91e3604c6b5 Align legacy job creation with name-or-business requirement",
+        "2398f3e25e5877bb049c798b7eb889d5f13fe56e Remove application-specific helper import from packaged BMS component",
+        "3e0323d3631f426ebaa7c06c74ea150aa046b30a Fix legacy full job customer labels to Full Name and Company",
+        "6b09b7189770e7549e6c8a31dd626c4d3c784cf3 Preserve client directive in NewJobForm.tsx",
+        "334a8a2572660c4a61bb53bf6f3341ab4b738a17 Make NewJobForm.tsx errors user-friendly",
+        "11fe7d7014e66d2bed92ce79bf08dfe77c71a010 Restore required shared BMS build components",
+        "91e135af26f9c7be95af0dab1765966435e811f2 Remove obsolete duplicate BMS core copy",
+        "f811994a196c5ecaf81880b79d741305190f76a2 Seed BMS master core NewJobForm.tsx"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "NewJobFormV2",
+      "path": "business-software-core/components/admin/NewJobFormV2.tsx",
+      "main_blob": "7ba82396880e27441dee1b2c022724e497e4b3f4",
+      "candidate_blob": "7ba82396880e27441dee1b2c022724e497e4b3f4",
+      "baseline_blob": "129c1fd3a5fc9c9c566c19de29311fadfb742862",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "b993e34cb9736fea0c1c6101a11230cd64cfcdf8 BMS demos: per-demo fictional manager names, remove hardcoded M&J names (#10)"
+      ],
+      "recentHistoricalCommits": [
+        "b993e34cb9736fea0c1c6101a11230cd64cfcdf8 BMS demos: per-demo fictional manager names, remove hardcoded M&J names (#10)",
+        "01a08c517aeef3c41fe5755d12b30822c2746894 Migrate shared NewJobFormV2 form controls to central BMS design system, preserving native checkbox/file semantics",
+        "3811da358d8a8d8cf85e6ce9e1247e5001d0a978 Keep new job completion and authentication redirects inside current BMS tenant runtime",
+        "e1baf858c7e27e625d3f85317af2644c2298c1a4 Allow either personal or business name when adding BMS jobs",
+        "b64ff7313e4233b223f61bee494c8115a36557d1 Guard new job form against incomplete tenant settings and malformed lookup arrays",
+        "c0e72a8ff9fa8bc7d42fbb5ccfc03e74bce2ca3a Remove application-specific helper import from packaged BMS component",
+        "ca7ea507059a2d74222eb849bab9b2c72d027667 Align customer and invoice action labels with agreed BMS workflow",
+        "bac11fe5e63b1282090180597c9550cd048a111f Preserve client directive in NewJobFormV2.tsx",
+        "386274e1ef30d824dec6a87cba12ae35982cc4f8 Make NewJobFormV2.tsx errors user-friendly",
+        "f5dcda107e6aa68aff990a353df7cd177864a2b6 Restore required shared BMS build components",
+        "e0a0b545ee3822495f0893c0ce6b03a89a026c1b Remove obsolete duplicate BMS core copy",
+        "3457af13bf2a6c9fa7834adf3b2ef5512979e0d2 Seed BMS master core NewJobFormV2.tsx"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "QuotePdfActions",
+      "path": "business-software-core/components/admin/QuotePdfActions.tsx",
+      "main_blob": "5e8492c343e9d38873167c5a937e82c6b4d656b3",
+      "candidate_blob": "5e8492c343e9d38873167c5a937e82c6b4d656b3",
+      "baseline_blob": "ee128efeece17c83dd9c10aba3eb2e5ae02c6378",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "46a3fab9f31fe41f173bc8b85e2455284b3e7ade Keep quote scope headings with their text across PDF page breaks"
+      ],
+      "recentHistoricalCommits": [
+        "46a3fab9f31fe41f173bc8b85e2455284b3e7ade Keep quote scope headings with their text across PDF page breaks",
+        "1dd4cec7d75cad07f101ac67d97ce127b2308cfe Restore November 11 quotation pagination and PDF-matched preview from safe UI branch",
+        "95d99045bbbcf8632132a47d8e69e41455f75c67 Paginate tall quotation PDF captures at readable A4 scale rather than shrinking entire document",
+        "649f385e6882ac65db7b13b6d179547f58dd09b9 Remove tenant-specific metadata from shared quotation PDF renderer",
+        "ccd17894df46f0dd14ba7e58c1f8e3f5d1313384 Add JPEG data URL fallback when browser canvas PDF conversion fails",
+        "8796022b5ebafbb23b3ddde5880e3fd534e7b8c5 Make WhatsApp PDF creation select same visible quote pages as working Save PDF",
+        "39da05ed78bf20c5b2f0253794b8b117882ef055 Generate WhatsApp PDF from hidden print preview using same renderer as Save PDF",
+        "f980f3f40f502ec960977cada568e3cd30d89d6f Expose on-demand quote PDF generation for WhatsApp sharing without previously saved PDF",
+        "1ef475b7fbdddd9f65573dba7fe1ff83410cfd4f Require successful M&J logo decode and canvas draw before PDF download",
+        "650d98ec92660d01b331ff79a35a53fca2ebae77 Load M&J PDF logo from verified same-origin endpoint first; prevent silent logo omissions",
+        "03740e86a5d34ec2ad73096b7d68c037e7c03007 Composite M&J logo on PDF snapshot without risking working mobile download",
+        "f40137070da128083f4d42ea7e24e40958d25acd Immediately restore working Android PDF download after canvas logo regression"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "QuotePrint",
+      "path": "business-software-core/components/admin/QuotePrint.tsx",
+      "main_blob": "1066c0833e92cc3bf0f52d28d91e1fa6c92e644f",
+      "candidate_blob": "1066c0833e92cc3bf0f52d28d91e1fa6c92e644f",
+      "baseline_blob": "6ae1d8e2a54ca5db231a400449c5b7c762d42fc5",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "91e478cb2929a83995af5111bf325341e510edfc fix(bms): no-followup completion, responsive quote share and owner workflow access",
+        "b954c26c9859e82ed85acce1fc3e5d53fa31e987 fix(bms): allow no next follow-up and keep quote sharing responsive"
+      ],
+      "recentHistoricalCommits": [
+        "91e478cb2929a83995af5111bf325341e510edfc fix(bms): no-followup completion, responsive quote share and owner workflow access",
+        "b954c26c9859e82ed85acce1fc3e5d53fa31e987 fix(bms): allow no next follow-up and keep quote sharing responsive",
+        "74e9fbb44aaa921f775223c661b2e94f3b42e464 Keep explicit zero deposit distinct and hold conflicting quote terms",
+        "855c63282190272c11936321a540783041fc61dc Permission payload repair + settings security + dashboard/layout fixes",
+        "57c624642c6c24f52e1e3aa7ee3a49b3838125ec Keep quote scope headings with their text across PDF page breaks (print styles)",
+        "e42d3219086d9fb33fef6bba3ed94a527cf4e568 Restore November 11 quotation pagination and PDF-matched preview from safe UI branch",
+        "64f260efde8a637915764fa7efa3b86ce348207f Show business logos in quotation email and use one preview-first send button",
+        "c76ce9257ffaef8b030845b2e48c8fd7f191b511 Allow pending quotations to be emailed without approval and improve email preview notifications",
+        "c79ec1462d2d6da06250c22a1a84f7ecd30f6214 Show quotation and invoice Gmail send failures in preview and confirm Gmail acceptance",
+        "0ad639947dabdf8abde16f1abb0a16bd180fcf4c Prepare BMS quotation and invoice emails in-app and remove Gmail draft API calls",
+        "0311773a1d5c59e7e76c4d32d72d1b4418e09df5 Remove hardcoded M&J quotation tagline from shared tenant quotation design",
+        "4444e59b4f8265dd65dd7701f894f4cef9ca1e5e Keep lead time beside quotation total in subtle wrapping grey layout for print and mobile"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    },
+    {
+      "component": "XeroInvoicePage",
+      "path": "business-software-core/components/admin/XeroInvoicePage.tsx",
+      "main_blob": "218b11260bee2491d248471fb9867f91ea8fade0",
+      "candidate_blob": "4157c5c1c25fbedab57e4329d26053f833a9d2d4",
+      "baseline_blob": "b56f8ad0a1cc4872dd9aba4c67c9b387dfc73806",
+      "mainBlobExistsInHistoricalClone": true,
+      "blobHistory": [
+        "239669739802095eb01ec1077b5996108dbc274a fix(bms): publish exact reviewed Finance49 invoice batch"
+      ],
+      "recentHistoricalCommits": [
+        "239669739802095eb01ec1077b5996108dbc274a fix(bms): publish exact reviewed Finance49 invoice batch",
+        "3ec0baae61a31b2c4a9bb17f45bcd17531e62601 Make invoice PDF and return controls compact single-line buttons",
+        "c76ce9257ffaef8b030845b2e48c8fd7f191b511 Allow pending quotations to be emailed without approval and improve email preview notifications",
+        "c79ec1462d2d6da06250c22a1a84f7ecd30f6214 Show quotation and invoice Gmail send failures in preview and confirm Gmail acceptance",
+        "0ad639947dabdf8abde16f1abb0a16bd180fcf4c Prepare BMS quotation and invoice emails in-app and remove Gmail draft API calls",
+        "84b141d1a2241de965334204aa925b3f1e410f02 Fix client directive placement causing Xero invoice page production build failure",
+        "6d74bdc4d7bccee5017ed9c0a8964d6c33f1efe5 Replace hardcoded 50 percent deposit in Xero Gmail review with payment-aware invoice preview",
+        "bcd5d817a01866e0abd71877c9335b9e26f41820 Migrate shared XeroInvoicePage to BMS form/table primitives, retaining native CSV upload",
+        "7594e33b82de09a16ba3a92c1ef45dde42a0d52c Keep WhatsApp share and cancel buttons always visible in fixed modal footer",
+        "4043f58b3c61eaef4fa46c1b7f88ebdf402bf21d Keep invoice email draft controls visible and show immediate floating success feedback",
+        "cb32186d04c9a0fb6247b5367cf79ecab3b4fd25 Fix invoice signature newline and use Android native PDF sharing for WhatsApp",
+        "6b4b47921ee296f83edfe8afacd60e689649eba7 Fix Android invoice share modals with independent touch scrolling and background scroll lock"
+      ],
+      "semanticReviewDisposition": "not established by commit labels or hashes"
+    }
+  ],
+  "scope": "Pins represent exact canonical shared-core bytes reviewed as intentional evolution from the archival source. They do not certify all existing functionality or claim all historical contracts were accepted. Future byte changes still fail the unchanged exact hash check.",
+  "knownDebts": [
+    {
+      "component": "JobWorkflowPanel",
+      "debt": "Historical hardcoded Mark/Jonathan manager names and metal-specific labels remain in source. Full source import/export scan finds only its compatibility re-export and declarations, no application consumer; do not treat it as tenant-neutral if reintroduced."
+    },
+    {
+      "component": "NewJobForm",
+      "debt": "Historical M&J branding and manager labels remain. Full source scan finds only compatibility re-export/declaration; actual jobs/new route selects NewJobFormV2 for quick=1 and JobDetail for full view. Reintroduction requires tenant-configuration review."
+    },
+    {
+      "component": "Shared components",
+      "debt": "No blanket end-to-end, permission or visual acceptance. Existing tests and local demo smoke are bounded evidence; broader workflows remain under tracked acceptance."
+    },
+    {
+      "component": "NewJobFormV2",
+      "debt": "Reachable at /bms-runtime/jobs/new?quick=1. Branding, managers and work types use tenant settings, but unconditional Material selector still has metal choices. Existing-main shared-tenant configuration debt, not endorsed or changed by PR55. Requires separate scoped tenant-config follow-through."
+    }
+  ],
+  "reviewState": "LOCAL PROPOSAL. Independent disposition required before publication."
+}

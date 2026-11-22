@@ -1,21 +1,21 @@
 {
-  "source": "MarkDiamant/mjmetal",
-  "sourcePath": "components/admin",
-  "captured": "2026-09-23",
-  "note": "Pinned, reviewed canonical BMS component source baselines; M&J default workflows, no production customer data copied.",
+  "source": "MarkDiamant/diamant-solutions",
+  "sourcePath": "business-software-core/components/admin",
+  "captured": "2026-11-22",
+  "note": "Canonical shared-core source integrity anchor. Explicit provenance re-anchor only, not complete functional, security or hosted acceptance. Original capture preserved in docs/bms-original-source-baseline-20260923.json; scope and debts in docs/bms-source-baseline-review-20261122.json.",
   "components": {
-    "AdminBrandBar": "91c8ac0b1312c0faa97fb387f755b69d6aba6b81",
-    "CrmDashboardV3": "6c01398aa0c2e99f973d4ab9fd2e1653b9625901",
-    "CrmDashboardV4": "0686a852fdc9680e96eff78bdd3e7f3cb54e4801",
-    "CrmDashboardV5": "11dc8baa50b76ef9b58df7c5a1db7669cd50898f",
-    "JobDetail": "11b006ec567a2ea5a86ab0cb491fc02fa17f8d9a",
-    "JobWorkflowPanel": "c5a93a0851d50da504e8f3d1eac7019129b4c526",
-    "NewJobForm": "aa064fe6fdafb9a9c112454e259d0eb8bfb45b94",
-    "NewJobFormV2": "129c1fd3a5fc9c9c566c19de29311fadfb742862",
-    "QuotePdfActions": "ee128efeece17c83dd9c10aba3eb2e5ae02c6378",
-    "QuotePrint": "6ae1d8e2a54ca5db231a400449c5b7c762d42fc5",
+    "AdminBrandBar": "1bbeae3191dfbf1848bffeeb906b66bf4f8be0fd",
+    "CrmDashboardV3": "722461a2015efbaed437b5e541c55146a86dd995",
+    "CrmDashboardV4": "1b1c72480608fb1c85146d4541dc9b2a09aa6c41",
+    "CrmDashboardV5": "dc0058eb96f850ba9173cee1390d97ce7519fa4d",
+    "JobDetail": "943a7c55aaaf0e3469838fb726f48453d22a15c7",
+    "JobWorkflowPanel": "f92b3c0a7979fc4f0a9799cb1f6a42e3205687e0",
+    "NewJobForm": "54354627cce52515b9479aedae5e0a709d69994e",
+    "NewJobFormV2": "7ba82396880e27441dee1b2c022724e497e4b3f4",
+    "QuotePdfActions": "5e8492c343e9d38873167c5a937e82c6b4d656b3",
+    "QuotePrint": "1066c0833e92cc3bf0f52d28d91e1fa6c92e644f",
     "SetupRequired": "08d9ac9ff1d5402364d5ad2e5fc8157ad5dfeae5",
-    "XeroInvoicePage": "b56f8ad0a1cc4872dd9aba4c67c9b387dfc73806"
+    "XeroInvoicePage": "4157c5c1c25fbedab57e4329d26053f833a9d2d4"
   },
-  "lastReviewed": "2026-10-20"
+  "lastReviewed": "2026-11-22"
 }

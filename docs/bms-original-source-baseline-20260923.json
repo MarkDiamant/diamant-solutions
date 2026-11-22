@@ -1,0 +1,21 @@
+{
+  "source": "MarkDiamant/mjmetal",
+  "sourcePath": "components/admin",
+  "captured": "2026-09-23",
+  "note": "Pinned, reviewed canonical BMS component source baselines; M&J default workflows, no production customer data copied.",
+  "components": {
+    "AdminBrandBar": "91c8ac0b1312c0faa97fb387f755b69d6aba6b81",
+    "CrmDashboardV3": "6c01398aa0c2e99f973d4ab9fd2e1653b9625901",
+    "CrmDashboardV4": "0686a852fdc9680e96eff78bdd3e7f3cb54e4801",
+    "CrmDashboardV5": "11dc8baa50b76ef9b58df7c5a1db7669cd50898f",
+    "JobDetail": "11b006ec567a2ea5a86ab0cb491fc02fa17f8d9a",
+    "JobWorkflowPanel": "c5a93a0851d50da504e8f3d1eac7019129b4c526",
+    "NewJobForm": "aa064fe6fdafb9a9c112454e259d0eb8bfb45b94",
+    "NewJobFormV2": "129c1fd3a5fc9c9c566c19de29311fadfb742862",
+    "QuotePdfActions": "ee128efeece17c83dd9c10aba3eb2e5ae02c6378",
+    "QuotePrint": "6ae1d8e2a54ca5db231a400449c5b7c762d42fc5",
+    "SetupRequired": "08d9ac9ff1d5402364d5ad2e5fc8157ad5dfeae5",
+    "XeroInvoicePage": "b56f8ad0a1cc4872dd9aba4c67c9b387dfc73806"
+  },
+  "lastReviewed": "2026-10-20"
+}

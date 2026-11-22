@@ -106,7 +106,7 @@ test('public website catalogue is tenant filtered and CORS is origin restricted'
  const catalogue=fs.readFileSync('app/api/business-software/catalogue/route.ts','utf8');
  assert.match(catalogue,/show_on_website=eq\.true/);
  assert.match(catalogue,/tenant_id=eq\./);
- assert.match(catalogue,/allowed\.hostname\.toLowerCase\(\)===actual\.hostname\.toLowerCase\(\)/);
+ assert.match(catalogue,/allowed\.protocol==="https:"&&actual\.protocol==="https:"&&allowed\.origin===actual\.origin/);
  assert.match(catalogue,/Access-Control-Allow-Origin/);
 });
 
