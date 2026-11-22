@@ -1,4 +1,5 @@
 "use client";
+import {customerDisplayName} from "@/lib/business-software/customer-display-name";
 import {invoiceEmailBody} from "../../lib/invoice-email";
 import {BmsInput,BmsTextarea} from "./BmsUI";
 import { friendlyError } from "../../lib/friendly-error";
@@ -235,7 +236,7 @@ export default function XeroInvoicePage({ reference }: { reference: string }) {
   const latestQuote=[...(jobData?.quotes||[])].sort((a:any,b:any)=>Number(b.version||0)-Number(a.version||0))[0];
   const amount = Number(job.agreed_amount || latestQuote?.amount || job.quoted_amount || 0);
   const invoiceDescription=job.job_title||job.job_type||"Services";
-  const name = String(customer.last_name||customer.first_name||"Customer").trim();
+  const name = customerDisplayName(customer);
   const invoiceTemplate=crmConfig.invoiceTemplate;
   const invoiceClass=invoiceTemplate==="classic"?"font-serif":"";
   const invoiceAccent=crmConfig.accentColour||"#e66a24";
