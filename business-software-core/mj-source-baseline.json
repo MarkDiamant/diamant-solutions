@@ -5,7 +5,7 @@
   "note": "Canonical shared-core source integrity anchor. Explicit provenance re-anchor only, not complete functional, security or hosted acceptance. Original capture preserved in docs/bms-original-source-baseline-20260923.json; scope and debts in docs/bms-source-baseline-review-20261122.json.",
   "components": {
     "AdminBrandBar": "1bbeae3191dfbf1848bffeeb906b66bf4f8be0fd",
-    "CrmDashboardV3": "722461a2015efbaed437b5e541c55146a86dd995",
+    "CrmDashboardV3": "b8728dee485a37fa51fefe98d26e5b9c7bd19d2b",
     "CrmDashboardV4": "1b1c72480608fb1c85146d4541dc9b2a09aa6c41",
     "CrmDashboardV5": "dc0058eb96f850ba9173cee1390d97ce7519fa4d",
     "JobDetail": "943a7c55aaaf0e3469838fb726f48453d22a15c7",
