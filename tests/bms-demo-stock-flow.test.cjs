@@ -4,7 +4,7 @@ const original=Module._load,store=new Map();
 Module._load=function(name,...args){
  if(name==="next/server")return {NextResponse:{json:(body,opts={})=>({body,status:opts.status||200,cookies:{set:()=>{}}})}};
  if(name==="@/lib/business-software/demo-catalog")return {demoPriceBookFor:()=>({items:[{id:"oak-lvt",name:"Oak LVT click",cost_net:12.5,unit:"each"}]})};
- if(name==="@/lib/business-software/db")return {centralRest:async(url,opts={})=>{if(opts.method==="POST"){const body=JSON.parse(opts.body);store.set(body.session_id+":"+body.sample,structuredClone(body.payload));return {ok:true}}const id=new URL("https://fake.invalid/"+url).searchParams.get("session_id")?.slice(3),sample=new URL("https://fake.invalid/"+url).searchParams.get("sample")?.slice(3);const payload=store.get(id+":"+sample);return {ok:true,json:async()=>payload?[{payload:structuredClone(payload)}]:[]}}};
+ if(name==="@/lib/business-software/demo-stock-db")return {demoStockRest:async(url,opts={})=>{if(opts.method==="POST"){const body=JSON.parse(opts.body);store.set(body.session_id+":"+body.sample,structuredClone(body.payload));return {ok:true}}const id=new URL("https://fake.invalid/"+url).searchParams.get("session_id")?.slice(3),sample=new URL("https://fake.invalid/"+url).searchParams.get("sample")?.slice(3);const payload=store.get(id+":"+sample);return {ok:true,json:async()=>payload?[{payload:structuredClone(payload)}]:[]}}};
  return original.call(this,name,...args)
 };const mod=new Module(file,module);mod.filename=file;mod.paths=module.paths;mod._compile(js,file);Module._load=original;
 const session="11111111-1111-4111-8111-111111111111";
