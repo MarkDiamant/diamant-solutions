@@ -6,6 +6,8 @@ export default function BmsRuntimeGuard(){
   const parts=window.location.pathname.split("/").filter(Boolean),requested=new URLSearchParams(window.location.search).get("sample"),sample=KEYS.includes(parts[0])?parts[0]:requested&&KEYS.includes(requested)?requested:"northstar";
   const api=(path:string)=>{const u=new URL(path,window.location.origin);if(u.origin!==window.location.origin)return path;const p=u.pathname;
    if(p.startsWith("/api/admin/"))u.pathname="/api/bms-demo/"+p.slice("/api/admin/".length);
+   else if(p==="/api/bms-materials")u.pathname="/api/bms-demo/materials";
+   else if(p==="/api/bms-live/jobs")u.pathname="/api/bms-demo/jobs";
    else if(p==="/api/jobs"||p.startsWith("/api/jobs/"))u.pathname="/api/bms-demo/jobs"+p.slice("/api/jobs".length);
    else if(p.startsWith("/api/integrations/"))u.pathname="/api/bms-demo/integrations/"+p.slice("/api/integrations/".length);
    else if(p==="/api/business-software/prospects"||p.startsWith("/api/business-software/prospects/"))u.pathname="/api/bms-demo/prospects";
