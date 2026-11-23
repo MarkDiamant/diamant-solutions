@@ -1,0 +1,2 @@
+// Local-only process readiness, never a hosted deployment-identity check.
+(async()=>{for(let i=0;i<60;i++){try{const r=await fetch('http://localhost:3000/software',{redirect:'manual',signal:AbortSignal.timeout(2000)});await r.body?.cancel();if(r.status===200)return}catch{}await new Promise(r=>setTimeout(r,500))}throw Error('Local Next server not ready')})().catch(e=>{console.error(e.message);process.exitCode=1});

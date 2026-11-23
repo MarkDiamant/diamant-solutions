@@ -1,0 +1,26 @@
+{
+  "base": "47f4f8fcddc645efde13ce415e7d14ad5ebac38a",
+  "status": "unpublished review candidate, not hosted acceptance",
+  "component": "CrmDashboardV3",
+  "previous_pin": "722461a2015efbaed437b5e541c55146a86dd995",
+  "candidate_pin": "b8728dee485a37fa51fefe98d26e5b9c7bd19d2b",
+  "scope": [
+    "ignore pre-save jobs reads",
+    "apply only server verified manager to displayed card",
+    "preserve full post-save dashboard refresh",
+    "ignore superseded redirect and supplementary settings/activity/ledger responses",
+    "unverified HTTP200 keeps editor open and reports verification gap, never saved success",
+    "render existing flash status state; old component never rendered it",
+    "normal-flow visible flash avoids mobile control occlusion"
+  ],
+  "not_changed": [
+    "server authorization/persistence verification",
+    "accounting writes",
+    "session enforcement",
+    "performance payload candidate"
+  ],
+  "limits": [
+    "synthetic fixture browser tests do not establish real-provider persistence",
+    "tenant-specific black-label cause remains unreproduced"
+  ]
+}

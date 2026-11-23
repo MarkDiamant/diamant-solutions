@@ -1,4 +1,18 @@
-const {test,expect}=require("@playwright/test");
+const {test:baseTest,expect}=require("@playwright/test");
+const {Admission}=require('./bms-release-admission.cjs');
+const base=process.env.BMS_E2E_BASE_URL||'http://localhost:3000';
+const origins=[new URL(base).origin];
+const {reserve}=require('./bms-release-ledger.cjs');
+if(!process.env.BMS_RUN_LEDGER||!process.env.BMS_RUN_ID)throw Error('Durable release ledger/run ID required');
+baseTest.beforeAll(()=>reserve(process.env.BMS_RUN_LEDGER,process.env.BMS_RUN_ID,'browser'));
+const admission=new Admission({origins,budgetPath:process.env.BMS_ADMISSION_REPORT});
+baseTest.describe.configure({mode:'serial'});
+baseTest.use({serviceWorkers:'block'});
+const test=baseTest.extend({context:async({context},use)=>{
+ const settle=await require('./bms-release-transport.cjs').attach(context,admission);
+ try{await use(context)}finally{await settle()}
+}});
+
 
 // Run against a reachable deployment: BMS_E2E_BASE_URL=https://diamantsolutions.co.uk npx playwright test tests/embedded-bms-navigation.spec.cjs
 test("embedded fictional navigation displays actual links and switches tenant",async({page})=>{
