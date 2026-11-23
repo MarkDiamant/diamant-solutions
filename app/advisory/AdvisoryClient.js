@@ -1,4 +1,5 @@
 'use client';
+import '../marketing-nav.css';
 import {useEffect} from 'react';
 
 const BOOK_URLS={
@@ -32,8 +33,8 @@ export default function AdvisoryClient(){
   return <main className="advisoryPage">
     <header className="advisoryHeader">
       <a className="headerBrand" href="/"><Logo/></a>
-      <nav><a href="/">HOME</a><a href="#support">HOW I CAN HELP</a><a href="#book">PRICING</a><a href="/websites">WEBSITES</a><a href="/software">BUSINESS SOFTWARE</a><a href="#contact">CONTACT</a></nav>
-      <details className="mobileMenu"><summary aria-label="Open menu"><span/></summary><div><a href="/">HOME</a><a href="#support">HOW I CAN HELP</a><a href="#book">PRICING</a><a href="/websites">WEBSITES</a><a href="/software">BUSINESS SOFTWARE</a><a href="#contact">CONTACT</a></div></details>
+      <nav><a href="/">HOME</a><a href="#support">HOW I CAN HELP</a><a href="#book">PRICING</a><a href="/websites">WEBSITES</a><a href="/software">BUSINESS SOFTWARE</a><a href="/charity">CHARITY SOFTWARE</a><a href="#contact">CONTACT</a></nav>
+      <details className="mobileMenu"><summary aria-label="Open menu"><span/></summary><div><a href="/">HOME</a><a href="#support">HOW I CAN HELP</a><a href="#book">PRICING</a><a href="/websites">WEBSITES</a><a href="/software">BUSINESS SOFTWARE</a><a href="/charity">CHARITY SOFTWARE</a><a href="#contact">CONTACT</a></div></details>
     </header>
 
     <section className="advisoryHero">
